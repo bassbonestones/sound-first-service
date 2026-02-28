@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Boolean, BigInteger
 from sqlalchemy.orm import relationship
 from . import Base
 
@@ -12,6 +12,16 @@ class User(Base):
     comfortable_capabilities = Column(String, nullable=True)  # Comma-separated or JSON
     range_low = Column(String, nullable=True)  # e.g., "E3" for low comfortable note
     range_high = Column(String, nullable=True)  # e.g., "C6" for high comfortable note
+    
+    # Bitmask columns for fast capability eligibility checks (8 x 64-bit = 512 capabilities max)
+    cap_mask_0 = Column(BigInteger, default=0)  # capabilities 0-63
+    cap_mask_1 = Column(BigInteger, default=0)  # capabilities 64-127
+    cap_mask_2 = Column(BigInteger, default=0)  # capabilities 128-191
+    cap_mask_3 = Column(BigInteger, default=0)  # capabilities 192-255
+    cap_mask_4 = Column(BigInteger, default=0)  # capabilities 256-319
+    cap_mask_5 = Column(BigInteger, default=0)  # capabilities 320-383
+    cap_mask_6 = Column(BigInteger, default=0)  # capabilities 384-447
+    cap_mask_7 = Column(BigInteger, default=0)  # capabilities 448-511
 
 class Capability(Base):
     """Musical literacy element with optional teaching content."""
@@ -63,13 +73,23 @@ class Material(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     allowed_keys = Column(String)  # Comma-separated or JSON
-    required_capability_ids = Column(String)  # Comma-separated or JSON
+    required_capability_ids = Column(String)  # Comma-separated or JSON (legacy, use material_capabilities)
     scaffolding_capability_ids = Column(String)  # Comma-separated or JSON
     musicxml_canonical = Column(String)  # TEXT
     original_key_center = Column(String, nullable=True)
     pitch_reference_type = Column(String)  # ENUM: TONAL | ANCHOR_INTERVAL | PITCH_CLASS
     pitch_ref_json = Column(String)  # JSONB as string
     spelling_policy = Column(String, default="from_key")
+    
+    # Bitmask columns for fast capability eligibility checks
+    req_cap_mask_0 = Column(BigInteger, default=0)  # required capabilities 0-63
+    req_cap_mask_1 = Column(BigInteger, default=0)  # required capabilities 64-127
+    req_cap_mask_2 = Column(BigInteger, default=0)  # required capabilities 128-191
+    req_cap_mask_3 = Column(BigInteger, default=0)  # required capabilities 192-255
+    req_cap_mask_4 = Column(BigInteger, default=0)  # required capabilities 256-319
+    req_cap_mask_5 = Column(BigInteger, default=0)  # required capabilities 320-383
+    req_cap_mask_6 = Column(BigInteger, default=0)  # required capabilities 384-447
+    req_cap_mask_7 = Column(BigInteger, default=0)  # required capabilities 448-511
 
 class FocusCard(Base):
     __tablename__ = 'focus_cards'
@@ -87,6 +107,7 @@ class PracticeSession(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     started_at = Column(DateTime)
     ended_at = Column(DateTime)
+    practice_mode = Column(String, default="guided")  # "guided" or "self_directed"
 
 class MiniSession(Base):
     __tablename__ = 'mini_sessions'

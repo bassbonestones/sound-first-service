@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.env
+
+# Database
+*.db
+*.sqlite3
+
+# Soundfonts (too large for GitHub, download separately)
+soundfonts/*.sf2
+
+# IDE
+.vscode/
+.idea/
+
+# Test artifacts
+test_audio.py
+*.wav
+*.mid

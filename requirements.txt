@@ -5,3 +5,5 @@ asyncpg
 psycopg2-binary
 python-dotenv
 supabase
+music21
+midi2audio

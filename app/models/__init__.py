@@ -3,3 +3,4 @@ Base = declarative_base()
 target_metadata = Base.metadata
 
 from .core import *
+from .capability_schema import *

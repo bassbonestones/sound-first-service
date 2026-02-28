@@ -63,7 +63,9 @@ class OnboardingIn(BaseModel):
     user_id: int = 1
     instrument: str
     resonant_note: str
-    comfortable_capabilities: List[str]
+    range_low: Optional[str] = None  # e.g., "E3" - comfortable low note
+    range_high: Optional[str] = None  # e.g., "C6" - comfortable high note
+    comfortable_capabilities: List[str] = []
 
 class SelfDirectedSessionIn(BaseModel):
     user_id: int = 1
@@ -129,6 +131,8 @@ def get_onboarding(user_id: int, db: Session = Depends(get_db)):
         "user_id": user.id,
         "instrument": user.instrument,
         "resonant_note": user.resonant_note,
+        "range_low": user.range_low,
+        "range_high": user.range_high,
         "comfortable_capabilities": user.comfortable_capabilities.split(",") if user.comfortable_capabilities else []
     }
 
@@ -141,7 +145,9 @@ def save_onboarding(data: OnboardingIn = Body(...), db: Session = Depends(get_db
         db.add(user)
     user.instrument = data.instrument
     user.resonant_note = data.resonant_note
-    user.comfortable_capabilities = ",".join(data.comfortable_capabilities)
+    user.range_low = data.range_low
+    user.range_high = data.range_high
+    user.comfortable_capabilities = ",".join(data.comfortable_capabilities) if data.comfortable_capabilities else ""
     db.commit()
     return {"status": "success", "user_id": user.id}
 
@@ -512,6 +518,8 @@ def get_practice_attempts(user_id: int = Query(...), db: Session = Depends(get_d
 @app.get("/history/summary")
 def get_history_summary(user_id: int = Query(...), db: Session = Depends(get_db)):
     """Get practice history summary with spaced repetition stats."""
+    from app.curriculum import JourneyMetrics, estimate_journey_stage
+    
     # Get all attempts
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
     materials = db.query(Material).all()
@@ -527,12 +535,28 @@ def get_history_summary(user_id: int = Query(...), db: Session = Depends(get_db)
             "fatigue": a.fatigue,
         })
     
-    # Build SR items
+    # Build SR items and mastery counts
     sr_items = []
+    mastered_count = 0
+    familiar_count = 0
+    stabilizing_count = 0
+    learning_count = 0
+    
     for m in materials:
         mat_attempts = attempt_history.get(m.id, [])
         sr_item = build_sr_item_from_db(m.id, mat_attempts)
         sr_items.append(sr_item)
+        
+        if mat_attempts:
+            mastery = estimate_mastery_level(sr_item)
+            if mastery == "mastered":
+                mastered_count += 1
+            elif mastery == "familiar":
+                familiar_count += 1
+            elif mastery == "stabilizing":
+                stabilizing_count += 1
+            elif mastery in ("learning", "new"):
+                learning_count += 1
     
     # Get review stats
     stats = get_review_stats(sr_items)
@@ -551,12 +575,55 @@ def get_history_summary(user_id: int = Query(...), db: Session = Depends(get_db)
             current_streak += 1
             check_date -= datetime.timedelta(days=1)
     
+    # Calculate days since first session
+    days_since_first = 0
+    if sessions:
+        first_session = min(s.started_at for s in sessions if s.started_at)
+        if first_session:
+            days_since_first = (datetime.datetime.now() - first_session).days
+    
     # Total practice time (estimate based on sessions)
     total_sessions = len(sessions)
     total_attempts = len(attempts)
     
     # Average rating
-    avg_rating = sum(a.rating for a in attempts) / len(attempts) if attempts else 0
+    ratings = [a.rating for a in attempts if a.rating is not None]
+    avg_rating = sum(ratings) / len(ratings) if ratings else 0
+    
+    # Count unique keys practiced
+    unique_keys = set()
+    mini_sessions = db.query(MiniSession).join(PracticeSession).filter(
+        PracticeSession.user_id == user_id
+    ).all()
+    for ms in mini_sessions:
+        if ms.key:
+            unique_keys.add(ms.key)
+    
+    # Count capabilities introduced
+    from app.models.core import UserCapabilityProgress
+    cap_progress = db.query(UserCapabilityProgress).filter_by(user_id=user_id).count()
+    
+    # Count self-directed sessions
+    self_directed_count = len([s for s in sessions if s.practice_mode == "self_directed"])
+    
+    # Build journey metrics
+    metrics = JourneyMetrics(
+        total_sessions=total_sessions,
+        total_attempts=total_attempts,
+        days_since_first_session=days_since_first,
+        average_rating=avg_rating,
+        mastered_count=mastered_count,
+        familiar_count=familiar_count,
+        stabilizing_count=stabilizing_count,
+        learning_count=learning_count,
+        unique_keys_practiced=len(unique_keys),
+        capabilities_introduced=cap_progress,
+        self_directed_sessions=self_directed_count,
+        current_streak_days=current_streak,
+    )
+    
+    # Estimate journey stage
+    stage_num, stage_name, factors = estimate_journey_stage(metrics)
     
     return {
         "total_sessions": total_sessions,
@@ -564,6 +631,10 @@ def get_history_summary(user_id: int = Query(...), db: Session = Depends(get_db)
         "current_streak_days": current_streak,
         "average_rating": round(avg_rating, 2),
         "spaced_repetition": stats,
+        "journey_stage": {
+            "stage": stage_num,
+            "stage_name": stage_name,
+        },
     }
 
 
@@ -744,6 +815,147 @@ def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db:
     return result
 
 
+@app.get("/history/analytics")
+def get_session_analytics(user_id: int = Query(...), db: Session = Depends(get_db)):
+    """
+    Comprehensive session history analytics with capability progress and time spent.
+    
+    Returns aggregate stats on:
+    - Practice time (total minutes, average session duration)
+    - Capability progress (introduced, quiz pass rate, by domain)
+    - Quality metrics (rating trends, fatigue trends, strain occurrences)
+    - Completion stats (mini-session completion rate)
+    """
+    from sqlalchemy import func
+    
+    # --- Time Stats ---
+    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
+    
+    total_minutes = 0
+    session_durations = []
+    for s in sessions:
+        if s.started_at and s.ended_at:
+            duration = (s.ended_at - s.started_at).total_seconds() / 60
+            if 0 < duration < 180:  # Cap at 3 hours to filter outliers
+                total_minutes += duration
+                session_durations.append(duration)
+    
+    avg_session_minutes = sum(session_durations) / len(session_durations) if session_durations else 0
+    
+    # --- Capability Progress ---
+    cap_progress = db.query(UserCapabilityProgress).filter_by(user_id=user_id).all()
+    capabilities = db.query(Capability).all()
+    cap_map = {c.id: c for c in capabilities}
+    
+    capabilities_introduced = len(cap_progress)
+    quizzes_passed = sum(1 for cp in cap_progress if cp.quiz_passed)
+    quiz_pass_rate = (quizzes_passed / capabilities_introduced * 100) if capabilities_introduced else 0
+    
+    # Group by domain
+    domain_stats = {}
+    for cp in cap_progress:
+        cap = cap_map.get(cp.capability_id)
+        if cap:
+            domain = cap.domain or "other"
+            if domain not in domain_stats:
+                domain_stats[domain] = {"introduced": 0, "passed": 0, "refreshed": 0}
+            domain_stats[domain]["introduced"] += 1
+            if cp.quiz_passed:
+                domain_stats[domain]["passed"] += 1
+            domain_stats[domain]["refreshed"] += cp.times_refreshed or 0
+    
+    # --- Quality Metrics ---
+    attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).order_by(
+        PracticeAttempt.timestamp
+    ).all()
+    
+    ratings = [a.rating for a in attempts if a.rating is not None]
+    fatigues = [a.fatigue for a in attempts if a.fatigue is not None]
+    
+    # Recent vs overall rating trend
+    overall_avg_rating = sum(ratings) / len(ratings) if ratings else 0
+    recent_ratings = ratings[-10:] if len(ratings) >= 10 else ratings
+    recent_avg_rating = sum(recent_ratings) / len(recent_ratings) if recent_ratings else 0
+    
+    # Fatigue trend
+    overall_avg_fatigue = sum(fatigues) / len(fatigues) if fatigues else 0
+    recent_fatigues = fatigues[-10:] if len(fatigues) >= 10 else fatigues
+    recent_avg_fatigue = sum(recent_fatigues) / len(recent_fatigues) if recent_fatigues else 0
+    
+    # Strain occurrences
+    mini_sessions = db.query(MiniSession).join(PracticeSession).filter(
+        PracticeSession.user_id == user_id
+    ).all()
+    total_mini_sessions = len(mini_sessions)
+    strain_count = sum(1 for ms in mini_sessions if ms.strain_detected)
+    strain_rate = (strain_count / total_mini_sessions * 100) if total_mini_sessions else 0
+    
+    # --- Completion Stats ---
+    completed_mini_sessions = sum(1 for ms in mini_sessions if ms.is_completed)
+    completion_rate = (completed_mini_sessions / total_mini_sessions * 100) if total_mini_sessions else 0
+    
+    # --- Practice by Day of Week ---
+    day_of_week_stats = {i: {"count": 0, "minutes": 0} for i in range(7)}  # 0=Mon, 6=Sun
+    for s in sessions:
+        if s.started_at:
+            dow = s.started_at.weekday()
+            day_of_week_stats[dow]["count"] += 1
+            if s.ended_at:
+                duration = (s.ended_at - s.started_at).total_seconds() / 60
+                if 0 < duration < 180:
+                    day_of_week_stats[dow]["minutes"] += duration
+    
+    day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    practice_by_day = [
+        {"day": day_names[i], "sessions": day_of_week_stats[i]["count"], 
+         "minutes": round(day_of_week_stats[i]["minutes"], 1)}
+        for i in range(7)
+    ]
+    
+    # --- Rating Distribution ---
+    rating_distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    for r in ratings:
+        if r in rating_distribution:
+            rating_distribution[r] += 1
+    
+    return {
+        "time_stats": {
+            "total_minutes": round(total_minutes, 1),
+            "total_sessions": len(sessions),
+            "avg_session_minutes": round(avg_session_minutes, 1),
+            "total_mini_sessions": total_mini_sessions,
+        },
+        "capability_progress": {
+            "total_introduced": capabilities_introduced,
+            "total_available": len(capabilities),
+            "quizzes_passed": quizzes_passed,
+            "quiz_pass_rate": round(quiz_pass_rate, 1),
+            "by_domain": domain_stats,
+        },
+        "quality_metrics": {
+            "overall_avg_rating": round(overall_avg_rating, 2),
+            "recent_avg_rating": round(recent_avg_rating, 2),
+            "rating_trend": "improving" if recent_avg_rating > overall_avg_rating + 0.1 else (
+                "declining" if recent_avg_rating < overall_avg_rating - 0.1 else "stable"
+            ),
+            "overall_avg_fatigue": round(overall_avg_fatigue, 2),
+            "recent_avg_fatigue": round(recent_avg_fatigue, 2),
+            "fatigue_trend": "increasing" if recent_avg_fatigue > overall_avg_fatigue + 0.2 else (
+                "decreasing" if recent_avg_fatigue < overall_avg_fatigue - 0.2 else "stable"
+            ),
+            "strain_count": strain_count,
+            "strain_rate": round(strain_rate, 1),
+            "rating_distribution": rating_distribution,
+        },
+        "completion_stats": {
+            "completed_mini_sessions": completed_mini_sessions,
+            "total_mini_sessions": total_mini_sessions,
+            "completion_rate": round(completion_rate, 1),
+        },
+        "practice_by_day": practice_by_day,
+    }
+
+
 # --- Materials ---
 @app.get("/materials")
 def get_materials(db: Session = Depends(get_db)):
@@ -758,6 +970,135 @@ def get_materials(db: Session = Depends(get_db)):
         }
         for m in materials
     ]
+
+
+# --- Audio Generation ---
+@app.get("/audio/material/{material_id}")
+def get_material_audio(
+    material_id: int,
+    key: str = Query(..., description="Target key for transposition (e.g., 'Bb major')"),
+    instrument: str = Query(default="piano", description="Instrument for soundfont"),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate audio for a material transposed to the specified key.
+    
+    Uses music21 to transpose MusicXML and FluidSynth to render audio.
+    Returns WAV audio if soundfont available, otherwise MIDI.
+    
+    Error responses include structured error info with codes:
+    - music21_not_installed: Audio library missing
+    - soundfont_not_found: No .sf2 file available (returns MIDI)
+    - invalid_musicxml: Bad notation content
+    - midi_conversion_failed: MusicXML parsing failed
+    - audio_render_failed: FluidSynth error (returns MIDI)
+    """
+    from fastapi.responses import Response, JSONResponse
+    from app.audio import (
+        generate_audio_with_result, 
+        MUSIC21_AVAILABLE, 
+        FLUIDSYNTH_AVAILABLE,
+        AudioErrorCode
+    )
+    
+    # Get material
+    material = db.query(Material).filter_by(id=material_id).first()
+    if not material:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": True,
+                "code": "material_not_found",
+                "message": f"Material {material_id} not found",
+                "detail": None
+            }
+        )
+    
+    # Check for MusicXML content
+    if not material.musicxml_canonical:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": True,
+                "code": "no_musicxml",
+                "message": "Material has no notation content",
+                "detail": f"Material '{material.title}' does not have MusicXML data"
+            }
+        )
+    
+    # Generate audio
+    result = generate_audio_with_result(
+        musicxml_content=material.musicxml_canonical,
+        original_key=material.original_key_center or "C major",
+        target_key=key,
+        instrument=instrument,
+        material_id=material_id,
+    )
+    
+    # Handle complete failure
+    if not result.success and result.data is None:
+        error = result.error
+        # Map error codes to HTTP status codes
+        status_map = {
+            AudioErrorCode.MUSIC21_NOT_INSTALLED: 503,
+            AudioErrorCode.INVALID_MUSICXML: 400,
+            AudioErrorCode.MIDI_CONVERSION_FAILED: 422,
+        }
+        status_code = status_map.get(error.code, 500) if error else 500
+        
+        return JSONResponse(
+            status_code=status_code,
+            content=error.to_dict() if error else {"error": True, "message": "Unknown error"}
+        )
+    
+    # Determine filename
+    safe_title = material.title.replace(" ", "_").replace("/", "-")[:30]
+    safe_key = key.replace(" ", "_")
+    
+    if result.content_type == "audio/wav":
+        filename = f"{safe_title}_{safe_key}.wav"
+    else:
+        filename = f"{safe_title}_{safe_key}.mid"
+    
+    # Add warning header if returning fallback MIDI
+    headers = {
+        "Content-Disposition": f'inline; filename="{filename}"',
+        "Cache-Control": "no-cache",
+    }
+    if result.is_fallback and result.error:
+        headers["X-Audio-Warning"] = result.error.message
+        headers["X-Audio-Fallback"] = "true"
+    
+    return Response(
+        content=result.data,
+        media_type=result.content_type,
+        headers=headers
+    )
+
+
+@app.get("/audio/status")
+def get_audio_status():
+    """Check audio generation capability."""
+    from app.audio import (
+        MUSIC21_AVAILABLE, 
+        FLUIDSYNTH_AVAILABLE, 
+        get_soundfont_path,
+        get_cache_stats
+    )
+    from app.config import USE_DIRECT_FLUIDSYNTH
+    
+    soundfont = get_soundfont_path()
+    
+    return {
+        "music21_available": MUSIC21_AVAILABLE,
+        "fluidsynth_available": FLUIDSYNTH_AVAILABLE,
+        "use_direct_fluidsynth": USE_DIRECT_FLUIDSYNTH,
+        "soundfont_found": soundfont is not None,
+        "soundfont_path": str(soundfont) if soundfont else None,
+        "can_render_audio": MUSIC21_AVAILABLE and FLUIDSYNTH_AVAILABLE and soundfont is not None,
+        "can_render_midi": MUSIC21_AVAILABLE,
+        "cache": get_cache_stats(),
+    }
 
 
 # --- Focus Cards ---
@@ -798,6 +1139,127 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         "name": user.name,
         "instrument": user.instrument,
         "resonant_note": user.resonant_note
+    }
+
+
+@app.get("/users/{user_id}/journey-stage")
+def get_user_journey_stage(user_id: int, db: Session = Depends(get_db)):
+    """
+    Estimate user's journey stage based on practice history.
+    
+    INTERNAL USE: Per spec, users are never told their stage.
+    This is for adaptive system behavior only.
+    
+    Returns stage 1-6 with name and contributing factors.
+    """
+    from app.curriculum import JourneyMetrics, estimate_journey_stage
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Gather metrics
+    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
+    attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
+    
+    # Calculate days since first session
+    days_since_first = 0
+    if sessions:
+        first_session = min(s.started_at for s in sessions if s.started_at)
+        if first_session:
+            days_since_first = (datetime.datetime.now() - first_session).days
+    
+    # Calculate average rating (excluding nulls)
+    ratings = [a.rating for a in attempts if a.rating is not None]
+    avg_rating = sum(ratings) / len(ratings) if ratings else 0.0
+    
+    # Calculate average fatigue
+    fatigues = [a.fatigue for a in attempts if a.fatigue is not None]
+    avg_fatigue = sum(fatigues) / len(fatigues) if fatigues else 3.0
+    
+    # Build SR items for mastery counts
+    materials = db.query(Material).all()
+    attempt_history = {}
+    for a in attempts:
+        if a.material_id not in attempt_history:
+            attempt_history[a.material_id] = []
+        attempt_history[a.material_id].append({
+            "rating": a.rating,
+            "timestamp": a.timestamp.isoformat() if a.timestamp else None,
+        })
+    
+    mastered_count = 0
+    familiar_count = 0
+    stabilizing_count = 0
+    learning_count = 0
+    
+    for m in materials:
+        mat_attempts = attempt_history.get(m.id, [])
+        if not mat_attempts:
+            continue
+        sr_item = build_sr_item_from_db(m.id, mat_attempts)
+        mastery = estimate_mastery_level(sr_item)
+        if mastery == "mastered":
+            mastered_count += 1
+        elif mastery == "familiar":
+            familiar_count += 1
+        elif mastery == "stabilizing":
+            stabilizing_count += 1
+        elif mastery in ("learning", "new"):
+            learning_count += 1
+    
+    # Count unique keys practiced
+    unique_keys = set()
+    mini_sessions = db.query(MiniSession).join(PracticeSession).filter(
+        PracticeSession.user_id == user_id
+    ).all()
+    for ms in mini_sessions:
+        if ms.key:
+            unique_keys.add(ms.key)
+    
+    # Count capabilities introduced
+    from app.models.core import UserCapabilityProgress
+    cap_progress = db.query(UserCapabilityProgress).filter_by(user_id=user_id).count()
+    
+    # Count self-directed sessions
+    self_directed_count = len([s for s in sessions if s.practice_mode == "self_directed"])
+    
+    # Build metrics
+    metrics = JourneyMetrics(
+        total_sessions=len(sessions),
+        total_attempts=len(attempts),
+        days_since_first_session=days_since_first,
+        average_rating=avg_rating,
+        average_fatigue=avg_fatigue,
+        mastered_count=mastered_count,
+        familiar_count=familiar_count,
+        stabilizing_count=stabilizing_count,
+        learning_count=learning_count,
+        unique_keys_practiced=len(unique_keys),
+        capabilities_introduced=cap_progress,
+        self_directed_sessions=self_directed_count,
+    )
+    
+    # Estimate stage
+    stage_num, stage_name, factors = estimate_journey_stage(metrics)
+    
+    return {
+        "user_id": user_id,
+        "stage": stage_num,
+        "stage_name": stage_name,
+        "factors": factors,
+        "metrics": {
+            "total_sessions": metrics.total_sessions,
+            "total_attempts": metrics.total_attempts,
+            "days_active": metrics.days_since_first_session,
+            "average_rating": round(metrics.average_rating, 2),
+            "mastered_count": metrics.mastered_count,
+            "familiar_count": metrics.familiar_count,
+            "stabilizing_count": metrics.stabilizing_count,
+            "unique_keys": metrics.unique_keys_practiced,
+            "capabilities_introduced": metrics.capabilities_introduced,
+            "self_directed_sessions": metrics.self_directed_sessions,
+        }
     }
 
 
@@ -1008,6 +1470,30 @@ def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: Session =
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+
+# --- Client Logging ---
+class ClientLogIn(BaseModel):
+    event: str
+    data: dict
+    timestamp: Optional[str] = None
+
+@app.post("/log/client")
+def log_client_event(log: ClientLogIn = Body(...)):
+    """
+    Receive log events from client apps (web/mobile) for server-side logging.
+    Useful for tracking startup timing, errors, and performance metrics.
+    """
+    import logging
+    logger = logging.getLogger("client")
+    
+    ts = log.timestamp or datetime.datetime.now().isoformat()
+    logger.info(f"[CLIENT] {log.event} | {ts} | {json.dumps(log.data)}")
+    
+    # Also print to stdout for uvicorn visibility
+    print(f"[CLIENT LOG] {log.event} | {ts} | {json.dumps(log.data)}")
+    
+    return {"status": "logged"}
 
 
 # --- Session Config Endpoints ---
@@ -1282,4 +1768,449 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
         },
         "user_known_count": len(known_cap_names)
     }
+
+
+# =============================================================================
+# MATERIAL UPLOAD & ANALYSIS ENDPOINTS
+# =============================================================================
+
+class MaterialUpload(BaseModel):
+    """Input model for material upload."""
+    title: str
+    musicxml_content: str
+    original_key_center: Optional[str] = None
+    allowed_keys: Optional[List[str]] = None  # If not provided, will default to common keys
+
+class MaterialAnalysisResponse(BaseModel):
+    """Response model for material analysis."""
+    material_id: int
+    title: str
+    extracted_capabilities: List[str]
+    range_analysis: Optional[dict]
+    chromatic_complexity: float
+    measure_count: int
+    warnings: List[str] = []
+
+
+@app.post("/materials/upload", response_model=MaterialAnalysisResponse)
+def upload_material(
+    data: MaterialUpload = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Upload a new material from MusicXML content.
+    
+    This endpoint:
+    1. Parses the MusicXML using music21
+    2. Extracts all musical capabilities (clefs, rhythms, intervals, etc.)
+    3. Creates MaterialCapability records
+    4. Creates MaterialAnalysis with range/density info
+    5. Computes and stores bitmask for fast eligibility checking
+    """
+    from app.musicxml_analyzer import MusicXMLAnalyzer, analyze_musicxml, compute_capability_bitmask
+    from app.models.capability_schema import CapabilityV2, MaterialCapability, MaterialAnalysis
+    
+    warnings = []
+    
+    # Analyze the MusicXML
+    try:
+        analyzer = MusicXMLAnalyzer()
+        extraction_result = analyzer.analyze(data.musicxml_content)
+        capability_names = analyzer.get_capability_names(extraction_result)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to analyze MusicXML: {str(e)}")
+    
+    # Determine allowed keys
+    allowed_keys = data.allowed_keys
+    if not allowed_keys:
+        # Default to common keys based on original key
+        allowed_keys = ["C", "G", "F", "D", "Bb", "A", "Eb"]
+    
+    # Create the Material record
+    material = Material(
+        title=data.title or extraction_result.title or "Untitled",
+        musicxml_canonical=data.musicxml_content,
+        original_key_center=data.original_key_center,
+        allowed_keys=",".join(allowed_keys),
+        pitch_reference_type="TONAL",
+        spelling_policy="from_key",
+    )
+    db.add(material)
+    db.flush()  # Get the ID
+    
+    # Look up or create capabilities, then link to material
+    capability_ids_for_bitmask = []
+    
+    for cap_name in capability_names:
+        # Try to find existing capability
+        cap = db.query(CapabilityV2).filter_by(name=cap_name).first()
+        
+        if not cap:
+            # Capability doesn't exist - create a placeholder
+            # (In production, you'd want to seed all known capabilities first)
+            domain = cap_name.split("_")[0] if "_" in cap_name else "other"
+            
+            # Find next available bit_index
+            max_bit = db.query(db.func.max(CapabilityV2.bit_index)).scalar() or -1
+            new_bit_index = max_bit + 1
+            
+            if new_bit_index >= 512:
+                warnings.append(f"Capability '{cap_name}' exceeds bitmask capacity, created without bit_index")
+                new_bit_index = None
+            
+            cap = CapabilityV2(
+                name=cap_name,
+                display_name=cap_name.replace("_", " ").title(),
+                domain=domain,
+                bit_index=new_bit_index,
+            )
+            db.add(cap)
+            db.flush()
+        
+        # Create MaterialCapability link
+        mat_cap = MaterialCapability(
+            material_id=material.id,
+            capability_id=cap.id,
+            is_required=True,  # Default to required
+        )
+        db.add(mat_cap)
+        
+        if cap.bit_index is not None:
+            capability_ids_for_bitmask.append(cap.bit_index)
+    
+    # Compute and store bitmasks on the material
+    masks = compute_capability_bitmask(capability_ids_for_bitmask)
+    material.req_cap_mask_0 = masks[0]
+    material.req_cap_mask_1 = masks[1]
+    material.req_cap_mask_2 = masks[2]
+    material.req_cap_mask_3 = masks[3]
+    material.req_cap_mask_4 = masks[4]
+    material.req_cap_mask_5 = masks[5]
+    material.req_cap_mask_6 = masks[6]
+    material.req_cap_mask_7 = masks[7]
+    
+    # Create MaterialAnalysis record
+    range_data = extraction_result.range_analysis
+    analysis = MaterialAnalysis(
+        material_id=material.id,
+        lowest_pitch=range_data.lowest_pitch if range_data else None,
+        highest_pitch=range_data.highest_pitch if range_data else None,
+        range_semitones=range_data.range_semitones if range_data else None,
+        pitch_density_low=range_data.density_low if range_data else None,
+        pitch_density_mid=range_data.density_mid if range_data else None,
+        pitch_density_high=range_data.density_high if range_data else None,
+        trill_lowest=range_data.trill_lowest if range_data else None,
+        trill_highest=range_data.trill_highest if range_data else None,
+        chromatic_complexity=extraction_result.chromatic_complexity_score,
+        tempo_marking=list(extraction_result.tempo_markings)[0] if extraction_result.tempo_markings else None,
+        tempo_bpm=extraction_result.tempo_bpm,
+        measure_count=extraction_result.measure_count,
+        raw_extraction_json=json.dumps(extraction_result.to_dict()),
+    )
+    db.add(analysis)
+    
+    db.commit()
+    
+    return MaterialAnalysisResponse(
+        material_id=material.id,
+        title=material.title,
+        extracted_capabilities=capability_names,
+        range_analysis=range_data.__dict__ if range_data else None,
+        chromatic_complexity=extraction_result.chromatic_complexity_score,
+        measure_count=extraction_result.measure_count,
+        warnings=warnings,
+    )
+
+
+@app.get("/materials/{material_id}/analysis")
+def get_material_analysis(material_id: int, db: Session = Depends(get_db)):
+    """Get the analysis data for a material."""
+    from app.models.capability_schema import MaterialAnalysis, MaterialCapability, CapabilityV2
+    
+    material = db.query(Material).filter_by(id=material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    analysis = db.query(MaterialAnalysis).filter_by(material_id=material_id).first()
+    
+    # Get linked capabilities
+    mat_caps = db.query(MaterialCapability).filter_by(material_id=material_id).all()
+    cap_ids = [mc.capability_id for mc in mat_caps]
+    caps = db.query(CapabilityV2).filter(CapabilityV2.id.in_(cap_ids)).all() if cap_ids else []
+    
+    return {
+        "material_id": material_id,
+        "title": material.title,
+        "capabilities": [
+            {
+                "id": c.id,
+                "name": c.name,
+                "display_name": c.display_name,
+                "domain": c.domain,
+            }
+            for c in caps
+        ],
+        "analysis": {
+            "lowest_pitch": analysis.lowest_pitch if analysis else None,
+            "highest_pitch": analysis.highest_pitch if analysis else None,
+            "range_semitones": analysis.range_semitones if analysis else None,
+            "pitch_density": {
+                "low": analysis.pitch_density_low,
+                "mid": analysis.pitch_density_mid,
+                "high": analysis.pitch_density_high,
+            } if analysis else None,
+            "chromatic_complexity": analysis.chromatic_complexity if analysis else None,
+            "tempo_marking": analysis.tempo_marking if analysis else None,
+            "tempo_bpm": analysis.tempo_bpm if analysis else None,
+            "measure_count": analysis.measure_count if analysis else None,
+        } if analysis else None,
+    }
+
+
+@app.post("/materials/analyze")
+def analyze_material_preview(data: MaterialUpload = Body(...)):
+    """
+    Preview material analysis without saving to database.
+    
+    Useful for testing MusicXML before committing.
+    """
+    from app.musicxml_analyzer import MusicXMLAnalyzer
+    
+    try:
+        analyzer = MusicXMLAnalyzer()
+        result = analyzer.analyze(data.musicxml_content)
+        capabilities = analyzer.get_capability_names(result)
+        
+        return {
+            "title": result.title,
+            "capabilities": capabilities,
+            "capability_count": len(capabilities),
+            "range_analysis": result.range_analysis.__dict__ if result.range_analysis else None,
+            "chromatic_complexity": result.chromatic_complexity_score,
+            "measure_count": result.measure_count,
+            "detailed_extraction": result.to_dict(),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Analysis failed: {str(e)}")
+
+
+@app.get("/capabilities/v2")
+def list_capabilities_v2(
+    domain: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """List all capabilities in the v2 system, optionally filtered by domain."""
+    from app.models.capability_schema import CapabilityV2
+    
+    query = db.query(CapabilityV2)
+    if domain:
+        query = query.filter_by(domain=domain)
+    
+    caps = query.order_by(CapabilityV2.sequence_order, CapabilityV2.name).all()
+    
+    return [
+        {
+            "id": c.id,
+            "name": c.name,
+            "display_name": c.display_name,
+            "domain": c.domain,
+            "subdomain": c.subdomain,
+            "requirement_type": c.requirement_type,
+            "bit_index": c.bit_index,
+            "difficulty_tier": c.difficulty_tier,
+            "sequence_order": c.sequence_order,
+        }
+        for c in caps
+    ]
+
+
+@app.get("/capabilities/v2/domains")
+def list_capability_domains(db: Session = Depends(get_db)):
+    """List all capability domains with counts."""
+    from app.models.capability_schema import CapabilityV2
+    from sqlalchemy import func
+    
+    result = db.query(
+        CapabilityV2.domain,
+        func.count(CapabilityV2.id).label('count')
+    ).group_by(CapabilityV2.domain).all()
+    
+    return [{"domain": r[0], "count": r[1]} for r in result]
+
+
+@app.get("/users/{user_id}/eligible-materials")
+def get_eligible_materials(user_id: int, db: Session = Depends(get_db)):
+    """
+    Get materials the user is eligible for based on their capabilities.
+    
+    Uses bitmask for fast O(1) per-material eligibility check.
+    """
+    from app.models.capability_schema import MaterialAnalysis
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get user's capability masks
+    user_masks = [
+        user.cap_mask_0 or 0,
+        user.cap_mask_1 or 0,
+        user.cap_mask_2 or 0,
+        user.cap_mask_3 or 0,
+        user.cap_mask_4 or 0,
+        user.cap_mask_5 or 0,
+        user.cap_mask_6 or 0,
+        user.cap_mask_7 or 0,
+    ]
+    
+    # Query materials using bitmask check
+    # User has all required caps if: (material_mask & ~user_mask) == 0 for all masks
+    materials = db.query(Material).filter(
+        ((Material.req_cap_mask_0 or 0).op('&')(~user_masks[0])) == 0,
+        ((Material.req_cap_mask_1 or 0).op('&')(~user_masks[1])) == 0,
+        ((Material.req_cap_mask_2 or 0).op('&')(~user_masks[2])) == 0,
+        ((Material.req_cap_mask_3 or 0).op('&')(~user_masks[3])) == 0,
+        ((Material.req_cap_mask_4 or 0).op('&')(~user_masks[4])) == 0,
+        ((Material.req_cap_mask_5 or 0).op('&')(~user_masks[5])) == 0,
+        ((Material.req_cap_mask_6 or 0).op('&')(~user_masks[6])) == 0,
+        ((Material.req_cap_mask_7 or 0).op('&')(~user_masks[7])) == 0,
+    ).all()
+    
+    # Get analysis data for eligible materials
+    material_ids = [m.id for m in materials]
+    analyses = db.query(MaterialAnalysis).filter(
+        MaterialAnalysis.material_id.in_(material_ids)
+    ).all() if material_ids else []
+    analysis_map = {a.material_id: a for a in analyses}
+    
+    return {
+        "user_id": user_id,
+        "eligible_count": len(materials),
+        "materials": [
+            {
+                "id": m.id,
+                "title": m.title,
+                "allowed_keys": m.allowed_keys.split(",") if m.allowed_keys else [],
+                "analysis": {
+                    "range": f"{analysis_map[m.id].lowest_pitch} - {analysis_map[m.id].highest_pitch}" 
+                        if m.id in analysis_map and analysis_map[m.id].lowest_pitch else None,
+                    "chromatic_complexity": analysis_map[m.id].chromatic_complexity if m.id in analysis_map else None,
+                    "measure_count": analysis_map[m.id].measure_count if m.id in analysis_map else None,
+                } if m.id in analysis_map else None,
+            }
+            for m in materials
+        ],
+    }
+
+
+@app.post("/users/{user_id}/capabilities/grant")
+def grant_capability(
+    user_id: int,
+    capability_id: int = Body(..., embed=True),
+    db: Session = Depends(get_db)
+):
+    """
+    Grant a capability to a user (mark as mastered).
+    
+    Updates both the normalized table and the user's bitmask.
+    """
+    from app.models.capability_schema import CapabilityV2, UserCapabilityV2
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    cap = db.query(CapabilityV2).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    # Check if already granted
+    existing = db.query(UserCapabilityV2).filter_by(
+        user_id=user_id, capability_id=capability_id
+    ).first()
+    
+    if existing:
+        if existing.is_active:
+            return {"message": "Capability already granted", "capability": cap.name}
+        else:
+            # Reactivate
+            existing.is_active = True
+            existing.deactivated_at = None
+            existing.mastered_at = datetime.datetime.now()
+    else:
+        # Create new record
+        user_cap = UserCapabilityV2(
+            user_id=user_id,
+            capability_id=capability_id,
+            introduced_at=datetime.datetime.now(),
+            mastered_at=datetime.datetime.now(),
+            is_active=True,
+        )
+        db.add(user_cap)
+    
+    # Update bitmask
+    if cap.bit_index is not None:
+        bucket = cap.bit_index // 64
+        bit_position = cap.bit_index % 64
+        
+        mask_attrs = ['cap_mask_0', 'cap_mask_1', 'cap_mask_2', 'cap_mask_3',
+                      'cap_mask_4', 'cap_mask_5', 'cap_mask_6', 'cap_mask_7']
+        
+        current_mask = getattr(user, mask_attrs[bucket]) or 0
+        new_mask = current_mask | (1 << bit_position)
+        setattr(user, mask_attrs[bucket], new_mask)
+    
+    db.commit()
+    
+    return {"message": "Capability granted", "capability": cap.name}
+
+
+@app.post("/users/{user_id}/capabilities/revoke")
+def revoke_capability(
+    user_id: int,
+    capability_id: int = Body(..., embed=True),
+    db: Session = Depends(get_db)
+):
+    """
+    Revoke a capability from a user (mark as no longer able).
+    
+    Updates both the normalized table and the user's bitmask.
+    """
+    from app.models.capability_schema import CapabilityV2, UserCapabilityV2
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    cap = db.query(CapabilityV2).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    existing = db.query(UserCapabilityV2).filter_by(
+        user_id=user_id, capability_id=capability_id
+    ).first()
+    
+    if not existing or not existing.is_active:
+        return {"message": "Capability not currently active", "capability": cap.name}
+    
+    # Deactivate
+    existing.is_active = False
+    existing.deactivated_at = datetime.datetime.now()
+    
+    # Update bitmask (clear the bit)
+    if cap.bit_index is not None:
+        bucket = cap.bit_index // 64
+        bit_position = cap.bit_index % 64
+        
+        mask_attrs = ['cap_mask_0', 'cap_mask_1', 'cap_mask_2', 'cap_mask_3',
+                      'cap_mask_4', 'cap_mask_5', 'cap_mask_6', 'cap_mask_7']
+        
+        current_mask = getattr(user, mask_attrs[bucket]) or 0
+        new_mask = current_mask & ~(1 << bit_position)
+        setattr(user, mask_attrs[bucket], new_mask)
+    
+    db.commit()
+    
+    return {"message": "Capability revoked", "capability": cap.name}
+
 
