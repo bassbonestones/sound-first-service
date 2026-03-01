@@ -1,0 +1,147 @@
+{
+  "_schema_version": "1.1",
+  "_description": "Index of MusicXML files for Sound First curriculum. Each entry maps to a Material in the database.",
+  "_last_updated": "2026-02-28",
+  "_notes": [
+    "This file stores HUMAN-CURATED metadata (teaching intent, source, category).",
+    "EXTRACTED metadata (actual notes, rhythms, intervals) comes from music21 analysis.",
+    "Run 'python -m app.seed_data' to sync to SQLite."
+  ],
+  
+  "materials": [
+    {
+      "_comment": "=== TEMPLATE - Copy this entry for each new file ===",
+      
+      "filename": "example_tune.musicxml",
+      "title": "Example Tune",
+      "active": true,
+      "_active_note": "Set false to exclude from seeding without deleting",
+      
+      "category": "tune",
+      "_category_options": ["tune", "excerpt", "solo", "etude", "technical_exercise", "scale_pattern", "warmup", "long_tone", "lip_slur", "flexibility", "articulation_study", "sight_reading", "improvisation_template"],
+      
+      "subcategory": null,
+      "_subcategory_examples": ["jazz_standard", "classical", "folk", "method_book", "fundamentals", "audition_rep"],
+      
+      "source": {
+        "composer": null,
+        "arranger": null,
+        "collection": null,
+        "_collection_examples": ["Arban", "Clarke", "Schlossberg", "Real Book", "Bordogni", "Concone", "Rochut"],
+        "catalog_number": null,
+        "public_domain": true
+      },
+      
+      "difficulty": "beginner",
+      "_difficulty_options": ["beginner", "early_intermediate", "intermediate", "late_intermediate", "advanced"],
+      
+      "instrument": "trumpet",
+      "_instrument_options": ["trumpet", "horn", "trombone", "euphonium", "tuba", "any_brass", "any"],
+      
+      "duration_seconds": null,
+      "measure_count": null,
+      
+      "pitch_language": "tonal",
+      "_pitch_language_options": ["tonal", "modal", "chromatic", "atonal", "serial", "polytonal", "pandiatonic", "blues", "pentatonic"],
+      "_pitch_language_note": "Describes the harmonic/melodic system used",
+      
+      "mode_or_scale": null,
+      "_mode_examples": ["major", "minor", "dorian", "mixolydian", "lydian", "phrygian", "aeolian", "locrian", "whole_tone", "octatonic", "blues", "pentatonic_major", "pentatonic_minor"],
+      
+      "teaching_intent": {
+        "_note": "What we WANT the student to learn from this material (human-curated)",
+        
+        "primary_goal": null,
+        "_goal_examples": ["tone_production", "breath_control", "articulation", "flexibility", "range_extension", "rhythmic_accuracy", "intonation", "phrasing", "dynamics", "sight_reading", "ear_training", "style"],
+        
+        "required_capabilities": [],
+        "_required_note": "Capability IDs the user MUST have before attempting this (prerequisites)",
+        
+        "teaching_capabilities": [],
+        "_teaching_note": "Capabilities we TEACH right before/alongside this piece (shown as mini-lessons)",
+        
+        "incidental_capabilities": [],
+        "_incidental_note": "Capabilities present in the score but not our teaching focus (discovered by music21)"
+      },
+      
+      "focus_cards": {
+        "recommended": [],
+        "_recommended_note": "Focus card names that pair well with this material",
+        "_recommended_examples": ["Tone Quality", "Breath Support", "Rhythmic Precision", "Pitch Accuracy"],
+        "always_include": [],
+        "_always_note": "Focus cards that should always be offered for this material"
+      },
+      
+      "range": {
+        "lowest_note": null,
+        "highest_note": null,
+        "_note_format": "Scientific pitch notation: C4, Bb3, F#5. Used for user range filtering."
+      },
+      
+      "largest_interval": null,
+      "_largest_interval_note": "Widest melodic interval in the piece (e.g., 'P5', 'M6', 'P8'). Used for progressive interval filtering. Materials are unlocked when user's max_melodic_interval >= this value.",
+      "_interval_options": ["m2", "M2", "m3", "M3", "P4", "A4", "P5", "m6", "M6", "m7", "M7", "P8"],
+      
+      "musical_context": {
+        "time_signatures": [],
+        "tempo_marking": null,
+        "tempo_bpm": null,
+        "style": null,
+        "_style_examples": ["lyrical", "technical", "march", "ballad", "swing", "latin", "fanfare", "chorale"]
+      },
+      
+      "transposition": {
+        "disallowed_keys": [],
+        "_disallowed_note": "Keys that DON'T work for this piece (rare). Empty = all keys allowed.",
+        "_disallowed_examples": ["F#", "Gb", "C#", "Cb"],
+        
+        "preferred_keys": [],
+        "_preferred_note": "Keys that work especially well (optional)",
+        
+        "original_key": null,
+        "_original_note": "The key as written in the source file"
+      },
+      
+      "pitch_reference": {
+        "type": "TONAL",
+        "_type_options": ["TONAL", "ANCHOR_INTERVAL"],
+        "_TONAL_note": "For pieces with a clear key center. Stores tonic and mode.",
+        "_ANCHOR_INTERVAL_note": "For pattern-based materials without fixed key. Defines intervals from a movable anchor pitch. Example: 'Do-Re-Do' pattern = [0, +2, 0] semitones from any starting note. User hears it in different keys but the PATTERN is what matters.",
+        
+        "tonal_center": {
+          "tonic": null,
+          "mode": null
+        },
+        
+        "interval_pattern": {
+          "offsets": [],
+          "_offsets_note": "Semitone offsets from anchor. [0, 2, 0] = unison, M2 up, back to unison",
+          "canonical_anchor_midi": null,
+          "_midi_note": "MIDI number of the 'home' pitch in canonical version. 60 = C4"
+        }
+      },
+      
+      "tags": [],
+      "_tags_examples": ["beginner_friendly", "audition_prep", "all_state", "warm_up_routine", "famous", "technical", "lyrical", "requires_good_air", "high_range", "low_range", "endurance", "flexibility_builder"],
+      
+      "notes": "",
+      
+      "_extracted_by_music21": {
+        "_note": "This section is AUTO-POPULATED by running the analyzer. Do not edit manually.",
+        "analyzed_date": null,
+        "clefs": [],
+        "key_signatures": [],
+        "time_signatures": [],
+        "note_values": [],
+        "dynamics": [],
+        "articulations": [],
+        "ornaments": [],
+        "largest_interval": null,
+        "_largest_interval_note": "Widest melodic interval found in the score (e.g., 'P5')",
+        "range_low_midi": null,
+        "range_high_midi": null,
+        "detected_capabilities": []
+      }
+    }
+  ]
+}

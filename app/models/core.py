@@ -13,6 +13,11 @@ class User(Base):
     range_low = Column(String, nullable=True)  # e.g., "E3" for low comfortable note
     range_high = Column(String, nullable=True)  # e.g., "C6" for high comfortable note
     
+    # Interval tracking (replaces 24 individual interval capabilities)
+    # Stores widest interval mastered, e.g., "P5" = perfect 5th in both directions
+    # Intervals are taught in both directions before expanding
+    max_melodic_interval = Column(String, nullable=True, default='M2')  # Start with major 2nd
+    
     # Bitmask columns for fast capability eligibility checks (8 x 64-bit = 512 capabilities max)
     cap_mask_0 = Column(BigInteger, default=0)  # capabilities 0-63
     cap_mask_1 = Column(BigInteger, default=0)  # capabilities 64-127

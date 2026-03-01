@@ -105,7 +105,16 @@ class MockUser:
                  resonant_note="Bb3",
                  range_low="E3",
                  range_high="C6",
-                 comfortable_capabilities=""):
+                 comfortable_capabilities="",
+                 max_melodic_interval="M2",
+                 cap_mask_0=0,
+                 cap_mask_1=0,
+                 cap_mask_2=0,
+                 cap_mask_3=0,
+                 cap_mask_4=0,
+                 cap_mask_5=0,
+                 cap_mask_6=0,
+                 cap_mask_7=0):
         self.id = id
         self.email = email
         self.name = name
@@ -114,6 +123,16 @@ class MockUser:
         self.range_low = range_low
         self.range_high = range_high
         self.comfortable_capabilities = comfortable_capabilities
+        self.max_melodic_interval = max_melodic_interval
+        # Bitmask columns for capability eligibility
+        self.cap_mask_0 = cap_mask_0
+        self.cap_mask_1 = cap_mask_1
+        self.cap_mask_2 = cap_mask_2
+        self.cap_mask_3 = cap_mask_3
+        self.cap_mask_4 = cap_mask_4
+        self.cap_mask_5 = cap_mask_5
+        self.cap_mask_6 = cap_mask_6
+        self.cap_mask_7 = cap_mask_7
 
 
 @pytest.fixture

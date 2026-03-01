@@ -78,6 +78,16 @@ class CapabilityV2(Base):
     # Metadata
     difficulty_tier = Column(Integer, default=1)  # 1=beginner, 2=intermediate, 3=advanced
     
+    # Teaching material linkage (Option B from planning)
+    introduction_material_id = Column(Integer, ForeignKey('materials.id'), nullable=True)  # THE material that teaches this
+    
+    # Mastery requirements (from planning session)
+    # - 'single': One material/exercise is enough (e.g., learning fermata symbol)
+    # - 'any_of_pool': Demonstrate success on any one from a pool (e.g., simple melody in 3/4)
+    # - 'multiple': Must succeed on N materials (e.g., sixteenth notes in multiple contexts)
+    mastery_type = Column(String, default='single')  # 'single' | 'any_of_pool' | 'multiple'
+    mastery_count = Column(Integer, default=1)  # How many materials needed for 'multiple' type
+    
     __table_args__ = (
         Index('ix_capability_domain', 'domain'),
         Index('ix_capability_bit_index', 'bit_index'),

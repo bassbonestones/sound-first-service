@@ -18,6 +18,15 @@ from sqlalchemy.orm import Session
 # CAPABILITY DEFINITIONS
 # =============================================================================
 # Format: (name, display_name, domain, subdomain, requirement_type, difficulty_tier, sequence_order, explanation)
+# OR extended: (name, display_name, domain, subdomain, requirement_type, difficulty_tier, sequence_order, explanation, mastery_type, mastery_count)
+#
+# mastery_type values (defaults applied in seed_capabilities if not specified):
+#   - 'single': One material/exercise is enough (e.g., learning fermata symbol)
+#   - 'any_of_pool': Demonstrate success on any one from a pool (random pick)
+#   - 'multiple': Must succeed on N materials (e.g., sixteenth notes in multiple contexts)
+#
+# NOTE: Melodic intervals use max_melodic_interval on User, not individual capabilities for filtering.
+# Interval capabilities here are for teaching content/reference only.
 
 CAPABILITIES = [
     # =========================================================================
@@ -441,7 +450,24 @@ def seed_capabilities():
         
         bit_index = 0
         for cap_tuple in CAPABILITIES:
-            name, display_name, domain, subdomain, req_type, diff_tier, seq_order, explanation = cap_tuple
+            # Support both old 8-tuple and new 10-tuple format
+            if len(cap_tuple) == 8:
+                name, display_name, domain, subdomain, req_type, diff_tier, seq_order, explanation = cap_tuple
+                mastery_type = 'single'
+                mastery_count = 1
+            elif len(cap_tuple) == 10:
+                name, display_name, domain, subdomain, req_type, diff_tier, seq_order, explanation, mastery_type, mastery_count = cap_tuple
+            else:
+                raise ValueError(f"Invalid capability tuple length: {len(cap_tuple)} for {cap_tuple[0]}")
+            
+            # Default mastery settings by domain if not specified
+            if mastery_type == 'single' and domain in ('note_value', 'tuplet', 'articulation', 'ornament'):
+                # These require practicing in multiple contexts
+                mastery_type = 'multiple'
+                mastery_count = 3
+            elif mastery_type == 'single' and domain in ('time_signature', 'key_signature'):
+                # These can be mastered by playing any piece in that signature
+                mastery_type = 'any_of_pool'
             
             cap = CapabilityV2(
                 name=name,
@@ -453,6 +479,8 @@ def seed_capabilities():
                 sequence_order=seq_order,
                 explanation=explanation,
                 bit_index=bit_index if bit_index < 512 else None,
+                mastery_type=mastery_type,
+                mastery_count=mastery_count,
             )
             db.add(cap)
             bit_index += 1
