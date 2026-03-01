@@ -133,7 +133,9 @@ def get_onboarding(user_id: int, db: Session = Depends(get_db)):
         "resonant_note": user.resonant_note,
         "range_low": user.range_low,
         "range_high": user.range_high,
-        "comfortable_capabilities": user.comfortable_capabilities.split(",") if user.comfortable_capabilities else []
+        "comfortable_capabilities": user.comfortable_capabilities.split(",") if user.comfortable_capabilities else [],
+        "day0_completed": user.day0_completed if hasattr(user, 'day0_completed') else False,
+        "day0_stage": user.day0_stage if hasattr(user, 'day0_stage') else 0,
     }
 
 @app.post("/onboarding")
@@ -1076,6 +1078,87 @@ def get_material_audio(
     )
 
 
+@app.get("/audio/note/{note}")
+def get_single_note_audio(
+    note: str,
+    instrument: str = Query(default="piano", description="Instrument for soundfont"),
+    duration: int = Query(default=4, description="Duration in beats (4 = whole note)"),
+    octave: Optional[int] = Query(default=None, description="Override octave (1-8)")
+):
+    """
+    Generate audio for a single sustained note.
+    
+    Used for Day 0 first-note experience - plays a whole note for the user's
+    resonant pitch so they can listen, sing, and match it.
+    
+    Examples:
+    - /audio/note/Bb4?instrument=trombone
+    - /audio/note/F%233?instrument=trumpet (F#3 URL-encoded)
+    - /audio/note/Eb?octave=3&instrument=tuba
+    
+    Returns WAV audio if soundfont available, otherwise MIDI fallback.
+    """
+    from fastapi.responses import Response, JSONResponse
+    from app.audio import generate_single_note_audio, AudioErrorCode
+    
+    # Validate octave if provided
+    if octave is not None and (octave < 1 or octave > 8):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": True,
+                "code": "invalid_octave",
+                "message": "Octave must be between 1 and 8",
+                "detail": f"Got octave={octave}"
+            }
+        )
+    
+    # Generate audio
+    result = generate_single_note_audio(
+        note_name=note,
+        instrument=instrument,
+        duration_beats=duration,
+        octave=octave
+    )
+    
+    # Handle complete failure
+    if not result.success and result.data is None:
+        error = result.error
+        status_map = {
+            AudioErrorCode.MUSIC21_NOT_INSTALLED: 503,
+            AudioErrorCode.MIDI_CONVERSION_FAILED: 400,
+        }
+        status_code = status_map.get(error.code, 500) if error else 500
+        
+        return JSONResponse(
+            status_code=status_code,
+            content=error.to_dict() if error else {"error": True, "message": "Unknown error"}
+        )
+    
+    # Determine filename
+    safe_note = note.replace("#", "sharp").replace("b", "flat")[:10]
+    
+    if result.content_type == "audio/wav":
+        filename = f"note_{safe_note}.wav"
+    else:
+        filename = f"note_{safe_note}.mid"
+    
+    # Add headers
+    headers = {
+        "Content-Disposition": f'inline; filename="{filename}"',
+        "Cache-Control": "public, max-age=3600",  # Cache single notes longer
+    }
+    if result.is_fallback and result.error:
+        headers["X-Audio-Warning"] = result.error.message
+        headers["X-Audio-Fallback"] = "true"
+    
+    return Response(
+        content=result.data,
+        media_type=result.content_type,
+        headers=headers
+    )
+
+
 @app.get("/audio/status")
 def get_audio_status():
     """Check audio generation capability."""
@@ -1261,6 +1344,64 @@ def get_user_journey_stage(user_id: int, db: Session = Depends(get_db)):
             "self_directed_sessions": metrics.self_directed_sessions,
         }
     }
+
+
+@app.post("/users/{user_id}/reset")
+def reset_user_data(user_id: int, db: Session = Depends(get_db)):
+    """
+    Reset all user data to start fresh.
+    Clears: instrument, resonant_note, range, day0 progress, capabilities, 
+            practice sessions, attempts, mini-sessions, etc.
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Clear user profile data
+    user.instrument = None
+    user.resonant_note = None
+    user.range_low = None
+    user.range_high = None
+    user.comfortable_capabilities = None
+    user.max_melodic_interval = "M2"
+    user.day0_completed = False
+    user.day0_stage = 0
+    
+    # Reset capability bitmasks
+    user.cap_mask_0 = 0
+    user.cap_mask_1 = 0
+    user.cap_mask_2 = 0
+    user.cap_mask_3 = 0
+    user.cap_mask_4 = 0
+    user.cap_mask_5 = 0
+    user.cap_mask_6 = 0
+    user.cap_mask_7 = 0
+    
+    # Delete all practice attempts for this user
+    db.query(PracticeAttempt).filter_by(user_id=user_id).delete()
+    
+    # Delete all curriculum steps, mini-sessions, and sessions for this user
+    # First get all sessions
+    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
+    for session in sessions:
+        # Get mini-sessions for this session
+        mini_sessions = db.query(MiniSession).filter_by(session_id=session.id).all()
+        for ms in mini_sessions:
+            # Delete curriculum steps for this mini-session
+            db.query(CurriculumStep).filter_by(mini_session_id=ms.id).delete()
+        # Delete mini-sessions
+        db.query(MiniSession).filter_by(session_id=session.id).delete()
+    
+    # Delete sessions
+    db.query(PracticeSession).filter_by(user_id=user_id).delete()
+    
+    # Delete user capability progress
+    from app.models.core import UserCapabilityProgress
+    db.query(UserCapabilityProgress).filter_by(user_id=user_id).delete()
+    
+    db.commit()
+    
+    return {"status": "success", "message": "User data reset successfully"}
 
 
 # --- Session Completion ---

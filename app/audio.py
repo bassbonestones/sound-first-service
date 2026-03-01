@@ -211,30 +211,56 @@ def musicxml_to_midi(musicxml_content: str, instrument: str = "piano") -> Option
         # Parse MusicXML
         score = converter.parse(musicxml_content)
         
+        # Normalize instrument name (handle spaces, case variations)
+        norm_instrument = instrument.lower().replace(" ", "_").replace("-", "_")
+        
         # Map instrument name to music21 instrument class
         instrument_map = {
+            # Brass
             "trumpet": m21instrument.Trumpet,
             "trombone": m21instrument.Trombone,
+            "bass_trombone": m21instrument.BassTrombone,
+            "tenor_trombone": m21instrument.Trombone,
             "french_horn": m21instrument.Horn,
+            "euphonium": m21instrument.Tuba,  # music21 doesn't have Euphonium
             "tuba": m21instrument.Tuba,
+            # Woodwinds
             "flute": m21instrument.Flute,
             "clarinet": m21instrument.Clarinet,
             "oboe": m21instrument.Oboe,
             "bassoon": m21instrument.Bassoon,
             "saxophone": m21instrument.Saxophone,
+            "alto_saxophone": m21instrument.AltoSaxophone,
+            "tenor_saxophone": m21instrument.TenorSaxophone,
+            "baritone_saxophone": m21instrument.BaritoneSaxophone,
+            # Strings
+            "violin": m21instrument.Violin,
+            "viola": m21instrument.Viola,
+            "cello": m21instrument.Violoncello,
+            "double_bass": m21instrument.Contrabass,
+            "guitar": m21instrument.AcousticGuitar,
+            # Keyboard
             "piano": m21instrument.Piano,
-            "voice": m21instrument.Vocalist,  # Use Vocalist for voice
+            "organ": m21instrument.PipeOrgan,
+            # Voice
+            "voice": m21instrument.Vocalist,
+            "voice_(general)": m21instrument.Vocalist,
+            "soprano": m21instrument.Soprano,
+            "alto": m21instrument.Alto,
+            "tenor": m21instrument.Tenor,
+            "bass_voice": m21instrument.Bass,
         }
         
         # Get instrument class (default to piano)
-        InstrumentClass = instrument_map.get(instrument.lower(), m21instrument.Piano)
+        InstrumentClass = instrument_map.get(norm_instrument, m21instrument.Piano)
         
         # Set instrument on all parts
         for part in score.parts:
             # Remove any existing instruments
             part.removeByClass(m21instrument.Instrument)
             # Insert new instrument at the beginning
-            part.insert(0, InstrumentClass())
+            inst = InstrumentClass()
+            part.insert(0, inst)
         
         # Write to MIDI
         midi_file = score.write('midi')
@@ -493,6 +519,232 @@ def generate_audio_with_result(
         _audio_cache[cache_key] = wav_bytes
     
     return AudioResult(success=True, data=wav_bytes, content_type="audio/wav")
+
+
+# =============================================================================
+# SINGLE NOTE AUDIO GENERATION (Day 0)
+# =============================================================================
+
+# Cache for single-note audio
+_single_note_cache: Dict[Tuple[str, str, int], bytes] = {}
+_single_note_cache_max = 50
+
+
+def generate_single_note_audio(
+    note_name: str,
+    instrument: str = "piano",
+    duration_beats: int = 4,  # whole note = 4 beats
+    octave: Optional[int] = None,
+) -> AudioResult:
+    """
+    Generate audio for a single sustained note.
+    
+    Used for Day 0 first-note experience - plays a whole note for the user's
+    resonant pitch so they can listen, sing, and match it.
+    
+    Args:
+        note_name: Note name with optional octave (e.g., "Bb4", "F#3", "C")
+                   If no octave, defaults based on instrument range.
+        instrument: Instrument for soundfont rendering
+        duration_beats: Duration in beats (4 = whole note in 4/4)
+        octave: Override octave (useful if note_name has no octave)
+    
+    Returns:
+        AudioResult with WAV audio (or MIDI fallback)
+    """
+    if not MUSIC21_AVAILABLE:
+        return AudioResult(
+            success=False,
+            error=AudioError(
+                code=AudioErrorCode.MUSIC21_NOT_INSTALLED,
+                message="Audio library not installed",
+                detail="music21 is required for audio generation",
+                can_fallback=False
+            )
+        )
+    
+    try:
+        from music21 import note, stream, tempo, meter
+        
+        # Parse the note name
+        # Handle different formats: "Bb4", "F#3", "C5", "Eb"
+        parsed_note = note_name.strip()
+        
+        # If octave provided separately, use it
+        if octave is not None:
+            # Strip any octave from the note name
+            note_letter = ''.join(c for c in parsed_note if not c.isdigit())
+            parsed_note = f"{note_letter}{octave}"
+        elif not any(c.isdigit() for c in parsed_note):
+            # No octave in note name, add default based on instrument
+            default_octaves = {
+                "trumpet": 4,
+                "trombone": 3,
+                "french_horn": 3,
+                "tuba": 2,
+                "flute": 5,
+                "clarinet": 4,
+                "oboe": 4,
+                "bassoon": 3,
+                "saxophone": 4,
+                "piano": 4,
+                "voice": 4,
+            }
+            oct = default_octaves.get(instrument, 4)
+            parsed_note = f"{parsed_note}{oct}"
+        
+        # Check cache
+        cache_key = (parsed_note.lower(), instrument, duration_beats)
+        if cache_key in _single_note_cache:
+            return AudioResult(
+                success=True,
+                data=_single_note_cache[cache_key],
+                content_type="audio/wav"
+            )
+        
+        # Create a simple score with one whole note
+        s = stream.Score()
+        p = stream.Part()
+        m = stream.Measure()
+        
+        # Set tempo (moderate, held note)
+        m.insert(0, tempo.MetronomeMark(number=60))  # 60 BPM = 1 beat per second
+        m.insert(0, meter.TimeSignature('4/4'))
+        
+        # Create the note
+        n = note.Note(parsed_note)
+        n.quarterLength = duration_beats  # whole note = 4 quarter beats
+        m.append(n)
+        
+        # Add a rest to let the note ring out
+        r = note.Rest()
+        r.quarterLength = 1  # quarter rest buffer
+        m.append(r)
+        
+        p.append(m)
+        s.append(p)
+        
+        # Set instrument for proper MIDI program
+        from music21 import instrument as m21instrument
+        
+        # Normalize instrument name (handle spaces, case variations)
+        norm_instrument = instrument.lower().replace(" ", "_").replace("-", "_")
+        
+        instrument_map = {
+            # Brass
+            "trumpet": m21instrument.Trumpet,
+            "trombone": m21instrument.Trombone,
+            "bass_trombone": m21instrument.BassTrombone,
+            "tenor_trombone": m21instrument.Trombone,
+            "french_horn": m21instrument.Horn,
+            "euphonium": m21instrument.Tuba,  # music21 doesn't have Euphonium, Tuba is closest
+            "tuba": m21instrument.Tuba,
+            # Woodwinds
+            "flute": m21instrument.Flute,
+            "clarinet": m21instrument.Clarinet,
+            "oboe": m21instrument.Oboe,
+            "bassoon": m21instrument.Bassoon,
+            "saxophone": m21instrument.Saxophone,
+            "alto_saxophone": m21instrument.AltoSaxophone,
+            "tenor_saxophone": m21instrument.TenorSaxophone,
+            "baritone_saxophone": m21instrument.BaritoneSaxophone,
+            # Strings
+            "violin": m21instrument.Violin,
+            "viola": m21instrument.Viola,
+            "cello": m21instrument.Violoncello,
+            "double_bass": m21instrument.Contrabass,
+            "guitar": m21instrument.AcousticGuitar,
+            # Keyboard  
+            "piano": m21instrument.Piano,
+            "organ": m21instrument.PipeOrgan,
+            # Voice
+            "voice": m21instrument.Vocalist,
+            "voice_(general)": m21instrument.Vocalist,
+            "soprano": m21instrument.Soprano,
+            "alto": m21instrument.Alto,
+            "tenor": m21instrument.Tenor,
+            "bass_voice": m21instrument.Bass,
+            # Percussion
+            "mallet_percussion": m21instrument.Vibraphone,
+            "other": m21instrument.Piano,
+        }
+        
+        # Check if instrument has custom MIDI program suffix (e.g., "synth_brass_62", "choir_52")
+        custom_midi_program = None
+        base_instrument = norm_instrument
+        
+        # Parse custom MIDI program from instrument name (format: name_XX where XX is MIDI program)
+        import re
+        midi_suffix_match = re.match(r'^(.+?)_(\d+)$', norm_instrument)
+        if midi_suffix_match:
+            base_instrument = midi_suffix_match.group(1)
+            custom_midi_program = int(midi_suffix_match.group(2))
+        
+        InstrumentClass = instrument_map.get(base_instrument, m21instrument.Piano)
+        
+        for part in s.parts:
+            part.removeByClass(m21instrument.Instrument)
+            inst = InstrumentClass()
+            # Apply custom MIDI program if specified from URL (e.g., synth_brass_62)
+            if custom_midi_program is not None:
+                inst.midiProgram = custom_midi_program
+            part.insert(0, inst)
+        
+        # Export to MIDI bytes (use write() method which works correctly)
+        midi_path = s.write('midi')
+        with open(midi_path, 'rb') as f:
+            midi_bytes = f.read()
+        
+        # Get soundfont
+        soundfont = get_soundfont_path(instrument)
+        if not soundfont:
+            return AudioResult(
+                success=True,
+                data=midi_bytes,
+                content_type="audio/midi",
+                is_fallback=True,
+                error=AudioError(
+                    code=AudioErrorCode.SOUNDFONT_NOT_FOUND,
+                    message="No soundfont available - returning MIDI",
+                    detail=f"Download soundfont to {SOUNDFONT_DIR}",
+                    can_fallback=True
+                )
+            )
+        
+        # Render to WAV
+        wav_bytes = midi_to_audio(midi_bytes, soundfont)
+        if not wav_bytes:
+            return AudioResult(
+                success=True,
+                data=midi_bytes,
+                content_type="audio/midi",
+                is_fallback=True,
+                error=AudioError(
+                    code=AudioErrorCode.AUDIO_RENDER_FAILED,
+                    message="Audio rendering failed - returning MIDI",
+                    detail="FluidSynth could not render audio",
+                    can_fallback=True
+                )
+            )
+        
+        # Cache successful result
+        if len(_single_note_cache) >= _single_note_cache_max:
+            oldest = next(iter(_single_note_cache))
+            del _single_note_cache[oldest]
+        _single_note_cache[cache_key] = wav_bytes
+        
+        return AudioResult(success=True, data=wav_bytes, content_type="audio/wav")
+        
+    except Exception as e:
+        return AudioResult(
+            success=False,
+            error=AudioError(
+                code=AudioErrorCode.MIDI_CONVERSION_FAILED,
+                message=f"Failed to generate note audio: {str(e)}",
+                detail=str(e),
+                can_fallback=False
+            )
+        )
 
 
 def generate_audio(

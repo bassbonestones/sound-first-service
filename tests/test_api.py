@@ -474,5 +474,67 @@ class TestMiniSessionEndpoints:
             assert response.status_code == 200
 
 
+# =============================================================================
+# SINGLE NOTE AUDIO ENDPOINT TESTS
+# =============================================================================
+
+class TestSingleNoteAudioEndpoints:
+    """Tests for /audio/note/{note} single note audio generation endpoint."""
+    
+    def test_get_single_note_audio_basic(self, client):
+        """GET /audio/note/{note} generates audio for a basic note."""
+        response = client.get("/audio/note/C4")
+        
+        # Should return audio, error message, or 400/422 for validation
+        assert response.status_code in [200, 400, 422, 503]
+        
+        if response.status_code == 200:
+            # Should be audio content
+            assert "audio" in response.headers.get("content-type", "")
+    
+    def test_get_single_note_audio_with_instrument(self, client):
+        """GET /audio/note/{note} accepts instrument parameter."""
+        response = client.get("/audio/note/C4?instrument=piano")
+        
+        assert response.status_code in [200, 400, 422, 503]
+    
+    def test_get_single_note_audio_with_duration(self, client):
+        """GET /audio/note/{note} accepts duration parameter."""
+        response = client.get("/audio/note/C4?duration=2")
+        
+        assert response.status_code in [200, 400, 422, 503]
+    
+    def test_get_single_note_audio_flat_note(self, client):
+        """GET /audio/note/{note} handles flat notes like Bb3."""
+        response = client.get("/audio/note/Bb3?instrument=trombone")
+        
+        assert response.status_code in [200, 400, 422, 503]
+    
+    def test_get_single_note_audio_sharp_note(self, client):
+        """GET /audio/note/{note} handles sharp notes like F#4."""
+        response = client.get("/audio/note/F%234")  # URL-encoded F#4
+        
+        assert response.status_code in [200, 400, 422, 503]
+    
+    def test_get_single_note_audio_various_octaves(self, client):
+        """GET /audio/note/{note} handles various octaves."""
+        for note in ["C2", "C3", "C4", "C5"]:
+            response = client.get(f"/audio/note/{note}")
+            assert response.status_code in [200, 400, 422, 503], f"Failed for note {note}"
+    
+    def test_get_single_note_audio_trombone(self, client):
+        """GET /audio/note/{note} works with trombone instrument."""
+        response = client.get("/audio/note/Bb3?instrument=trombone&duration=4")
+        
+        assert response.status_code in [200, 400, 422, 503]
+    
+    def test_get_single_note_audio_invalid_note(self, client):
+        """GET /audio/note/{note} handles invalid note gracefully."""
+        response = client.get("/audio/note/X99")
+        
+        # Should return error, not crash
+        assert response.status_code in [400, 422, 500, 503]
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

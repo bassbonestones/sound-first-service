@@ -18,6 +18,10 @@ class User(Base):
     # Intervals are taught in both directions before expanding
     max_melodic_interval = Column(String, nullable=True, default='M2')  # Start with major 2nd
     
+    # Day 0 first-note experience tracking
+    day0_completed = Column(Boolean, default=False)  # Whether user has completed Day 0 flow
+    day0_stage = Column(Integer, default=0)  # Current stage in Day 0 (0-6)
+    
     # Bitmask columns for fast capability eligibility checks (8 x 64-bit = 512 capabilities max)
     cap_mask_0 = Column(BigInteger, default=0)  # capabilities 0-63
     cap_mask_1 = Column(BigInteger, default=0)  # capabilities 64-127

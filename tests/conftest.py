@@ -107,6 +107,8 @@ class MockUser:
                  range_high="C6",
                  comfortable_capabilities="",
                  max_melodic_interval="M2",
+                 day0_completed=False,
+                 day0_stage=0,
                  cap_mask_0=0,
                  cap_mask_1=0,
                  cap_mask_2=0,
@@ -124,6 +126,9 @@ class MockUser:
         self.range_high = range_high
         self.comfortable_capabilities = comfortable_capabilities
         self.max_melodic_interval = max_melodic_interval
+        # Day 0 tracking
+        self.day0_completed = day0_completed
+        self.day0_stage = day0_stage
         # Bitmask columns for capability eligibility
         self.cap_mask_0 = cap_mask_0
         self.cap_mask_1 = cap_mask_1
