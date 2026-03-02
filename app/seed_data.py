@@ -755,6 +755,30 @@ def seed_all():
                 )
                 db.add(mat)
         
+        # Seed onboarding data for user 1
+        from app.models.core import User
+        existing_user = db.query(User).filter_by(id=1).first()
+        if not existing_user:
+            user = User(
+                id=1,
+                email="user1@example.com",
+                instrument="Trumpet",
+                resonant_note="C4",
+                range_low="E3",
+                range_high="C6",
+                comfortable_capabilities="cap_clef_treble_known,cap_note_value_whole_known",
+                day0_completed=True,
+                day0_stage=1
+            )
+            db.add(user)
+        else:
+            existing_user.instrument = "Trumpet"
+            existing_user.resonant_note = "C4"
+            existing_user.range_low = "E3"
+            existing_user.range_high = "C6"
+            existing_user.comfortable_capabilities = "cap_clef_treble_known,cap_note_value_whole_known"
+            existing_user.day0_completed = True
+            existing_user.day0_stage = 1
         db.commit()
         print("Seed data inserted successfully!")
         print(f"  - {len(CAPABILITIES)} capabilities")
