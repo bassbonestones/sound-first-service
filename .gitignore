@@ -22,3 +22,4 @@ soundfonts/*.sf2
 test_audio.py
 *.wav
 *.mid
+node_modules
