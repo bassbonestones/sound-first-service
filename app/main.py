@@ -1385,12 +1385,12 @@ def reset_user_data(user_id: int, db: Session = Depends(get_db)):
     sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
     for session in sessions:
         # Get mini-sessions for this session
-        mini_sessions = db.query(MiniSession).filter_by(session_id=session.id).all()
+        mini_sessions = db.query(MiniSession).filter_by(practice_session_id=session.id).all()
         for ms in mini_sessions:
             # Delete curriculum steps for this mini-session
             db.query(CurriculumStep).filter_by(mini_session_id=ms.id).delete()
         # Delete mini-sessions
-        db.query(MiniSession).filter_by(session_id=session.id).delete()
+        db.query(MiniSession).filter_by(practice_session_id=session.id).delete()
     
     # Delete sessions
     db.query(PracticeSession).filter_by(user_id=user_id).delete()
