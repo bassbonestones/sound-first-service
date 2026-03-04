@@ -1589,6 +1589,33 @@ def get_next_mini_session(session_id: int, db: Session = Depends(get_db)):
     return get_mini_session_curriculum(mini.id, db)
 
 
+# --- User Update ---
+class UserUpdateIn(BaseModel):
+    day0_completed: Optional[bool] = None
+    day0_stage: Optional[int] = None
+    range_low: Optional[str] = None
+    range_high: Optional[str] = None
+
+@app.patch("/users/{user_id}")
+def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depends(get_db)):
+    """Update user fields (day0 progress, range, etc.)."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if data.day0_completed is not None:
+        user.day0_completed = data.day0_completed
+    if data.day0_stage is not None:
+        user.day0_stage = data.day0_stage
+    if data.range_low is not None:
+        user.range_low = data.range_low
+    if data.range_high is not None:
+        user.range_high = data.range_high
+    
+    db.commit()
+    return {"status": "success", "user_id": user.id}
+
+
 # --- User Range Management ---
 class UserRangeIn(BaseModel):
     range_low: str  # e.g., "E3"
