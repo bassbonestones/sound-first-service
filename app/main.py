@@ -1082,7 +1082,7 @@ def get_material_audio(
 def get_single_note_audio(
     note: str,
     instrument: str = Query(default="piano", description="Instrument for soundfont"),
-    duration: int = Query(default=4, description="Duration in beats (4 = whole note)"),
+    duration: int = Query(default=3, description="Duration in beats (3 = 3 seconds at 60 BPM)"),
     octave: Optional[int] = Query(default=None, description="Override octave (1-8)")
 ):
     """

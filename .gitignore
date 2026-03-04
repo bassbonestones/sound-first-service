@@ -13,6 +13,9 @@ venv/
 
 # Soundfonts (too large for GitHub, download separately)
 soundfonts/*.sf2
+soundfonts/*.zip
+soundfonts/Virtual-Playing-Orchestra3*/
+soundfonts/Timbres_of_Heaven.sf2
 
 # IDE
 .vscode/
@@ -23,3 +26,4 @@ test_audio.py
 *.wav
 *.mid
 node_modules
+.DS_Store

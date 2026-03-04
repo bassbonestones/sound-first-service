@@ -76,6 +76,33 @@ except ImportError:
 import shutil
 FLUIDSYNTH_AVAILABLE = shutil.which('fluidsynth') is not None
 
+# Check if sfizz_render CLI is available (for high-quality SFZ instrument rendering)
+SFIZZ_RENDER_AVAILABLE = shutil.which('sfizz_render') is not None
+
+# Check if MuseScore is available (for professional audio with Muse Sounds)
+import subprocess
+from app.config import USE_MUSESCORE, MUSESCORE_PATH
+
+def check_musescore_available() -> bool:
+    """Check if MuseScore is available and configured."""
+    if not USE_MUSESCORE:
+        return False
+    if Path(MUSESCORE_PATH).exists():
+        return True
+    # Try common locations
+    common_paths = [
+        "/Applications/MuseScore 4.app/Contents/MacOS/mscore",
+        "/usr/bin/mscore",
+        "/usr/local/bin/mscore",
+        shutil.which("mscore"),
+    ]
+    for p in common_paths:
+        if p and Path(p).exists():
+            return True
+    return False
+
+MUSESCORE_AVAILABLE = check_musescore_available()
+
 
 # =============================================================================
 # CONFIGURATION
@@ -101,7 +128,16 @@ INSTRUMENT_PROGRAMS = {
 }
 
 # Default soundfont (General MIDI compatible)
-DEFAULT_SOUNDFONT = "GeneralUser_GS.sf2"
+# FluidR3_GM has cleaner, straighter tones than Timbres of Heaven
+DEFAULT_SOUNDFONT = "FluidR3_GM.sf2"
+
+# SFZ instruments - higher quality than SF2 soundfonts
+# Maps instrument names to SFZ file paths (relative to SOUNDFONT_DIR)
+# Uses sfizz_render CLI for proper loop/sustain support
+SFZ_INSTRUMENTS = {
+    "trombone": "Virtual-Playing-Orchestra3/Brass/trombone-SEC-sustain.sfz",
+    "bass_trombone": "Virtual-Playing-Orchestra3/Brass/bass-trombone-SOLO-sustain.sfz",
+}
 
 # Short-term cache for generated audio
 # Key: (material_id, target_key, instrument) -> audio bytes
@@ -391,6 +427,336 @@ def midi_to_audio(midi_bytes: bytes, soundfont_path: Optional[Path] = None) -> O
 
 
 # =============================================================================
+# PURE TONE RENDERING (Best for Pitch Training)
+# =============================================================================
+
+def render_pure_tone(
+    note_name: str,
+    duration_seconds: float = 3.0,
+    sample_rate: int = 44100,
+    amplitude: float = 0.8,
+    attack_time: float = 0.05,
+    release_time: float = 0.1,
+) -> Optional[bytes]:
+    """
+    Render a pure sine wave tone - ideal for pitch training.
+    
+    No vibrato, no harmonics, just a clean stable frequency.
+    Includes soft attack/release to avoid clicks.
+    
+    Args:
+        note_name: Note with octave (e.g., "Bb3", "F4")
+        duration_seconds: How long to play
+        sample_rate: Audio sample rate
+        amplitude: Volume (0.0 to 1.0)
+        attack_time: Fade-in duration in seconds
+        release_time: Fade-out duration in seconds
+        
+    Returns:
+        WAV audio bytes, or None on error
+    """
+    try:
+        import numpy as np
+        import wave
+        import io
+        
+        if not MUSIC21_AVAILABLE:
+            print("music21 required for note parsing")
+            return None
+        
+        from music21 import pitch as m21pitch
+        p = m21pitch.Pitch(note_name)
+        frequency = p.frequency
+        
+        # Generate time array
+        total_samples = int(sample_rate * duration_seconds)
+        t = np.linspace(0, duration_seconds, total_samples, dtype=np.float32)
+        
+        # Generate pure sine wave
+        wave_data = amplitude * np.sin(2 * np.pi * frequency * t)
+        
+        # Apply envelope (attack and release)
+        envelope = np.ones(total_samples, dtype=np.float32)
+        
+        # Attack ramp
+        attack_samples = int(attack_time * sample_rate)
+        if attack_samples > 0:
+            envelope[:attack_samples] = np.linspace(0, 1, attack_samples)
+        
+        # Release ramp
+        release_samples = int(release_time * sample_rate)
+        if release_samples > 0:
+            envelope[-release_samples:] = np.linspace(1, 0, release_samples)
+        
+        wave_data = wave_data * envelope
+        
+        # Convert to 16-bit PCM
+        pcm = (wave_data * 32767).astype(np.int16)
+        
+        # Write to WAV (mono)
+        wav_buffer = io.BytesIO()
+        with wave.open(wav_buffer, 'wb') as wav_file:
+            wav_file.setnchannels(1)  # Mono
+            wav_file.setsampwidth(2)  # 16-bit
+            wav_file.setframerate(sample_rate)
+            wav_file.writeframes(pcm.tobytes())
+        
+        wav_bytes = wav_buffer.getvalue()
+        print(f"Pure tone rendered {len(wav_bytes)} bytes for {note_name} ({frequency:.2f} Hz)")
+        return wav_bytes
+        
+    except Exception as e:
+        print(f"Error rendering pure tone: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+# =============================================================================
+# SFZ RENDERING (High Quality Samples via sfizz)
+# =============================================================================
+
+def get_sfz_path(instrument: str) -> Optional[Path]:
+    """Get path to SFZ file for instrument, if available."""
+    norm_instrument = instrument.lower().replace(" ", "_").replace("-", "_")
+    if norm_instrument in SFZ_INSTRUMENTS:
+        sfz_path = SOUNDFONT_DIR / SFZ_INSTRUMENTS[norm_instrument]
+        if sfz_path.exists():
+            return sfz_path
+    return None
+
+
+def render_note_with_sfizz(
+    note_name: str,
+    duration_seconds: float = 3.0,
+    velocity: int = 100,
+    sample_rate: int = 44100,
+    sfz_path: Optional[Path] = None,
+    instrument: str = "trombone"
+) -> Optional[bytes]:
+    """
+    Render a single note using sfizz_render CLI (SFZ sampler).
+    
+    This provides much higher audio quality than SF2 soundfonts
+    by using real multi-sampled instrument recordings with proper looping.
+    
+    Args:
+        note_name: Note with octave (e.g., "Bb3", "F4")
+        duration_seconds: How long to render
+        velocity: MIDI velocity (1-127)
+        sample_rate: Audio sample rate
+        sfz_path: Path to SFZ file (auto-detected if None)
+        instrument: Instrument name for SFZ lookup
+        
+    Returns:
+        WAV audio bytes, or None on error
+    """
+    if not SFIZZ_RENDER_AVAILABLE:
+        print("sfizz_render CLI not available")
+        return None
+    
+    # Get SFZ path
+    if sfz_path is None:
+        sfz_path = get_sfz_path(instrument)
+    if sfz_path is None:
+        print(f"No SFZ file found for {instrument}")
+        return None
+    
+    if not MUSIC21_AVAILABLE:
+        print("music21 required for MIDI generation")
+        return None
+    
+    try:
+        from music21 import note, stream, tempo, meter
+        
+        # Create a simple MIDI file with one sustained note
+        s = stream.Score()
+        p = stream.Part()
+        m = stream.Measure()
+        
+        # Set tempo (60 BPM = 1 beat per second)
+        m.insert(0, tempo.MetronomeMark(number=60))
+        m.insert(0, meter.TimeSignature('4/4'))
+        
+        # Create the note
+        n = note.Note(note_name)
+        n.quarterLength = duration_seconds  # Duration in beats (at 60BPM = seconds)
+        n.volume.velocity = velocity
+        m.append(n)
+        
+        # Add silence at end for release
+        from music21 import note as m21note
+        rest = m21note.Rest()
+        rest.quarterLength = 1.0  # 1 second of silence for release
+        m.append(rest)
+        
+        p.append(m)
+        s.append(p)
+        
+        # Write MIDI to temp file
+        midi_path = s.write('midi')
+        
+        # Create output WAV path
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_tmp:
+            wav_path = wav_tmp.name
+        
+        # Call sfizz_render
+        cmd = [
+            'sfizz_render',
+            '--sfz', str(sfz_path),
+            '--midi', str(midi_path),
+            '--wav', wav_path,
+            '-s', str(sample_rate),
+        ]
+        
+        print(f"Running sfizz_render: {' '.join(cmd)}")
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        
+        if result.returncode != 0:
+            print(f"sfizz_render error: {result.stderr}")
+            os.unlink(midi_path)
+            if os.path.exists(wav_path):
+                os.unlink(wav_path)
+            return None
+        
+        # Check if output file was created
+        if not os.path.exists(wav_path) or os.path.getsize(wav_path) == 0:
+            print("sfizz_render did not create output file")
+            os.unlink(midi_path)
+            return None
+        
+        # Read WAV bytes
+        with open(wav_path, 'rb') as f:
+            wav_bytes = f.read()
+        
+        # Cleanup temp files
+        os.unlink(midi_path)
+        os.unlink(wav_path)
+        
+        print(f"sfizz_render produced {len(wav_bytes)} bytes for {note_name}")
+        return wav_bytes
+        
+    except subprocess.TimeoutExpired:
+        print("sfizz_render timed out")
+        return None
+    except Exception as e:
+        print(f"Error rendering with sfizz: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+# =============================================================================
+# MUSESCORE RENDERING (Professional Quality)
+# =============================================================================
+
+def get_musescore_path() -> Optional[str]:
+    """Get the MuseScore executable path."""
+    if Path(MUSESCORE_PATH).exists():
+        return MUSESCORE_PATH
+    # Try common locations
+    common_paths = [
+        "/Applications/MuseScore 4.app/Contents/MacOS/mscore",
+        "/usr/bin/mscore",
+        "/usr/local/bin/mscore",
+        shutil.which("mscore"),
+    ]
+    for p in common_paths:
+        if p and Path(p).exists():
+            return p
+    return None
+
+
+def musicxml_to_wav_musescore(musicxml_content: str, timeout: int = 60) -> Optional[bytes]:
+    """
+    Render MusicXML to WAV using MuseScore 4 with Muse Sounds.
+    
+    This provides professional-quality audio rendering using the
+    orchestral sample libraries (Muse Strings, Brass, Woodwinds, etc.)
+    
+    Args:
+        musicxml_content: Raw MusicXML string
+        timeout: Max seconds to wait for rendering
+        
+    Returns:
+        WAV audio bytes, or None on error
+    """
+    mscore_path = get_musescore_path()
+    if not mscore_path:
+        print("MuseScore not found")
+        return None
+    
+    try:
+        # Write MusicXML to temp file
+        with tempfile.NamedTemporaryFile(
+            suffix='.musicxml', delete=False, mode='w', encoding='utf-8'
+        ) as xml_tmp:
+            xml_tmp.write(musicxml_content)
+            xml_path = xml_tmp.name
+        
+        # Create output file path
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_tmp:
+            wav_path = wav_tmp.name
+        
+        # MuseScore 4 CLI: convert MusicXML to WAV
+        # -o = output file (format determined by extension)
+        # --no-webview = disable webview (MuseScore 4 specific)
+        # QT_QPA_PLATFORM=offscreen for headless rendering
+        env = os.environ.copy()
+        env['QT_QPA_PLATFORM'] = 'offscreen'
+        
+        cmd = [
+            mscore_path,
+            '--no-webview',
+            '-o', wav_path,
+            xml_path
+        ]
+        
+        print(f"Running MuseScore: {' '.join(cmd)}")
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=env
+        )
+        
+        if result.returncode != 0:
+            print(f"MuseScore error (code {result.returncode}): {result.stderr}")
+            # Cleanup and return None
+            if os.path.exists(xml_path):
+                os.unlink(xml_path)
+            if os.path.exists(wav_path):
+                os.unlink(wav_path)
+            return None
+        
+        # Check if output file was created
+        if not os.path.exists(wav_path) or os.path.getsize(wav_path) == 0:
+            print("MuseScore did not create output file")
+            if os.path.exists(xml_path):
+                os.unlink(xml_path)
+            return None
+        
+        # Read WAV bytes
+        with open(wav_path, 'rb') as f:
+            wav_bytes = f.read()
+        
+        # Cleanup temp files
+        os.unlink(xml_path)
+        os.unlink(wav_path)
+        
+        print(f"MuseScore rendered {len(wav_bytes)} bytes")
+        return wav_bytes
+        
+    except subprocess.TimeoutExpired:
+        print(f"MuseScore rendering timed out after {timeout}s")
+        return None
+    except Exception as e:
+        print(f"Error rendering with MuseScore: {e}")
+        return None
+
+
+# =============================================================================
 # HIGH-LEVEL API
 # =============================================================================
 
@@ -448,6 +814,22 @@ def generate_audio_with_result(
                 musicxml_content = transposed_xml
                 transposition_applied = True
     
+    # Try MuseScore first (professional quality with Muse Sounds)
+    if MUSESCORE_AVAILABLE:
+        print("Attempting MuseScore rendering...")
+        wav_bytes = musicxml_to_wav_musescore(musicxml_content)
+        if wav_bytes:
+            # Cache successful result
+            if cache_key:
+                if len(_audio_cache) >= _cache_max_size:
+                    oldest = next(iter(_audio_cache))
+                    del _audio_cache[oldest]
+                _audio_cache[cache_key] = wav_bytes
+            return AudioResult(success=True, data=wav_bytes, content_type="audio/wav")
+        else:
+            print("MuseScore rendering failed, falling back to FluidSynth...")
+    
+    # Fall back to FluidSynth rendering via MIDI
     # Convert to MIDI
     midi_bytes = musicxml_to_midi(musicxml_content, instrument)
     if not midi_bytes:
@@ -533,7 +915,7 @@ _single_note_cache_max = 50
 def generate_single_note_audio(
     note_name: str,
     instrument: str = "piano",
-    duration_beats: int = 4,  # whole note = 4 beats
+    duration_beats: int = 3,  # 3 beats at 60 BPM = 3 seconds
     octave: Optional[int] = None,
 ) -> AudioResult:
     """
@@ -602,6 +984,28 @@ def generate_single_note_audio(
                 content_type="audio/wav"
             )
         
+        # Try SFZ rendering first (higher quality)
+        sfz_path = get_sfz_path(instrument)
+        if sfz_path and SFIZZ_RENDER_AVAILABLE:
+            print(f"Using sfizz_render for {instrument}: {sfz_path}")
+            wav_bytes = render_note_with_sfizz(
+                note_name=parsed_note,
+                duration_seconds=float(duration_beats),
+                velocity=100,
+                sfz_path=sfz_path,
+                instrument=instrument
+            )
+            if wav_bytes:
+                # Cache and return
+                if len(_single_note_cache) >= _single_note_cache_max:
+                    oldest = next(iter(_single_note_cache))
+                    del _single_note_cache[oldest]
+                _single_note_cache[cache_key] = wav_bytes
+                return AudioResult(success=True, data=wav_bytes, content_type="audio/wav")
+            else:
+                print("sfizz rendering failed, falling back to FluidSynth")
+        
+        # Fall back to MIDI + FluidSynth rendering
         # Create a simple score with one whole note
         s = stream.Score()
         p = stream.Part()
