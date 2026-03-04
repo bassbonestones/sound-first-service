@@ -88,6 +88,13 @@ class CapabilityV2(Base):
     mastery_type = Column(String, default='single')  # 'single' | 'any_of_pool' | 'multiple'
     mastery_count = Column(Integer, default=1)  # How many materials needed for 'multiple' type
     
+    # Evidence profile fields (for adaptive engine)
+    evidence_required_count = Column(Integer, default=1)  # How many evidence events needed for mastery
+    evidence_distinct_materials = Column(Boolean, default=False)  # True = must be different materials
+    evidence_acceptance_threshold = Column(Integer, default=4)  # Min rating (1-5) to count as evidence
+    evidence_qualifier_json = Column(String, nullable=True)  # JSON rule filter for evidence criteria
+    difficulty_weight = Column(Float, default=1.0)  # Weight for maturity calculation
+    
     __table_args__ = (
         Index('ix_capability_domain', 'domain'),
         Index('ix_capability_bit_index', 'bit_index'),
@@ -161,6 +168,14 @@ class MaterialAnalysis(Base):
     
     # Raw extraction data (JSON) for debugging/reanalysis
     raw_extraction_json = Column(String, nullable=True)
+    
+    # Staged content dimensions (for adaptive engine filtering)
+    tonal_complexity_stage = Column(Integer, nullable=True)  # 0..N stages
+    interval_size_stage = Column(Integer, nullable=True)  # 0..N stages
+    rhythm_complexity_stage = Column(Integer, nullable=True)  # 0..N stages
+    range_usage_stage = Column(Integer, nullable=True)  # 0..N stages
+    melodic_predictability_stage = Column(Integer, nullable=True)  # optional later
+    difficulty_index = Column(Float, nullable=True)  # 0..1 derived composite difficulty
 
 
 class UserCapabilityV2(Base):
@@ -184,6 +199,9 @@ class UserCapabilityV2(Base):
     # Usage tracking
     times_practiced = Column(Integer, default=0)
     times_refreshed = Column(Integer, default=0)  # Help menu access
+    
+    # Evidence tracking (cached from evidence events)
+    evidence_count = Column(Integer, default=0)  # Cached count of qualifying evidence
     
     __table_args__ = (
         Index('ix_user_capability_pair', 'user_id', 'capability_id', unique=True),
@@ -213,6 +231,200 @@ class UserComplexityScores(Base):
     comfortable_reading = Column(Float, default=1.0)
     
     updated_at = Column(DateTime, nullable=True)
+
+
+# =============================================================================
+# NEW TABLES FOR ADAPTIVE PRACTICE ENGINE (v1)
+# =============================================================================
+
+class MaterialTeachesCapability(Base):
+    """
+    Junction table mapping materials to capabilities they TEACH (pedagogical relationship).
+    
+    This is separate from MaterialCapability which maps what capabilities are REQUIRED.
+    'Teaches' supports:
+    - Candidate generation (materialsByTeachesCapability)
+    - Evidence counting (capability evidence comes from materials that teach it)
+    """
+    __tablename__ = 'material_teaches_capability'
+    
+    id = Column(Integer, primary_key=True)
+    material_id = Column(Integer, ForeignKey('materials.id'), nullable=False, index=True)
+    capability_id = Column(Integer, ForeignKey('capabilities_v2.id'), nullable=False, index=True)
+    
+    # Optional metadata for debugging/analytics
+    weight = Column(Float, default=1.0)  # Relative teaching importance
+    notes = Column(String, nullable=True)
+    
+    __table_args__ = (
+        Index('ix_mtc_material_capability', 'material_id', 'capability_id', unique=True),
+    )
+
+
+class UserMaterialState(Base):
+    """
+    Tracks user's mastery state and EMA for each material.
+    
+    Status buckets:
+    - UNEXPLORED: Never attempted
+    - IN_PROGRESS: Attempted but not mastered
+    - MASTERED: Meets mastery threshold (EMA + min attempts)
+    
+    Shelf (for MASTERED materials):
+    - DEFAULT: Normal rotation
+    - MAINTENANCE: Included in session rotation occasionally
+    - ARCHIVE: Removed from guided rotation but accessible
+    """
+    __tablename__ = 'user_material_state'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    material_id = Column(Integer, ForeignKey('materials.id'), nullable=False)
+    
+    # EMA tracking
+    ema_score = Column(Float, default=0.0)  # Exponential moving average of ratings
+    attempt_count = Column(Integer, default=0)
+    last_attempt_at = Column(DateTime, nullable=True)
+    
+    # Status bucket
+    status = Column(String, default='UNEXPLORED')  # UNEXPLORED | IN_PROGRESS | MASTERED
+    
+    # Shelf (meaningful when MASTERED)
+    shelf = Column(String, default='DEFAULT')  # DEFAULT | MAINTENANCE | ARCHIVE
+    
+    # Optional: track separate guided vs manual attempts
+    guided_attempt_count = Column(Integer, default=0)
+    manual_attempt_count = Column(Integer, default=0)
+    
+    __table_args__ = (
+        Index('ix_ums_user_material', 'user_id', 'material_id', unique=True),
+        Index('ix_ums_user_status', 'user_id', 'status'),
+        Index('ix_ums_user_shelf', 'user_id', 'shelf'),
+    )
+
+
+class UserPitchFocusStats(Base):
+    """
+    Tracks per-pitch, per-focus performance for focus targeting.
+    
+    Context types:
+    - GLOBAL: Aggregated across all materials
+    - MATERIAL: Specific to one material
+    
+    This enables micro-targeting inside each material by emphasizing
+    the weakest pitch/focus combinations.
+    """
+    __tablename__ = 'user_pitch_focus_stats'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    focus_card_id = Column(Integer, ForeignKey('focus_cards.id'), nullable=False)
+    pitch_midi = Column(Integer, nullable=False)  # MIDI note number
+    
+    # Context
+    context_type = Column(String, nullable=False)  # 'GLOBAL' | 'MATERIAL'
+    context_id = Column(Integer, nullable=True)  # NULL for GLOBAL, material_id for MATERIAL
+    
+    # Stats
+    ema_score = Column(Float, default=0.0)
+    attempt_count = Column(Integer, default=0)
+    last_attempt_at = Column(DateTime, nullable=True)
+    
+    __table_args__ = (
+        Index('ix_upfs_unique', 'user_id', 'focus_card_id', 'pitch_midi', 'context_type', 'context_id', unique=True),
+        Index('ix_upfs_user_context', 'user_id', 'context_type', 'context_id'),
+    )
+
+
+class UserCapabilityEvidenceEvent(Base):
+    """
+    Append-only log of evidence events for capability mastery.
+    
+    This is the source of truth for capability evidence counting.
+    The evidence_count on UserCapabilityV2 is a cached denormalization.
+    
+    Capabilities decide how to count evidence via their evidence profile:
+    - evidence_required_count
+    - evidence_distinct_materials (true/false)
+    - evidence_acceptance_threshold
+    - evidence_qualifier_json
+    """
+    __tablename__ = 'user_capability_evidence_event'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    capability_id = Column(Integer, ForeignKey('capabilities_v2.id'), nullable=False)
+    
+    material_id = Column(Integer, ForeignKey('materials.id'), nullable=True)  # Nullable (some evidence may not be material-specific)
+    practice_attempt_id = Column(Integer, ForeignKey('practice_attempts.id'), nullable=True)
+    
+    rating = Column(Integer, nullable=True)
+    credited_at = Column(DateTime, nullable=False)
+    
+    is_off_course = Column(Boolean, default=False)  # True = from manual/off-course practice
+    
+    __table_args__ = (
+        Index('ix_ucee_user_cap', 'user_id', 'capability_id'),
+        Index('ix_ucee_user_cap_material', 'user_id', 'capability_id', 'material_id'),
+    )
+
+
+class Collection(Base):
+    """
+    Represents a collection/group of materials (e.g., etude book, excerpt list).
+    
+    Used to show progress like "Etude Book A: 10/14 unlocked"
+    """
+    __tablename__ = 'collections'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=True)  # e.g., "EtudeBooks", "Solos", "Excerpts"
+    source_type = Column(String, nullable=True)  # public | licensed | user
+    license_id = Column(Integer, ForeignKey('licenses.id'), nullable=True)
+    metadata_json = Column(String, nullable=True)  # JSON for additional attributes
+
+
+class CollectionMaterial(Base):
+    """Junction table linking collections to materials with ordering."""
+    __tablename__ = 'collection_materials'
+    
+    id = Column(Integer, primary_key=True)
+    collection_id = Column(Integer, ForeignKey('collections.id'), nullable=False, index=True)
+    material_id = Column(Integer, ForeignKey('materials.id'), nullable=False, index=True)
+    order_index = Column(Integer, nullable=True)  # Position within collection
+    
+    __table_args__ = (
+        Index('ix_cm_collection_material', 'collection_id', 'material_id', unique=True),
+    )
+
+
+class License(Base):
+    """
+    Represents a content license/access grant.
+    
+    Minimal scaffolding for future monetization.
+    """
+    __tablename__ = 'licenses'
+    
+    id = Column(Integer, primary_key=True)
+    license_type = Column(String, nullable=True)  # public_domain | licensed_book | subscription_pack
+    provider = Column(String, nullable=True)
+    metadata_json = Column(String, nullable=True)  # JSON
+
+
+class UserLicense(Base):
+    """Tracks which licenses a user has access to."""
+    __tablename__ = 'user_licenses'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    license_id = Column(Integer, ForeignKey('licenses.id'), nullable=False)
+    purchased_at = Column(DateTime, nullable=True)
+    
+    __table_args__ = (
+        Index('ix_ul_user_license', 'user_id', 'license_id', unique=True),
+    )
 
 
 # =============================================================================

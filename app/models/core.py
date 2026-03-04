@@ -155,3 +155,7 @@ class PracticeAttempt(Base):
     rating = Column(Integer)
     fatigue = Column(Integer)
     timestamp = Column(DateTime)
+    
+    # Off-course practice tracking
+    is_off_course = Column(Boolean, default=False)  # True = manual practice of locked material
+    was_eligible = Column(Boolean, default=True)  # False if material was not eligible at time of attempt
