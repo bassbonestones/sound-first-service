@@ -74,7 +74,6 @@ def upgrade() -> None:
         sa.Column('requirement_type', sa.String(), default='required'),
         sa.Column('prerequisite_ids', sa.String(), nullable=True),
         sa.Column('bit_index', sa.Integer(), nullable=True, unique=True),
-        sa.Column('sequence_order', sa.Integer(), nullable=True),
         sa.Column('explanation', sa.String(), nullable=True),
         sa.Column('difficulty_tier', sa.Integer(), default=1),
         sa.Column('introduction_material_id', sa.Integer(), nullable=True),  # FK added later

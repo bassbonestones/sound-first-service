@@ -11,7 +11,6 @@ def cap(
  prerequisite_names: List[str] = None,
  requirement_type: str = "required",
  difficulty_tier: int = 1,
- sequence_order: int = None,
  evidence_required_count: int = 1,
  evidence_distinct_materials: bool = False,
  evidence_acceptance_threshold: int = 4,
@@ -25,7 +24,6 @@ def cap(
   "subdomain": subdomain,
   "requirement_type": requirement_type,
   "prerequisite_names": prerequisite_names or [],
-  "sequence_order": sequence_order,  # may be overwritten later
   "difficulty_tier": difficulty_tier,
   "mastery_type": "single",
   "mastery_count": 1,
@@ -440,8 +438,7 @@ def main() -> None:
  ]
 
  # -----------------------------
- # Assign sequence_order and bit_index deterministically
- # sequence_order = index in final list
+ # Assign bit_index deterministically
  # bit_index = index in final list (you can later re-map if you want reserved blocks)
  # -----------------------------
  # Ensure stable ordering by (domain, then insertion order) to avoid churn when you add later.
@@ -449,7 +446,6 @@ def main() -> None:
  caps_sorted = sorted(caps, key=lambda x: (x["domain"], x["name"]))
 
  for i, c in enumerate(caps_sorted):
-  c["sequence_order"] = i + 1
   c["bit_index"] = i
 
  payload = {

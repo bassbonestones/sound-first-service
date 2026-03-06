@@ -1,6 +1,6 @@
 {
- "version": "capabilities_20260306_001127",
- "count": 206,
+ "version": "capabilities_20260305_230957",
+ "count": 200,
  "capabilities": [
   {
    "name": "accidental_flat_symbol",
@@ -1186,13 +1186,14 @@
    "bit_index": 61
   },
   {
-   "name": "interval_m2",
-   "display_name": "Minor Second (m2)",
+   "name": "interval_A4",
+   "display_name": "Augmented Fourth (A4)",
    "domain": "intervals",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "first_note"
+    "first_note",
+    "interval_P5"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1225,26 +1226,6 @@
    "bit_index": 63
   },
   {
-   "name": "interval_m3",
-   "display_name": "Minor Third (m3)",
-   "domain": "intervals",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "first_note",
-    "interval_M2"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 64
-  },
-  {
    "name": "interval_M3",
    "display_name": "Major Third (M3)",
    "domain": "intervals",
@@ -1262,7 +1243,50 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
+   "bit_index": 64
+  },
+  {
+   "name": "interval_M6",
+   "display_name": "Major Sixth (M6)",
+   "domain": "intervals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note",
+    "interval_m6",
+    "tonal_pentachord_awareness",
+    "interval_P5"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
    "bit_index": 65
+  },
+  {
+   "name": "interval_M7",
+   "display_name": "Major Seventh (M7)",
+   "domain": "intervals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note",
+    "interval_m7",
+    "tonal_diatonic_scale_fragment"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 66
   },
   {
    "name": "interval_P4",
@@ -1282,7 +1306,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 66
+   "bit_index": 67
   },
   {
    "name": "interval_P5",
@@ -1302,17 +1326,17 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 67
+   "bit_index": 68
   },
   {
-   "name": "interval_A4",
-   "display_name": "Augmented Fourth (A4)",
+   "name": "interval_compound_9_plus",
+   "display_name": "Compound Intervals (9+)",
    "domain": "intervals",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
     "first_note",
-    "interval_P5"
+    "interval_octave"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1322,7 +1346,46 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 68
+   "bit_index": 69
+  },
+  {
+   "name": "interval_m2",
+   "display_name": "Minor Second (m2)",
+   "domain": "intervals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 70
+  },
+  {
+   "name": "interval_m3",
+   "display_name": "Minor Third (m3)",
+   "domain": "intervals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note",
+    "interval_M2"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 71
   },
   {
    "name": "interval_m6",
@@ -1342,28 +1405,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 69
-  },
-  {
-   "name": "interval_M6",
-   "display_name": "Major Sixth (M6)",
-   "domain": "intervals",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "first_note",
-    "interval_m6",
-    "interval_P5"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 70
+   "bit_index": 72
   },
   {
    "name": "interval_m7",
@@ -1383,28 +1425,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 71
-  },
-  {
-   "name": "interval_M7",
-   "display_name": "Major Seventh (M7)",
-   "domain": "intervals",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "first_note",
-    "interval_m7",
-    "diatonic_scale_fragment_3"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 72
+   "bit_index": 73
   },
   {
    "name": "interval_octave",
@@ -1415,27 +1436,7 @@
    "prerequisite_names": [
     "first_note",
     "interval_M7",
-    "diatonic_scale_fragment_3"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 73
-  },
-  {
-   "name": "interval_compound_9_plus",
-   "display_name": "Compound Intervals (9+)",
-   "domain": "intervals",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "first_note",
-    "interval_octave"
+    "tonal_diatonic_scale_fragment"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1491,7 +1492,9 @@
    "domain": "key_system",
    "subdomain": null,
    "requirement_type": "required",
-   "prerequisite_names": [],
+   "prerequisite_names": [
+    "tonal_pentachord_awareness"
+   ],
    "difficulty_tier": 1,
    "mastery_type": "single",
    "mastery_count": 1,
@@ -2222,74 +2225,6 @@
    "bit_index": 115
   },
   {
-   "name": "range_span_major_sixth",
-   "display_name": "Major Sixth (Range Span)",
-   "domain": "range_span",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [],
-   "difficulty_tier": 3,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 116
-  },
-  {
-   "name": "range_span_minor_seventh",
-   "display_name": "Minor Seventh (Range Span)",
-   "domain": "range_span",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [],
-   "difficulty_tier": 3,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 117
-  },
-  {
-   "name": "range_span_major_seventh",
-   "display_name": "Major Seventh (Range Span)",
-   "domain": "range_span",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [],
-   "difficulty_tier": 4,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 118
-  },
-  {
-   "name": "range_span_octave",
-   "display_name": "Octave (Range Span)",
-   "domain": "range_span",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [],
-   "difficulty_tier": 4,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 119
-  },
-  {
    "name": "rest_32nd",
    "display_name": "Thirty-Second Rest",
    "domain": "rests",
@@ -2307,7 +2242,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 120
+   "bit_index": 116
   },
   {
    "name": "rest_64th",
@@ -2327,7 +2262,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 121
+   "bit_index": 117
   },
   {
    "name": "rest_eighth",
@@ -2347,7 +2282,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 122
+   "bit_index": 118
   },
   {
    "name": "rest_half",
@@ -2367,7 +2302,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 123
+   "bit_index": 119
   },
   {
    "name": "rest_multimeasure",
@@ -2386,7 +2321,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 124
+   "bit_index": 120
   },
   {
    "name": "rest_quarter",
@@ -2406,7 +2341,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 125
+   "bit_index": 121
   },
   {
    "name": "rest_sixteenth",
@@ -2426,7 +2361,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 126
+   "bit_index": 122
   },
   {
    "name": "rest_triplet_eighth",
@@ -2446,7 +2381,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 127
+   "bit_index": 123
   },
   {
    "name": "rest_tuplet_3_quarter",
@@ -2466,7 +2401,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 128
+   "bit_index": 124
   },
   {
    "name": "rest_whole",
@@ -2485,7 +2420,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 129
+   "bit_index": 125
   },
   {
    "name": "rhythm_64th_notes",
@@ -2506,7 +2441,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 130
+   "bit_index": 126
   },
   {
    "name": "rhythm_32nd_notes",
@@ -2527,7 +2462,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 131
+   "bit_index": 127
   },
   {
    "name": "rhythm_dotted_eighth",
@@ -2548,7 +2483,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 132
+   "bit_index": 128
   },
   {
    "name": "rhythm_dotted_half",
@@ -2569,7 +2504,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 133
+   "bit_index": 129
   },
   {
    "name": "rhythm_dotted_quarter",
@@ -2590,7 +2525,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 134
+   "bit_index": 130
   },
   {
    "name": "rhythm_dotted_sixteenth",
@@ -2611,7 +2546,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 135
+   "bit_index": 131
   },
   {
    "name": "rhythm_dotted_whole",
@@ -2634,7 +2569,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 136
+   "bit_index": 132
   },
   {
    "name": "rhythm_double_dotted_half",
@@ -2655,7 +2590,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 137
+   "bit_index": 133
   },
   {
    "name": "rhythm_eighth_notes",
@@ -2676,7 +2611,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 138
+   "bit_index": 134
   },
   {
    "name": "rhythm_half_notes",
@@ -2697,7 +2632,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 139
+   "bit_index": 135
   },
   {
    "name": "rhythm_quarter_notes",
@@ -2718,7 +2653,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 140
+   "bit_index": 136
   },
   {
    "name": "rhythm_sixteenth_notes",
@@ -2739,7 +2674,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 141
+   "bit_index": 137
   },
   {
    "name": "rhythm_syncopation",
@@ -2760,7 +2695,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 142
+   "bit_index": 138
   },
   {
    "name": "rhythm_ties_across_beats",
@@ -2781,7 +2716,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 143
+   "bit_index": 139
   },
   {
    "name": "rhythm_triplets_eighth",
@@ -2802,7 +2737,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 144
+   "bit_index": 140
   },
   {
    "name": "rhythm_tuplet_3_quarters",
@@ -2823,7 +2758,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 145
+   "bit_index": 141
   },
   {
    "name": "rhythm_whole_notes",
@@ -2843,7 +2778,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 146
+   "bit_index": 142
   },
   {
    "name": "pulse_tracking",
@@ -2862,7 +2797,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 147
+   "bit_index": 143
   },
   {
    "name": "pulse_tracking_accent_shifting",
@@ -2881,7 +2816,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 148
+   "bit_index": 144
   },
   {
    "name": "pulse_tracking_call_response",
@@ -2900,7 +2835,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 149
+   "bit_index": 145
   },
   {
    "name": "pulse_tracking_clapping",
@@ -2919,7 +2854,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 150
+   "bit_index": 146
   },
   {
    "name": "pulse_tracking_drum_loop",
@@ -2938,7 +2873,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 151
+   "bit_index": 147
   },
   {
    "name": "pulse_tracking_dynamic_rhythm_control",
@@ -2957,7 +2892,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 152
+   "bit_index": 148
   },
   {
    "name": "pulse_tracking_guided_improv",
@@ -2976,7 +2911,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 153
+   "bit_index": 149
   },
   {
    "name": "pulse_tracking_metronome_fade",
@@ -2995,7 +2930,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 154
+   "bit_index": 150
   },
   {
    "name": "pulse_tracking_multi_layer_contrast",
@@ -3014,7 +2949,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 155
+   "bit_index": 151
   },
   {
    "name": "pulse_tracking_polyrhythm_intro",
@@ -3033,7 +2968,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 156
+   "bit_index": 152
   },
   {
    "name": "pulse_tracking_rest_based",
@@ -3052,7 +2987,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 157
+   "bit_index": 153
   },
   {
    "name": "pulse_tracking_rhythm_ear_training",
@@ -3071,7 +3006,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 158
+   "bit_index": 154
   },
   {
    "name": "pulse_tracking_subdividing",
@@ -3090,7 +3025,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 159
+   "bit_index": 155
   },
   {
    "name": "pulse_tracking_vocal_counting",
@@ -3109,7 +3044,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 160
+   "bit_index": 156
   },
   {
    "name": "scale_major",
@@ -3130,7 +3065,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 161
+   "bit_index": 157
   },
   {
    "name": "scale_natural_minor",
@@ -3149,7 +3084,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 162
+   "bit_index": 158
   },
   {
    "name": "mode_dorian",
@@ -3168,7 +3103,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 163
+   "bit_index": 159
   },
   {
    "name": "mode_locrian",
@@ -3187,7 +3122,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 164
+   "bit_index": 160
   },
   {
    "name": "mode_lydian",
@@ -3206,7 +3141,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 165
+   "bit_index": 161
   },
   {
    "name": "mode_mixolydian",
@@ -3225,7 +3160,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 166
+   "bit_index": 162
   },
   {
    "name": "mode_phrygian",
@@ -3244,7 +3179,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 167
+   "bit_index": 163
   },
   {
    "name": "scale_major_pentatonic",
@@ -3263,7 +3198,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 168
+   "bit_index": 164
   },
   {
    "name": "scale_minor_pentatonic",
@@ -3282,7 +3217,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 169
+   "bit_index": 165
   },
   {
    "name": "scale_chromatic",
@@ -3301,7 +3236,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 170
+   "bit_index": 166
   },
   {
    "name": "scale_harmonic_minor",
@@ -3320,7 +3255,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 171
+   "bit_index": 167
   },
   {
    "name": "scale_major_minor",
@@ -3339,7 +3274,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 172
+   "bit_index": 168
   },
   {
    "name": "scale_melodic_minor",
@@ -3358,7 +3293,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 173
+   "bit_index": 169
   },
   {
    "name": "scale_minor_major",
@@ -3377,7 +3312,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 174
+   "bit_index": 170
   },
   {
    "name": "tempo_skill_a_tempo",
@@ -3396,7 +3331,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 175
+   "bit_index": 171
   },
   {
    "name": "tempo_skill_accelerando",
@@ -3415,7 +3350,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 176
+   "bit_index": 172
   },
   {
    "name": "tempo_skill_rallentando",
@@ -3434,7 +3369,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 177
+   "bit_index": 173
   },
   {
    "name": "tempo_skill_ritardando",
@@ -3453,7 +3388,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 178
+   "bit_index": 174
   },
   {
    "name": "tempo_skill_rubato",
@@ -3472,7 +3407,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 179
+   "bit_index": 175
   },
   {
    "name": "tempo_term_adagio",
@@ -3492,7 +3427,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 180
+   "bit_index": 176
   },
   {
    "name": "tempo_term_allegretto",
@@ -3512,7 +3447,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 181
+   "bit_index": 177
   },
   {
    "name": "tempo_term_allegro",
@@ -3532,7 +3467,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 182
+   "bit_index": 178
   },
   {
    "name": "tempo_term_andante",
@@ -3552,7 +3487,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 183
+   "bit_index": 179
   },
   {
    "name": "tempo_term_largo",
@@ -3571,7 +3506,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 184
+   "bit_index": 180
   },
   {
    "name": "tempo_term_moderato",
@@ -3591,7 +3526,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 185
+   "bit_index": 181
   },
   {
    "name": "tempo_term_prestissimo",
@@ -3611,7 +3546,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 186
+   "bit_index": 182
   },
   {
    "name": "tempo_term_presto",
@@ -3631,7 +3566,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 187
+   "bit_index": 183
   },
   {
    "name": "tempo_term_vivace",
@@ -3651,7 +3586,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 188
+   "bit_index": 184
   },
   {
    "name": "texture_four_voices",
@@ -3670,7 +3605,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 189
+   "bit_index": 185
   },
   {
    "name": "texture_three_voices",
@@ -3689,7 +3624,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 190
+   "bit_index": 186
   },
   {
    "name": "texture_two_voices",
@@ -3708,15 +3643,35 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 191
+   "bit_index": 187
   },
   {
-   "name": "diatonic_scale_fragment_2",
-   "display_name": "Diatonic Scale Fragment (2 Notes)",
+   "name": "tonal_chromatic_approach_tones",
+   "display_name": "Chromatic Approach Tones",
    "domain": "tonal_context",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "tonal_pentachord_awareness"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 188
+  },
+  {
+   "name": "tonal_diatonic_neighbor_motion",
+   "display_name": "Diatonic Neighbor Motion",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tonal_single_pitch_center",
     "interval_M2"
    ],
    "difficulty_tier": 1,
@@ -3727,17 +3682,18 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 192
+   "bit_index": 189
   },
   {
-   "name": "diatonic_scale_fragment_3",
-   "display_name": "Diatonic Scale Fragment (3 Notes)",
+   "name": "tonal_diatonic_scale_fragment",
+   "display_name": "Diatonic Scale Fragment",
    "domain": "tonal_context",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "diatonic_scale_fragment_2",
-    "range_span_major_third"
+    "tonal_diatonic_neighbor_motion",
+    "interval_M2",
+    "interval_m2"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -3747,106 +3703,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 193
-  },
-  {
-   "name": "diatonic_scale_fragment_4",
-   "display_name": "Diatonic Scale Fragment (4 Notes)",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "diatonic_scale_fragment_3",
-    "range_span_perfect_fourth"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 194
-  },
-  {
-   "name": "diatonic_scale_fragment_5",
-   "display_name": "Diatonic Scale Fragment (5 Notes)",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "range_span_perfect_fifth",
-    "diatonic_scale_fragment_4"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 195
-  },
-  {
-   "name": "diatonic_scale_fragment_6",
-   "display_name": "Diatonic Scale Fragment (6 Notes)",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "range_span_major_sixth",
-    "diatonic_scale_fragment_5"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 196
-  },
-  {
-   "name": "diatonic_scale_fragment_7",
-   "display_name": "Diatonic Scale Fragment (7 Notes)",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "diatonic_scale_fragment_6",
-    "range_span_major_seventh"
-   ],
-   "difficulty_tier": 3,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 197
-  },
-  {
-   "name": "tonal_chromatic_approach_tones",
-   "display_name": "Chromatic Approach Tones",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "diatonic_scale_fragment_7"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 198
+   "bit_index": 190
   },
   {
    "name": "tonal_modulation_awareness",
@@ -3865,7 +3722,45 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 199
+   "bit_index": 191
+  },
+  {
+   "name": "tonal_pentachord_awareness",
+   "display_name": "Pentachord Awareness (Do–Re–Mi–Fa–Sol)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tonal_diatonic_scale_fragment"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 192
+  },
+  {
+   "name": "tonal_single_pitch_center",
+   "display_name": "Single Pitch Center",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 193
   },
   {
    "name": "tuplet_duplet",
@@ -3884,7 +3779,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 200
+   "bit_index": 194
   },
   {
    "name": "tuplet_quintuplet",
@@ -3903,7 +3798,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 201
+   "bit_index": 195
   },
   {
    "name": "tuplet_septuplet",
@@ -3922,7 +3817,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 202
+   "bit_index": 196
   },
   {
    "name": "tuplet_sextuplet",
@@ -3941,7 +3836,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 203
+   "bit_index": 197
   },
   {
    "name": "tuplet_triplet_general",
@@ -3960,7 +3855,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 204
+   "bit_index": 198
   },
   {
    "name": "tuplet_triplet_quarter",
@@ -3980,7 +3875,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 205
+   "bit_index": 199
   }
  ]
 }

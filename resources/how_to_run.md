@@ -3,28 +3,35 @@
 ## First Time Setup
 
 1. **Install dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 2. **Create `.env` file** (copy from `.env.example`):
+
    ```bash
    cp .env.example .env
    ```
+
    Then edit `.env` to set your `DATABASE_URL` (e.g., `sqlite:///./sound_first.db`)
 
 3. **Run database migrations:**
+
    ```bash
    alembic upgrade head
    ```
 
 4. **Initialize database (fresh start):**
+
    ```bash
    PYTHONPATH=. python resources/init_setup.py
    ```
+
    This removes the DB, runs migrations, and seeds all data.
-   
+
    Or seed individually:
+
    ```bash
    PYTHONPATH=. python resources/seed_all.py              # all seed scripts
    PYTHONPATH=. python resources/seed_capabilities.py     # capabilities only
@@ -43,4 +50,3 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```bash
 pytest
 ```
-

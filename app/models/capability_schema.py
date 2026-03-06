@@ -64,7 +64,6 @@ class Capability(Base):
     bit_index = Column(Integer, nullable=True, unique=True)  # 0-511 for 8 x 64-bit masks
     
     # Teaching content
-    sequence_order = Column(Integer, nullable=True)  # Suggested introduction order
     explanation = Column(String, nullable=True)  # Teaching text
     
     # Metadata

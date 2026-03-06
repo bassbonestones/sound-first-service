@@ -1,6 +1,6 @@
 {
- "version": "capabilities_20260306_001127",
- "count": 206,
+ "version": "capabilities_20260305_233811",
+ "count": 203,
  "capabilities": [
   {
    "name": "accidental_flat_symbol",
@@ -1353,6 +1353,7 @@
    "prerequisite_names": [
     "first_note",
     "interval_m6",
+    "tonal_pentachord_awareness",
     "interval_P5"
    ],
    "difficulty_tier": 1,
@@ -1394,7 +1395,7 @@
    "prerequisite_names": [
     "first_note",
     "interval_m7",
-    "diatonic_scale_fragment_3"
+    "tonal_diatonic_scale_fragment"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1415,7 +1416,7 @@
    "prerequisite_names": [
     "first_note",
     "interval_M7",
-    "diatonic_scale_fragment_3"
+    "tonal_diatonic_scale_fragment"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1491,7 +1492,9 @@
    "domain": "key_system",
    "subdomain": null,
    "requirement_type": "required",
-   "prerequisite_names": [],
+   "prerequisite_names": [
+    "tonal_pentachord_awareness"
+   ],
    "difficulty_tier": 1,
    "mastery_type": "single",
    "mastery_count": 1,
@@ -3711,8 +3714,8 @@
    "bit_index": 191
   },
   {
-   "name": "diatonic_scale_fragment_2",
-   "display_name": "Diatonic Scale Fragment (2 Notes)",
+   "name": "tonal_diatonic_neighbor_motion",
+   "display_name": "Diatonic Neighbor Motion",
    "domain": "tonal_context",
    "subdomain": null,
    "requirement_type": "required",
@@ -3730,14 +3733,15 @@
    "bit_index": 192
   },
   {
-   "name": "diatonic_scale_fragment_3",
-   "display_name": "Diatonic Scale Fragment (3 Notes)",
+   "name": "tonal_diatonic_scale_fragment",
+   "display_name": "Diatonic Scale Fragment",
    "domain": "tonal_context",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "diatonic_scale_fragment_2",
-    "range_span_major_third"
+    "tonal_diatonic_neighbor_motion",
+    "interval_M2",
+    "interval_m2"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -3750,14 +3754,13 @@
    "bit_index": 193
   },
   {
-   "name": "diatonic_scale_fragment_4",
-   "display_name": "Diatonic Scale Fragment (4 Notes)",
+   "name": "tonal_pentachord_awareness",
+   "display_name": "Pentachord Awareness (Do–Re–Mi–Fa–Sol)",
    "domain": "tonal_context",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "diatonic_scale_fragment_3",
-    "range_span_perfect_fourth"
+    "tonal_diatonic_scale_fragment"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -3770,14 +3773,13 @@
    "bit_index": 194
   },
   {
-   "name": "diatonic_scale_fragment_5",
-   "display_name": "Diatonic Scale Fragment (5 Notes)",
+   "name": "tonal_chromatic_approach_tones",
+   "display_name": "Chromatic Approach Tones",
    "domain": "tonal_context",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "range_span_perfect_fifth",
-    "diatonic_scale_fragment_4"
+    "tonal_pentachord_awareness"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -3788,65 +3790,6 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "bit_index": 195
-  },
-  {
-   "name": "diatonic_scale_fragment_6",
-   "display_name": "Diatonic Scale Fragment (6 Notes)",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "range_span_major_sixth",
-    "diatonic_scale_fragment_5"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 196
-  },
-  {
-   "name": "diatonic_scale_fragment_7",
-   "display_name": "Diatonic Scale Fragment (7 Notes)",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "diatonic_scale_fragment_6",
-    "range_span_major_seventh"
-   ],
-   "difficulty_tier": 3,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 197
-  },
-  {
-   "name": "tonal_chromatic_approach_tones",
-   "display_name": "Chromatic Approach Tones",
-   "domain": "tonal_context",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "diatonic_scale_fragment_7"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 198
   },
   {
    "name": "tonal_modulation_awareness",
@@ -3865,7 +3808,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 199
+   "bit_index": 196
   },
   {
    "name": "tuplet_duplet",
@@ -3884,7 +3827,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 200
+   "bit_index": 197
   },
   {
    "name": "tuplet_quintuplet",
@@ -3903,7 +3846,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 201
+   "bit_index": 198
   },
   {
    "name": "tuplet_septuplet",
@@ -3922,7 +3865,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 202
+   "bit_index": 199
   },
   {
    "name": "tuplet_sextuplet",
@@ -3941,7 +3884,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 203
+   "bit_index": 200
   },
   {
    "name": "tuplet_triplet_general",
@@ -3960,7 +3903,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 204
+   "bit_index": 201
   },
   {
    "name": "tuplet_triplet_quarter",
@@ -3980,7 +3923,7 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 205
+   "bit_index": 202
   }
  ]
 }

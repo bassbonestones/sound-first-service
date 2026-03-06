@@ -1961,10 +1961,8 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
         if cap:
             mastered_cap_names.append(cap.name)
     
-    # Get all capabilities ordered by sequence (V2)
-    all_caps = db.query(Capability).filter(
-        Capability.sequence_order != None
-    ).order_by(Capability.sequence_order).all()
+    # Get all capabilities ordered by domain and bit_index (V2)
+    all_caps = db.query(Capability).order_by(Capability.domain, Capability.bit_index).all()
     
     # Build list for the logic function
     caps_list = []
@@ -1973,7 +1971,6 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
             "id": cap.id,
             "name": cap.name,
             "display_name": cap.display_name,
-            "sequence_order": cap.sequence_order,
             "explanation": cap.explanation,
             "domain": cap.domain
         })
@@ -1988,8 +1985,7 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
             "id": next_cap.get("id"),
             "name": next_cap.get("name"),
             "display_name": next_cap.get("display_name"),
-            "domain": next_cap.get("domain"),
-            "sequence_order": next_cap.get("sequence_order")
+            "domain": next_cap.get("domain")
         },
         "user_mastered_count": len(mastered_cap_names)
     }
@@ -2231,7 +2227,7 @@ def list_capabilities(
     if domain:
         query = query.filter_by(domain=domain)
     
-    caps = query.order_by(Capability.sequence_order, Capability.name).all()
+    caps = query.order_by(Capability.domain, Capability.bit_index, Capability.name).all()
     
     return [
         {
@@ -2243,7 +2239,6 @@ def list_capabilities(
             "requirement_type": c.requirement_type,
             "bit_index": c.bit_index,
             "difficulty_tier": c.difficulty_tier,
-            "sequence_order": c.sequence_order,
         }
         for c in caps
     ]
@@ -2457,7 +2452,7 @@ def admin_get_capabilities(
     if domain:
         query = query.filter(Capability.domain == domain)
     
-    capabilities = query.order_by(Capability.sequence_order, Capability.name).all()
+    capabilities = query.order_by(Capability.domain, Capability.bit_index, Capability.name).all()
     
     result = []
     for cap in capabilities:
@@ -2486,7 +2481,6 @@ def admin_get_capabilities(
             "subdomain": cap.subdomain,
             "bit_index": cap.bit_index,
             "requirement_type": cap.requirement_type,
-            "sequence_order": cap.sequence_order,
             "difficulty_tier": cap.difficulty_tier,
             "difficulty_weight": cap.difficulty_weight,
             "mastery_type": cap.mastery_type,
@@ -2560,7 +2554,7 @@ def admin_export_capabilities(
     import os
     import shutil
     
-    capabilities = db.query(Capability).order_by(Capability.sequence_order, Capability.name).all()
+    capabilities = db.query(Capability).order_by(Capability.domain, Capability.bit_index, Capability.name).all()
     
     # Build capability ID to name mapping for prerequisites
     cap_id_to_name = {cap.id: cap.name for cap in capabilities}
@@ -2593,7 +2587,6 @@ def admin_export_capabilities(
             "subdomain": cap.subdomain,
             "requirement_type": cap.requirement_type or "required",
             "prerequisite_names": prereq_names,
-            "sequence_order": cap.sequence_order,
             "difficulty_tier": cap.difficulty_tier or 1,
             "mastery_type": cap.mastery_type or "single",
             "mastery_count": cap.mastery_count or 1,
@@ -2721,6 +2714,319 @@ def admin_restore_capability(
     }
 
 
+@app.delete("/admin/capabilities/{capability_id}")
+def admin_delete_capability(
+    capability_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Permanently delete a capability. Shifts bit_indexes of capabilities after it down by 1.
+    If the domain becomes empty, it effectively gets removed (no capabilities reference it).
+    """
+    from app.models.capability_schema import Capability
+    
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    cap_name = cap.name
+    cap_domain = cap.domain
+    deleted_bit_index = cap.bit_index
+    
+    # Get all capabilities that come after this one (higher bit_index)
+    caps_after = db.query(Capability).filter(Capability.bit_index > deleted_bit_index).all()
+    
+    # Delete the capability
+    db.delete(cap)
+    
+    # Shift all capabilities after it down by 1
+    # Two-pass to avoid UNIQUE constraint violations
+    if caps_after:
+        # First pass: set to negative temporary values
+        for c in caps_after:
+            c.bit_index = -(c.bit_index)
+        db.flush()
+        # Second pass: set to final values (original - 1)
+        for c in caps_after:
+            c.bit_index = -(c.bit_index) - 1
+    
+    db.commit()
+    
+    # Check if domain is now empty
+    remaining_in_domain = db.query(Capability).filter_by(domain=cap_domain).count()
+    domain_removed = remaining_in_domain == 0
+    
+    return {
+        "success": True,
+        "message": f"Deleted capability '{cap_name}'",
+        "capability_id": capability_id,
+        "shifted_count": len(caps_after),
+        "domain_removed": domain_removed,
+        "domain": cap_domain
+    }
+
+
+# Pydantic model for creating a new capability
+class CapabilityCreateRequest(BaseModel):
+    """Request model for creating a new capability."""
+    name: str
+    display_name: Optional[str] = None
+    domain: str
+    subdomain: Optional[str] = None
+    requirement_type: str = "required"
+    difficulty_tier: int = 1
+    mastery_type: str = "single"
+    mastery_count: int = 1
+    evidence_required_count: int = 1
+    evidence_distinct_materials: bool = False
+    evidence_acceptance_threshold: int = 4
+    difficulty_weight: float = 1.0
+    prerequisite_ids: Optional[List[int]] = None
+
+
+@app.post("/admin/capabilities")
+def admin_create_capability(
+    create_data: CapabilityCreateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Create a new capability. Inserts at the correct position based on alphabetical domain order.
+    Capabilities in alphabetically-later domains get their bit_indexes shifted up.
+    """
+    from app.models.capability_schema import Capability
+    from sqlalchemy import func
+    
+    # Check name uniqueness
+    existing = db.query(Capability).filter_by(name=create_data.name).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Capability with name '{create_data.name}' already exists")
+    
+    # Get all capabilities ordered by bit_index
+    all_caps = db.query(Capability).order_by(Capability.bit_index).all()
+    
+    # Get domains sorted alphabetically
+    existing_domains = sorted(set(c.domain for c in all_caps))
+    target_domain = create_data.domain
+    
+    # Find where target domain fits alphabetically and determine insert position
+    if target_domain in existing_domains:
+        # Existing domain - insert at end of that domain's capabilities
+        domain_caps = [c for c in all_caps if c.domain == target_domain]
+        if domain_caps:
+            # Insert after the last capability in this domain
+            max_bit_in_domain = max(c.bit_index for c in domain_caps)
+            insert_bit_index = max_bit_in_domain + 1
+        else:
+            insert_bit_index = 0
+    else:
+        # New domain - find alphabetical position and insert at that point
+        # Find the first domain that comes after this one alphabetically
+        insert_bit_index = None
+        for existing_domain in existing_domains:
+            if existing_domain > target_domain:
+                # Insert before this domain
+                domain_caps = [c for c in all_caps if c.domain == existing_domain]
+                if domain_caps:
+                    insert_bit_index = min(c.bit_index for c in domain_caps)
+                break
+        
+        # If no domain comes after, insert at the end
+        if insert_bit_index is None:
+            max_bit = db.query(func.max(Capability.bit_index)).scalar() or -1
+            insert_bit_index = max_bit + 1
+    
+    # Shift all capabilities at or after insert_bit_index up by 1
+    # Use two-pass to avoid UNIQUE constraint violations
+    caps_to_shift = [c for c in all_caps if c.bit_index >= insert_bit_index]
+    # Store original indexes
+    original_indexes = {c.id: c.bit_index for c in caps_to_shift}
+    # First pass: set to negative temporary values
+    for cap in caps_to_shift:
+        cap.bit_index = -(cap.bit_index + 1)
+    db.flush()
+    # Second pass: set to final positive values (original + 1)
+    for cap in caps_to_shift:
+        cap.bit_index = original_indexes[cap.id] + 1
+    
+    # Create the capability with the correct bit_index
+    cap = Capability(
+        name=create_data.name,
+        display_name=create_data.display_name,
+        domain=create_data.domain,
+        subdomain=create_data.subdomain,
+        requirement_type=create_data.requirement_type,
+        bit_index=insert_bit_index,
+        difficulty_tier=create_data.difficulty_tier,
+        mastery_type=create_data.mastery_type,
+        mastery_count=create_data.mastery_count,
+        evidence_required_count=create_data.evidence_required_count,
+        evidence_distinct_materials=create_data.evidence_distinct_materials,
+        evidence_acceptance_threshold=create_data.evidence_acceptance_threshold,
+        difficulty_weight=create_data.difficulty_weight,
+        prerequisite_ids=json.dumps(create_data.prerequisite_ids) if create_data.prerequisite_ids else None,
+        is_active=True
+    )
+    
+    db.add(cap)
+    db.commit()
+    db.refresh(cap)
+    
+    return {
+        "success": True,
+        "message": f"Created capability '{cap.name}' at bit_index {cap.bit_index}",
+        "capability": {
+            "id": cap.id,
+            "name": cap.name,
+            "display_name": cap.display_name,
+            "domain": cap.domain,
+            "bit_index": cap.bit_index
+        },
+        "shifted_count": len(caps_to_shift)
+    }
+
+
+class ReorderCapabilitiesRequest(BaseModel):
+    """Request model for reordering capabilities within a domain."""
+    domain: str
+    capability_ids: List[int]  # Ordered list of capability IDs
+
+
+@app.post("/admin/capabilities/reorder")
+def admin_reorder_capabilities(
+    reorder_data: ReorderCapabilitiesRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Reorder capabilities within a domain by reassigning bit_indexes.
+    The capability_ids list should contain all capabilities in the domain in the desired order.
+    """
+    from app.models.capability_schema import Capability
+    
+    domain = reorder_data.domain
+    capability_ids = reorder_data.capability_ids
+    
+    # Get all capabilities in this domain
+    domain_caps = db.query(Capability).filter_by(domain=domain).all()
+    domain_cap_ids = {c.id for c in domain_caps}
+    
+    # Validate all IDs belong to this domain
+    provided_ids = set(capability_ids)
+    if provided_ids != domain_cap_ids:
+        missing = domain_cap_ids - provided_ids
+        extra = provided_ids - domain_cap_ids
+        errors = []
+        if missing:
+            errors.append(f"Missing capability IDs from domain: {list(missing)}")
+        if extra:
+            errors.append(f"Capability IDs not in domain '{domain}': {list(extra)}")
+        raise HTTPException(status_code=400, detail="; ".join(errors))
+    
+    # Get the min bit_index in this domain to use as base
+    min_bit = min(c.bit_index for c in domain_caps if c.bit_index is not None)
+    
+    # Two-pass to avoid UNIQUE constraint violations
+    cap_by_id = {c.id: c for c in domain_caps}
+    # First pass: set to negative temporary values
+    for i, cap_id in enumerate(capability_ids):
+        cap = cap_by_id[cap_id]
+        cap.bit_index = -(i + 1)
+    db.flush()
+    # Second pass: set to final positive values
+    for i, cap_id in enumerate(capability_ids):
+        cap = cap_by_id[cap_id]
+        cap.bit_index = min_bit + i
+    
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"Reordered {len(capability_ids)} capabilities in domain '{domain}'",
+        "domain": domain,
+        "new_order": [
+            {"id": cap_id, "bit_index": min_bit + i}
+            for i, cap_id in enumerate(capability_ids)
+        ]
+    }
+
+
+class RenameDomainRequest(BaseModel):
+    """Request model for renaming a domain."""
+    old_name: str
+    new_name: str
+
+
+@app.post("/admin/domains/rename")
+def admin_rename_domain(
+    rename_data: RenameDomainRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Rename a domain. Updates all capabilities in that domain.
+    After renaming, re-sorts all capabilities by alphabetical domain order.
+    """
+    from app.models.capability_schema import Capability
+    
+    old_name = rename_data.old_name.strip()
+    new_name = rename_data.new_name.strip()
+    
+    if not new_name:
+        raise HTTPException(status_code=400, detail="New domain name cannot be empty")
+    
+    # Check if old domain exists
+    caps_in_domain = db.query(Capability).filter_by(domain=old_name).all()
+    if not caps_in_domain:
+        raise HTTPException(status_code=404, detail=f"Domain '{old_name}' not found")
+    
+    # Check if new name already exists (unless same name with different case)
+    if old_name.lower() != new_name.lower():
+        existing = db.query(Capability).filter_by(domain=new_name).first()
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Domain '{new_name}' already exists")
+    
+    # Update all capabilities in this domain
+    for cap in caps_in_domain:
+        cap.domain = new_name
+    
+    # Re-sort all capabilities by alphabetical domain order
+    all_caps = db.query(Capability).all()
+    
+    # Group by domain, sorted alphabetically
+    caps_by_domain = {}
+    for cap in all_caps:
+        if cap.domain not in caps_by_domain:
+            caps_by_domain[cap.domain] = []
+        caps_by_domain[cap.domain].append(cap)
+    
+    # Sort capabilities within each domain by their current bit_index
+    for domain in caps_by_domain:
+        caps_by_domain[domain].sort(key=lambda c: c.bit_index)
+    
+    # Build the new order list
+    new_order = []
+    for domain in sorted(caps_by_domain.keys()):
+        new_order.extend(caps_by_domain[domain])
+    
+    # Two-pass approach to avoid UNIQUE constraint violations:
+    # First, set all bit_indexes to negative temporary values
+    for i, cap in enumerate(new_order):
+        cap.bit_index = -(i + 1)
+    db.flush()
+    
+    # Then set them to final positive values
+    for i, cap in enumerate(new_order):
+        cap.bit_index = i
+    
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"Renamed domain '{old_name}' to '{new_name}' ({len(caps_in_domain)} capabilities updated)",
+        "old_name": old_name,
+        "new_name": new_name,
+        "capabilities_updated": len(caps_in_domain)
+    }
+
+
 # Pydantic model for capability update request
 class CapabilityUpdateRequest(BaseModel):
     """
@@ -2735,7 +3041,6 @@ class CapabilityUpdateRequest(BaseModel):
     domain: str
     subdomain: Optional[str] = None
     requirement_type: str = "required"
-    sequence_order: Optional[int] = None
     difficulty_tier: int = 1
     mastery_type: str = "single"
     mastery_count: int = 1
@@ -2887,9 +3192,6 @@ def admin_update_capability(
         errors.append(f"mastery_type: Must be one of {VALID_MASTERY_TYPES}")
     
     # Validate numeric fields
-    if update_data.sequence_order is not None and update_data.sequence_order < 0:
-        errors.append("sequence_order: Must be non-negative")
-    
     if update_data.difficulty_tier < 1 or update_data.difficulty_tier > 5:
         errors.append("difficulty_tier: Must be between 1 and 5")
     
@@ -2944,7 +3246,6 @@ def admin_update_capability(
         cap.domain = domain
         cap.subdomain = update_data.subdomain.strip() if update_data.subdomain else None
         cap.requirement_type = update_data.requirement_type
-        cap.sequence_order = update_data.sequence_order
         cap.difficulty_tier = update_data.difficulty_tier
         cap.mastery_type = update_data.mastery_type
         cap.mastery_count = update_data.mastery_count
@@ -2982,7 +3283,6 @@ def admin_update_capability(
                 "subdomain": cap.subdomain,
                 "bit_index": cap.bit_index,  # Read-only, returned for reference
                 "requirement_type": cap.requirement_type,
-                "sequence_order": cap.sequence_order,
                 "difficulty_tier": cap.difficulty_tier,
                 "difficulty_weight": cap.difficulty_weight,
                 "mastery_type": cap.mastery_type,
@@ -3438,7 +3738,7 @@ def admin_generate_diagnostic_session(
         })
     
     # Get target capabilities (based on weightings)
-    all_caps = db.query(Capability).order_by(Capability.sequence_order).limit(10).all()
+    all_caps = db.query(Capability).order_by(Capability.bit_index).limit(10).all()
     diagnostics["target_capabilities"] = [
         {"name": c.name, "weight": c.difficulty_weight or 1.0}
         for c in all_caps

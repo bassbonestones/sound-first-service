@@ -37,7 +37,6 @@ def main() -> None:
      requirement_type=c.get("requirement_type", "required"),
      prerequisite_ids="[]",  # fill pass 2
      bit_index=c["bit_index"],
-     sequence_order=c["sequence_order"],
      explanation=None,
      difficulty_tier=c.get("difficulty_tier", 1),
      introduction_material_id=None,
@@ -59,7 +58,6 @@ def main() -> None:
     existing.subdomain = c.get("subdomain")
     existing.requirement_type = c.get("requirement_type", existing.requirement_type)
     existing.bit_index = c["bit_index"]
-    existing.sequence_order = c["sequence_order"]
     existing.difficulty_tier = c.get("difficulty_tier", existing.difficulty_tier)
     existing.mastery_type = c.get("mastery_type", existing.mastery_type)
     existing.mastery_count = c.get("mastery_count", existing.mastery_count)
