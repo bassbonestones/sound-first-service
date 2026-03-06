@@ -1,5 +1,5 @@
 {
- "version": "capabilities_20260306_010429",
+ "version": "capabilities_20260306_003313",
  "count": 206,
  "capabilities": [
   {
@@ -1230,6 +1230,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_maj_2"
    ],
    "difficulty_tier": 1,
@@ -1249,6 +1250,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_min_3"
    ],
    "difficulty_tier": 1,
@@ -1268,6 +1270,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_maj_3"
    ],
    "difficulty_tier": 1,
@@ -1287,6 +1290,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_perf_4"
    ],
    "difficulty_tier": 1,
@@ -1306,6 +1310,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_perf_5"
    ],
    "difficulty_tier": 1,
@@ -1325,6 +1330,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_aug_4"
    ],
    "difficulty_tier": 1,
@@ -1338,13 +1344,15 @@
    "bit_index": 69
   },
   {
-   "name": "interval_maj_6",
-   "display_name": "Major 6th Interval",
+   "name": "interval_M6",
+   "display_name": "Major Sixth (M6)",
    "domain": "intervals",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "interval_min_6"
+    "first_note",
+    "interval_min_6",
+    "interval_perf_5"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1363,7 +1371,8 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "interval_maj_6"
+    "first_note",
+    "interval_M6"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1382,7 +1391,9 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "interval_min_7"
+    "first_note",
+    "interval_min_7",
+    "diatonic_scale_fragment_3"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1401,7 +1412,9 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "interval_maj_7"
+    "first_note",
+    "interval_maj_7",
+    "diatonic_scale_fragment_3"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1420,6 +1433,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
+    "first_note",
     "interval_octave"
    ],
    "difficulty_tier": 1,
@@ -1507,13 +1521,14 @@
    "bit_index": 78
   },
   {
-   "name": "time_signature_basics",
-   "display_name": "Time Signature Basics",
+   "name": "time_signature_12_8",
+   "display_name": "Time Signature: 12/8",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "staff_basics"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1524,6 +1539,126 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "bit_index": 79
+  },
+  {
+   "name": "time_signature_2_2",
+   "display_name": "Time Signature: 2/2 (Cut Time)",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics",
+    "time_signature_4_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 80
+  },
+  {
+   "name": "time_signature_2_4",
+   "display_name": "Time Signature: 2/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics",
+    "time_signature_4_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 81
+  },
+  {
+   "name": "time_signature_3_16",
+   "display_name": "Time Signature: 3/16",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics",
+    "time_signature_4_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 82
+  },
+  {
+   "name": "time_signature_3_2",
+   "display_name": "Time Signature: 3/2",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics",
+    "time_signature_4_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 83
+  },
+  {
+   "name": "time_signature_3_4",
+   "display_name": "Time Signature: 3/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics",
+    "time_signature_4_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 84
+  },
+  {
+   "name": "time_signature_3_8",
+   "display_name": "Time Signature: 3/8",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics",
+    "time_signature_4_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "bit_index": 85
   },
   {
    "name": "time_signature_4_4",
@@ -1542,138 +1677,17 @@
    "evidence_acceptance_threshold": 4,
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
-   "bit_index": 80
-  },
-  {
-   "name": "time_signature_3_4",
-   "display_name": "Time Signature: 3/4",
-   "domain": "meter",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "time_signature_4_4",
-    "rhythm_quarter_notes",
-    "rhythm_half_notes"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 81
-  },
-  {
-   "name": "time_signature_2_4",
-   "display_name": "Time Signature: 2/4",
-   "domain": "meter",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "time_signature_4_4",
-    "rhythm_quarter_notes",
-    "rhythm_half_notes"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 82
-  },
-  {
-   "name": "time_signature_6_8",
-   "display_name": "Time Signature: 6/8 (Compound Meter)",
-   "domain": "meter",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "time_signature_2_4",
-    "rhythm_eighth_notes",
-    "rhythm_triplets_eighth"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 83
-  },
-  {
-   "name": "time_signature_2_2",
-   "display_name": "Time Signature: 2/2 (Cut Time)",
-   "domain": "meter",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "time_signature_2_4"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 84
-  },
-  {
-   "name": "time_signature_9_8",
-   "display_name": "Time Signature: 9/8",
-   "domain": "meter",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "time_signature_3_4",
-    "time_signature_6_8"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "bit_index": 85
-  },
-  {
-   "name": "time_signature_12_8",
-   "display_name": "Time Signature: 12/8",
-   "domain": "meter",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "time_signature_4_4",
-    "time_signature_6_8"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
    "bit_index": 86
   },
   {
-   "name": "time_signature_3_8",
-   "display_name": "Time Signature: 3/8",
+   "name": "time_signature_5_4",
+   "display_name": "Time Signature: 5/4",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "time_signature_6_8"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1686,14 +1700,14 @@
    "bit_index": 87
   },
   {
-   "name": "time_signature_5_4",
-   "display_name": "Time Signature: 5/4",
+   "name": "time_signature_5_8",
+   "display_name": "Time Signature: 5/8",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "time_signature_3_4",
-    "time_signature_2_4"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1706,14 +1720,14 @@
    "bit_index": 88
   },
   {
-   "name": "time_signature_7_8",
-   "display_name": "Time Signature: 7/8",
+   "name": "time_signature_6_4",
+   "display_name": "Time Signature: 6/4",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "time_signature_3_8",
-    "time_signature_5_4"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1726,14 +1740,14 @@
    "bit_index": 89
   },
   {
-   "name": "time_signature_5_8",
-   "display_name": "Time Signature: 5/8",
+   "name": "time_signature_6_8",
+   "display_name": "Time Signature: 6/8 (Compound Meter)",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "time_signature_3_8",
-    "time_signature_5_4"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1746,14 +1760,14 @@
    "bit_index": 90
   },
   {
-   "name": "time_signature_3_2",
-   "display_name": "Time Signature: 3/2",
+   "name": "time_signature_7_8",
+   "display_name": "Time Signature: 7/8",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "time_signature_2_2",
-    "time_signature_3_4"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1766,13 +1780,14 @@
    "bit_index": 91
   },
   {
-   "name": "time_signature_6_4",
-   "display_name": "Time Signature: 6/4",
+   "name": "time_signature_9_8",
+   "display_name": "Time Signature: 9/8",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "time_signature_5_4"
+    "time_signature_basics",
+    "time_signature_4_4"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1785,14 +1800,13 @@
    "bit_index": 92
   },
   {
-   "name": "time_signature_3_16",
-   "display_name": "Time Signature: 3/16",
+   "name": "time_signature_basics",
+   "display_name": "Time Signature Basics",
    "domain": "meter",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "rhythm_sixteenth_notes",
-    "time_signature_3_8"
+    "staff_basics"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -1879,15 +1893,15 @@
    "bit_index": 97
   },
   {
-   "name": "notation_fermata",
-   "display_name": "Fermata",
+   "name": "notation_chord_symbols",
+   "display_name": "Chord Symbols",
    "domain": "notation_symbols",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "staff_basics"
+    "key_signature_basics"
    ],
-   "difficulty_tier": 1,
+   "difficulty_tier": 3,
    "mastery_type": "single",
    "mastery_count": 1,
    "evidence_required_count": 1,
@@ -1898,15 +1912,15 @@
    "bit_index": 98
   },
   {
-   "name": "notation_chord_symbols",
-   "display_name": "Chord Symbols",
+   "name": "notation_fermata",
+   "display_name": "Fermata",
    "domain": "notation_symbols",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "key_signature_basics"
+    "staff_basics"
    ],
-   "difficulty_tier": 3,
+   "difficulty_tier": 1,
    "mastery_type": "single",
    "mastery_count": 1,
    "evidence_required_count": 1,
@@ -1955,13 +1969,13 @@
    "bit_index": 101
   },
   {
-   "name": "ornament_mordent",
-   "display_name": "Mordent",
+   "name": "ornament_inverted_mordent",
+   "display_name": "Inverted Mordent",
    "domain": "ornaments",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "ornament_trill"
+    "ornament_mordent"
    ],
    "difficulty_tier": 2,
    "mastery_type": "single",
@@ -1974,13 +1988,13 @@
    "bit_index": 102
   },
   {
-   "name": "ornament_inverted_mordent",
-   "display_name": "Inverted Mordent",
+   "name": "ornament_mordent",
+   "display_name": "Mordent",
    "domain": "ornaments",
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "ornament_mordent"
+    "ornament_trill"
    ],
    "difficulty_tier": 2,
    "mastery_type": "single",

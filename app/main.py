@@ -2464,14 +2464,15 @@ def admin_get_capabilities(
         
         # Parse prerequisites
         prereq_names = []
+        prereq_ids_list = []
         if cap.prerequisite_ids:
             try:
-                prereq_ids = json.loads(cap.prerequisite_ids) if isinstance(cap.prerequisite_ids, str) else cap.prerequisite_ids
-                if prereq_ids:
-                    prereqs = db.query(Capability).filter(Capability.id.in_(prereq_ids)).all()
+                prereq_ids_list = json.loads(cap.prerequisite_ids) if isinstance(cap.prerequisite_ids, str) else cap.prerequisite_ids
+                if prereq_ids_list:
+                    prereqs = db.query(Capability).filter(Capability.id.in_(prereq_ids_list)).all()
                     prereq_names = [p.name for p in prereqs]
             except:
-                pass
+                prereq_ids_list = []
         
         result.append({
             "id": cap.id,
@@ -2488,7 +2489,8 @@ def admin_get_capabilities(
             "evidence_required_count": cap.evidence_required_count,
             "evidence_distinct_materials": cap.evidence_distinct_materials,
             "evidence_acceptance_threshold": cap.evidence_acceptance_threshold,
-            "is_active": True,  # All seeded capabilities are active by default
+            "is_active": cap.is_active if cap.is_active is not None else True,
+            "prerequisite_ids": prereq_ids_list,
             "prerequisite_names": prereq_names,
             "materials_requiring": requires_count,
             "materials_teaching": teaches_count,
@@ -2722,6 +2724,7 @@ def admin_delete_capability(
     """
     Permanently delete a capability. Shifts bit_indexes of capabilities after it down by 1.
     If the domain becomes empty, it effectively gets removed (no capabilities reference it).
+    Also removes this capability from any other capability's prerequisite_ids list.
     """
     from app.models.capability_schema import Capability
     
@@ -2733,8 +2736,22 @@ def admin_delete_capability(
     cap_domain = cap.domain
     deleted_bit_index = cap.bit_index
     
+    # Remove this capability from all prerequisite lists
+    all_caps = db.query(Capability).all()
+    prereqs_cleaned = 0
+    for c in all_caps:
+        if c.prerequisite_ids:
+            try:
+                prereq_list = json.loads(c.prerequisite_ids) if isinstance(c.prerequisite_ids, str) else c.prerequisite_ids
+                if capability_id in prereq_list:
+                    prereq_list = [pid for pid in prereq_list if pid != capability_id]
+                    c.prerequisite_ids = json.dumps(prereq_list) if prereq_list else None
+                    prereqs_cleaned += 1
+            except:
+                pass
+    
     # Get all capabilities that come after this one (higher bit_index)
-    caps_after = db.query(Capability).filter(Capability.bit_index > deleted_bit_index).all()
+    caps_after = [c for c in all_caps if c.bit_index is not None and c.bit_index > deleted_bit_index]
     
     # Delete the capability
     db.delete(cap)
@@ -2761,6 +2778,7 @@ def admin_delete_capability(
         "message": f"Deleted capability '{cap_name}'",
         "capability_id": capability_id,
         "shifted_count": len(caps_after),
+        "prereqs_cleaned": prereqs_cleaned,
         "domain_removed": domain_removed,
         "domain": cap_domain
     }
