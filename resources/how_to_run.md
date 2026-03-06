@@ -18,10 +18,18 @@
    alembic upgrade head
    ```
 
-4. **Seed the database:**
+4. **Initialize database (fresh start):**
    ```bash
-   py -m app.seed_data
-   py -m app.seed_capabilities_v2
+   PYTHONPATH=. python resources/init_setup.py
+   ```
+   This removes the DB, runs migrations, and seeds all data.
+   
+   Or seed individually:
+   ```bash
+   PYTHONPATH=. python resources/seed_all.py              # all seed scripts
+   PYTHONPATH=. python resources/seed_capabilities.py     # capabilities only
+   PYTHONPATH=. python resources/seed_data.py             # focus cards, materials, test user
+   PYTHONPATH=. python resources/seed_soft_gates.py resources/soft_gate_rules.json  # soft gates
    ```
 
 ## Run the Server

@@ -24,7 +24,7 @@ def client():
     Base.metadata.create_all(bind=engine)
     
     # Seed test data (materials, focus cards, capabilities)
-    from app.seed_data import seed_all
+    from resources.seed_data import seed_all
     seed_all()
     
     with TestClient(app) as c:

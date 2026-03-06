@@ -32,43 +32,8 @@ class User(Base):
     cap_mask_6 = Column(BigInteger, default=0)  # capabilities 384-447
     cap_mask_7 = Column(BigInteger, default=0)  # capabilities 448-511
 
-class Capability(Base):
-    """Musical literacy element with optional teaching content."""
-    __tablename__ = 'capabilities'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
-    
-    # Teaching content fields
-    domain = Column(String, nullable=True)  # Category: clef, note_value, time_signature, key, articulation, dynamic, expression
-    sequence_order = Column(Integer, nullable=True)  # Order for introduction (lower = earlier)
-    display_name = Column(String, nullable=True)  # Human-readable name: "Triplets"
-    explanation = Column(String, nullable=True)  # Teaching explanation text
-    visual_example_url = Column(String, nullable=True)  # URL to notation image
-    audio_example_url = Column(String, nullable=True)  # URL to audio demonstration
-    
-    # Quiz fields
-    quiz_type = Column(String, nullable=True)  # visual_mc, listening_discrimination, tap_rhythm
-    quiz_question = Column(String, nullable=True)  # The quiz question text
-    quiz_options = Column(String, nullable=True)  # JSON array of options (for MC)
-    quiz_answer = Column(String, nullable=True)  # Correct answer
-
-
-class UserCapabilityProgress(Base):
-    """Tracks which capabilities a user has been taught."""
-    __tablename__ = 'user_capability_progress'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False)
-    introduced_at = Column(DateTime, nullable=True)  # When the mini-lesson was shown
-    quiz_passed = Column(Boolean, default=False)  # Whether quiz was passed
-    times_refreshed = Column(Integer, default=0)  # How many times accessed via help menu
-
-
-class UserCapability(Base):
-    __tablename__ = 'user_capabilities'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False)
+# Note: V1 Capability models have been retired.
+# Use Capability and UserCapability from capability_schema.py instead.
 
 class UserRange(Base):
     __tablename__ = 'user_ranges'

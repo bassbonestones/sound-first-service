@@ -4,12 +4,12 @@ target_metadata = Base.metadata
 
 from .core import *
 from .capability_schema import (
-    CapabilityV2,
+    Capability,
     MaterialCapability,
     MaterialAnalysis,
-    UserCapabilityV2,
+    UserCapability,
     UserComplexityScores,
-    # New adaptive engine models
+    # Adaptive engine models
     MaterialTeachesCapability,
     UserMaterialState,
     UserPitchFocusStats,
@@ -18,4 +18,7 @@ from .capability_schema import (
     CollectionMaterial,
     License,
     UserLicense,
+    # Soft gate system
+    SoftGateRule,
+    UserSoftGateState,
 )

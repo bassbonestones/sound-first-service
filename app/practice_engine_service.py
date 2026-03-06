@@ -14,8 +14,8 @@ from .models.core import (
     User, Material, FocusCard, PracticeAttempt, PracticeSession, MiniSession
 )
 from .models.capability_schema import (
-    CapabilityV2, MaterialCapability, MaterialTeachesCapability,
-    MaterialAnalysis, UserCapabilityV2, UserMaterialState,
+    Capability, MaterialCapability, MaterialTeachesCapability,
+    MaterialAnalysis, UserCapability, UserMaterialState,
     UserPitchFocusStats, UserCapabilityEvidenceEvent, UserLicense
 )
 from .practice_engine import (
@@ -76,11 +76,11 @@ class PracticeEngineService:
     def get_capability_progress(self, user_id: int) -> List[CapabilityProgress]:
         """Load capability progress for a user."""
         # Get all capabilities with evidence profiles
-        capabilities = self.db.query(CapabilityV2).all()
+        capabilities = self.db.query(Capability).all()
         
         # Get user's capability states
-        user_caps = self.db.query(UserCapabilityV2).filter(
-            UserCapabilityV2.user_id == user_id
+        user_caps = self.db.query(UserCapability).filter(
+            UserCapability.user_id == user_id
         ).all()
         user_cap_map = {uc.capability_id: uc for uc in user_caps}
         
@@ -399,10 +399,10 @@ class PracticeEngineService:
             self.db.add(event)
             
             # Update cached evidence count
-            user_cap = self.db.query(UserCapabilityV2).filter(
+            user_cap = self.db.query(UserCapability).filter(
                 and_(
-                    UserCapabilityV2.user_id == user_id,
-                    UserCapabilityV2.capability_id == cap_id
+                    UserCapability.user_id == user_id,
+                    UserCapability.capability_id == cap_id
                 )
             ).first()
             
@@ -411,10 +411,10 @@ class PracticeEngineService:
         
         # Update capability mastery
         for cap_id in result.capabilities_mastered:
-            user_cap = self.db.query(UserCapabilityV2).filter(
+            user_cap = self.db.query(UserCapability).filter(
                 and_(
-                    UserCapabilityV2.user_id == user_id,
-                    UserCapabilityV2.capability_id == cap_id
+                    UserCapability.user_id == user_id,
+                    UserCapability.capability_id == cap_id
                 )
             ).first()
             
@@ -422,7 +422,7 @@ class PracticeEngineService:
                 user_cap.mastered_at = now
                 
                 # Update user's capability bitmask
-                cap = self.db.query(CapabilityV2).get(cap_id)
+                cap = self.db.query(Capability).get(cap_id)
                 if cap and cap.bit_index is not None:
                     self._set_user_capability_bit(user_id, cap.bit_index)
         

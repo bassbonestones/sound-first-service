@@ -1,6 +1,6 @@
 # Seed data for Sound First music practice app
 import json
-from app.models.core import Material, FocusCard, Capability
+from app.models.core import Material, FocusCard
 from app.db import SessionLocal
 
 
@@ -380,214 +380,8 @@ FOCUS_CARDS = [
 ]
 
 
-# === CAPABILITIES (Musical literacy elements) ===
-# Each capability can include teaching content for micro-lesson blocks
-CAPABILITIES = [
-    # Clef Reading
-    {
-        "name": "cap_clef_treble_known", 
-        "domain": "clef",
-        "sequence_order": 1,
-        "display_name": "Treble Clef",
-        "explanation": "The treble clef (or G clef) is used for higher-pitched instruments and voices. The curl of the clef wraps around the G line (second line from bottom). Notes above middle C are typically written in treble clef.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "Which clef is shown in this image?",
-        "quiz_options": json.dumps(["Treble Clef", "Bass Clef", "Alto Clef", "Tenor Clef"]),
-        "quiz_answer": "Treble Clef"
-    },
-    {
-        "name": "cap_clef_bass_known", 
-        "domain": "clef",
-        "sequence_order": 2,
-        "display_name": "Bass Clef",
-        "explanation": "The bass clef (or F clef) is used for lower-pitched instruments. The two dots surround the F line (second line from top). Notes below middle C are typically written in bass clef.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "Which clef is shown in this image?",
-        "quiz_options": json.dumps(["Treble Clef", "Bass Clef", "Alto Clef", "Tenor Clef"]),
-        "quiz_answer": "Bass Clef"
-    },
-    {"name": "cap_clef_alto_known", "domain": "clef", "sequence_order": 30, "display_name": "Alto Clef"},
-    {"name": "cap_clef_tenor_known", "domain": "clef", "sequence_order": 31, "display_name": "Tenor Clef"},
-    
-    # Note Values
-    {
-        "name": "cap_note_value_whole_known", 
-        "domain": "note_value",
-        "sequence_order": 3,
-        "display_name": "Whole Notes",
-        "explanation": "A whole note is an open oval without a stem. It lasts for 4 beats in common time (4/4). Think of it as the foundation—all other note values are fractions of the whole note.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "How many beats does a whole note get in 4/4 time?",
-        "quiz_options": json.dumps(["1 beat", "2 beats", "3 beats", "4 beats"]),
-        "quiz_answer": "4 beats"
-    },
-    {
-        "name": "cap_note_value_half_known", 
-        "domain": "note_value",
-        "sequence_order": 4,
-        "display_name": "Half Notes",
-        "explanation": "A half note has an open oval with a stem. It lasts for 2 beats—exactly half of a whole note. Two half notes fill the same time as one whole note.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "How many half notes equal one whole note?",
-        "quiz_options": json.dumps(["1", "2", "4", "8"]),
-        "quiz_answer": "2"
-    },
-    {
-        "name": "cap_note_value_quarter_known", 
-        "domain": "note_value",
-        "sequence_order": 5,
-        "display_name": "Quarter Notes",
-        "explanation": "A quarter note has a filled-in oval with a stem. It gets 1 beat in common time. This is often the basic 'pulse' note—when you tap your foot, you're usually counting quarter notes.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "A quarter note gets how many beats in 4/4?",
-        "quiz_options": json.dumps(["1/2 beat", "1 beat", "2 beats", "4 beats"]),
-        "quiz_answer": "1 beat"
-    },
-    {
-        "name": "cap_note_value_eighth_known", 
-        "domain": "note_value",
-        "sequence_order": 6,
-        "display_name": "Eighth Notes",
-        "explanation": "An eighth note has a filled oval, stem, and one flag (or beam when grouped). Two eighth notes equal one quarter note. They create a quick 'ta-ta' or '1-and' subdivision.",
-        "quiz_type": "listening_discrimination",
-        "quiz_question": "Listen to the example. Are these quarter notes or eighth notes?",
-        "quiz_options": json.dumps(["Quarter notes", "Eighth notes"]),
-        "quiz_answer": "Eighth notes"
-    },
-    {
-        "name": "cap_note_value_sixteenth_known", 
-        "domain": "note_value",
-        "sequence_order": 15,
-        "display_name": "Sixteenth Notes",
-        "explanation": "A sixteenth note has two flags or beams. Four sixteenth notes fit in the time of one quarter note. They create rapid subdivision: '1-e-and-a' or 'ti-ka-ti-ka'.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "How many sixteenth notes fit in one quarter note?",
-        "quiz_options": json.dumps(["2", "4", "6", "8"]),
-        "quiz_answer": "4"
-    },
-    {
-        "name": "cap_note_value_triplet_known", 
-        "domain": "note_value",
-        "sequence_order": 20,
-        "display_name": "Triplets",
-        "explanation": "A triplet divides a beat into three equal parts instead of two. Eighth-note triplets fit 3 notes in the space of 2 regular eighths. Listen for the 'triplet feel'—like saying 'blueberry' or 'pineapple' evenly.",
-        "audio_example_url": "/audio/examples/triplets_demo.mp3",
-        "quiz_type": "listening_discrimination",
-        "quiz_question": "Listen carefully. Is this rhythm straight eighths or triplets?",
-        "quiz_options": json.dumps(["Straight eighths", "Triplets"]),
-        "quiz_answer": "Triplets"
-    },
-    
-    # Time Signatures
-    {
-        "name": "cap_time_signature_4_4_known", 
-        "domain": "time_signature",
-        "sequence_order": 7,
-        "display_name": "4/4 Time",
-        "explanation": "4/4 (common time) has 4 beats per measure, with the quarter note getting one beat. It's the most common time signature in Western music. Count: 1-2-3-4, 1-2-3-4.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "In 4/4 time, how many beats are in each measure?",
-        "quiz_options": json.dumps(["2", "3", "4", "6"]),
-        "quiz_answer": "4"
-    },
-    {
-        "name": "cap_time_signature_3_4_known", 
-        "domain": "time_signature",
-        "sequence_order": 8,
-        "display_name": "3/4 Time",
-        "explanation": "3/4 time has 3 beats per measure. It creates a waltz feel: strong-weak-weak, strong-weak-weak. Think of 'The Blue Danube' or any traditional waltz.",
-        "quiz_type": "listening_discrimination",
-        "quiz_question": "Is this music in 4/4 or 3/4 time?",
-        "quiz_options": json.dumps(["4/4", "3/4"]),
-        "quiz_answer": "3/4"
-    },
-    {"name": "cap_time_signature_2_4_known", "domain": "time_signature", "sequence_order": 9, "display_name": "2/4 Time"},
-    {"name": "cap_time_signature_6_8_known", "domain": "time_signature", "sequence_order": 16, "display_name": "6/8 Time"},
-    {"name": "cap_time_signature_cut_known", "domain": "time_signature", "sequence_order": 25, "display_name": "Cut Time"},
-    
-    # Key Signatures
-    {
-        "name": "cap_key_c_major_known", 
-        "domain": "key_signature",
-        "sequence_order": 10,
-        "display_name": "C Major",
-        "explanation": "C major has no sharps or flats—all white keys on piano. It's often the first key learned because of its simplicity. The scale: C-D-E-F-G-A-B-C.",
-        "quiz_type": "visual_mc",
-        "quiz_question": "How many sharps or flats does C major have?",
-        "quiz_options": json.dumps(["0", "1 sharp", "1 flat", "2 flats"]),
-        "quiz_answer": "0"
-    },
-    {"name": "cap_key_g_major_known", "domain": "key_signature", "sequence_order": 11, "display_name": "G Major"},
-    {"name": "cap_key_f_major_known", "domain": "key_signature", "sequence_order": 12, "display_name": "F Major"},
-    {"name": "cap_key_d_major_known", "domain": "key_signature", "sequence_order": 17, "display_name": "D Major"},
-    {"name": "cap_key_bb_major_known", "domain": "key_signature", "sequence_order": 18, "display_name": "Bb Major"},
-    {"name": "cap_key_eb_major_known", "domain": "key_signature", "sequence_order": 22, "display_name": "Eb Major"},
-    {"name": "cap_key_a_major_known", "domain": "key_signature", "sequence_order": 23, "display_name": "A Major"},
-    
-    # Articulations
-    {
-        "name": "cap_articulation_staccato_known", 
-        "domain": "articulation",
-        "sequence_order": 13,
-        "display_name": "Staccato",
-        "explanation": "Staccato means 'detached.' Notes are shortened, leaving space between them. Marked with a dot above or below the note. Think of it as light, bouncy—like saying 'tick tick tick'.",
-        "quiz_type": "listening_discrimination",
-        "quiz_question": "Is this passage played staccato or legato?",
-        "quiz_options": json.dumps(["Staccato", "Legato"]),
-        "quiz_answer": "Staccato"
-    },
-    {
-        "name": "cap_articulation_legato_known", 
-        "domain": "articulation",
-        "sequence_order": 14,
-        "display_name": "Legato",
-        "explanation": "Legato means 'smooth and connected.' Notes flow into each other without breaks. Often indicated by a slur (curved line). Think of singing one long phrase in one breath.",
-        "quiz_type": "listening_discrimination",
-        "quiz_question": "Is this passage played staccato or legato?",
-        "quiz_options": json.dumps(["Staccato", "Legato"]),
-        "quiz_answer": "Legato"
-    },
-    {"name": "cap_articulation_tenuto_known", "domain": "articulation", "sequence_order": 19, "display_name": "Tenuto"},
-    {"name": "cap_articulation_accent_known", "domain": "articulation", "sequence_order": 21, "display_name": "Accent"},
-    {"name": "cap_articulation_slur_known", "domain": "articulation", "sequence_order": 24, "display_name": "Slur"},
-    
-    # Dynamics
-    {
-        "name": "cap_dynamic_piano_known", 
-        "domain": "dynamics",
-        "sequence_order": 26,
-        "display_name": "Piano (p)",
-        "explanation": "Piano (p) means 'soft.' Play quietly, but still with a clear, supported tone. Pianissimo (pp) is even softer. The key is to reduce volume while maintaining musical intention."
-    },
-    {
-        "name": "cap_dynamic_forte_known", 
-        "domain": "dynamics",
-        "sequence_order": 27,
-        "display_name": "Forte (f)",
-        "explanation": "Forte (f) means 'loud' or 'strong.' Play with power and projection, but not forced. Fortissimo (ff) is even louder. Think of filling a large hall with sound."
-    },
-    {"name": "cap_dynamic_mezzo_known", "domain": "dynamics", "sequence_order": 28, "display_name": "Mezzo Dynamics"},
-    {"name": "cap_dynamic_crescendo_known", "domain": "dynamics", "sequence_order": 29, "display_name": "Crescendo"},
-    {"name": "cap_dynamic_decrescendo_known", "domain": "dynamics", "sequence_order": 32, "display_name": "Decrescendo"},
-    
-    # Expression
-    {
-        "name": "cap_fermata_known", 
-        "domain": "expression",
-        "sequence_order": 33,
-        "display_name": "Fermata",
-        "explanation": "A fermata (𝄐) means 'hold.' Sustain the note longer than its written value—usually about 1.5 to 2 times as long. It's a moment of musical freedom; the conductor or soloist decides how long.",
-        "visual_example_url": "/images/notation/fermata.png",
-        "quiz_type": "visual_mc",
-        "quiz_question": "What does a fermata tell you to do?",
-        "quiz_options": json.dumps(["Play louder", "Hold the note longer", "Play faster", "Play softer"]),
-        "quiz_answer": "Hold the note longer"
-    },
-    {"name": "cap_repeat_known", "domain": "expression", "sequence_order": 34, "display_name": "Repeat Signs"},
-    {"name": "cap_da_capo_known", "domain": "expression", "sequence_order": 35, "display_name": "D.C. (Da Capo)"},
-    {"name": "cap_dal_segno_known", "domain": "expression", "sequence_order": 36, "display_name": "D.S. (Dal Segno)"},
-]
-
+# Note: V1 Capabilities have been retired.
+# Capabilities are now defined in resources/capabilities.json and seeded via seed_capabilities.py
 
 # === MATERIALS ===
 MATERIALS = [
@@ -686,36 +480,7 @@ def seed_all():
     """Seed all data tables."""
     db = SessionLocal()
     try:
-        # Seed Capabilities
-        for cap_data in CAPABILITIES:
-            existing = db.query(Capability).filter_by(name=cap_data["name"]).first()
-            if not existing:
-                cap = Capability(
-                    name=cap_data["name"],
-                    domain=cap_data.get("domain"),
-                    sequence_order=cap_data.get("sequence_order"),
-                    display_name=cap_data.get("display_name"),
-                    explanation=cap_data.get("explanation"),
-                    visual_example_url=cap_data.get("visual_example_url"),
-                    audio_example_url=cap_data.get("audio_example_url"),
-                    quiz_type=cap_data.get("quiz_type"),
-                    quiz_question=cap_data.get("quiz_question"),
-                    quiz_options=cap_data.get("quiz_options"),
-                    quiz_answer=cap_data.get("quiz_answer")
-                )
-                db.add(cap)
-            else:
-                # Update existing capabilities with teaching content
-                existing.domain = cap_data.get("domain")
-                existing.sequence_order = cap_data.get("sequence_order")
-                existing.display_name = cap_data.get("display_name")
-                existing.explanation = cap_data.get("explanation")
-                existing.visual_example_url = cap_data.get("visual_example_url")
-                existing.audio_example_url = cap_data.get("audio_example_url")
-                existing.quiz_type = cap_data.get("quiz_type")
-                existing.quiz_question = cap_data.get("quiz_question")
-                existing.quiz_options = cap_data.get("quiz_options")
-                existing.quiz_answer = cap_data.get("quiz_answer")
+        # Note: Capabilities are now seeded via seed_capabilities.py (Capability)
         
         # Seed Focus Cards
         for fc_data in FOCUS_CARDS:
@@ -762,26 +527,25 @@ def seed_all():
             user = User(
                 id=1,
                 email="user1@example.com",
-                instrument="Trumpet",
-                resonant_note="C4",
-                range_low="E3",
-                range_high="C6",
-                comfortable_capabilities="cap_clef_treble_known,cap_note_value_whole_known",
-                day0_completed=True,
-                day0_stage=1
+                instrument=None,
+                resonant_note=None,
+                range_low=None,
+                range_high=None,
+                comfortable_capabilities=None,
+                day0_completed=False,
+                day0_stage=0
             )
             db.add(user)
         else:
-            existing_user.instrument = "Trumpet"
-            existing_user.resonant_note = "C4"
-            existing_user.range_low = "E3"
-            existing_user.range_high = "C6"
-            existing_user.comfortable_capabilities = "cap_clef_treble_known,cap_note_value_whole_known"
-            existing_user.day0_completed = True
-            existing_user.day0_stage = 1
+            existing_user.instrument = None
+            existing_user.resonant_note = None
+            existing_user.range_low = None
+            existing_user.range_high = None
+            existing_user.comfortable_capabilities = None
+            existing_user.day0_completed = False
+            existing_user.day0_stage = 0
         db.commit()
         print("Seed data inserted successfully!")
-        print(f"  - {len(CAPABILITIES)} capabilities")
         print(f"  - {len(FOCUS_CARDS)} focus cards")
         print(f"  - {len(MATERIALS)} materials")
         

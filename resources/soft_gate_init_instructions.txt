@@ -1,0 +1,173 @@
+those two files only seed capabilities_v2 (and prerequisite links). They do not initialize any user soft-gate state, user stats, or soft envelopes.
+
+Here’s what you should add (copy/paste) so it’s real and not hand-wavy.
+
+What you need (v1) to initialize soft gates
+
+You need a place to store per-user “comfort + frontier” for each soft dimension (and a running Exponential Moving Average (EMA) (Exponential Moving Average (EMA))).
+
+Fastest path: add one JSON column on users:
+
+users.soft_gate_state_json (TEXT or JSONB if Postgres)
+
+Then add a script:
+
+seed_user_soft_gates.py to backfill existing users + set defaults for new users.
+
+And add one application hook:
+
+when a user is created OR when day0_completed flips true → ensure soft gate state exists.
+
+Default soft gate state (recommended v1)
+
+This matches the dimensions you’re already building:
+
+Tonal vs Chromatic Complexity stage (tonal_complexity_stage)
+
+Range Usage stage (range_usage_stage)
+
+Rhythm Complexity score (rhythm_complexity_score)
+
+Interval Velocity Score (IVS) (Interval Velocity Score (IVS))
+
+Density (density_notes_per_second)
+
+Tempo Difficulty score (tempo_difficulty_score) (derived later, not directly “mastered”)
+
+Each dimension gets:
+
+comfort (what you consider safe)
+
+frontier (how far above comfort guided sessions may go)
+
+ema (running performance signal)
+
+attempts (minimum attempts gate)
+
+frontier_success_count (counts how often they succeed near/above frontier)
+
+Example defaults:
+
+{
+ "tonal_complexity_stage": { "comfort": 0, "frontier": 1, "ema": 0.0, "attempts": 0, "frontier_success_count": 0 },
+ "range_usage_stage": { "comfort": 0, "frontier": 1, "ema": 0.0, "attempts": 0, "frontier_success_count": 0 },
+ "rhythm_complexity_score": { "comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0 },
+ "interval_velocity_score": { "comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0 },
+ "density_notes_per_second": { "comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0 },
+ "tempo_difficulty_score": { "comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0 }
+}
+
+(You’ll tune these once you have real attempt data.)
+
+seed_user_soft_gates.py (backfill + idempotent)
+
+Save as: sound-first-service/seeds/seed_user_soft_gates.py
+
+This script:
+
+adds soft-gate defaults for any user that doesn’t have them
+
+does not overwrite existing values
+
+can be re-run safely
+
+import json
+import sys
+from typing import Any, Dict
+
+# TODO: Adjust imports
+from app.db import SessionLocal  # type: ignore
+from app.models.core import User  # type: ignore
+
+
+DEFAULT_SOFT_GATES: Dict[str, Any] = {
+ "tonal_complexity_stage": {"comfort": 0, "frontier": 1, "ema": 0.0, "attempts": 0, "frontier_success_count": 0},
+ "range_usage_stage": {"comfort": 0, "frontier": 1, "ema": 0.0, "attempts": 0, "frontier_success_count": 0},
+ "rhythm_complexity_score": {"comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0},
+ "interval_velocity_score": {"comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0},
+ "density_notes_per_second": {"comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0},
+ "tempo_difficulty_score": {"comfort": 0.10, "frontier": 0.15, "ema": 0.0, "attempts": 0, "frontier_success_count": 0}
+}
+
+
+def _parse_soft_gate_json(raw) -> Dict[str, Any]:
+ if raw is None or raw == "":
+  return {}
+ if isinstance(raw, dict):
+  return raw
+ try:
+  return json.loads(raw)
+ except Exception:
+  return {}
+
+
+def _merge_defaults(existing: Dict[str, Any]) -> Dict[str, Any]:
+ merged = dict(existing)
+ for k, v in DEFAULT_SOFT_GATES.items():
+  if k not in merged:
+   merged[k] = v
+  else:
+   # Ensure required keys exist without overwriting existing values
+   for sub_k, sub_v in v.items():
+    if sub_k not in merged[k]:
+     merged[k][sub_k] = sub_v
+ return merged
+
+
+def main() -> None:
+ session = SessionLocal()
+ try:
+  users = session.query(User).all()
+  updated = 0
+
+  for u in users:
+   existing = _parse_soft_gate_json(getattr(u, "soft_gate_state_json", None))
+   merged = _merge_defaults(existing)
+
+   if merged != existing:
+    # store as text JSON (works even if column is JSONB)
+    setattr(u, "soft_gate_state_json", json.dumps(merged))
+    updated += 1
+
+  session.commit()
+  print(f"Soft gate init complete. Updated {updated} users out of {len(users)}.")
+
+ finally:
+  session.close()
+
+
+if __name__ == "__main__":
+ main()
+You must add the column first
+
+If you’re on Postgres:
+
+ALTER TABLE users ADD COLUMN soft_gate_state_json JSONB;
+
+If you’re on SQLite, use TEXT.
+
+New-user initialization (in-app hook)
+
+In your user creation flow (or when day0_completed is set):
+
+if soft_gate_state_json is null → set it to the default
+
+This keeps your DB consistent without relying on scripts.
+
+Why this is enough for v1
+
+You don’t need a “recent history” table because Exponential Moving Average (EMA) gives you recency.
+
+The frontier concept lives per dimension, so you can do:
+
+hard caps (range, required capabilities)
+
+soft caps (complexity scores with frontier buffer)
+
+Later, when this stabilizes, you can normalize into a real table:
+
+user_soft_gate_state(user_id, metric_key, comfort, frontier, ema, attempts, frontier_success_count, updated_at)
+
+But JSON is the fastest way to ship.
+
+If you tell me what database you’re actually using (Postgres vs SQLite) and whether your User model already has a “misc JSON” field, I’ll adapt the exact migration + model snippet so it compiles in your repo.

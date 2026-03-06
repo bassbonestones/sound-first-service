@@ -6,7 +6,8 @@ import datetime
 import random
 import json
 from app.db import get_db
-from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession, PracticeAttempt, Capability, CurriculumStep, UserCapabilityProgress
+from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession, PracticeAttempt, CurriculumStep
+from app.models.capability_schema import Capability, UserCapability
 from app.curriculum import (
     generate_curriculum_steps, 
     filter_materials_by_capabilities, 
@@ -601,9 +602,11 @@ def get_history_summary(user_id: int = Query(...), db: Session = Depends(get_db)
         if ms.key:
             unique_keys.add(ms.key)
     
-    # Count capabilities introduced
-    from app.models.core import UserCapabilityProgress
-    cap_progress = db.query(UserCapabilityProgress).filter_by(user_id=user_id).count()
+    # Count capabilities mastered (V2)
+    cap_progress = db.query(UserCapability).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.mastered_at.isnot(None)
+    ).count()
     
     # Count self-directed sessions
     self_directed_count = len([s for s in sessions if s.practice_mode == "self_directed"])
@@ -844,14 +847,14 @@ def get_session_analytics(user_id: int = Query(...), db: Session = Depends(get_d
     
     avg_session_minutes = sum(session_durations) / len(session_durations) if session_durations else 0
     
-    # --- Capability Progress ---
-    cap_progress = db.query(UserCapabilityProgress).filter_by(user_id=user_id).all()
+    # --- Capability Progress (V2) ---
+    cap_progress = db.query(UserCapability).filter_by(user_id=user_id).all()
     capabilities = db.query(Capability).all()
     cap_map = {c.id: c for c in capabilities}
     
-    capabilities_introduced = len(cap_progress)
-    quizzes_passed = sum(1 for cp in cap_progress if cp.quiz_passed)
-    quiz_pass_rate = (quizzes_passed / capabilities_introduced * 100) if capabilities_introduced else 0
+    capabilities_introduced = len([cp for cp in cap_progress if cp.introduced_at])
+    capabilities_mastered = len([cp for cp in cap_progress if cp.mastered_at])
+    mastery_rate = (capabilities_mastered / capabilities_introduced * 100) if capabilities_introduced else 0
     
     # Group by domain
     domain_stats = {}
@@ -860,10 +863,10 @@ def get_session_analytics(user_id: int = Query(...), db: Session = Depends(get_d
         if cap:
             domain = cap.domain or "other"
             if domain not in domain_stats:
-                domain_stats[domain] = {"introduced": 0, "passed": 0, "refreshed": 0}
+                domain_stats[domain] = {"introduced": 0, "mastered": 0, "refreshed": 0}
             domain_stats[domain]["introduced"] += 1
-            if cp.quiz_passed:
-                domain_stats[domain]["passed"] += 1
+            if cp.mastered_at:
+                domain_stats[domain]["mastered"] += 1
             domain_stats[domain]["refreshed"] += cp.times_refreshed or 0
     
     # --- Quality Metrics ---
@@ -1207,7 +1210,7 @@ def get_focus_cards(db: Session = Depends(get_db)):
 @app.get("/capabilities")
 def get_capabilities(db: Session = Depends(get_db)):
     capabilities = db.query(Capability).all()
-    return [{"id": c.id, "name": c.name} for c in capabilities]
+    return [{"id": c.id, "name": c.name, "domain": c.domain} for c in capabilities]
 
 
 # --- User Endpoints ---
@@ -1300,9 +1303,11 @@ def get_user_journey_stage(user_id: int, db: Session = Depends(get_db)):
         if ms.key:
             unique_keys.add(ms.key)
     
-    # Count capabilities introduced
-    from app.models.core import UserCapabilityProgress
-    cap_progress = db.query(UserCapabilityProgress).filter_by(user_id=user_id).count()
+    # Count capabilities mastered (V2)
+    cap_progress = db.query(UserCapability).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.mastered_at.isnot(None)
+    ).count()
     
     # Count self-directed sessions
     self_directed_count = len([s for s in sessions if s.practice_mode == "self_directed"])
@@ -1395,9 +1400,14 @@ def reset_user_data(user_id: int, db: Session = Depends(get_db)):
     # Delete sessions
     db.query(PracticeSession).filter_by(user_id=user_id).delete()
     
-    # Delete user capability progress
-    from app.models.core import UserCapabilityProgress
-    db.query(UserCapabilityProgress).filter_by(user_id=user_id).delete()
+    # Delete user capability progress (V2)
+    db.query(UserCapability).filter(UserCapability.user_id == user_id).delete()
+    
+    # Reset user's day0 status
+    user = db.query(User).filter_by(id=user_id).first()
+    if user:
+        user.day0_completed = False
+        user.day0_stage = 0
     
     db.commit()
     
@@ -1596,12 +1606,96 @@ class UserUpdateIn(BaseModel):
     range_low: Optional[str] = None
     range_high: Optional[str] = None
 
+# Day 0 capabilities that all users learn
+DAY0_BASE_CAPABILITIES = [
+    "staff_basics",       # Stage 3: The Musical Staff
+    "ledger_lines",       # Stage 3: The Musical Staff (ledger lines)
+    "note_basics",        # Stage 4: What is a Note?
+    "first_note",         # Stage 1: Play Your Note
+    "accidental_flat_symbol",    # Stage 6: Sharps & Flats
+    "accidental_natural_symbol", # Stage 6: Sharps & Flats
+    "accidental_sharp_symbol",   # Stage 6: Sharps & Flats
+]
+
+# Instruments that use bass clef (all others use treble)
+BASS_CLEF_INSTRUMENTS = {
+    "Tenor Trombone", "Bass Trombone", "Euphonium", "Tuba",
+    "Bassoon", "Cello", "Double Bass", "Bass Voice",
+    "trombone", "bass_trombone", "euphonium", "tuba",
+    "bassoon", "cello", "double_bass", "bass_voice",
+}
+
+def grant_day0_capabilities(user, db: Session):
+    """
+    Grant all Day 0 capabilities to a user when they complete the first-note flow.
+    
+    This marks the user as having mastered:
+    - staff_basics, ledger_lines, note_basics, first_note
+    - accidental symbols (flat, natural, sharp)
+    - their instrument's clef (treble or bass)
+    """
+    from app.models.capability_schema import Capability, UserCapability
+    from datetime import datetime
+    
+    # Determine which clef to grant based on instrument
+    user_instrument = user.instrument or ""
+    clef_capability = "clef_bass" if user_instrument in BASS_CLEF_INSTRUMENTS else "clef_treble"
+    
+    # Full list of capabilities to grant
+    capabilities_to_grant = DAY0_BASE_CAPABILITIES + [clef_capability]
+    
+    # Look up capability IDs
+    caps = db.query(Capability).filter(Capability.name.in_(capabilities_to_grant)).all()
+    cap_map = {c.name: c for c in caps}
+    
+    now = datetime.utcnow()
+    granted = []
+    
+    for cap_name in capabilities_to_grant:
+        cap = cap_map.get(cap_name)
+        if not cap:
+            print(f"[grant_day0_capabilities] Warning: Capability '{cap_name}' not found")
+            continue
+        
+        # Check if already exists
+        existing = db.query(UserCapability).filter_by(
+            user_id=user.id,
+            capability_id=cap.id
+        ).first()
+        
+        if existing:
+            # Update to mastered if not already
+            if not existing.mastered_at:
+                existing.mastered_at = now
+                existing.is_active = True
+                granted.append(cap_name)
+        else:
+            # Create new mastered capability
+            user_cap = UserCapability(
+                user_id=user.id,
+                capability_id=cap.id,
+                introduced_at=now,
+                mastered_at=now,
+                is_active=True,
+                evidence_count=1,  # Day 0 completion counts as evidence
+            )
+            db.add(user_cap)
+            granted.append(cap_name)
+    
+    print(f"[grant_day0_capabilities] Granted {len(granted)} capabilities to user {user.id}: {granted}")
+    return granted
+
 @app.patch("/users/{user_id}")
 def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depends(get_db)):
     """Update user fields (day0 progress, range, etc.)."""
+    from app.models.capability_schema import UserCapability
+    
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Track if day0 is being completed for the first time
+    was_day0_completed = user.day0_completed
     
     if data.day0_completed is not None:
         user.day0_completed = data.day0_completed
@@ -1612,8 +1706,25 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depe
     if data.range_high is not None:
         user.range_high = data.range_high
     
+    # Grant Day 0 capabilities if:
+    # 1. day0_completed is being set to true for the first time, OR
+    # 2. day0_completed is true but user has no mastered capabilities (seeded user edge case)
+    granted_capabilities = []
+    if data.day0_completed:
+        mastered_count = db.query(UserCapability).filter(
+            UserCapability.user_id == user.id,
+            UserCapability.mastered_at.isnot(None)
+        ).count()
+        
+        if not was_day0_completed or mastered_count == 0:
+            granted_capabilities = grant_day0_capabilities(user, db)
+    
     db.commit()
-    return {"status": "success", "user_id": user.id}
+    return {
+        "status": "success",
+        "user_id": user.id,
+        "granted_capabilities": granted_capabilities
+    }
 
 
 # --- User Range Management ---
@@ -1709,44 +1820,21 @@ def update_session_config(data: ConfigUpdateIn = Body(...)):
 
 
 # =============================================================================
-# MICRO-TEACHING BLOCKS
+# MICRO-TEACHING BLOCKS (DEPRECATED - V1 quiz system, V2 uses evidence-based mastery)
 # =============================================================================
 
-@app.get("/capabilities/{capability_id}/lesson")
+@app.get("/capabilities/{capability_id}/lesson", deprecated=True)
 def get_capability_lesson(capability_id: int, db: Session = Depends(get_db)):
     """
-    Get a mini-lesson for a specific capability.
+    [DEPRECATED] Get a mini-lesson for a specific capability.
     
-    Returns curriculum steps following: LISTEN → EXPLAIN → VISUAL → TRY_IT → QUIZ
+    This endpoint used the V1 quiz-based system. V2 uses evidence-based mastery.
+    Returns 410 Gone status.
     """
-    cap = db.query(Capability).filter_by(id=capability_id).first()
-    if not cap:
-        raise HTTPException(status_code=404, detail="Capability not found")
-    
-    if not cap.explanation:
-        raise HTTPException(status_code=400, detail="Capability has no teaching content")
-    
-    # Build capability dict from model
-    cap_dict = {
-        "name": cap.name,
-        "display_name": cap.display_name or cap.name,
-        "explanation": cap.explanation,
-        "visual_example_url": cap.visual_example_url,
-        "audio_example_url": cap.audio_example_url,
-        "quiz_type": cap.quiz_type,
-        "quiz_question": cap.quiz_question,
-        "quiz_options": cap.quiz_options,
-        "quiz_answer": cap.quiz_answer,
-    }
-    
-    steps = generate_capability_lesson_steps(cap_dict)
-    
-    return {
-        "capability_id": cap.id,
-        "capability_name": cap.display_name or cap.name,
-        "domain": cap.domain,
-        "steps": steps
-    }
+    raise HTTPException(
+        status_code=410, 
+        detail="This endpoint is deprecated. V2 uses evidence-based mastery instead of quizzes."
+    )
 
 
 class QuizResultIn(BaseModel):
@@ -1755,52 +1843,22 @@ class QuizResultIn(BaseModel):
     answer_given: Optional[str] = None
 
 
-@app.post("/capabilities/{capability_id}/quiz-result")
+@app.post("/capabilities/{capability_id}/quiz-result", deprecated=True)
 def record_quiz_result(
     capability_id: int, 
     data: QuizResultIn = Body(...), 
     db: Session = Depends(get_db)
 ):
     """
-    Record the result of a capability quiz.
+    [DEPRECATED] Record the result of a capability quiz.
     
-    Updates or creates UserCapabilityProgress record.
+    This endpoint used the V1 quiz-based system. V2 uses evidence-based mastery.
+    Returns 410 Gone status.
     """
-    cap = db.query(Capability).filter_by(id=capability_id).first()
-    if not cap:
-        raise HTTPException(status_code=404, detail="Capability not found")
-    
-    user = db.query(User).filter_by(id=data.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Find or create progress record
-    progress = db.query(UserCapabilityProgress).filter_by(
-        user_id=data.user_id,
-        capability_id=capability_id
-    ).first()
-    
-    if not progress:
-        progress = UserCapabilityProgress(
-            user_id=data.user_id,
-            capability_id=capability_id,
-            introduced_at=datetime.datetime.utcnow(),
-            quiz_passed=data.passed,
-            times_refreshed=0
-        )
-        db.add(progress)
-    else:
-        progress.quiz_passed = data.passed
-        progress.times_refreshed += 1
-    
-    db.commit()
-    
-    return {
-        "status": "success",
-        "capability_id": capability_id,
-        "passed": data.passed,
-        "times_refreshed": progress.times_refreshed
-    }
+    raise HTTPException(
+        status_code=410, 
+        detail="This endpoint is deprecated. V2 uses evidence-based mastery instead of quizzes."
+    )
 
 
 @app.get("/materials/{material_id}/help-capabilities")
@@ -1820,7 +1878,7 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
         material.scaffolding_capability_ids
     )
     
-    # Fetch full capability info
+    # Fetch full capability info from V2
     capabilities = []
     for cap_name in cap_names:
         cap = db.query(Capability).filter_by(name=cap_name).first()
@@ -1830,7 +1888,7 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
                 "name": cap.name,
                 "display_name": cap.display_name or cap.name,
                 "domain": cap.domain,
-                "has_lesson": bool(cap.explanation)
+                "has_lesson": bool(cap.display_name)  # V2 doesn't have explanation field
             })
     
     return {
@@ -1843,69 +1901,68 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
 @app.get("/users/{user_id}/capability-progress")
 def get_user_capability_progress(user_id: int, db: Session = Depends(get_db)):
     """
-    Get user's progress on capability learning.
+    Get user's progress on capability learning (V2).
     
-    Returns stats on known vs unknown capabilities and recent introductions.
+    Returns stats on mastered vs in-progress capabilities.
     """
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Get all progress records
-    progress_records = db.query(UserCapabilityProgress).filter_by(user_id=user_id).all()
+    # Get all user capabilities (V2)
+    user_caps = db.query(UserCapability).filter(UserCapability.user_id == user_id).all()
     
-    # Get all capabilities
-    all_caps = db.query(Capability).filter(Capability.explanation != None).all()
-    total_teachable = len(all_caps)
+    # Get all capabilities (V2)
+    all_caps = db.query(Capability).all()
+    total_capabilities = len(all_caps)
     
-    known_caps = [p for p in progress_records if p.quiz_passed]
-    introduced_but_not_passed = [p for p in progress_records if not p.quiz_passed]
+    mastered_caps = [c for c in user_caps if c.mastered_at is not None]
+    in_progress_caps = [c for c in user_caps if c.mastered_at is None]
     
-    # Calculate sessions since last intro (approximation)
-    last_intro = None
-    if progress_records:
-        intros = [p.introduced_at for p in progress_records if p.introduced_at]
-        if intros:
-            last_intro = max(intros)
+    # Get most recent mastery date
+    last_mastery = None
+    if mastered_caps:
+        mastery_dates = [c.mastered_at for c in mastered_caps if c.mastered_at]
+        if mastery_dates:
+            last_mastery = max(mastery_dates)
     
     return {
         "user_id": user_id,
-        "total_teachable_capabilities": total_teachable,
-        "capabilities_known": len(known_caps),
-        "capabilities_in_progress": len(introduced_but_not_passed),
-        "last_introduction": last_intro.isoformat() if last_intro else None,
-        "known_capability_names": [p.capability_id for p in known_caps]
+        "total_capabilities": total_capabilities,
+        "capabilities_mastered": len(mastered_caps),
+        "capabilities_in_progress": len(in_progress_caps),
+        "last_mastery": last_mastery.isoformat() if last_mastery else None,
+        "mastered_capability_ids": [c.capability_id for c in mastered_caps]
     }
 
 
 @app.get("/users/{user_id}/next-capability")
 def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
     """
-    Get the next capability that should be introduced to the user.
+    Get the next capability that should be introduced to the user (V2).
     
-    Based on sequence order and user's current knowledge.
+    Based on sequence order and user's current mastery.
     """
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Get user's known capabilities
-    progress = db.query(UserCapabilityProgress).filter_by(
-        user_id=user_id,
-        quiz_passed=True
+    # Get user's mastered capabilities (V2)
+    mastered = db.query(UserCapability).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.mastered_at.isnot(None)
     ).all()
-    known_cap_ids = [p.capability_id for p in progress]
+    mastered_cap_ids = [m.capability_id for m in mastered]
     
-    # Get names of known caps
-    known_cap_names = []
-    for cap_id in known_cap_ids:
+    # Get names of mastered caps
+    mastered_cap_names = []
+    for cap_id in mastered_cap_ids:
         cap = db.query(Capability).filter_by(id=cap_id).first()
         if cap:
-            known_cap_names.append(cap.name)
+            mastered_cap_names.append(cap.name)
     
-    # Get all capabilities ordered by sequence
+    # Get all capabilities ordered by sequence (V2)
     all_caps = db.query(Capability).filter(
-        Capability.explanation != None,
         Capability.sequence_order != None
     ).order_by(Capability.sequence_order).all()
     
@@ -1921,7 +1978,7 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
             "domain": cap.domain
         })
     
-    next_cap = get_next_capability_to_introduce(known_cap_names, caps_list)
+    next_cap = get_next_capability_to_introduce(mastered_cap_names, caps_list)
     
     if not next_cap:
         return {"message": "All capabilities learned!", "next_capability": None}
@@ -1934,7 +1991,7 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
             "domain": next_cap.get("domain"),
             "sequence_order": next_cap.get("sequence_order")
         },
-        "user_known_count": len(known_cap_names)
+        "user_mastered_count": len(mastered_cap_names)
     }
 
 
@@ -1976,7 +2033,7 @@ def upload_material(
     5. Computes and stores bitmask for fast eligibility checking
     """
     from app.musicxml_analyzer import MusicXMLAnalyzer, analyze_musicxml, compute_capability_bitmask
-    from app.models.capability_schema import CapabilityV2, MaterialCapability, MaterialAnalysis
+    from app.models.capability_schema import Capability, MaterialCapability, MaterialAnalysis
     
     warnings = []
     
@@ -2011,7 +2068,7 @@ def upload_material(
     
     for cap_name in capability_names:
         # Try to find existing capability
-        cap = db.query(CapabilityV2).filter_by(name=cap_name).first()
+        cap = db.query(Capability).filter_by(name=cap_name).first()
         
         if not cap:
             # Capability doesn't exist - create a placeholder
@@ -2019,14 +2076,14 @@ def upload_material(
             domain = cap_name.split("_")[0] if "_" in cap_name else "other"
             
             # Find next available bit_index
-            max_bit = db.query(db.func.max(CapabilityV2.bit_index)).scalar() or -1
+            max_bit = db.query(db.func.max(Capability.bit_index)).scalar() or -1
             new_bit_index = max_bit + 1
             
             if new_bit_index >= 512:
                 warnings.append(f"Capability '{cap_name}' exceeds bitmask capacity, created without bit_index")
                 new_bit_index = None
             
-            cap = CapabilityV2(
+            cap = Capability(
                 name=cap_name,
                 display_name=cap_name.replace("_", " ").title(),
                 domain=domain,
@@ -2093,7 +2150,7 @@ def upload_material(
 @app.get("/materials/{material_id}/analysis")
 def get_material_analysis(material_id: int, db: Session = Depends(get_db)):
     """Get the analysis data for a material."""
-    from app.models.capability_schema import MaterialAnalysis, MaterialCapability, CapabilityV2
+    from app.models.capability_schema import MaterialAnalysis, MaterialCapability, Capability
     
     material = db.query(Material).filter_by(id=material_id).first()
     if not material:
@@ -2104,7 +2161,7 @@ def get_material_analysis(material_id: int, db: Session = Depends(get_db)):
     # Get linked capabilities
     mat_caps = db.query(MaterialCapability).filter_by(material_id=material_id).all()
     cap_ids = [mc.capability_id for mc in mat_caps]
-    caps = db.query(CapabilityV2).filter(CapabilityV2.id.in_(cap_ids)).all() if cap_ids else []
+    caps = db.query(Capability).filter(Capability.id.in_(cap_ids)).all() if cap_ids else []
     
     return {
         "material_id": material_id,
@@ -2163,18 +2220,18 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
 
 
 @app.get("/capabilities/v2")
-def list_capabilities_v2(
+def list_capabilities(
     domain: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """List all capabilities in the v2 system, optionally filtered by domain."""
-    from app.models.capability_schema import CapabilityV2
+    from app.models.capability_schema import Capability
     
-    query = db.query(CapabilityV2)
+    query = db.query(Capability)
     if domain:
         query = query.filter_by(domain=domain)
     
-    caps = query.order_by(CapabilityV2.sequence_order, CapabilityV2.name).all()
+    caps = query.order_by(Capability.sequence_order, Capability.name).all()
     
     return [
         {
@@ -2195,13 +2252,13 @@ def list_capabilities_v2(
 @app.get("/capabilities/v2/domains")
 def list_capability_domains(db: Session = Depends(get_db)):
     """List all capability domains with counts."""
-    from app.models.capability_schema import CapabilityV2
+    from app.models.capability_schema import Capability
     from sqlalchemy import func
     
     result = db.query(
-        CapabilityV2.domain,
-        func.count(CapabilityV2.id).label('count')
-    ).group_by(CapabilityV2.domain).all()
+        Capability.domain,
+        func.count(Capability.id).label('count')
+    ).group_by(Capability.domain).all()
     
     return [{"domain": r[0], "count": r[1]} for r in result]
 
@@ -2282,18 +2339,18 @@ def grant_capability(
     
     Updates both the normalized table and the user's bitmask.
     """
-    from app.models.capability_schema import CapabilityV2, UserCapabilityV2
+    from app.models.capability_schema import Capability, UserCapability
     
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    cap = db.query(CapabilityV2).filter_by(id=capability_id).first()
+    cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:
         raise HTTPException(status_code=404, detail="Capability not found")
     
     # Check if already granted
-    existing = db.query(UserCapabilityV2).filter_by(
+    existing = db.query(UserCapability).filter_by(
         user_id=user_id, capability_id=capability_id
     ).first()
     
@@ -2307,7 +2364,7 @@ def grant_capability(
             existing.mastered_at = datetime.datetime.now()
     else:
         # Create new record
-        user_cap = UserCapabilityV2(
+        user_cap = UserCapability(
             user_id=user_id,
             capability_id=capability_id,
             introduced_at=datetime.datetime.now(),
@@ -2344,17 +2401,17 @@ def revoke_capability(
     
     Updates both the normalized table and the user's bitmask.
     """
-    from app.models.capability_schema import CapabilityV2, UserCapabilityV2
+    from app.models.capability_schema import Capability, UserCapability
     
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    cap = db.query(CapabilityV2).filter_by(id=capability_id).first()
+    cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:
         raise HTTPException(status_code=404, detail="Capability not found")
     
-    existing = db.query(UserCapabilityV2).filter_by(
+    existing = db.query(UserCapability).filter_by(
         user_id=user_id, capability_id=capability_id
     ).first()
     
@@ -2382,3 +2439,1152 @@ def revoke_capability(
     return {"message": "Capability revoked", "capability": cap.name}
 
 
+# =============================================================================
+# ADMIN API ENDPOINTS
+# =============================================================================
+
+@app.get("/admin/capabilities")
+def admin_get_capabilities(
+    domain: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Get all capabilities with extended admin info.
+    """
+    from app.models.capability_schema import Capability, MaterialCapability, MaterialTeachesCapability
+    
+    query = db.query(Capability)
+    if domain:
+        query = query.filter(Capability.domain == domain)
+    
+    capabilities = query.order_by(Capability.sequence_order, Capability.name).all()
+    
+    result = []
+    for cap in capabilities:
+        # Count materials that require this capability
+        requires_count = db.query(MaterialCapability).filter_by(capability_id=cap.id).count()
+        
+        # Count materials that teach this capability
+        teaches_count = db.query(MaterialTeachesCapability).filter_by(capability_id=cap.id).count()
+        
+        # Parse prerequisites
+        prereq_names = []
+        if cap.prerequisite_ids:
+            try:
+                prereq_ids = json.loads(cap.prerequisite_ids) if isinstance(cap.prerequisite_ids, str) else cap.prerequisite_ids
+                if prereq_ids:
+                    prereqs = db.query(Capability).filter(Capability.id.in_(prereq_ids)).all()
+                    prereq_names = [p.name for p in prereqs]
+            except:
+                pass
+        
+        result.append({
+            "id": cap.id,
+            "name": cap.name,
+            "display_name": cap.display_name,
+            "domain": cap.domain,
+            "subdomain": cap.subdomain,
+            "bit_index": cap.bit_index,
+            "requirement_type": cap.requirement_type,
+            "sequence_order": cap.sequence_order,
+            "difficulty_tier": cap.difficulty_tier,
+            "difficulty_weight": cap.difficulty_weight,
+            "mastery_type": cap.mastery_type,
+            "mastery_count": cap.mastery_count,
+            "evidence_required_count": cap.evidence_required_count,
+            "evidence_distinct_materials": cap.evidence_distinct_materials,
+            "evidence_acceptance_threshold": cap.evidence_acceptance_threshold,
+            "is_active": True,  # All seeded capabilities are active by default
+            "prerequisite_names": prereq_names,
+            "materials_requiring": requires_count,
+            "materials_teaching": teaches_count,
+        })
+    
+    return {"capabilities": result, "count": len(result)}
+
+
+@app.get("/admin/capabilities/{capability_id}/graph")
+def admin_get_capability_graph(
+    capability_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get dependency graph for a capability (what it depends on, what depends on it).
+    """
+    from app.models.capability_schema import Capability
+    
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    # Get capabilities this one depends on
+    depends_on = []
+    if cap.prerequisite_ids:
+        try:
+            prereq_ids = json.loads(cap.prerequisite_ids) if isinstance(cap.prerequisite_ids, str) else cap.prerequisite_ids
+            if prereq_ids:
+                prereqs = db.query(Capability).filter(Capability.id.in_(prereq_ids)).all()
+                depends_on = [p.name for p in prereqs]
+        except:
+            pass
+    
+    # Get capabilities that depend on this one
+    all_caps = db.query(Capability).all()
+    required_by = []
+    for other_cap in all_caps:
+        if other_cap.prerequisite_ids:
+            try:
+                prereq_ids = json.loads(other_cap.prerequisite_ids) if isinstance(other_cap.prerequisite_ids, str) else other_cap.prerequisite_ids
+                if prereq_ids and capability_id in prereq_ids:
+                    required_by.append(other_cap.name)
+            except:
+                pass
+    
+    return {
+        "capability": cap.name,
+        "depends_on": depends_on,
+        "required_by": required_by,
+    }
+
+
+@app.post("/admin/capabilities/export")
+def admin_export_capabilities(
+    db: Session = Depends(get_db)
+):
+    """
+    Export all capabilities to capabilities.json in the resources folder.
+    Archives the existing capabilities.json to resources/capability_history/ first.
+    """
+    from app.models.capability_schema import Capability
+    from datetime import datetime
+    import os
+    import shutil
+    
+    capabilities = db.query(Capability).order_by(Capability.sequence_order, Capability.name).all()
+    
+    # Build capability ID to name mapping for prerequisites
+    cap_id_to_name = {cap.id: cap.name for cap in capabilities}
+    
+    # Format capabilities in the same structure as capabilities.json
+    exported = []
+    for cap in capabilities:
+        # Parse prerequisite IDs and convert to names
+        prereq_names = []
+        if cap.prerequisite_ids:
+            try:
+                prereq_ids = json.loads(cap.prerequisite_ids) if isinstance(cap.prerequisite_ids, str) else cap.prerequisite_ids
+                if prereq_ids:
+                    prereq_names = [cap_id_to_name[pid] for pid in prereq_ids if pid in cap_id_to_name]
+            except:
+                pass
+        
+        # Parse evidence_qualifier_json
+        evidence_qualifier = {}
+        if cap.evidence_qualifier_json:
+            try:
+                evidence_qualifier = json.loads(cap.evidence_qualifier_json) if isinstance(cap.evidence_qualifier_json, str) else cap.evidence_qualifier_json
+            except:
+                pass
+        
+        exported.append({
+            "name": cap.name,
+            "display_name": cap.display_name,
+            "domain": cap.domain,
+            "subdomain": cap.subdomain,
+            "requirement_type": cap.requirement_type or "required",
+            "prerequisite_names": prereq_names,
+            "sequence_order": cap.sequence_order,
+            "difficulty_tier": cap.difficulty_tier or 1,
+            "mastery_type": cap.mastery_type or "single",
+            "mastery_count": cap.mastery_count or 1,
+            "evidence_required_count": cap.evidence_required_count or 1,
+            "evidence_distinct_materials": cap.evidence_distinct_materials or False,
+            "evidence_acceptance_threshold": cap.evidence_acceptance_threshold or 4,
+            "evidence_qualifier_json": evidence_qualifier,
+            "difficulty_weight": cap.difficulty_weight or 1.0,
+            "bit_index": cap.bit_index
+        })
+    
+    # Create output structure
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output = {
+        "version": f"capabilities_{timestamp}",
+        "count": len(exported),
+        "capabilities": exported
+    }
+    
+    # Paths
+    resources_dir = os.path.join(os.path.dirname(__file__), "..", "resources")
+    history_dir = os.path.join(resources_dir, "capability_history")
+    current_file = os.path.join(resources_dir, "capabilities.json")
+    
+    try:
+        # Create history directory if it doesn't exist
+        os.makedirs(history_dir, exist_ok=True)
+        
+        # Archive existing capabilities.json if it exists
+        archived_file = None
+        if os.path.exists(current_file):
+            archive_filename = f"capabilities_{timestamp}.json"
+            archive_path = os.path.join(history_dir, archive_filename)
+            shutil.copy2(current_file, archive_path)
+            archived_file = archive_filename
+        
+        # Write new capabilities.json
+        with open(current_file, "w", encoding="utf-8") as f:
+            json.dump(output, f, indent=1, ensure_ascii=False)
+        
+        message = f"Exported {len(exported)} capabilities"
+        if archived_file:
+            message += f" (archived previous to capability_history/{archived_file})"
+        
+        return {
+            "success": True,
+            "message": message,
+            "filename": "capabilities.json",
+            "archived": archived_file
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Failed to export capabilities",
+                "error": str(e)
+            }
+        )
+
+
+@app.post("/admin/capabilities/{capability_id}/archive")
+def admin_archive_capability(
+    capability_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Archive a capability by setting is_active=False.
+    Archived capabilities won't appear in normal capability lists.
+    """
+    from app.models.capability_schema import Capability
+    
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    if not cap.is_active:
+        return {
+            "success": True,
+            "message": f"Capability '{cap.name}' is already archived",
+            "capability_id": capability_id,
+            "is_active": False
+        }
+    
+    cap.is_active = False
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"Archived capability '{cap.name}'",
+        "capability_id": capability_id,
+        "is_active": False
+    }
+
+
+@app.post("/admin/capabilities/{capability_id}/restore")
+def admin_restore_capability(
+    capability_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Restore an archived capability by setting is_active=True.
+    """
+    from app.models.capability_schema import Capability
+    
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    if cap.is_active:
+        return {
+            "success": True,
+            "message": f"Capability '{cap.name}' is already active",
+            "capability_id": capability_id,
+            "is_active": True
+        }
+    
+    cap.is_active = True
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"Restored capability '{cap.name}'",
+        "capability_id": capability_id,
+        "is_active": True
+    }
+
+
+# Pydantic model for capability update request
+class CapabilityUpdateRequest(BaseModel):
+    """
+    Request model for updating a capability.
+    
+    Note: id and bit_index are NOT editable via this endpoint.
+    - id: Primary key, never changes
+    - bit_index: Used for bitmask operations, changing could corrupt user progress
+    """
+    name: str
+    display_name: Optional[str] = None
+    domain: str
+    subdomain: Optional[str] = None
+    requirement_type: str = "required"
+    sequence_order: Optional[int] = None
+    difficulty_tier: int = 1
+    mastery_type: str = "single"
+    mastery_count: int = 1
+    evidence_required_count: int = 1
+    evidence_distinct_materials: bool = False
+    evidence_acceptance_threshold: int = 4
+    difficulty_weight: float = 1.0
+    prerequisite_ids: Optional[List[int]] = None  # List of capability IDs, or None to skip update
+
+
+# Validation constants for capabilities
+VALID_REQUIREMENT_TYPES = ["required", "learnable_in_context"]
+VALID_MASTERY_TYPES = ["single", "any_of_pool", "multiple"]
+MIN_RATING = 1
+MAX_RATING = 5
+MIN_DIFFICULTY_WEIGHT = 0.1
+MAX_DIFFICULTY_WEIGHT = 10.0
+
+
+def check_circular_dependency(capability_id: int, new_prereq_ids: List[int], db) -> Optional[List[str]]:
+    """
+    Check if setting new_prereq_ids on capability_id would create a circular dependency.
+    
+    Returns None if no cycle, or a list of capability names forming the cycle path.
+    
+    A cycle exists if any of the new prerequisites (or their transitive prerequisites)
+    eventually include capability_id itself.
+    """
+    from app.models.capability_schema import Capability
+    import json
+    
+    if not new_prereq_ids:
+        return None
+    
+    # Build a map of capability_id -> prerequisite_ids for traversal
+    all_caps = db.query(Capability).all()
+    cap_map = {c.id: c for c in all_caps}
+    prereq_map = {}
+    for c in all_caps:
+        try:
+            prereq_map[c.id] = json.loads(c.prerequisite_ids) if c.prerequisite_ids else []
+        except:
+            prereq_map[c.id] = []
+    
+    # Replace the prereqs for the capability being edited (simulate the change)
+    prereq_map[capability_id] = new_prereq_ids
+    
+    # BFS/DFS from capability_id to see if we can reach capability_id again
+    visited = set()
+    path = []
+    
+    def dfs(current_id, path_so_far):
+        """Returns cycle path if found, None otherwise."""
+        if current_id in visited:
+            return None
+        
+        if current_id == capability_id and len(path_so_far) > 0:
+            # Found a cycle back to the original
+            return path_so_far + [cap_map[current_id].name if current_id in cap_map else f"id:{current_id}"]
+        
+        visited.add(current_id)
+        path_so_far = path_so_far + [cap_map[current_id].name if current_id in cap_map else f"id:{current_id}"]
+        
+        for prereq_id in prereq_map.get(current_id, []):
+            if prereq_id == capability_id:
+                # Direct cycle found
+                prereq_name = cap_map[prereq_id].name if prereq_id in cap_map else f"id:{prereq_id}"
+                return path_so_far + [prereq_name]
+            result = dfs(prereq_id, path_so_far)
+            if result:
+                return result
+        
+        return None
+    
+    # Start from each new prerequisite and see if we eventually reach capability_id
+    for prereq_id in new_prereq_ids:
+        if prereq_id == capability_id:
+            return [cap_map[capability_id].name, cap_map[capability_id].name]  # Self-reference
+        
+        visited.clear()
+        prereq_name = cap_map[prereq_id].name if prereq_id in cap_map else f"id:{prereq_id}"
+        result = dfs(prereq_id, [cap_map[capability_id].name])
+        if result:
+            return result
+    
+    return None
+
+
+@app.put("/admin/capabilities/{capability_id}")
+def admin_update_capability(
+    capability_id: int,
+    update_data: CapabilityUpdateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Update an existing capability with validated data.
+    
+    Only updates allowed editable fields. Does NOT modify:
+    - id (primary key)
+    - bit_index (used for bitmask eligibility checks)
+    
+    Prerequisite editing includes circular dependency validation to prevent
+    cycles like A→B→C→A.
+    
+    Authorization:
+    - This endpoint is intended for internal admin use only.
+    - In production, add authentication middleware to restrict access.
+    - Currently no auth check (development mode).
+    
+    Returns structured success/error response.
+    """
+    from app.models.capability_schema import Capability
+    import json
+    
+    # Find the capability
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    # Server-side validation
+    errors = []
+    
+    # Validate name
+    name = update_data.name.strip() if update_data.name else ""
+    if not name:
+        errors.append("name: Name is required")
+    elif not all(c.islower() or c.isdigit() or c == '_' for c in name):
+        errors.append("name: Must be lowercase alphanumeric with underscores only")
+    else:
+        # Check for duplicate name (excluding current capability)
+        existing = db.query(Capability).filter(
+            Capability.name == name,
+            Capability.id != capability_id
+        ).first()
+        if existing:
+            errors.append(f"name: A capability with name '{name}' already exists (id={existing.id})")
+    
+    # Validate domain
+    domain = update_data.domain.strip() if update_data.domain else ""
+    if not domain:
+        errors.append("domain: Domain is required")
+    
+    # Validate requirement_type
+    if update_data.requirement_type not in VALID_REQUIREMENT_TYPES:
+        errors.append(f"requirement_type: Must be one of {VALID_REQUIREMENT_TYPES}")
+    
+    # Validate mastery_type
+    if update_data.mastery_type not in VALID_MASTERY_TYPES:
+        errors.append(f"mastery_type: Must be one of {VALID_MASTERY_TYPES}")
+    
+    # Validate numeric fields
+    if update_data.sequence_order is not None and update_data.sequence_order < 0:
+        errors.append("sequence_order: Must be non-negative")
+    
+    if update_data.difficulty_tier < 1 or update_data.difficulty_tier > 5:
+        errors.append("difficulty_tier: Must be between 1 and 5")
+    
+    if update_data.difficulty_weight < MIN_DIFFICULTY_WEIGHT or update_data.difficulty_weight > MAX_DIFFICULTY_WEIGHT:
+        errors.append(f"difficulty_weight: Must be between {MIN_DIFFICULTY_WEIGHT} and {MAX_DIFFICULTY_WEIGHT}")
+    
+    if update_data.mastery_count < 1:
+        errors.append("mastery_count: Must be at least 1")
+    
+    if update_data.evidence_required_count < 1:
+        errors.append("evidence_required_count: Must be at least 1")
+    
+    if update_data.evidence_acceptance_threshold < MIN_RATING or update_data.evidence_acceptance_threshold > MAX_RATING:
+        errors.append(f"evidence_acceptance_threshold: Must be between {MIN_RATING} and {MAX_RATING}")
+    
+    # Validate prerequisite_ids if provided
+    if update_data.prerequisite_ids is not None:
+        prereq_ids = update_data.prerequisite_ids
+        
+        # Check for self-reference
+        if capability_id in prereq_ids:
+            errors.append("prerequisite_ids: Cannot set self as a prerequisite")
+        
+        # Validate all IDs exist
+        if prereq_ids:
+            existing_ids = [c.id for c in db.query(Capability.id).filter(Capability.id.in_(prereq_ids)).all()]
+            missing_ids = set(prereq_ids) - set(existing_ids)
+            if missing_ids:
+                errors.append(f"prerequisite_ids: The following capability IDs do not exist: {list(missing_ids)}")
+        
+        # Check for circular dependencies
+        if not errors:  # Only check if no other prereq errors
+            cycle_path = check_circular_dependency(capability_id, prereq_ids, db)
+            if cycle_path:
+                cycle_str = " → ".join(cycle_path)
+                errors.append(f"prerequisite_ids: Would create circular dependency: {cycle_str}")
+    
+    # If there are validation errors, return them all
+    if errors:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Validation failed",
+                "errors": errors
+            }
+        )
+    
+    # Apply updates (only to allowed editable fields)
+    try:
+        cap.name = name
+        cap.display_name = update_data.display_name.strip() if update_data.display_name else None
+        cap.domain = domain
+        cap.subdomain = update_data.subdomain.strip() if update_data.subdomain else None
+        cap.requirement_type = update_data.requirement_type
+        cap.sequence_order = update_data.sequence_order
+        cap.difficulty_tier = update_data.difficulty_tier
+        cap.mastery_type = update_data.mastery_type
+        cap.mastery_count = update_data.mastery_count
+        cap.evidence_required_count = update_data.evidence_required_count
+        cap.evidence_distinct_materials = update_data.evidence_distinct_materials
+        cap.evidence_acceptance_threshold = update_data.evidence_acceptance_threshold
+        cap.difficulty_weight = update_data.difficulty_weight
+        
+        # Update prerequisites if provided (already validated above)
+        if update_data.prerequisite_ids is not None:
+            cap.prerequisite_ids = json.dumps(update_data.prerequisite_ids) if update_data.prerequisite_ids else None
+        
+        db.commit()
+        db.refresh(cap)
+        
+        # Get prerequisite names for response
+        prereq_ids_list = json.loads(cap.prerequisite_ids) if cap.prerequisite_ids else []
+        prereq_names = []
+        if prereq_ids_list:
+            prereqs = db.query(Capability).filter(Capability.id.in_(prereq_ids_list)).all()
+            prereq_map = {p.id: p for p in prereqs}
+            prereq_names = [
+                {"id": pid, "name": prereq_map[pid].name, "domain": prereq_map[pid].domain}
+                for pid in prereq_ids_list if pid in prereq_map
+            ]
+        
+        return {
+            "success": True,
+            "message": "Capability updated successfully",
+            "capability": {
+                "id": cap.id,
+                "name": cap.name,
+                "display_name": cap.display_name,
+                "domain": cap.domain,
+                "subdomain": cap.subdomain,
+                "bit_index": cap.bit_index,  # Read-only, returned for reference
+                "requirement_type": cap.requirement_type,
+                "sequence_order": cap.sequence_order,
+                "difficulty_tier": cap.difficulty_tier,
+                "difficulty_weight": cap.difficulty_weight,
+                "mastery_type": cap.mastery_type,
+                "mastery_count": cap.mastery_count,
+                "evidence_required_count": cap.evidence_required_count,
+                "evidence_distinct_materials": cap.evidence_distinct_materials,
+                "evidence_acceptance_threshold": cap.evidence_acceptance_threshold,
+                "prerequisite_names": prereq_names,
+            }
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Failed to save capability",
+                "error": str(e)
+            }
+        )
+
+
+@app.get("/admin/materials")
+def admin_get_materials(
+    db: Session = Depends(get_db)
+):
+    """
+    Get all materials with analysis data.
+    """
+    from app.models.capability_schema import MaterialAnalysis, MaterialCapability, MaterialTeachesCapability, Capability
+    
+    materials = db.query(Material).all()
+    
+    result = []
+    for mat in materials:
+        # Get analysis data if available
+        analysis = db.query(MaterialAnalysis).filter_by(material_id=mat.id).first()
+        
+        # Get required capabilities
+        req_caps = db.query(MaterialCapability, Capability).join(
+            Capability, MaterialCapability.capability_id == Capability.id
+        ).filter(MaterialCapability.material_id == mat.id).all()
+        required_capabilities = [c.name for _, c in req_caps]
+        
+        # Get taught capabilities
+        teach_caps = db.query(MaterialTeachesCapability, Capability).join(
+            Capability, MaterialTeachesCapability.capability_id == Capability.id
+        ).filter(MaterialTeachesCapability.material_id == mat.id).all()
+        teaches_capabilities = [c.name for _, c in teach_caps]
+        
+        mat_data = {
+            "id": mat.id,
+            "title": mat.title,
+            "original_key_center": mat.original_key_center,
+            "allowed_keys": mat.allowed_keys,
+            "required_capabilities": required_capabilities,
+            "teaches_capabilities": teaches_capabilities,
+        }
+        
+        if analysis:
+            mat_data.update({
+                "lowest_pitch": analysis.lowest_pitch,
+                "highest_pitch": analysis.highest_pitch,
+                "range_semitones": analysis.range_semitones,
+                "chromatic_complexity": analysis.chromatic_complexity,
+                "rhythmic_complexity": analysis.rhythmic_complexity,
+                "reading_complexity": analysis.reading_complexity,
+                "measure_count": analysis.measure_count,
+                "estimated_duration_seconds": analysis.estimated_duration_seconds,
+                "tonal_complexity_stage": analysis.tonal_complexity_stage,
+                "interval_size_stage": analysis.interval_size_stage,
+                "rhythm_complexity_stage": analysis.rhythm_complexity_stage,
+                "range_usage_stage": analysis.range_usage_stage,
+                "difficulty_index": analysis.difficulty_index,
+            })
+        
+        result.append(mat_data)
+    
+    return {"materials": result, "count": len(result)}
+
+
+@app.get("/admin/materials/{material_id}/gate-check")
+def admin_check_material_gates(
+    material_id: int,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Check if a material passes hard gates and soft envelope for a user.
+    """
+    from app.models.capability_schema import (
+        MaterialCapability, MaterialAnalysis, Capability,
+        UserCapability, UserSoftGateState, SoftGateRule
+    )
+    
+    material = db.query(Material).filter_by(id=material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check hard gates (capability requirements)
+    hard_gate_failures = []
+    
+    # Get required capabilities for this material
+    req_caps = db.query(MaterialCapability, Capability).join(
+        Capability, MaterialCapability.capability_id == Capability.id
+    ).filter(
+        MaterialCapability.material_id == material_id,
+        MaterialCapability.is_required == True
+    ).all()
+    
+    for mat_cap, cap in req_caps:
+        # Check if user has this capability
+        user_cap = db.query(UserCapability).filter_by(
+            user_id=user_id, capability_id=cap.id, is_active=True
+        ).first()
+        
+        if not user_cap or not user_cap.mastered_at:
+            hard_gate_failures.append(cap.name)
+    
+    # Also check via bitmask for speed (if bit_index available)
+    # This is a secondary check that validates our logic
+    
+    passes_hard_gates = len(hard_gate_failures) == 0
+    
+    # Check soft envelope
+    soft_envelope_failures = []
+    analysis = db.query(MaterialAnalysis).filter_by(material_id=material_id).first()
+    
+    if analysis:
+        # Get all soft gate rules and user states
+        soft_rules = db.query(SoftGateRule).all()
+        
+        dimension_mapping = {
+            "tonal_complexity_stage": analysis.tonal_complexity_stage,
+            "interval_size_stage": analysis.interval_size_stage,
+            "rhythm_complexity_stage": analysis.rhythm_complexity_stage,
+            "range_usage_stage": analysis.range_usage_stage,
+        }
+        
+        for rule in soft_rules:
+            material_value = dimension_mapping.get(rule.dimension_name)
+            if material_value is None:
+                continue
+            
+            user_state = db.query(UserSoftGateState).filter_by(
+                user_id=user_id, dimension_name=rule.dimension_name
+            ).first()
+            
+            comfort = user_state.comfortable_value if user_state else 0
+            max_allowed = comfort + rule.frontier_buffer
+            
+            if material_value > max_allowed:
+                soft_envelope_failures.append(
+                    f"{rule.dimension_name}: material={material_value}, max_allowed={max_allowed}"
+                )
+    
+    passes_soft_envelope = len(soft_envelope_failures) == 0
+    
+    return {
+        "material_id": material_id,
+        "material_title": material.title,
+        "user_id": user_id,
+        "passes_hard_gates": passes_hard_gates,
+        "hard_gate_failures": hard_gate_failures,
+        "passes_soft_envelope": passes_soft_envelope,
+        "soft_envelope_failures": soft_envelope_failures,
+        "overall_eligible": passes_hard_gates and passes_soft_envelope,
+    }
+
+
+@app.post("/admin/materials/{material_id}/analyze")
+def admin_trigger_analysis(
+    material_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Trigger re-analysis of a material's MusicXML.
+    """
+    from app.musicxml_analyzer import analyze_musicxml
+    from app.models.capability_schema import MaterialAnalysis
+    
+    material = db.query(Material).filter_by(id=material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    if not material.musicxml_canonical:
+        raise HTTPException(status_code=400, detail="Material has no MusicXML content")
+    
+    # Run analysis
+    try:
+        analysis_result = analyze_musicxml(material.musicxml_canonical)
+        
+        # Update or create analysis record
+        existing = db.query(MaterialAnalysis).filter_by(material_id=material_id).first()
+        if existing:
+            for key, value in analysis_result.items():
+                if hasattr(existing, key):
+                    setattr(existing, key, value)
+        else:
+            analysis = MaterialAnalysis(material_id=material_id, **analysis_result)
+            db.add(analysis)
+        
+        db.commit()
+        return {"message": "Analysis completed", "analysis": analysis_result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+@app.get("/admin/users/{user_id}/progression")
+def admin_get_user_progression(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive user progression data for admin inspection.
+    """
+    from app.models.capability_schema import (
+        Capability, UserCapability, UserSoftGateState,
+        UserCapabilityEvidenceEvent, UserMaterialState
+    )
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get user's capabilities
+    user_caps = db.query(UserCapability, Capability).join(
+        Capability, UserCapability.capability_id == Capability.id
+    ).filter(UserCapability.user_id == user_id, UserCapability.is_active == True).all()
+    
+    mastered = []
+    introduced = []
+    for user_cap, cap in user_caps:
+        cap_data = {
+            "id": cap.id,
+            "name": cap.name,
+            "display_name": cap.display_name,
+            "domain": cap.domain,
+            "introduced_at": user_cap.introduced_at.isoformat() if user_cap.introduced_at else None,
+            "mastered_at": user_cap.mastered_at.isoformat() if user_cap.mastered_at else None,
+            "evidence_count": user_cap.evidence_count,
+        }
+        if user_cap.mastered_at:
+            mastered.append(cap_data)
+        else:
+            introduced.append(cap_data)
+    
+    # Get recent promotions (capabilities mastered in last 7 days)
+    from datetime import timedelta
+    recent_date = datetime.datetime.now() - timedelta(days=7)
+    recent_promotions = [
+        {"capability_name": c["name"], "promoted_at": c["mastered_at"]}
+        for c in mastered
+        if c["mastered_at"] and c["mastered_at"] > recent_date.isoformat()
+    ]
+    
+    # Get soft gate states
+    soft_gates = db.query(UserSoftGateState).filter_by(user_id=user_id).all()
+    soft_gate_data = [
+        {
+            "dimension_name": sg.dimension_name,
+            "comfortable_value": sg.comfortable_value,
+            "max_demonstrated_value": sg.max_demonstrated_value,
+            "frontier_success_ema": sg.frontier_success_ema,
+            "frontier_attempt_count_since_last_promo": sg.frontier_attempt_count_since_last_promo,
+        }
+        for sg in soft_gates
+    ]
+    
+    # Get journey stats
+    materials_completed = db.query(UserMaterialState).filter_by(
+        user_id=user_id, status="MASTERED"
+    ).count()
+    
+    return {
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "instrument": user.instrument,
+            "resonant_note": user.resonant_note,
+            "range_low": user.range_low,
+            "range_high": user.range_high,
+            "day0_completed": getattr(user, "day0_completed", False),
+            "day0_stage": getattr(user, "day0_stage", 0),
+        },
+        "capabilities": {
+            "mastered": mastered,
+            "introduced": introduced,
+            "recent_promotions": recent_promotions,
+        },
+        "soft_gates": soft_gate_data,
+        "journey": {
+            "stage": "learning",  # Could compute actual stage
+            "capabilities_mastered": len(mastered),
+            "materials_completed": materials_completed,
+        },
+    }
+
+
+@app.get("/admin/users/{user_id}/session-candidates")
+def admin_get_session_candidates(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the candidate pool of materials for the next session generation.
+    """
+    from app.models.capability_schema import (
+        MaterialAnalysis, MaterialCapability, Capability,
+        UserCapability, UserSoftGateState, SoftGateRule
+    )
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get all materials
+    materials = db.query(Material).all()
+    
+    # Get user's mastered capability IDs for quick lookup
+    mastered_caps = db.query(UserCapability).filter_by(
+        user_id=user_id, is_active=True
+    ).filter(UserCapability.mastered_at != None).all()
+    mastered_cap_ids = {uc.capability_id for uc in mastered_caps}
+    
+    # Get soft gate states
+    soft_rules = {r.dimension_name: r for r in db.query(SoftGateRule).all()}
+    soft_states = {
+        s.dimension_name: s
+        for s in db.query(UserSoftGateState).filter_by(user_id=user_id).all()
+    }
+    
+    eligible_materials = []
+    ineligible_sample = []
+    
+    for mat in materials:
+        # Check hard gates
+        req_caps = db.query(MaterialCapability).filter_by(
+            material_id=mat.id, is_required=True
+        ).all()
+        missing_caps = [rc.capability_id for rc in req_caps if rc.capability_id not in mastered_cap_ids]
+        
+        if missing_caps:
+            # Get names of missing capabilities
+            missing_names = db.query(Capability.name).filter(
+                Capability.id.in_(missing_caps)
+            ).all()
+            missing_names = [n[0] for n in missing_names]
+            
+            if len(ineligible_sample) < 20:
+                ineligible_sample.append({
+                    "id": mat.id,
+                    "title": mat.title,
+                    "ineligibility_reason": f"Missing capabilities: {', '.join(missing_names[:3])}"
+                })
+            continue
+        
+        # Check soft gates
+        analysis = db.query(MaterialAnalysis).filter_by(material_id=mat.id).first()
+        soft_failure = None
+        
+        if analysis:
+            dimension_mapping = {
+                "tonal_complexity_stage": analysis.tonal_complexity_stage,
+                "interval_size_stage": analysis.interval_size_stage,
+                "rhythm_complexity_stage": analysis.rhythm_complexity_stage,
+                "range_usage_stage": analysis.range_usage_stage,
+            }
+            
+            for dim_name, mat_value in dimension_mapping.items():
+                if mat_value is None:
+                    continue
+                    
+                rule = soft_rules.get(dim_name)
+                state = soft_states.get(dim_name)
+                
+                if rule:
+                    comfort = state.comfortable_value if state else 0
+                    max_allowed = comfort + rule.frontier_buffer
+                    
+                    if mat_value > max_allowed:
+                        soft_failure = f"{dim_name} too high ({mat_value} > {max_allowed})"
+                        break
+        
+        if soft_failure:
+            if len(ineligible_sample) < 20:
+                ineligible_sample.append({
+                    "id": mat.id,
+                    "title": mat.title,
+                    "ineligibility_reason": soft_failure
+                })
+            continue
+        
+        eligible_materials.append({
+            "id": mat.id,
+            "title": mat.title,
+            "eligibility_reason": "Passes all gates",
+        })
+    
+    return {
+        "user_id": user_id,
+        "eligible_materials": eligible_materials,
+        "eligible_count": len(eligible_materials),
+        "ineligible_sample": ineligible_sample,
+        "total_materials": len(materials),
+    }
+
+
+@app.post("/admin/users/{user_id}/generate-diagnostic-session")
+def admin_generate_diagnostic_session(
+    user_id: int,
+    duration_minutes: int = 30,
+    db: Session = Depends(get_db)
+):
+    """
+    Generate a practice session with detailed diagnostics for debugging.
+    """
+    from app.models.capability_schema import (
+        MaterialAnalysis, UserCapability, UserSoftGateState, SoftGateRule, Capability
+    )
+    
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Collect diagnostics as we go
+    diagnostics = {
+        "target_capabilities": [],
+        "hard_gates": [],
+        "soft_envelope_filters": [],
+        "candidates_considered": 0,
+        "candidate_ranking": [],
+        "selection_reasons": [],
+    }
+    
+    # Get user's soft gate states for diagnostics
+    soft_states = db.query(UserSoftGateState).filter_by(user_id=user_id).all()
+    soft_rules = db.query(SoftGateRule).all()
+    
+    for rule in soft_rules:
+        state = next((s for s in soft_states if s.dimension_name == rule.dimension_name), None)
+        comfort = state.comfortable_value if state else 0
+        max_allowed = comfort + rule.frontier_buffer
+        
+        diagnostics["soft_envelope_filters"].append({
+            "dimension": rule.dimension_name,
+            "comfort": comfort,
+            "max_allowed": max_allowed,
+            "frontier_buffer": rule.frontier_buffer,
+        })
+    
+    # Get target capabilities (based on weightings)
+    all_caps = db.query(Capability).order_by(Capability.sequence_order).limit(10).all()
+    diagnostics["target_capabilities"] = [
+        {"name": c.name, "weight": c.difficulty_weight or 1.0}
+        for c in all_caps
+    ]
+    
+    # Hard gates description
+    diagnostics["hard_gates"] = [
+        "User must have mastered all required capabilities",
+        "Material must be within user's pitch range",
+        "Capability prerequisites must be met",
+    ]
+    
+    # Try to generate a session using existing logic
+    try:
+        # Use the existing session generation endpoint logic
+        from app.session_config import (
+            select_capability, select_difficulty, select_intensity,
+            select_novelty_or_reinforcement, estimate_mini_session_duration
+        )
+        
+        # Get eligible materials
+        eligible = filter_materials_by_capabilities(db.query(Material).all(), db, user_id)
+        eligible = filter_materials_by_range(eligible, user.range_low, user.range_high)
+        
+        diagnostics["candidates_considered"] = len(eligible)
+        
+        # Sample candidate rankings
+        for i, mat in enumerate(eligible[:10]):
+            diagnostics["candidate_ranking"].append({
+                "title": mat.title,
+                "score": 1.0 - (i * 0.1),  # Decreasing score
+                "reason": "Selected by standard algorithm"
+            })
+        
+        # Generate actual session
+        practice_session = PracticeSession(
+            user_id=user_id,
+            started_at=datetime.datetime.now(),
+            practice_mode="guided"
+        )
+        db.add(practice_session)
+        db.flush()
+        
+        mini_sessions_out = []
+        focus_cards = db.query(FocusCard).all()
+        
+        for i, material in enumerate(eligible[:3]):
+            focus_card = random.choice(focus_cards) if focus_cards else None
+            
+            target_key = select_key_for_mini_session(material, user, db)
+            
+            mini_session = MiniSession(
+                practice_session_id=practice_session.id,
+                material_id=material.id,
+                key=target_key,
+                focus_card_id=focus_card.id if focus_card else None,
+                goal_type="Accuracy"
+            )
+            db.add(mini_session)
+            db.flush()
+            
+            mini_sessions_out.append({
+                "material_id": material.id,
+                "material_title": material.title,
+                "focus_card_id": focus_card.id if focus_card else None,
+                "focus_card_name": focus_card.name if focus_card else "None",
+                "goal_type": "Accuracy",
+                "target_key": target_key,
+            })
+            
+            diagnostics["selection_reasons"].append({
+                "material": material.title,
+                "reason": f"Ranked #{i+1} in candidate pool"
+            })
+        
+        db.commit()
+        
+        return {
+            "session": {
+                "session_id": practice_session.id,
+                "user_id": user_id,
+                "planned_duration_minutes": duration_minutes,
+                "mini_sessions": mini_sessions_out,
+            },
+            "diagnostics": diagnostics,
+        }
+    except Exception as e:
+        db.rollback()
+        return {
+            "session": None,
+            "diagnostics": diagnostics,
+            "error": str(e),
+        }
+
+
+@app.get("/admin/users/{user_id}/last-session-diagnostics")
+def admin_get_last_session_diagnostics(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get diagnostics for the user's last practice session.
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get the last session
+    last_session = db.query(PracticeSession).filter_by(
+        user_id=user_id
+    ).order_by(PracticeSession.started_at.desc()).first()
+    
+    if not last_session:
+        return {"session": None, "diagnostics": {"message": "No sessions found"}}
+    
+    # Get mini-sessions
+    mini_sessions = db.query(MiniSession).filter_by(
+        practice_session_id=last_session.id
+    ).all()
+    
+    mini_session_data = []
+    for mini in mini_sessions:
+        mat = db.query(Material).filter_by(id=mini.material_id).first()
+        focus = db.query(FocusCard).filter_by(id=mini.focus_card_id).first() if mini.focus_card_id else None
+        
+        mini_session_data.append({
+            "material_id": mini.material_id,
+            "material_title": mat.title if mat else "Unknown",
+            "target_key": mini.key,
+            "focus_card_id": mini.focus_card_id,
+            "focus_card_name": focus.name if focus else "None",
+            "goal_type": mini.goal_type,
+            "is_completed": mini.is_completed,
+        })
+    
+    return {
+        "session": {
+            "session_id": last_session.id,
+            "user_id": user_id,
+            "started_at": last_session.started_at.isoformat() if last_session.started_at else None,
+            "ended_at": last_session.ended_at.isoformat() if last_session.ended_at else None,
+            "practice_mode": last_session.practice_mode,
+            "mini_sessions": mini_session_data,
+        },
+        "diagnostics": {
+            "message": "Retrieved from database (live diagnostics not available for past sessions)",
+            "mini_session_count": len(mini_session_data),
+        },
+    }

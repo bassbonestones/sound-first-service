@@ -36,15 +36,15 @@ from sqlalchemy.orm import relationship
 from . import Base
 
 
-class CapabilityV2(Base):
+class Capability(Base):
     """
-    Enhanced capability model with prerequisites and bitmask support.
+    Capability model with prerequisites and bitmask support.
     
     The bit_index field maps this capability to a specific bit position
     for fast eligibility checking. Capabilities 0-63 go in cap_mask_0,
     64-127 in cap_mask_1, etc.
     """
-    __tablename__ = 'capabilities_v2'
+    __tablename__ = 'capabilities'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)  # e.g., "triplet_eighth"
@@ -66,14 +66,6 @@ class CapabilityV2(Base):
     # Teaching content
     sequence_order = Column(Integer, nullable=True)  # Suggested introduction order
     explanation = Column(String, nullable=True)  # Teaching text
-    visual_example_url = Column(String, nullable=True)
-    audio_example_url = Column(String, nullable=True)
-    
-    # Quiz
-    quiz_type = Column(String, nullable=True)
-    quiz_question = Column(String, nullable=True)
-    quiz_options = Column(String, nullable=True)  # JSON
-    quiz_answer = Column(String, nullable=True)
     
     # Metadata
     difficulty_tier = Column(Integer, default=1)  # 1=beginner, 2=intermediate, 3=advanced
@@ -95,6 +87,9 @@ class CapabilityV2(Base):
     evidence_qualifier_json = Column(String, nullable=True)  # JSON rule filter for evidence criteria
     difficulty_weight = Column(Float, default=1.0)  # Weight for maturity calculation
     
+    # Archive/active status
+    is_active = Column(Boolean, default=True)  # False = archived, not shown in normal views
+    
     __table_args__ = (
         Index('ix_capability_domain', 'domain'),
         Index('ix_capability_bit_index', 'bit_index'),
@@ -112,7 +107,7 @@ class MaterialCapability(Base):
     
     id = Column(Integer, primary_key=True)
     material_id = Column(Integer, ForeignKey('materials.id'), nullable=False, index=True)
-    capability_id = Column(Integer, ForeignKey('capabilities_v2.id'), nullable=False, index=True)
+    capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False, index=True)
     
     # Whether this capability is hard-required or can be learned in context
     is_required = Column(Boolean, default=True)  # False = learnable_in_context for this material
@@ -178,15 +173,15 @@ class MaterialAnalysis(Base):
     difficulty_index = Column(Float, nullable=True)  # 0..1 derived composite difficulty
 
 
-class UserCapabilityV2(Base):
+class UserCapability(Base):
     """
     Tracks which capabilities a user has mastered.
     """
-    __tablename__ = 'user_capabilities_v2'
+    __tablename__ = 'user_capabilities'
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    capability_id = Column(Integer, ForeignKey('capabilities_v2.id'), nullable=False)
+    capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False)
     
     # Learning status
     introduced_at = Column(DateTime, nullable=True)
@@ -250,7 +245,7 @@ class MaterialTeachesCapability(Base):
     
     id = Column(Integer, primary_key=True)
     material_id = Column(Integer, ForeignKey('materials.id'), nullable=False, index=True)
-    capability_id = Column(Integer, ForeignKey('capabilities_v2.id'), nullable=False, index=True)
+    capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False, index=True)
     
     # Optional metadata for debugging/analytics
     weight = Column(Float, default=1.0)  # Relative teaching importance
@@ -341,7 +336,7 @@ class UserCapabilityEvidenceEvent(Base):
     Append-only log of evidence events for capability mastery.
     
     This is the source of truth for capability evidence counting.
-    The evidence_count on UserCapabilityV2 is a cached denormalization.
+    The evidence_count on UserCapability is a cached denormalization.
     
     Capabilities decide how to count evidence via their evidence profile:
     - evidence_required_count
@@ -353,7 +348,7 @@ class UserCapabilityEvidenceEvent(Base):
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    capability_id = Column(Integer, ForeignKey('capabilities_v2.id'), nullable=False)
+    capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False)
     
     material_id = Column(Integer, ForeignKey('materials.id'), nullable=True)  # Nullable (some evidence may not be material-specific)
     practice_attempt_id = Column(Integer, ForeignKey('practice_attempts.id'), nullable=True)
@@ -424,6 +419,99 @@ class UserLicense(Base):
     
     __table_args__ = (
         Index('ix_ul_user_license', 'user_id', 'license_id', unique=True),
+    )
+
+
+# =============================================================================
+# SOFT GATE SYSTEM
+# =============================================================================
+
+class SoftGateRule(Base):
+    """
+    Configuration table for soft-gate dimension rules.
+    
+    Each row defines how one continuous dimension (e.g., rhythm_complexity_stage)
+    should be gated and how promotion occurs.
+    
+    Soft gates differ from hard capabilities:
+    - Hard capability: Binary (you have it or not)
+    - Soft gate: Continuous, with comfort zone + frontier buffer
+    
+    Promotion logic (EMA-based):
+    - Only update EMA when attempt is in-band (<= comfort + frontier_buffer)
+    - Only count as frontier attempt if value > comfort
+    - Promote when: frontier_attempt_count >= min_attempts AND ema >= threshold
+    """
+    __tablename__ = 'soft_gate_rules'
+    
+    id = Column(Integer, primary_key=True)
+    dimension_name = Column(String, unique=True, nullable=False)  # e.g., "tonal_complexity_stage"
+    
+    # How far above comfort guided sessions may go
+    frontier_buffer = Column(Float, nullable=False)  # e.g., 1.0 (can select comfort+1)
+    
+    # How much to increase comfort on promotion
+    promotion_step = Column(Float, nullable=False)  # e.g., 1.0
+    
+    # Minimum frontier attempts before promotion possible
+    min_attempts = Column(Integer, nullable=False)  # e.g., 10
+    
+    # What rating counts as success
+    success_rating_threshold = Column(Integer, default=4)  # 1-5 scale
+    
+    # How many successes needed (for window-based logic)
+    success_required_count = Column(Integer, nullable=False)  # e.g., 8
+    
+    # Window size for "X of last Y" logic (optional)
+    success_window_count = Column(Integer, nullable=True)  # e.g., 12 for "8 of last 12"
+    
+    # Decay halflife for recency weighting (optional)
+    decay_halflife_days = Column(Float, nullable=True)
+
+
+class UserSoftGateState(Base):
+    """
+    Tracks user's soft-gate state per dimension using EMA.
+    
+    EMA update formula:
+        success_event = 1 if rating >= threshold else 0
+        ema = alpha * success_event + (1 - alpha) * ema
+    
+    Where alpha ~ 0.10 gives behavior like "last ~10 attempts".
+    
+    Promotion conditions:
+        - frontier_attempt_count_since_last_promo >= min_attempts
+        - frontier_success_ema >= 0.75 (or configured threshold)
+    
+    On promotion:
+        - comfortable_value += promotion_step
+        - frontier_attempt_count_since_last_promo = 0
+        - optionally: frontier_success_ema *= 0.9 (prevents instant double-promote)
+    """
+    __tablename__ = 'user_soft_gate_state'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    dimension_name = Column(String, nullable=False)  # e.g., "tonal_complexity_stage"
+    
+    # Current comfort zone
+    comfortable_value = Column(Float, nullable=False, default=0.0)
+    
+    # Highest value ever demonstrated successfully
+    max_demonstrated_value = Column(Float, nullable=False, default=0.0)
+    
+    # EMA of frontier success (0-1)
+    frontier_success_ema = Column(Float, nullable=False, default=0.0)
+    
+    # Attempts in frontier zone since last promotion
+    frontier_attempt_count_since_last_promo = Column(Integer, nullable=False, default=0)
+    
+    # Last update time
+    updated_at = Column(DateTime, nullable=True)
+    
+    __table_args__ = (
+        Index('ix_usgs_user_dimension', 'user_id', 'dimension_name', unique=True),
+        Index('ix_usgs_user', 'user_id'),
     )
 
 

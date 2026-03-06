@@ -1,0 +1,103 @@
+{
+  "version": "v1",
+  "soft_gate_rules": [
+    {
+      "dimension_name": "tonal_complexity_stage",
+      "frontier_buffer": 1.0,
+      "promotion_step": 1.0,
+      "min_attempts": 10,
+      "success_rating_threshold": 4,
+      "success_required_count": 8,
+      "success_window_count": null,
+      "decay_halflife_days": null
+    },
+    {
+      "dimension_name": "range_usage_stage",
+      "frontier_buffer": 1.0,
+      "promotion_step": 1.0,
+      "min_attempts": 10,
+      "success_rating_threshold": 4,
+      "success_required_count": 8,
+      "success_window_count": null,
+      "decay_halflife_days": null
+    },
+    {
+      "dimension_name": "rhythm_complexity_stage",
+      "frontier_buffer": 1.0,
+      "promotion_step": 1.0,
+      "min_attempts": 10,
+      "success_rating_threshold": 4,
+      "success_required_count": 8,
+      "success_window_count": null,
+      "decay_halflife_days": null
+    },
+    {
+      "dimension_name": "interval_size_stage",
+      "frontier_buffer": 1.0,
+      "promotion_step": 1.0,
+      "min_attempts": 10,
+      "success_rating_threshold": 4,
+      "success_required_count": 8,
+      "success_window_count": null,
+      "decay_halflife_days": null
+    },
+    {
+      "dimension_name": "density_notes_per_second",
+      "frontier_buffer": 0.05,
+      "promotion_step": 0.05,
+      "min_attempts": 12,
+      "success_rating_threshold": 4,
+      "success_required_count": 9,
+      "success_window_count": 12,
+      "decay_halflife_days": null
+    },
+    {
+      "dimension_name": "tempo_difficulty_score",
+      "frontier_buffer": 0.05,
+      "promotion_step": 0.05,
+      "min_attempts": 12,
+      "success_rating_threshold": 4,
+      "success_required_count": 9,
+      "success_window_count": 12,
+      "decay_halflife_days": null
+    }
+  ],
+  "default_user_state": {
+    "tonal_complexity_stage": {
+      "comfortable_value": 0,
+      "max_demonstrated_value": 0,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    },
+    "range_usage_stage": {
+      "comfortable_value": 0,
+      "max_demonstrated_value": 0,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    },
+    "rhythm_complexity_stage": {
+      "comfortable_value": 0,
+      "max_demonstrated_value": 0,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    },
+    "interval_size_stage": {
+      "comfortable_value": 0,
+      "max_demonstrated_value": 0,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    },
+    "density_notes_per_second": {
+      "comfortable_value": 0.1,
+      "max_demonstrated_value": 0.1,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    },
+    "tempo_difficulty_score": {
+      "comfortable_value": 0.1,
+      "max_demonstrated_value": 0.1,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    }
+  }
+}
