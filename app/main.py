@@ -7,7 +7,7 @@ import random
 import json
 from app.db import get_db
 from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession, PracticeAttempt, CurriculumStep
-from app.models.capability_schema import Capability, UserCapability
+from app.models.capability_schema import Capability, UserCapability, SoftGateRule, UserSoftGateState
 from app.curriculum import (
     generate_curriculum_steps, 
     filter_materials_by_capabilities, 
@@ -239,8 +239,21 @@ def generate_session(
     """
     materials = db.query(Material).all()
     focus_cards = db.query(FocusCard).all()
-    if not materials or not focus_cards:
-        raise HTTPException(status_code=500, detail="No materials or focus cards in DB")
+    if not materials and not focus_cards:
+        raise HTTPException(
+            status_code=422, 
+            detail="No practice content available. Please add materials and focus cards to the database."
+        )
+    if not materials:
+        raise HTTPException(
+            status_code=422, 
+            detail="No materials available. Please add materials to the database."
+        )
+    if not focus_cards:
+        raise HTTPException(
+            status_code=422, 
+            detail="No focus cards available. Please add focus cards to the database."
+        )
     
     # Force certain settings for special modes
     if ear_only_mode:
@@ -3940,3 +3953,418 @@ def admin_get_last_session_diagnostics(
             "mini_session_count": len(mini_session_data),
         },
     }
+
+
+# =============================================================================
+# ADMIN: FOCUS CARDS
+# =============================================================================
+
+class FocusCardCreate(BaseModel):
+    name: str
+    category: str = ""
+    description: str = ""
+    attention_cue: str = ""
+    micro_cues: List[str] = []
+    prompts: dict = {}
+
+
+class FocusCardUpdate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
+    description: Optional[str] = None
+    attention_cue: Optional[str] = None
+    micro_cues: Optional[List[str]] = None
+    prompts: Optional[dict] = None
+
+
+@app.get("/admin/focus-cards/categories")
+def admin_get_focus_card_categories(db: Session = Depends(get_db)):
+    """Get distinct focus card categories."""
+    categories = db.query(FocusCard.category).distinct().all()
+    return sorted([c[0] for c in categories if c[0]])
+
+
+@app.post("/admin/focus-cards")
+def admin_create_focus_card(
+    data: FocusCardCreate,
+    db: Session = Depends(get_db)
+):
+    """Create a new focus card."""
+    # Check name uniqueness
+    existing = db.query(FocusCard).filter_by(name=data.name).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Focus card with name '{data.name}' already exists")
+    
+    fc = FocusCard(
+        name=data.name,
+        category=data.category,
+        description=data.description,
+        attention_cue=data.attention_cue,
+        micro_cues=json.dumps(data.micro_cues),
+        prompts=json.dumps(data.prompts)
+    )
+    db.add(fc)
+    db.commit()
+    db.refresh(fc)
+    
+    return {
+        "id": fc.id,
+        "name": fc.name,
+        "category": fc.category,
+        "description": fc.description,
+        "attention_cue": fc.attention_cue,
+        "micro_cues": data.micro_cues,
+        "prompts": data.prompts
+    }
+
+
+@app.put("/admin/focus-cards/{focus_card_id}")
+def admin_update_focus_card(
+    focus_card_id: int,
+    data: FocusCardUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update a focus card."""
+    fc = db.query(FocusCard).filter_by(id=focus_card_id).first()
+    if not fc:
+        raise HTTPException(status_code=404, detail="Focus card not found")
+    
+    # Check name uniqueness if name is being changed
+    if data.name is not None and data.name != fc.name:
+        existing = db.query(FocusCard).filter_by(name=data.name).first()
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Focus card with name '{data.name}' already exists")
+        fc.name = data.name
+    
+    if data.category is not None:
+        fc.category = data.category
+    if data.description is not None:
+        fc.description = data.description
+    if data.attention_cue is not None:
+        fc.attention_cue = data.attention_cue
+    if data.micro_cues is not None:
+        fc.micro_cues = json.dumps(data.micro_cues)
+    if data.prompts is not None:
+        fc.prompts = json.dumps(data.prompts)
+    
+    db.commit()
+    
+    # Parse back for response
+    micro_cues = parse_focus_card_json_field(fc.micro_cues)
+    prompts = parse_focus_card_json_field(fc.prompts)
+    
+    return {
+        "id": fc.id,
+        "name": fc.name,
+        "category": fc.category,
+        "description": fc.description,
+        "attention_cue": fc.attention_cue,
+        "micro_cues": micro_cues if isinstance(micro_cues, list) else [],
+        "prompts": prompts if isinstance(prompts, dict) else {}
+    }
+
+
+@app.delete("/admin/focus-cards/{focus_card_id}")
+def admin_delete_focus_card(
+    focus_card_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a focus card."""
+    fc = db.query(FocusCard).filter_by(id=focus_card_id).first()
+    if not fc:
+        raise HTTPException(status_code=404, detail="Focus card not found")
+    
+    # Check if focus card is referenced by any mini-sessions
+    referenced = db.query(MiniSession).filter_by(focus_card_id=focus_card_id).first()
+    if referenced:
+        raise HTTPException(
+            status_code=400, 
+            detail="Cannot delete focus card that is referenced by practice sessions"
+        )
+    
+    db.delete(fc)
+    db.commit()
+    return {"message": f"Focus card '{fc.name}' deleted"}
+
+
+# =============================================================================
+# ADMIN: SOFT GATE RULES
+# =============================================================================
+
+class SoftGateRuleUpdate(BaseModel):
+    dimension_name: Optional[str] = None
+    frontier_buffer: Optional[float] = None
+    promotion_step: Optional[float] = None
+    min_attempts: Optional[int] = None
+    success_rating_threshold: Optional[int] = None
+    success_required_count: Optional[int] = None
+    success_window_count: Optional[int] = None
+    decay_halflife_days: Optional[float] = None
+
+
+class SoftGateRuleCreate(BaseModel):
+    dimension_name: str
+    frontier_buffer: float
+    promotion_step: float
+    min_attempts: int
+    success_rating_threshold: int = 4
+    success_required_count: int
+    success_window_count: Optional[int] = None
+    decay_halflife_days: Optional[float] = None
+
+
+@app.get("/admin/soft-gate-rules")
+def admin_get_soft_gate_rules(db: Session = Depends(get_db)):
+    """Get all soft gate rules."""
+    rules = db.query(SoftGateRule).all()
+    return [
+        {
+            "id": r.id,
+            "dimension_name": r.dimension_name,
+            "frontier_buffer": r.frontier_buffer,
+            "promotion_step": r.promotion_step,
+            "min_attempts": r.min_attempts,
+            "success_rating_threshold": r.success_rating_threshold,
+            "success_required_count": r.success_required_count,
+            "success_window_count": r.success_window_count,
+            "decay_halflife_days": r.decay_halflife_days,
+        }
+        for r in rules
+    ]
+
+
+@app.post("/admin/soft-gate-rules")
+def admin_create_soft_gate_rule(
+    data: SoftGateRuleCreate,
+    db: Session = Depends(get_db)
+):
+    """Create a new soft gate rule."""
+    existing = db.query(SoftGateRule).filter_by(dimension_name=data.dimension_name).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Rule for dimension '{data.dimension_name}' already exists")
+    
+    rule = SoftGateRule(
+        dimension_name=data.dimension_name,
+        frontier_buffer=data.frontier_buffer,
+        promotion_step=data.promotion_step,
+        min_attempts=data.min_attempts,
+        success_rating_threshold=data.success_rating_threshold,
+        success_required_count=data.success_required_count,
+        success_window_count=data.success_window_count,
+        decay_halflife_days=data.decay_halflife_days,
+    )
+    db.add(rule)
+    db.commit()
+    db.refresh(rule)
+    
+    return {
+        "id": rule.id,
+        "dimension_name": rule.dimension_name,
+        "frontier_buffer": rule.frontier_buffer,
+        "promotion_step": rule.promotion_step,
+        "min_attempts": rule.min_attempts,
+        "success_rating_threshold": rule.success_rating_threshold,
+        "success_required_count": rule.success_required_count,
+        "success_window_count": rule.success_window_count,
+        "decay_halflife_days": rule.decay_halflife_days,
+    }
+
+
+@app.put("/admin/soft-gate-rules/{rule_id}")
+def admin_update_soft_gate_rule(
+    rule_id: int,
+    data: SoftGateRuleUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update a soft gate rule."""
+    rule = db.query(SoftGateRule).filter_by(id=rule_id).first()
+    if not rule:
+        raise HTTPException(status_code=404, detail="Soft gate rule not found")
+    
+    # Check dimension name uniqueness if being changed
+    if data.dimension_name is not None and data.dimension_name != rule.dimension_name:
+        existing = db.query(SoftGateRule).filter_by(dimension_name=data.dimension_name).first()
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Rule for dimension '{data.dimension_name}' already exists")
+        rule.dimension_name = data.dimension_name
+    
+    if data.frontier_buffer is not None:
+        rule.frontier_buffer = data.frontier_buffer
+    if data.promotion_step is not None:
+        rule.promotion_step = data.promotion_step
+    if data.min_attempts is not None:
+        rule.min_attempts = data.min_attempts
+    if data.success_rating_threshold is not None:
+        rule.success_rating_threshold = data.success_rating_threshold
+    if data.success_required_count is not None:
+        rule.success_required_count = data.success_required_count
+    if data.success_window_count is not None:
+        rule.success_window_count = data.success_window_count
+    if data.decay_halflife_days is not None:
+        rule.decay_halflife_days = data.decay_halflife_days
+    
+    db.commit()
+    
+    return {
+        "id": rule.id,
+        "dimension_name": rule.dimension_name,
+        "frontier_buffer": rule.frontier_buffer,
+        "promotion_step": rule.promotion_step,
+        "min_attempts": rule.min_attempts,
+        "success_rating_threshold": rule.success_rating_threshold,
+        "success_required_count": rule.success_required_count,
+        "success_window_count": rule.success_window_count,
+        "decay_halflife_days": rule.decay_halflife_days,
+    }
+
+
+@app.delete("/admin/soft-gate-rules/{rule_id}")
+def admin_delete_soft_gate_rule(
+    rule_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a soft gate rule."""
+    rule = db.query(SoftGateRule).filter_by(id=rule_id).first()
+    if not rule:
+        raise HTTPException(status_code=404, detail="Soft gate rule not found")
+    
+    dimension_name = rule.dimension_name
+    db.delete(rule)
+    db.commit()
+    return {"message": f"Soft gate rule '{dimension_name}' deleted"}
+
+
+# =============================================================================
+# ADMIN: USER SOFT GATE STATE
+# =============================================================================
+
+class UserSoftGateStateUpdate(BaseModel):
+    comfortable_value: Optional[float] = None
+    max_demonstrated_value: Optional[float] = None
+    frontier_success_ema: Optional[float] = None
+    frontier_attempt_count_since_last_promo: Optional[int] = None
+
+
+class UserSoftGateStateReset(BaseModel):
+    user_id: int
+    dimension_names: Optional[List[str]] = None  # None = reset all dimensions
+
+
+@app.get("/admin/users")
+def admin_get_users(db: Session = Depends(get_db)):
+    """Get all users for dropdown selection."""
+    users = db.query(User).all()
+    return [
+        {
+            "id": u.id,
+            "email": u.email,
+            "name": u.name if hasattr(u, 'name') else None,
+            "instrument": u.instrument,
+        }
+        for u in users
+    ]
+
+
+@app.get("/admin/user-soft-gate-state")
+def admin_get_user_soft_gate_state(
+    user_id: int = Query(...),
+    db: Session = Depends(get_db)
+):
+    """Get soft gate state for a user."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    states = db.query(UserSoftGateState).filter_by(user_id=user_id).all()
+    return [
+        {
+            "id": s.id,
+            "user_id": s.user_id,
+            "dimension_name": s.dimension_name,
+            "comfortable_value": s.comfortable_value,
+            "max_demonstrated_value": s.max_demonstrated_value,
+            "frontier_success_ema": s.frontier_success_ema,
+            "frontier_attempt_count_since_last_promo": s.frontier_attempt_count_since_last_promo,
+            "updated_at": s.updated_at.isoformat() if s.updated_at else None,
+        }
+        for s in states
+    ]
+
+
+@app.put("/admin/user-soft-gate-state/{state_id}")
+def admin_update_user_soft_gate_state(
+    state_id: int,
+    data: UserSoftGateStateUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update a user's soft gate state for a dimension."""
+    state = db.query(UserSoftGateState).filter_by(id=state_id).first()
+    if not state:
+        raise HTTPException(status_code=404, detail="Soft gate state not found")
+    
+    if data.comfortable_value is not None:
+        state.comfortable_value = data.comfortable_value
+    if data.max_demonstrated_value is not None:
+        state.max_demonstrated_value = data.max_demonstrated_value
+    if data.frontier_success_ema is not None:
+        state.frontier_success_ema = data.frontier_success_ema
+    if data.frontier_attempt_count_since_last_promo is not None:
+        state.frontier_attempt_count_since_last_promo = data.frontier_attempt_count_since_last_promo
+    
+    state.updated_at = datetime.datetime.utcnow()
+    db.commit()
+    
+    return {
+        "id": state.id,
+        "user_id": state.user_id,
+        "dimension_name": state.dimension_name,
+        "comfortable_value": state.comfortable_value,
+        "max_demonstrated_value": state.max_demonstrated_value,
+        "frontier_success_ema": state.frontier_success_ema,
+        "frontier_attempt_count_since_last_promo": state.frontier_attempt_count_since_last_promo,
+        "updated_at": state.updated_at.isoformat() if state.updated_at else None,
+    }
+
+
+@app.post("/admin/user-soft-gate-state/reset")
+def admin_reset_user_soft_gate_state(
+    data: UserSoftGateStateReset,
+    db: Session = Depends(get_db)
+):
+    """Reset user's soft gate state to defaults."""
+    from pathlib import Path
+    
+    user = db.query(User).filter_by(id=data.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Load default values from soft_gate_rules.json
+    json_path = Path(__file__).parent.parent / "resources" / "soft_gate_rules.json"
+    try:
+        with json_path.open("r") as f:
+            defaults_data = json.load(f)
+        default_state = defaults_data.get("default_user_state", {})
+    except Exception:
+        default_state = {}
+    
+    # Get states to reset
+    if data.dimension_names:
+        states = db.query(UserSoftGateState).filter(
+            UserSoftGateState.user_id == data.user_id,
+            UserSoftGateState.dimension_name.in_(data.dimension_names)
+        ).all()
+    else:
+        states = db.query(UserSoftGateState).filter_by(user_id=data.user_id).all()
+    
+    reset_count = 0
+    for state in states:
+        dim_defaults = default_state.get(state.dimension_name, {})
+        state.comfortable_value = dim_defaults.get("comfortable_value", 0.0)
+        state.max_demonstrated_value = dim_defaults.get("max_demonstrated_value", 0.0)
+        state.frontier_success_ema = dim_defaults.get("frontier_success_ema", 0.0)
+        state.frontier_attempt_count_since_last_promo = dim_defaults.get("frontier_attempt_count_since_last_promo", 0)
+        state.updated_at = datetime.datetime.utcnow()
+        reset_count += 1
+    
+    db.commit()
+    return {"message": f"Reset {reset_count} soft gate dimension(s) for user {data.user_id}"}

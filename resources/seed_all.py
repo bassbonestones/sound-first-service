@@ -7,8 +7,10 @@ Usage:
 
 This script seeds all tables in the correct order:
 1. Capabilities (from capabilities.json)
-2. Focus Cards & Materials (from seed_data.py)
-3. Soft Gate Rules (from soft_gate_rules.json)
+2. Focus Cards (from focus_cards.json)
+3. Materials (from materials/materials.json)
+4. Soft Gate Rules (from soft_gate_rules.json)
+5. Test User (user 1)
 
 Each sub-script is idempotent (safe to re-run).
 """
@@ -26,11 +28,55 @@ def seed_capabilities():
     seed_caps()
 
 
-def seed_focus_cards_and_materials():
-    """Seed focus cards, materials, and test user"""
-    print("\n=== Seeding Focus Cards, Materials & Test User ===")
-    from resources.seed_data import seed_all as seed_data_all
-    seed_data_all()
+def seed_focus_cards():
+    """Seed focus cards from focus_cards.json"""
+    print("\n=== Seeding Focus Cards ===")
+    from resources.seed_focus_cards import seed_focus_cards as do_seed
+    do_seed()
+
+
+def seed_materials():
+    """Seed materials from materials/materials.json"""
+    print("\n=== Seeding Materials ===")
+    from resources.seed_materials import seed_materials as do_seed
+    do_seed()
+
+
+def seed_test_user():
+    """Seed test user (user 1)"""
+    print("\n=== Seeding Test User ===")
+    from app.models.core import User
+    from app.db import SessionLocal
+    
+    session = SessionLocal()
+    try:
+        existing_user = session.query(User).filter_by(id=1).first()
+        if not existing_user:
+            user = User(
+                id=1,
+                email="user1@example.com",
+                instrument=None,
+                resonant_note=None,
+                range_low=None,
+                range_high=None,
+                comfortable_capabilities=None,
+                day0_completed=False,
+                day0_stage=0
+            )
+            session.add(user)
+            print("Created test user (id=1)")
+        else:
+            existing_user.instrument = None
+            existing_user.resonant_note = None
+            existing_user.range_low = None
+            existing_user.range_high = None
+            existing_user.comfortable_capabilities = None
+            existing_user.day0_completed = False
+            existing_user.day0_stage = 0
+            print("Reset test user (id=1)")
+        session.commit()
+    finally:
+        session.close()
 
 
 def seed_soft_gates():
@@ -65,7 +111,9 @@ def main():
     print("=" * 50)
     
     seed_capabilities()
-    seed_focus_cards_and_materials()
+    seed_focus_cards()
+    seed_materials()
+    seed_test_user()
     seed_soft_gates()
     
     print("\n" + "=" * 50)
