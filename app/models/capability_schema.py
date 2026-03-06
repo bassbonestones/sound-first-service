@@ -86,6 +86,11 @@ class Capability(Base):
     evidence_qualifier_json = Column(String, nullable=True)  # JSON rule filter for evidence criteria
     difficulty_weight = Column(Float, default=1.0)  # Weight for maturity calculation
     
+    # Soft gate requirements (JSON: {"dimension_name": threshold_value})
+    # e.g., {"interval_velocity_score": 0.5} means user must have comfortable_value >= 0.5
+    # for that soft gate dimension before this capability can be mastered (hard gate, no frontier buffer)
+    soft_gate_requirements = Column(String, nullable=True)
+    
     # Archive/active status
     is_active = Column(Boolean, default=True)  # False = archived, not shown in normal views
     

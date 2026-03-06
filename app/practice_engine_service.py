@@ -5,6 +5,7 @@ This module provides database integration for the practice engine,
 connecting the algorithm layer to SQLAlchemy models.
 """
 
+import json
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from sqlalchemy.orm import Session
@@ -16,7 +17,8 @@ from .models.core import (
 from .models.capability_schema import (
     Capability, MaterialCapability, MaterialTeachesCapability,
     MaterialAnalysis, UserCapability, UserMaterialState,
-    UserPitchFocusStats, UserCapabilityEvidenceEvent, UserLicense
+    UserPitchFocusStats, UserCapabilityEvidenceEvent, UserLicense,
+    UserSoftGateState
 )
 from .practice_engine import (
     EngineConfig, DEFAULT_CONFIG, MaterialCandidate, CapabilityProgress,
@@ -411,6 +413,15 @@ class PracticeEngineService:
         
         # Update capability mastery
         for cap_id in result.capabilities_mastered:
+            cap = self.db.query(Capability).get(cap_id)
+            if not cap:
+                continue
+            
+            # Check soft gate requirements before granting mastery
+            # Evidence accumulates regardless, but mastery requires meeting soft gate thresholds
+            if not self._check_soft_gate_requirements(user_id, cap):
+                continue
+            
             user_cap = self.db.query(UserCapability).filter(
                 and_(
                     UserCapability.user_id == user_id,
@@ -422,8 +433,7 @@ class PracticeEngineService:
                 user_cap.mastered_at = now
                 
                 # Update user's capability bitmask
-                cap = self.db.query(Capability).get(cap_id)
-                if cap and cap.bit_index is not None:
+                if cap.bit_index is not None:
                     self._set_user_capability_bit(user_id, cap.bit_index)
         
         # Update pitch/focus stats if provided
@@ -490,6 +500,41 @@ class PracticeEngineService:
             current = getattr(user, mask_attrs[mask_idx]) or 0
             setattr(user, mask_attrs[mask_idx], current | (1 << bit_pos))
     
+    def _check_soft_gate_requirements(self, user_id: int, capability: Capability) -> bool:
+        """
+        Check if user meets soft gate requirements for a capability.
+        
+        Returns True if:
+        - Capability has no soft_gate_requirements, OR
+        - User's comfortable_value >= threshold for ALL required dimensions
+        
+        This is a hard gate (no frontier buffer) - user must have already
+        promoted their comfort zone to the required level.
+        """
+        if not capability.soft_gate_requirements:
+            return True
+        
+        try:
+            requirements = json.loads(capability.soft_gate_requirements)
+            if not isinstance(requirements, dict):
+                return True
+        except (json.JSONDecodeError, TypeError):
+            return True
+        
+        for dimension_name, threshold in requirements.items():
+            state = self.db.query(UserSoftGateState).filter(
+                and_(
+                    UserSoftGateState.user_id == user_id,
+                    UserSoftGateState.dimension_name == dimension_name
+                )
+            ).first()
+            
+            comfortable_value = state.comfortable_value if state else 0.0
+            if comfortable_value < threshold:
+                return False
+        
+        return True
+
     def _pitch_name_to_midi(self, pitch_name: str) -> int:
         """Convert pitch name like 'C4' to MIDI number."""
         if not pitch_name:

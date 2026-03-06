@@ -29,6 +29,10 @@ def main() -> None:
    existing = session.query(Capability).filter(Capability.name == c["name"]).one_or_none()
 
    if existing is None:
+    # Handle soft_gate_requirements - store as JSON string
+    sgr = c.get("soft_gate_requirements")
+    sgr_json = json.dumps(sgr) if sgr else None
+    
     row = Capability(
      name=c["name"],
      display_name=c["display_name"],
@@ -47,6 +51,7 @@ def main() -> None:
      evidence_acceptance_threshold=c.get("evidence_acceptance_threshold", 4),
      evidence_qualifier_json=json.dumps(c.get("evidence_qualifier_json", {})),
      difficulty_weight=c.get("difficulty_weight", 1.0),
+     soft_gate_requirements=sgr_json,
     )
     session.add(row)
     session.flush()
@@ -66,6 +71,10 @@ def main() -> None:
     existing.evidence_acceptance_threshold = c.get("evidence_acceptance_threshold", existing.evidence_acceptance_threshold)
     existing.evidence_qualifier_json = json.dumps(c.get("evidence_qualifier_json", {}))
     existing.difficulty_weight = c.get("difficulty_weight", existing.difficulty_weight)
+    # Update soft_gate_requirements if provided
+    sgr = c.get("soft_gate_requirements")
+    if sgr is not None:
+     existing.soft_gate_requirements = json.dumps(sgr)
     name_to_row[c["name"]] = existing
 
   session.commit()

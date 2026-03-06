@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Body, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import datetime
 import random
 import json
@@ -2474,6 +2474,14 @@ def admin_get_capabilities(
             except:
                 prereq_ids_list = []
         
+        # Parse soft_gate_requirements
+        soft_gate_reqs = None
+        if cap.soft_gate_requirements:
+            try:
+                soft_gate_reqs = json.loads(cap.soft_gate_requirements) if isinstance(cap.soft_gate_requirements, str) else cap.soft_gate_requirements
+            except:
+                pass
+        
         result.append({
             "id": cap.id,
             "name": cap.name,
@@ -2489,6 +2497,7 @@ def admin_get_capabilities(
             "evidence_required_count": cap.evidence_required_count,
             "evidence_distinct_materials": cap.evidence_distinct_materials,
             "evidence_acceptance_threshold": cap.evidence_acceptance_threshold,
+            "soft_gate_requirements": soft_gate_reqs,
             "is_active": cap.is_active if cap.is_active is not None else True,
             "prerequisite_ids": prereq_ids_list,
             "prerequisite_names": prereq_names,
@@ -2582,6 +2591,14 @@ def admin_export_capabilities(
             except:
                 pass
         
+        # Parse soft_gate_requirements
+        soft_gate_reqs = None
+        if cap.soft_gate_requirements:
+            try:
+                soft_gate_reqs = json.loads(cap.soft_gate_requirements) if isinstance(cap.soft_gate_requirements, str) else cap.soft_gate_requirements
+            except:
+                pass
+        
         exported.append({
             "name": cap.name,
             "display_name": cap.display_name,
@@ -2597,6 +2614,7 @@ def admin_export_capabilities(
             "evidence_acceptance_threshold": cap.evidence_acceptance_threshold or 4,
             "evidence_qualifier_json": evidence_qualifier,
             "difficulty_weight": cap.difficulty_weight or 1.0,
+            "soft_gate_requirements": soft_gate_reqs,
             "bit_index": cap.bit_index
         })
     
@@ -2800,6 +2818,7 @@ class CapabilityCreateRequest(BaseModel):
     evidence_acceptance_threshold: int = 4
     difficulty_weight: float = 1.0
     prerequisite_ids: Optional[List[int]] = None
+    soft_gate_requirements: Optional[Dict[str, float]] = None  # e.g., {"interval_velocity_score": 0.5}
 
 
 @app.post("/admin/capabilities")
@@ -2882,6 +2901,7 @@ def admin_create_capability(
         evidence_acceptance_threshold=create_data.evidence_acceptance_threshold,
         difficulty_weight=create_data.difficulty_weight,
         prerequisite_ids=json.dumps(create_data.prerequisite_ids) if create_data.prerequisite_ids else None,
+        soft_gate_requirements=json.dumps(create_data.soft_gate_requirements) if create_data.soft_gate_requirements else None,
         is_active=True
     )
     
@@ -3067,6 +3087,7 @@ class CapabilityUpdateRequest(BaseModel):
     evidence_acceptance_threshold: int = 4
     difficulty_weight: float = 1.0
     prerequisite_ids: Optional[List[int]] = None  # List of capability IDs, or None to skip update
+    soft_gate_requirements: Optional[Dict[str, float]] = None  # e.g., {"interval_velocity_score": 0.5}
 
 
 # Validation constants for capabilities
@@ -3276,6 +3297,10 @@ def admin_update_capability(
         if update_data.prerequisite_ids is not None:
             cap.prerequisite_ids = json.dumps(update_data.prerequisite_ids) if update_data.prerequisite_ids else None
         
+        # Update soft_gate_requirements if provided
+        if update_data.soft_gate_requirements is not None:
+            cap.soft_gate_requirements = json.dumps(update_data.soft_gate_requirements) if update_data.soft_gate_requirements else None
+        
         db.commit()
         db.refresh(cap)
         
@@ -3289,6 +3314,14 @@ def admin_update_capability(
                 {"id": pid, "name": prereq_map[pid].name, "domain": prereq_map[pid].domain}
                 for pid in prereq_ids_list if pid in prereq_map
             ]
+        
+        # Parse soft_gate_requirements for response
+        soft_gate_reqs = None
+        if cap.soft_gate_requirements:
+            try:
+                soft_gate_reqs = json.loads(cap.soft_gate_requirements) if isinstance(cap.soft_gate_requirements, str) else cap.soft_gate_requirements
+            except:
+                pass
         
         return {
             "success": True,
@@ -3308,6 +3341,7 @@ def admin_update_capability(
                 "evidence_required_count": cap.evidence_required_count,
                 "evidence_distinct_materials": cap.evidence_distinct_materials,
                 "evidence_acceptance_threshold": cap.evidence_acceptance_threshold,
+                "soft_gate_requirements": soft_gate_reqs,
                 "prerequisite_names": prereq_names,
             }
         }

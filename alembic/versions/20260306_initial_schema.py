@@ -85,6 +85,8 @@ def upgrade() -> None:
         sa.Column('evidence_acceptance_threshold', sa.Integer(), default=4),
         sa.Column('evidence_qualifier_json', sa.String(), nullable=True),
         sa.Column('difficulty_weight', sa.Float(), default=1.0),
+        # Soft gate requirements (JSON: {"dimension_name": threshold})
+        sa.Column('soft_gate_requirements', sa.String(), nullable=True),
         # Archive status
         sa.Column('is_active', sa.Boolean(), default=True),
     )
