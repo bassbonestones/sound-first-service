@@ -1625,9 +1625,8 @@ DAY0_BASE_CAPABILITIES = [
     "ledger_lines",       # Stage 3: The Musical Staff (ledger lines)
     "note_basics",        # Stage 4: What is a Note?
     "first_note",         # Stage 1: Play Your Note
-    "accidental_flat_symbol",    # Stage 6: Sharps & Flats
-    "accidental_natural_symbol", # Stage 6: Sharps & Flats
-    "accidental_sharp_symbol",   # Stage 6: Sharps & Flats
+    "accidental_raise_pitch",    # Stage 6: Sharps raise pitch
+    "accidental_lower_pitch",    # Stage 6: Flats lower pitch
 ]
 
 # Instruments that use bass clef (all others use treble)

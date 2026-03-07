@@ -5,7 +5,11 @@
       "category": "Ear & Pitch",
       "description": "Focus on locking your ear onto the exact center of each pitch before and during playing.",
       "attention_cue": "Lock your ear onto the center of the pitch before you play.",
-      "micro_cues": ["Hear the center.", "Sing the center.", "Play the center."],
+      "micro_cues": [
+        "Hear the center.",
+        "Sing the center.",
+        "Play the center."
+      ],
       "prompts": {
         "listen": "Listen for the exact center of the pitch. Not sharp, not flat—right in the middle.",
         "sing": "Sing the pitch and feel where it sits in the center.",
@@ -65,7 +69,11 @@
       "category": "Resonance & Tone",
       "description": "Focus on the fundamental, centered tone at the heart of your sound.",
       "attention_cue": "Find the core—the centered, fundamental tone.",
-      "micro_cues": ["Hear the fundamental.", "Center the tone.", "Maintain the core."],
+      "micro_cues": [
+        "Hear the fundamental.",
+        "Center the tone.",
+        "Maintain the core."
+      ],
       "prompts": {
         "listen": "Notice the centered, fundamental tone quality.",
         "sing": "Produce a tone with a strong, clear center.",
@@ -101,7 +109,11 @@
       "category": "Resonance & Tone",
       "description": "Maintain consistent tone quality across register and dynamic changes.",
       "attention_cue": "Keep your core tone stable even as other things change.",
-      "micro_cues": ["Establish the center.", "Change register/dynamic.", "Maintain the core."],
+      "micro_cues": [
+        "Establish the center.",
+        "Change register/dynamic.",
+        "Maintain the core."
+      ],
       "prompts": {
         "listen": "Notice how the core tone stays consistent through changes.",
         "sing": "Maintain your tone quality while changing pitch or volume.",
@@ -137,7 +149,11 @@
       "category": "Rhythm & Time",
       "description": "Use rhythmic precision to support pitch accuracy.",
       "attention_cue": "Let perfect rhythm create perfect pitch placement.",
-      "micro_cues": ["Set the rhythm.", "Lock the pitch.", "They're connected."],
+      "micro_cues": [
+        "Set the rhythm.",
+        "Lock the pitch.",
+        "They're connected."
+      ],
       "prompts": {
         "listen": "Notice how rhythmic precision supports pitch accuracy.",
         "sing": "Use exact rhythm to place each pitch precisely.",
@@ -149,7 +165,11 @@
       "category": "Rhythm & Time",
       "description": "Play with the natural rhythmic ebb and flow of speech.",
       "attention_cue": "Let the rhythm breathe like natural speech.",
-      "micro_cues": ["Hear the phrase.", "Speak the rhythm.", "Natural timing."],
+      "micro_cues": [
+        "Hear the phrase.",
+        "Speak the rhythm.",
+        "Natural timing."
+      ],
       "prompts": {
         "listen": "Notice how the rhythm rises and falls like speech.",
         "sing": "Let your phrasing have the natural timing of speaking.",
@@ -269,7 +289,11 @@
       "category": "Ease & Efficiency",
       "description": "Make musical changes (register, dynamic, etc.) smoothly and evenly.",
       "attention_cue": "Every change is smooth and even—no bumps or jolts.",
-      "micro_cues": ["Prepare the change.", "Smooth transition.", "Even motion."],
+      "micro_cues": [
+        "Prepare the change.",
+        "Smooth transition.",
+        "Even motion."
+      ],
       "prompts": {
         "listen": "Notice how changes happen smoothly without disruption.",
         "sing": "Make every change gradual and controlled.",
@@ -305,7 +329,11 @@
       "category": "Musical Shape",
       "description": "Rests have forward momentum—they don't stop the music.",
       "attention_cue": "Rests keep moving forward. They're active, not passive.",
-      "micro_cues": ["Active silence.", "Keep the momentum.", "Forward through rest."],
+      "micro_cues": [
+        "Active silence.",
+        "Keep the momentum.",
+        "Forward through rest."
+      ],
       "prompts": {
         "listen": "Notice how rests maintain musical momentum.",
         "sing": "Feel the rest as active anticipation.",
@@ -341,7 +369,11 @@
       "category": "Musical Shape",
       "description": "Use silence with intention and confidence.",
       "attention_cue": "Own the silence. It's part of the music.",
-      "micro_cues": ["Stop with intention.", "Hold the silence.", "Stay confident."],
+      "micro_cues": [
+        "Stop with intention.",
+        "Hold the silence.",
+        "Stay confident."
+      ],
       "prompts": {
         "listen": "Notice how silence is used as a musical element.",
         "sing": "Use silence as deliberately as sound.",
