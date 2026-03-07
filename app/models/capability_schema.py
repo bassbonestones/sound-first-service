@@ -169,12 +169,22 @@ class MaterialAnalysis(Base):
     raw_extraction_json = Column(String, nullable=True)
     
     # Staged content dimensions (for adaptive engine filtering)
-    tonal_complexity_stage = Column(Integer, nullable=True)  # 0..N stages
-    interval_size_stage = Column(Integer, nullable=True)  # 0..N stages
-    rhythm_complexity_stage = Column(Integer, nullable=True)  # 0..N stages
-    range_usage_stage = Column(Integer, nullable=True)  # 0..N stages
+    tonal_complexity_stage = Column(Integer, nullable=True)  # 0-5 stages
+    interval_size_stage = Column(Integer, nullable=True)  # 0-6 stages
+    rhythm_complexity_stage = Column(Float, nullable=True)  # 0.0-1.0 continuous
+    range_usage_stage = Column(Integer, nullable=True)  # 0-6 stages
     melodic_predictability_stage = Column(Integer, nullable=True)  # optional later
     difficulty_index = Column(Float, nullable=True)  # 0..1 derived composite difficulty
+    
+    # New soft gate metrics (Phase 2)
+    density_notes_per_second = Column(Float, nullable=True)  # Tempo-adjusted note density
+    tempo_difficulty_score = Column(Float, nullable=True)  # 0-1 combined tempo difficulty
+    interval_velocity_score = Column(Float, nullable=True)  # 0-1 IVS score
+    
+    # Additional analysis metrics
+    unique_pitch_count = Column(Integer, nullable=True)  # Distinct pitch classes (0-12)
+    largest_interval_semitones = Column(Integer, nullable=True)  # Max melodic leap
+    note_density_per_measure = Column(Float, nullable=True)  # Notes per measure (tempo-independent)
 
 
 class UserCapability(Base):

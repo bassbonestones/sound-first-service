@@ -2205,26 +2205,456 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
     """
     Preview material analysis without saving to database.
     
-    Useful for testing MusicXML before committing.
+    Returns full analysis including:
+    - Extracted capabilities
+    - Range analysis
+    - Soft gate metrics (D1-D5, IVS, tempo difficulty)
+    
+    Useful for previewing a material before committing to the database.
     """
     from app.musicxml_analyzer import MusicXMLAnalyzer
+    from app.soft_gate_calculator import SoftGateCalculator
+    from app.capability_registry import CapabilityRegistry, DetectionEngine
     
     try:
+        # Basic analysis
         analyzer = MusicXMLAnalyzer()
         result = analyzer.analyze(data.musicxml_content)
         capabilities = analyzer.get_capability_names(result)
         
+        # Soft gate metrics
+        soft_gate_data = {}
+        try:
+            calculator = SoftGateCalculator()
+            metrics = calculator.calculate_from_musicxml(data.musicxml_content)
+            soft_gate_data = {
+                "tonal_complexity_stage": metrics.tonal_complexity_stage,
+                "interval_size_stage": metrics.interval_size_stage,
+                "rhythm_complexity_score": round(metrics.rhythm_complexity_score, 3),
+                "range_usage_stage": metrics.range_usage_stage,
+                "density_notes_per_second": round(metrics.density_notes_per_second, 2) if metrics.density_notes_per_second else None,
+                "density_notes_per_measure": round(metrics.density_notes_per_measure, 2) if metrics.density_notes_per_measure else None,
+                "interval_velocity_score": round(metrics.interval_velocity_score, 3),
+                "tempo_difficulty_score": round(metrics.tempo_difficulty_score, 3),
+            }
+        except Exception as e:
+            soft_gate_data = {"error": str(e)}
+        
+        # Enhanced capability detection via registry
+        detected_capabilities = []
+        try:
+            registry = CapabilityRegistry()
+            registry.load()
+            engine = DetectionEngine(registry)
+            detected_capabilities = list(engine.detect_capabilities(result))
+        except Exception as e:
+            detected_capabilities = capabilities  # Fallback to basic detection
+        
         return {
-            "title": result.title,
-            "capabilities": capabilities,
-            "capability_count": len(capabilities),
+            "title": result.title or data.title,
+            "capabilities": detected_capabilities,
+            "capability_count": len(detected_capabilities),
             "range_analysis": result.range_analysis.__dict__ if result.range_analysis else None,
             "chromatic_complexity": result.chromatic_complexity_score,
             "measure_count": result.measure_count,
+            "tempo_bpm": result.tempo_bpm,
+            "tempo_marking": list(result.tempo_markings)[0] if result.tempo_markings else None,
+            "soft_gates": soft_gate_data,
             "detailed_extraction": result.to_dict(),
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Analysis failed: {str(e)}")
+
+
+# =============================================================================
+# BATCH MATERIAL INGESTION ENDPOINTS
+# =============================================================================
+
+class BatchIngestionRequest(BaseModel):
+    """Request model for batch material ingestion."""
+    analyze_missing_only: bool = True
+    overwrite: bool = False
+    specific_files: Optional[List[str]] = None
+    specific_metrics: Optional[List[str]] = None  # ["capabilities", "soft_gates"]
+
+
+class BatchIngestionResponse(BaseModel):
+    """Response model for batch ingestion."""
+    files_scanned: int
+    files_analyzed: int
+    files_skipped: int
+    orphans_removed: int
+    errors: List[str]
+    analyzed_materials: List[str]
+
+
+@app.post("/materials/ingest-batch", response_model=BatchIngestionResponse)
+def ingest_materials_batch(
+    data: BatchIngestionRequest = Body(...)
+):
+    """
+    Batch analyze MusicXML files and update materials.json.
+    
+    Behaviors:
+    - Scans resources/materials/*.musicxml
+    - Compares against materials.json
+    - analyze_missing_only=true (default): only analyzes new files
+    - overwrite=true: re-analyzes all files
+    - Removes orphaned JSON entries (file no longer exists)
+    - If specific_metrics provided, only recalculates those metrics
+    """
+    from app.material_ingestion_service import MaterialIngestionService
+    
+    try:
+        service = MaterialIngestionService()
+        
+        if data.specific_metrics:
+            result = service.analyze_specific_metrics(
+                metrics=data.specific_metrics,
+                file_filter=data.specific_files,
+            )
+        else:
+            result = service.ingest_batch(
+                analyze_missing_only=data.analyze_missing_only,
+                overwrite=data.overwrite,
+                specific_files=data.specific_files,
+            )
+        
+        return BatchIngestionResponse(
+            files_scanned=result.files_scanned,
+            files_analyzed=result.files_analyzed,
+            files_skipped=result.files_skipped,
+            orphans_removed=result.orphans_removed,
+            errors=result.errors,
+            analyzed_materials=result.analyzed_materials,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
+
+
+@app.post("/materials/export-json")
+def export_materials_to_json():
+    """
+    Export current materials data to materials.json.
+    
+    Archives the previous version before overwriting.
+    """
+    from app.material_ingestion_service import MaterialIngestionService
+    
+    try:
+        service = MaterialIngestionService()
+        path = service.export_to_json()
+        return {"message": "Materials exported", "path": str(path)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+
+
+# =============================================================================
+# SELECTIVE RE-ANALYSIS ENDPOINTS
+# =============================================================================
+
+class ReanalyzeRequest(BaseModel):
+    """Request model for selective re-analysis."""
+    metrics: Optional[List[str]] = None  # ["capabilities", "soft_gates", "range"]
+    # If None, re-analyzes everything
+
+
+class ReanalyzeResponse(BaseModel):
+    """Response model for re-analysis."""
+    material_id: int
+    title: str
+    metrics_updated: List[str]
+    capabilities_count: Optional[int] = None
+    soft_gates: Optional[dict] = None
+    range_analysis: Optional[dict] = None
+
+
+@app.post("/materials/{material_id}/reanalyze", response_model=ReanalyzeResponse)
+def reanalyze_single_material(
+    material_id: int,
+    data: ReanalyzeRequest = Body(default=ReanalyzeRequest()),
+    db: Session = Depends(get_db)
+):
+    """
+    Re-analyze a single material and update its analysis data.
+    
+    Args:
+        material_id: Material to re-analyze
+        metrics: Optional list of specific metrics to update:
+            - "capabilities": Re-detect capabilities
+            - "soft_gates": Recalculate soft gate metrics
+            - "range": Recalculate range analysis
+            - If None, updates all metrics
+    """
+    from app.musicxml_analyzer import MusicXMLAnalyzer, compute_capability_bitmask
+    from app.capability_registry import CapabilityRegistry, DetectionEngine
+    from app.soft_gate_calculator import SoftGateCalculator
+    from app.models.capability_schema import Capability, MaterialCapability, MaterialAnalysis
+    
+    material = db.query(Material).filter_by(id=material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    if not material.musicxml_canonical:
+        raise HTTPException(status_code=400, detail="Material has no MusicXML content")
+    
+    # Determine which metrics to update
+    metrics = data.metrics or ["capabilities", "soft_gates", "range"]
+    metrics_updated = []
+    
+    # Initialize analyzers as needed
+    analyzer = MusicXMLAnalyzer()
+    extraction_result = analyzer.analyze(material.musicxml_canonical)
+    
+    # Get or create MaterialAnalysis record
+    analysis = db.query(MaterialAnalysis).filter_by(material_id=material_id).first()
+    if not analysis:
+        analysis = MaterialAnalysis(material_id=material_id)
+        db.add(analysis)
+    
+    result_data = {
+        "material_id": material_id,
+        "title": material.title,
+        "metrics_updated": [],
+    }
+    
+    # Re-analyze capabilities
+    if "capabilities" in metrics:
+        registry = CapabilityRegistry()
+        detection_engine = DetectionEngine(registry)
+        
+        # Detect capabilities
+        detected_caps = detection_engine.detect_capabilities(extraction_result)
+        legacy_caps = analyzer.get_capability_names(extraction_result)
+        all_cap_names = list(set(detected_caps) | set(legacy_caps))
+        
+        # Clear existing MaterialCapability links
+        db.query(MaterialCapability).filter_by(material_id=material_id).delete()
+        
+        # Create new links
+        capability_ids_for_bitmask = []
+        for cap_name in all_cap_names:
+            cap = db.query(Capability).filter_by(name=cap_name).first()
+            if cap:
+                mat_cap = MaterialCapability(
+                    material_id=material_id,
+                    capability_id=cap.id,
+                    is_required=True,
+                )
+                db.add(mat_cap)
+                if cap.bit_index is not None:
+                    capability_ids_for_bitmask.append(cap.bit_index)
+        
+        # Update bitmasks
+        masks = compute_capability_bitmask(capability_ids_for_bitmask)
+        material.req_cap_mask_0 = masks[0]
+        material.req_cap_mask_1 = masks[1]
+        material.req_cap_mask_2 = masks[2]
+        material.req_cap_mask_3 = masks[3]
+        material.req_cap_mask_4 = masks[4]
+        material.req_cap_mask_5 = masks[5]
+        material.req_cap_mask_6 = masks[6]
+        material.req_cap_mask_7 = masks[7]
+        
+        result_data["capabilities_count"] = len(all_cap_names)
+        metrics_updated.append("capabilities")
+    
+    # Re-analyze soft gates
+    if "soft_gates" in metrics:
+        calculator = SoftGateCalculator()
+        soft_gates = calculator.calculate_from_musicxml(material.musicxml_canonical)
+        
+        # Update analysis record
+        analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
+        analysis.interval_size_stage = soft_gates.interval_size_stage
+        analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
+        analysis.range_usage_stage = soft_gates.range_usage_stage
+        analysis.density_notes_per_second = soft_gates.density_notes_per_second
+        analysis.note_density_per_measure = soft_gates.note_density_per_measure
+        analysis.tempo_difficulty_score = soft_gates.tempo_difficulty_score
+        analysis.interval_velocity_score = soft_gates.interval_velocity_score
+        analysis.unique_pitch_count = soft_gates.unique_pitch_count
+        analysis.largest_interval_semitones = soft_gates.largest_interval_semitones
+        
+        result_data["soft_gates"] = {
+            "tonal_complexity_stage": soft_gates.tonal_complexity_stage,
+            "interval_size_stage": soft_gates.interval_size_stage,
+            "rhythm_complexity_score": round(soft_gates.rhythm_complexity_score, 3),
+            "range_usage_stage": soft_gates.range_usage_stage,
+            "density_notes_per_second": round(soft_gates.density_notes_per_second, 3),
+            "tempo_difficulty_score": round(soft_gates.tempo_difficulty_score, 3),
+            "interval_velocity_score": round(soft_gates.interval_velocity_score, 3),
+        }
+        metrics_updated.append("soft_gates")
+    
+    # Re-analyze range
+    if "range" in metrics:
+        range_data = extraction_result.range_analysis
+        if range_data:
+            analysis.lowest_pitch = range_data.lowest_pitch
+            analysis.highest_pitch = range_data.highest_pitch
+            analysis.range_semitones = range_data.range_semitones
+            analysis.pitch_density_low = range_data.density_low
+            analysis.pitch_density_mid = range_data.density_mid
+            analysis.pitch_density_high = range_data.density_high
+            analysis.trill_lowest = range_data.trill_lowest
+            analysis.trill_highest = range_data.trill_highest
+            
+            result_data["range_analysis"] = {
+                "lowest_pitch": range_data.lowest_pitch,
+                "highest_pitch": range_data.highest_pitch,
+                "range_semitones": range_data.range_semitones,
+            }
+        metrics_updated.append("range")
+    
+    # Store raw extraction
+    analysis.raw_extraction_json = json.dumps(extraction_result.to_dict())
+    analysis.chromatic_complexity = extraction_result.chromatic_complexity_score
+    analysis.measure_count = extraction_result.measure_count
+    analysis.tempo_marking = list(extraction_result.tempo_markings)[0] if extraction_result.tempo_markings else None
+    analysis.tempo_bpm = extraction_result.tempo_bpm
+    
+    db.commit()
+    
+    result_data["metrics_updated"] = metrics_updated
+    return ReanalyzeResponse(**result_data)
+
+
+class BatchReanalyzeRequest(BaseModel):
+    """Request model for batch re-analysis."""
+    metrics: Optional[List[str]] = None
+    material_ids: Optional[List[int]] = None  # If None, re-analyzes all
+
+
+class BatchReanalyzeResponse(BaseModel):
+    """Response model for batch re-analysis."""
+    total_materials: int
+    materials_updated: int
+    materials_failed: int
+    errors: List[str]
+
+
+@app.post("/materials/reanalyze-all", response_model=BatchReanalyzeResponse)
+def reanalyze_all_materials(
+    data: BatchReanalyzeRequest = Body(default=BatchReanalyzeRequest()),
+    db: Session = Depends(get_db)
+):
+    """
+    Re-analyze multiple materials in batch.
+    
+    Args:
+        metrics: Specific metrics to update (capabilities, soft_gates, range)
+        material_ids: Specific materials to update (None = all)
+    """
+    from app.musicxml_analyzer import MusicXMLAnalyzer, compute_capability_bitmask
+    from app.capability_registry import CapabilityRegistry, DetectionEngine
+    from app.soft_gate_calculator import SoftGateCalculator
+    from app.models.capability_schema import Capability, MaterialCapability, MaterialAnalysis
+    
+    # Get materials to process
+    query = db.query(Material)
+    if data.material_ids:
+        query = query.filter(Material.id.in_(data.material_ids))
+    
+    materials = query.all()
+    
+    metrics = data.metrics or ["capabilities", "soft_gates", "range"]
+    
+    # Initialize analyzers once
+    analyzer = MusicXMLAnalyzer()
+    registry = CapabilityRegistry() if "capabilities" in metrics else None
+    detection_engine = DetectionEngine(registry) if registry else None
+    calculator = SoftGateCalculator() if "soft_gates" in metrics else None
+    
+    result = {
+        "total_materials": len(materials),
+        "materials_updated": 0,
+        "materials_failed": 0,
+        "errors": [],
+    }
+    
+    for material in materials:
+        if not material.musicxml_canonical:
+            result["errors"].append(f"Material {material.id} has no MusicXML content")
+            result["materials_failed"] += 1
+            continue
+        
+        try:
+            extraction_result = analyzer.analyze(material.musicxml_canonical)
+            
+            # Get or create analysis record
+            analysis = db.query(MaterialAnalysis).filter_by(material_id=material.id).first()
+            if not analysis:
+                analysis = MaterialAnalysis(material_id=material.id)
+                db.add(analysis)
+            
+            if "capabilities" in metrics and detection_engine:
+                detected_caps = detection_engine.detect_capabilities(extraction_result)
+                legacy_caps = analyzer.get_capability_names(extraction_result)
+                all_cap_names = list(set(detected_caps) | set(legacy_caps))
+                
+                db.query(MaterialCapability).filter_by(material_id=material.id).delete()
+                
+                capability_ids_for_bitmask = []
+                for cap_name in all_cap_names:
+                    cap = db.query(Capability).filter_by(name=cap_name).first()
+                    if cap:
+                        mat_cap = MaterialCapability(
+                            material_id=material.id,
+                            capability_id=cap.id,
+                            is_required=True,
+                        )
+                        db.add(mat_cap)
+                        if cap.bit_index is not None:
+                            capability_ids_for_bitmask.append(cap.bit_index)
+                
+                masks = compute_capability_bitmask(capability_ids_for_bitmask)
+                material.req_cap_mask_0 = masks[0]
+                material.req_cap_mask_1 = masks[1]
+                material.req_cap_mask_2 = masks[2]
+                material.req_cap_mask_3 = masks[3]
+                material.req_cap_mask_4 = masks[4]
+                material.req_cap_mask_5 = masks[5]
+                material.req_cap_mask_6 = masks[6]
+                material.req_cap_mask_7 = masks[7]
+            
+            if "soft_gates" in metrics and calculator:
+                soft_gates = calculator.calculate_from_musicxml(material.musicxml_canonical)
+                analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
+                analysis.interval_size_stage = soft_gates.interval_size_stage
+                analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
+                analysis.range_usage_stage = soft_gates.range_usage_stage
+                analysis.density_notes_per_second = soft_gates.density_notes_per_second
+                analysis.note_density_per_measure = soft_gates.note_density_per_measure
+                analysis.tempo_difficulty_score = soft_gates.tempo_difficulty_score
+                analysis.interval_velocity_score = soft_gates.interval_velocity_score
+                analysis.unique_pitch_count = soft_gates.unique_pitch_count
+                analysis.largest_interval_semitones = soft_gates.largest_interval_semitones
+            
+            if "range" in metrics:
+                range_data = extraction_result.range_analysis
+                if range_data:
+                    analysis.lowest_pitch = range_data.lowest_pitch
+                    analysis.highest_pitch = range_data.highest_pitch
+                    analysis.range_semitones = range_data.range_semitones
+                    analysis.pitch_density_low = range_data.density_low
+                    analysis.pitch_density_mid = range_data.density_mid
+                    analysis.pitch_density_high = range_data.density_high
+            
+            analysis.raw_extraction_json = json.dumps(extraction_result.to_dict())
+            analysis.chromatic_complexity = extraction_result.chromatic_complexity_score
+            analysis.measure_count = extraction_result.measure_count
+            analysis.tempo_bpm = extraction_result.tempo_bpm
+            
+            result["materials_updated"] += 1
+            
+        except Exception as e:
+            result["errors"].append(f"Material {material.id}: {str(e)}")
+            result["materials_failed"] += 1
+    
+    db.commit()
+    
+    return BatchReanalyzeResponse(**result)
 
 
 @app.get("/capabilities/v2")
