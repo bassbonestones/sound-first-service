@@ -378,14 +378,15 @@ class TestTempoDifficultyScore:
         )
         assert 0 <= score <= 1
     
-    def test_none_bpm_defaults_to_100(self):
-        """None BPM should default to 100."""
+    def test_none_bpm_returns_none(self):
+        """None BPM should return None (no assumed tempo)."""
         score, raw = calculate_tempo_difficulty_score(
             bpm=None,
             rhythm_complexity=0.5,
             interval_velocity=0.5,
         )
-        assert score > 0
+        assert score is None
+        assert raw.get("reason") == "no tempo specified in score"
 
 
 # =============================================================================

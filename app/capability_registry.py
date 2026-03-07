@@ -807,11 +807,55 @@ def detect_scale_fragment_7(extraction_result, score) -> bool:
 
 @register_custom_detector("detect_chromatic_approach_tones")
 def detect_chromatic_approach_tones(extraction_result, score) -> bool:
-    """Detect chromatic approach tones (half-step motion to target)."""
-    # Check for semitone intervals
-    for key, info in extraction_result.melodic_intervals.items():
-        if info.semitones == 1:
-            return True
+    """Detect chromatic approach tones (chromatic note approaching diatonic target by half-step)."""
+    if score is None:
+        return False
+    
+    from music21 import note as m21note, key as m21key
+    
+    # Get all notes
+    notes = list(score.recurse().getElementsByClass(m21note.Note))
+    if len(notes) < 2:
+        return False
+    
+    # Determine the key
+    key_obj = None
+    for elem in score.recurse():
+        if isinstance(elem, m21key.Key) or isinstance(elem, m21key.KeySignature):
+            if isinstance(elem, m21key.KeySignature):
+                key_obj = elem.asKey()
+            else:
+                key_obj = elem
+            break
+    
+    if key_obj is None:
+        # Try to analyze
+        try:
+            key_obj = score.analyze('key')
+        except:
+            return False
+    
+    if key_obj is None:
+        return False
+    
+    # Get scale pitches (pitch classes 0-11)
+    try:
+        scale = key_obj.getScale()
+        scale_pitch_classes = set(p.pitchClass for p in scale.getPitches())
+    except:
+        return False
+    
+    # Look for chromatic approach: chromatic note -> diatonic note by half-step
+    for i in range(len(notes) - 1):
+        interval = abs(notes[i+1].pitch.midi - notes[i].pitch.midi)
+        if interval == 1:  # Semitone
+            first_pc = notes[i].pitch.pitchClass
+            second_pc = notes[i+1].pitch.pitchClass
+            
+            # Chromatic approach: first note is NOT in scale, second note IS in scale
+            if first_pc not in scale_pitch_classes and second_pc in scale_pitch_classes:
+                return True
+    
     return False
 
 
@@ -948,6 +992,7 @@ class CapabilityRegistry:
         self.capabilities_path = capabilities_path or self._default_path()
         self.rules: Dict[str, DetectionRule] = {}
         self.capabilities_by_domain: Dict[str, List[str]] = {}
+        self.capability_bit_index: Dict[str, int] = {}
         self._loaded = False
     
     def _default_path(self) -> str:
@@ -991,6 +1036,11 @@ class CapabilityRegistry:
             if domain not in self.capabilities_by_domain:
                 self.capabilities_by_domain[domain] = []
             self.capabilities_by_domain[domain].append(name)
+            
+            # Track bit_index for ordering
+            bit_index = cap.get("bit_index")
+            if bit_index is not None:
+                self.capability_bit_index[name] = bit_index
             
             # Log validation issues
             if not rule.is_valid:

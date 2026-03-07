@@ -2233,7 +2233,7 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
                 "rhythm_complexity_score": round(metrics.rhythm_complexity_score, 3),
                 "range_usage_stage": metrics.range_usage_stage,
                 "density_notes_per_second": round(metrics.density_notes_per_second, 2) if metrics.density_notes_per_second else None,
-                "density_notes_per_measure": round(metrics.density_notes_per_measure, 2) if metrics.density_notes_per_measure else None,
+                "density_notes_per_measure": round(metrics.note_density_per_measure, 2) if metrics.note_density_per_measure else None,
                 "interval_velocity_score": round(metrics.interval_velocity_score, 3),
                 "tempo_difficulty_score": round(metrics.tempo_difficulty_score, 3),
             }
@@ -2242,23 +2242,56 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
         
         # Enhanced capability detection via registry
         detected_capabilities = []
+        capabilities_by_domain = {}
         try:
             registry = CapabilityRegistry()
             registry.load()
             engine = DetectionEngine(registry)
             detected_capabilities = list(engine.detect_capabilities(result))
+            
+            # Build domain lookup from registry (domain -> [cap_names])
+            # Invert it to get cap_name -> domain
+            domain_lookup = {}
+            for domain, cap_names in registry.capabilities_by_domain.items():
+                for cap_name in cap_names:
+                    domain_lookup[cap_name] = domain
+            
+            # Group detected capabilities by domain
+            for cap_name in detected_capabilities:
+                domain = domain_lookup.get(cap_name, "unknown")
+                if domain not in capabilities_by_domain:
+                    capabilities_by_domain[domain] = []
+                capabilities_by_domain[domain].append(cap_name)
+            
+            # Sort capabilities within each domain by bit_index
+            for domain in capabilities_by_domain:
+                capabilities_by_domain[domain].sort(
+                    key=lambda c: registry.capability_bit_index.get(c, 9999)
+                )
         except Exception as e:
             detected_capabilities = capabilities  # Fallback to basic detection
+            capabilities_by_domain = {"unknown": detected_capabilities}
+        
+        # Build tempo response (new profile + legacy fields)
+        tempo_response = {
+            # LEGACY: Use tempo_profile for new code
+            "tempo_bpm": result.tempo_bpm,
+            "tempo_marking": list(result.tempo_markings)[0] if result.tempo_markings else None,
+        }
+        if result.tempo_profile:
+            tempo_response["tempo_profile"] = result.tempo_profile.to_dict()
         
         return {
             "title": result.title or data.title,
             "capabilities": detected_capabilities,
+            "capabilities_by_domain": capabilities_by_domain,
             "capability_count": len(detected_capabilities),
             "range_analysis": result.range_analysis.__dict__ if result.range_analysis else None,
             "chromatic_complexity": result.chromatic_complexity_score,
             "measure_count": result.measure_count,
-            "tempo_bpm": result.tempo_bpm,
+            "tempo_bpm": result.tempo_bpm,  # LEGACY: Use tempo_profile.effective_bpm
             "tempo_marking": list(result.tempo_markings)[0] if result.tempo_markings else None,
+            "tempo_profile": result.tempo_profile.to_dict() if result.tempo_profile else None,
             "soft_gates": soft_gate_data,
             "detailed_extraction": result.to_dict(),
         }

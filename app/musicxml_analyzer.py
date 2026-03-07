@@ -21,10 +21,26 @@ try:
 except ImportError:
     MUSIC21_AVAILABLE = False
 
+# Import tempo analyzer (same package)
+from app.tempo_analyzer import (
+    TempoProfile, TempoDifficultyMetrics,
+    build_tempo_profile, calculate_tempo_difficulty_metrics,
+    get_legacy_tempo_bpm,
+)
+
 
 # =============================================================================
 # DATA CLASSES FOR EXTRACTION RESULTS
 # =============================================================================
+
+def format_pitch_name(pitch_str: str) -> str:
+    """Convert music21 pitch notation to standard notation.
+    
+    music21 uses '-' for flat (e.g., 'E-5' for Eb5).
+    Convert to 'b' notation (e.g., 'Eb5').
+    """
+    return pitch_str.replace('-', 'b')
+
 
 @dataclass
 class IntervalInfo:
@@ -99,7 +115,8 @@ class ExtractionResult:
     
     # Tempo and expression
     tempo_markings: Set[str] = field(default_factory=set)  # "Allegro", "Andante"
-    tempo_bpm: Optional[int] = None
+    tempo_bpm: Optional[int] = None  # LEGACY: Use tempo_profile.effective_bpm instead
+    tempo_profile: Optional[TempoProfile] = None  # Full tempo analysis
     expression_terms: Set[str] = field(default_factory=set)  # "dolce", "cantabile"
     
     # Repeat structures
@@ -128,13 +145,18 @@ class ExtractionResult:
     def to_dict(self) -> dict:
         """Convert to dictionary, handling sets and dataclasses."""
         result = {}
-        for k, v in asdict(self).items():
+        for k, v in self.__dict__.items():
             if isinstance(v, set):
                 result[k] = list(v)
             elif isinstance(v, dict):
                 # Handle IntervalInfo objects in dicts
                 result[k] = {ik: (asdict(iv) if hasattr(iv, '__dataclass_fields__') else iv) 
                             for ik, iv in v.items()}
+            elif hasattr(v, 'to_dict'):
+                # Handle TempoProfile and other objects with to_dict
+                result[k] = v.to_dict()
+            elif hasattr(v, '__dataclass_fields__'):
+                result[k] = asdict(v)
             else:
                 result[k] = v
         return result
@@ -548,18 +570,23 @@ class MusicXMLAnalyzer:
                     result.ornaments.add('ornament_appoggiatura')
     
     def _extract_tempo_expression(self, score: stream.Score, result: ExtractionResult):
-        """Extract tempo markings and expression terms."""
+        """Extract tempo markings, expression terms, and build tempo profile."""
+        # Build comprehensive tempo profile using tempo_analyzer
+        result.tempo_profile = build_tempo_profile(score)
+        
+        # Set legacy tempo_bpm from effective_bpm (was: last tempo found)
+        # LEGACY COMPATIBILITY: This field is deprecated, use tempo_profile instead
+        result.tempo_bpm = get_legacy_tempo_bpm(result.tempo_profile)
+        
+        # Still populate tempo_markings for capability detection
+        # This ensures backward compatibility with detection rules
         for t in score.recurse().getElementsByClass(tempo.MetronomeMark):
             if t.text:
                 text_lower = t.text.lower()
-                # Check if it's a known tempo term
                 for term in TEMPO_TERMS:
                     if term in text_lower:
                         result.tempo_markings.add(f"tempo_{term.replace(' ', '_')}")
-            if t.number:
-                result.tempo_bpm = int(t.number)
         
-        # Also check TempoText
         for t in score.recurse().getElementsByClass(tempo.TempoText):
             if t.text:
                 text_lower = t.text.lower()
@@ -675,16 +702,16 @@ class MusicXMLAnalyzer:
             density_low = density_mid = density_high = 33.33
         
         result.range_analysis = RangeAnalysis(
-            lowest_pitch=pitch.Pitch(midi=lowest_midi).nameWithOctave,
-            highest_pitch=pitch.Pitch(midi=highest_midi).nameWithOctave,
+            lowest_pitch=format_pitch_name(pitch.Pitch(midi=lowest_midi).nameWithOctave),
+            highest_pitch=format_pitch_name(pitch.Pitch(midi=highest_midi).nameWithOctave),
             lowest_midi=lowest_midi,
             highest_midi=highest_midi,
             range_semitones=range_semitones,
             density_low=round(density_low, 1),
             density_mid=round(density_mid, 1),
             density_high=round(density_high, 1),
-            trill_lowest=pitch.Pitch(midi=min(trill_pitches)).nameWithOctave if trill_pitches else None,
-            trill_highest=pitch.Pitch(midi=max(trill_pitches)).nameWithOctave if trill_pitches else None,
+            trill_lowest=format_pitch_name(pitch.Pitch(midi=min(trill_pitches)).nameWithOctave) if trill_pitches else None,
+            trill_highest=format_pitch_name(pitch.Pitch(midi=max(trill_pitches)).nameWithOctave) if trill_pitches else None,
         )
     
     def _analyze_chromatic_complexity(self, score: stream.Score, result: ExtractionResult):

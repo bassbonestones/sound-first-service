@@ -48,7 +48,7 @@ class SoftGateMetrics:
     # Continuous metrics
     density_notes_per_second: float
     note_density_per_measure: float
-    tempo_difficulty_score: float  # 0-1
+    tempo_difficulty_score: Optional[float]  # 0-1, None if no tempo specified
     interval_velocity_score: float  # 0-1
     
     # Additional analysis
@@ -404,31 +404,32 @@ def calculate_tempo_difficulty_score(
     bpm: Optional[int],
     rhythm_complexity: float,
     interval_velocity: float,
-) -> Tuple[float, Dict]:
+) -> Tuple[Optional[float], Dict]:
     """
     Calculate tempo difficulty score (0-1).
     
     Formula: normalize(bpm × rhythm_complexity × interval_velocity)
     
     Args:
-        bpm: Tempo in BPM (None defaults to 100)
+        bpm: Tempo in BPM (None returns None - no assumed default)
         rhythm_complexity: D3 rhythm score (0-1)
         interval_velocity: IVS score (0-1)
         
     Returns:
-        Tuple of (score 0-1, raw_dict)
+        Tuple of (score 0-1 or None if no tempo, raw_dict)
     """
-    effective_bpm = bpm if bpm else 100
+    if bpm is None:
+        return None, {"bpm": None, "reason": "no tempo specified in score"}
     
     # Raw product
-    raw_score = effective_bpm * rhythm_complexity * interval_velocity
+    raw_score = bpm * rhythm_complexity * interval_velocity
     
     # Normalize to 0-1 (assuming max practical = 200 BPM × 1.0 × 1.0 = 200)
     normalized = raw_score / 200
     score = max(0.0, min(1.0, normalized))
     
     raw = {
-        "bpm": effective_bpm,
+        "bpm": bpm,
         "rhythm_complexity": rhythm_complexity,
         "interval_velocity": interval_velocity,
         "raw_score": raw_score,
