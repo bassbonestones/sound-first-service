@@ -141,29 +141,29 @@ This document tracks the implementation of test files for all 108 capabilities t
 
 ---
 
-## Stage 5: Tuplets & Rhythm (12 capabilities)
+## Stage 5: Tuplets & Rhythm (12 capabilities) ✅ COMPLETE
 
 **Priority:** Medium - Custom detectors for complex rhythms
 
 ### Tuplets (6 tests)
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 124 | `tuplet_duplet` | custom | ⬜ |
-| 125 | `tuplet_triplet_general` | custom | ⬜ |
-| 126 | `tuplet_triplet_quarter` | custom | ⬜ |
-| 127 | `tuplet_quintuplet` | custom | ⬜ |
-| 128 | `tuplet_sextuplet` | custom | ⬜ |
-| 129 | `tuplet_septuplet` | custom | ⬜ |
+| 124 | `tuplet_duplet` | custom | ✅ |
+| 125 | `tuplet_triplet_general` | custom | ✅ |
+| 126 | `tuplet_triplet_quarter` | custom | ✅ |
+| 127 | `tuplet_quintuplet` | custom | ✅ |
+| 128 | `tuplet_sextuplet` | custom | ✅ |
+| 129 | `tuplet_septuplet` | custom | ✅ |
 
 ### Advanced Rhythm (6 tests)
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 130 | `rhythm_64th_notes` | value_match | ⬜ |
-| 131 | `rhythm_dotted_whole` | compound | ⬜ |
-| 132 | `rhythm_dotted_sixteenth` | compound | ⬜ |
-| 133 | `rhythm_double_dotted_half` | compound | ⬜ |
-| 134 | `rhythm_syncopation` | custom | ⬜ |
-| 135 | `rhythm_tuplet_3_quarters` | custom | ⬜ |
+| 130 | `rhythm_64th_notes` | value_match | ✅ |
+| 131 | `rhythm_dotted_whole` | compound | ✅ |
+| 132 | `rhythm_dotted_sixteenth` | compound | ✅ |
+| 133 | `rhythm_double_dotted_half` | compound | ✅ |
+| 134 | `rhythm_syncopation` | custom | ✅ |
+| 135 | `rhythm_tuplet_3_quarters` | custom | ✅ |
 
 ---
 

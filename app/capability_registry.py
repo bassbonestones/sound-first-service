@@ -95,12 +95,55 @@ def register_custom_detector(name: str):
 # Example custom detectors (can be expanded)
 @register_custom_detector("detect_syncopation")
 def detect_syncopation(extraction_result, score) -> bool:
-    """Detect syncopation patterns in the music."""
-    # Implementation would check for off-beat accents, ties across beats, etc.
-    # For now, stub that checks for ties + certain rhythm patterns
+    """Detect syncopation patterns in the music.
+    
+    Syncopation occurs when notes start on weak beats and continue to strong beats,
+    or when emphasis is placed on off-beats. Common patterns:
+    - Eighth-quarter-eighth pattern (short-long-short)
+    - Notes starting on "and" of the beat
+    - Ties from weak to strong beats
+    """
+    if score is None:
+        return False
+    
+    from music21 import note
+    
+    # Look for common syncopation patterns by examining note sequences
+    for part in score.parts:
+        notes_and_rests = list(part.recurse().notesAndRests)
+        
+        for i in range(len(notes_and_rests) - 2):
+            n1 = notes_and_rests[i]
+            n2 = notes_and_rests[i + 1]
+            n3 = notes_and_rests[i + 2]
+            
+            # All must be notes (not rests)
+            if not all(isinstance(n, note.Note) for n in [n1, n2, n3]):
+                continue
+            
+            # Get quarter lengths
+            ql1 = n1.duration.quarterLength
+            ql2 = n2.duration.quarterLength
+            ql3 = n3.duration.quarterLength
+            
+            # Check for syncopation patterns:
+            # 1. eighth-quarter-eighth (0.5-1.0-0.5)
+            # 2. short-long-short where middle is longer than surrounding
+            if ql1 > 0 and ql3 > 0:
+                if (ql2 > ql1 and ql2 > ql3):
+                    # Middle note is longer - possible syncopation
+                    # Common case: eighth-quarter-eighth
+                    if (ql1 == 0.5 and ql2 == 1.0 and ql3 == 0.5):
+                        return True
+                    # Also check for sixteenth-eighth-sixteenth
+                    if (ql1 == 0.25 and ql2 == 0.5 and ql3 == 0.25):
+                        return True
+    
+    # Also check for ties which often create syncopation
     if extraction_result.has_ties:
-        # More sophisticated detection could be added
+        # Having ties suggests potential syncopation
         return True
+    
     return False
 
 
@@ -476,8 +519,20 @@ def detect_eighth_triplets(extraction_result, score) -> bool:
 
 @register_custom_detector("detect_quarter_triplets")
 def detect_quarter_triplets(extraction_result, score) -> bool:
-    """Detect quarter note triplets."""
-    return "tuplet_3_quarter" in extraction_result.tuplets
+    """Detect quarter note triplets (3 quarters in time of 2)."""
+    if score is None:
+        return False
+    from music21 import note
+    for n in score.recurse().notesAndRests:
+        if isinstance(n, note.Note):
+            tuplets = n.duration.tuplets
+            if tuplets:
+                for t in tuplets:
+                    # Check for triplet (3:2) with quarter note type
+                    if t.numberNotesActual == 3 and t.numberNotesNormal == 2:
+                        if n.duration.type == 'quarter':
+                            return True
+    return False
 
 
 @register_custom_detector("detect_duplet")
@@ -534,11 +589,20 @@ def detect_septuplet(extraction_result, score) -> bool:
 
 @register_custom_detector("detect_triplet_general")
 def detect_triplet_general(extraction_result, score) -> bool:
-    """Detect any triplet figure."""
-    # Check extraction result tuplets
-    for tuplet_key in extraction_result.tuplets:
-        if "3" in tuplet_key:
-            return True
+    """Detect any triplet figure (3 notes in time of 2)."""
+    # Check extraction result tuplets for triplet key
+    if "tuplet_triplet" in extraction_result.tuplets:
+        return True
+    # Also check with music21 directly
+    if score is None:
+        return False
+    from music21 import note
+    for n in score.recurse().notesAndRests:
+        tuplets = n.duration.tuplets
+        if tuplets:
+            for t in tuplets:
+                if t.numberNotesActual == 3 and t.numberNotesNormal == 2:
+                    return True
     return False
 
 
@@ -1212,10 +1276,12 @@ class DetectionEngine:
         # that can have their fields checked
         
         # Map internal note type names to match detection rule conventions
-        # (e.g., extractor stores "note_thirty_second" but rule expects "32nd")
+        # Note: music21 uses "16th" but rules might use "sixteenth"
+        # We normalize to match what the detection rules expect
         NOTE_TYPE_MAP = {
             "thirty_second": "32nd",
             "sixty_fourth": "64th",
+            "16th": "sixteenth",  # music21 uses "16th", rules use "sixteenth"
         }
         
         if source == "notes":
@@ -1225,10 +1291,27 @@ class DetectionEngine:
                 clean_type = note_type.replace("note_", "")
                 # Normalize to match detection rule naming convention
                 normalized = NOTE_TYPE_MAP.get(clean_type, clean_type)
-                items.append({"type": normalized, "count": count})
-            # Add dotted notes
+                items.append({"type": normalized, "count": count, "dots": 0})
+            # Add dotted notes - provide BOTH formats to support different rule styles:
+            # 1. Rules using type: "dotted_half" (basic dotted rhythm detection)
+            # 2. Rules using type: "half" + dots >= 1 (compound conditions)
             for dotted in result.dotted_notes:
-                items.append({"type": dotted, "dots": 1 if "double" not in dotted else 2})
+                # Add full name format (e.g., "dotted_half", "double_dotted_half")
+                # Normalize 16th -> sixteenth in full name too
+                full_name = dotted
+                for old, new in [("16th", "sixteenth"), ("32nd", "thirty_second")]:
+                    full_name = full_name.replace(old, new)
+                items.append({"type": full_name, "dots": 1 if "double" not in dotted else 2})
+                
+                # Also add parsed format (e.g., type: "half", dots: 1)
+                if dotted.startswith("double_dotted_"):
+                    base_type = dotted.replace("double_dotted_", "")
+                    normalized_base = NOTE_TYPE_MAP.get(base_type, base_type)
+                    items.append({"type": normalized_base, "dots": 2})
+                elif dotted.startswith("dotted_"):
+                    base_type = dotted.replace("dotted_", "")
+                    normalized_base = NOTE_TYPE_MAP.get(base_type, base_type)
+                    items.append({"type": normalized_base, "dots": 1})
             return items
         
         elif source == "dynamics":

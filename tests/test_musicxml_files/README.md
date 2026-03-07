@@ -62,7 +62,19 @@ Files are numbered and organized by category:
 | 121_form_fine.musicxml | Fine marking | `form_fine`, `rhythm_quarter_notes` |
 | 122_form_coda.musicxml | Coda marking | `form_coda`, `rhythm_quarter_notes` |
 | 123_form_segno.musicxml | Segno sign | `form_segno`, `rhythm_quarter_notes` |
+| 124_tuplet_duplet.musicxml | Duplet (2 notes in time of 3) | `tuplet_duplet`, `rhythm_eighth_notes` |
+| 125_tuplet_triplet_general.musicxml | Triplet (general concept - 3 eighths in time of 2) | `tuplet_triplet_general`, `rhythm_eighth_notes` |
+| 126_tuplet_triplet_quarter.musicxml | Triplet quarter notes (3 quarters in time of 2) | `tuplet_triplet_quarter`, `rhythm_quarter_notes` |
+| 127_tuplet_quintuplet.musicxml | Quintuplet (5 notes in time of 4) | `tuplet_quintuplet`, `rhythm_sixteenth_notes` |
+| 128_tuplet_sextuplet.musicxml | Sextuplet (6 notes in time of 4) | `tuplet_sextuplet`, `rhythm_sixteenth_notes` |
+| 129_tuplet_septuplet.musicxml | Septuplet (7 notes in time of 4) | `tuplet_septuplet`, `rhythm_sixteenth_notes` |
 | 12_time_sig_2_4.musicxml | 2/4 time signature | `time_signature_2_4`, `rhythm_quarter_notes` |
+| 130_rhythm_64th_notes.musicxml | 64th notes | `rhythm_64th_notes` |
+| 131_rhythm_dotted_whole.musicxml | Dotted whole note | `rhythm_dotted_whole`, `rhythm_whole_notes` |
+| 132_rhythm_dotted_sixteenth.musicxml | Dotted sixteenth note | `rhythm_dotted_sixteenth`, `rhythm_sixteenth_notes` |
+| 133_rhythm_double_dotted_half.musicxml | Double-dotted half note | `rhythm_double_dotted_half`, `rhythm_half_notes` |
+| 134_rhythm_syncopation.musicxml | Syncopation pattern | `rhythm_syncopation`, `rhythm_eighth_notes` |
+| 135_rhythm_tuplet_3_quarters.musicxml | Rhythm: 3 quarter note tuplet in time of 2 | `rhythm_tuplet_3_quarters`, `rhythm_quarter_notes` |
 | 13_time_sig_2_2.musicxml | 2/2 (cut time) time signature | `time_signature_2_2`, `rhythm_half_notes` |
 | 14_time_sig_7_8.musicxml | 7/8 time signature | `time_signature_7_8`, `rhythm_eighth_notes` |
 | 15_time_sig_5_4.musicxml | 5/4 time signature | `time_signature_5_4`, `rhythm_quarter_notes` |

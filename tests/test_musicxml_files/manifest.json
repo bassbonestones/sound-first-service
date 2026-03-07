@@ -880,5 +880,88 @@
       "form_segno",
       "rhythm_quarter_notes"
     ]
+  },
+  "124_tuplet_duplet.musicxml": {
+    "description": "Duplet (2 notes in time of 3)",
+    "expected_capabilities": [
+      "tuplet_duplet",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "125_tuplet_triplet_general.musicxml": {
+    "description": "Triplet (general concept - 3 eighths in time of 2)",
+    "expected_capabilities": [
+      "tuplet_triplet_general",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "126_tuplet_triplet_quarter.musicxml": {
+    "description": "Triplet quarter notes (3 quarters in time of 2)",
+    "expected_capabilities": [
+      "tuplet_triplet_quarter",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "127_tuplet_quintuplet.musicxml": {
+    "description": "Quintuplet (5 notes in time of 4)",
+    "expected_capabilities": [
+      "tuplet_quintuplet",
+      "rhythm_sixteenth_notes"
+    ]
+  },
+  "128_tuplet_sextuplet.musicxml": {
+    "description": "Sextuplet (6 notes in time of 4)",
+    "expected_capabilities": [
+      "tuplet_sextuplet",
+      "rhythm_sixteenth_notes"
+    ]
+  },
+  "129_tuplet_septuplet.musicxml": {
+    "description": "Septuplet (7 notes in time of 4)",
+    "expected_capabilities": [
+      "tuplet_septuplet",
+      "rhythm_sixteenth_notes"
+    ]
+  },
+  "130_rhythm_64th_notes.musicxml": {
+    "description": "64th notes",
+    "expected_capabilities": [
+      "rhythm_64th_notes"
+    ]
+  },
+  "131_rhythm_dotted_whole.musicxml": {
+    "description": "Dotted whole note",
+    "expected_capabilities": [
+      "rhythm_dotted_whole",
+      "rhythm_whole_notes"
+    ]
+  },
+  "132_rhythm_dotted_sixteenth.musicxml": {
+    "description": "Dotted sixteenth note",
+    "expected_capabilities": [
+      "rhythm_dotted_sixteenth",
+      "rhythm_sixteenth_notes"
+    ]
+  },
+  "133_rhythm_double_dotted_half.musicxml": {
+    "description": "Double-dotted half note",
+    "expected_capabilities": [
+      "rhythm_double_dotted_half",
+      "rhythm_half_notes"
+    ]
+  },
+  "134_rhythm_syncopation.musicxml": {
+    "description": "Syncopation pattern",
+    "expected_capabilities": [
+      "rhythm_syncopation",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "135_rhythm_tuplet_3_quarters.musicxml": {
+    "description": "Rhythm: 3 quarter note tuplet in time of 2",
+    "expected_capabilities": [
+      "rhythm_tuplet_3_quarters",
+      "rhythm_quarter_notes"
+    ]
   }
 }

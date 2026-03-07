@@ -719,6 +719,66 @@ class TestFormStructure:
         assert "form_segno" in caps, f"Expected form_segno, got {caps}"
 
 
+# =============================================================================
+# Stage 5: Tuplets & Rhythm (12 tests)
+# =============================================================================
+
+class TestTuplets:
+    """Test detection of tuplet capabilities."""
+    
+    def test_tuplet_duplet(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("124_tuplet_duplet.musicxml"), analyzer, engine)
+        assert "tuplet_duplet" in caps, f"Expected tuplet_duplet, got {caps}"
+    
+    def test_tuplet_triplet_general(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("125_tuplet_triplet_general.musicxml"), analyzer, engine)
+        assert "tuplet_triplet_general" in caps, f"Expected tuplet_triplet_general, got {caps}"
+    
+    def test_tuplet_triplet_quarter(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("126_tuplet_triplet_quarter.musicxml"), analyzer, engine)
+        assert "tuplet_triplet_quarter" in caps, f"Expected tuplet_triplet_quarter, got {caps}"
+    
+    def test_tuplet_quintuplet(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("127_tuplet_quintuplet.musicxml"), analyzer, engine)
+        assert "tuplet_quintuplet" in caps, f"Expected tuplet_quintuplet, got {caps}"
+    
+    def test_tuplet_sextuplet(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("128_tuplet_sextuplet.musicxml"), analyzer, engine)
+        assert "tuplet_sextuplet" in caps, f"Expected tuplet_sextuplet, got {caps}"
+    
+    def test_tuplet_septuplet(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("129_tuplet_septuplet.musicxml"), analyzer, engine)
+        assert "tuplet_septuplet" in caps, f"Expected tuplet_septuplet, got {caps}"
+
+
+class TestAdvancedRhythm:
+    """Test detection of advanced rhythm capabilities."""
+    
+    def test_rhythm_64th_notes(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("130_rhythm_64th_notes.musicxml"), analyzer, engine)
+        assert "rhythm_64th_notes" in caps, f"Expected rhythm_64th_notes, got {caps}"
+    
+    def test_rhythm_dotted_whole(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("131_rhythm_dotted_whole.musicxml"), analyzer, engine)
+        assert "rhythm_dotted_whole" in caps, f"Expected rhythm_dotted_whole, got {caps}"
+    
+    def test_rhythm_dotted_sixteenth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("132_rhythm_dotted_sixteenth.musicxml"), analyzer, engine)
+        assert "rhythm_dotted_sixteenth" in caps, f"Expected rhythm_dotted_sixteenth, got {caps}"
+    
+    def test_rhythm_double_dotted_half(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("133_rhythm_double_dotted_half.musicxml"), analyzer, engine)
+        assert "rhythm_double_dotted_half" in caps, f"Expected rhythm_double_dotted_half, got {caps}"
+    
+    def test_rhythm_syncopation(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("134_rhythm_syncopation.musicxml"), analyzer, engine)
+        assert "rhythm_syncopation" in caps, f"Expected rhythm_syncopation, got {caps}"
+    
+    def test_rhythm_tuplet_3_quarters(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("135_rhythm_tuplet_3_quarters.musicxml"), analyzer, engine)
+        assert "rhythm_tuplet_3_quarters" in caps, f"Expected rhythm_tuplet_3_quarters, got {caps}"
+
+
 class TestManifestComprehensive:
     """Test all files against their manifest expectations."""
     
