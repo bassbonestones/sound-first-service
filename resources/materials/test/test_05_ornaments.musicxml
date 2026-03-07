@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="4.0">
+  <work><work-title>Test 05 - Ornaments and Articulations</work-title></work>
+  <part-list><score-part id="P1"><part-name>Melody</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes>
+        <divisions>2</divisions>
+        <key><fifths>0</fifths><mode>major</mode></key>
+        <time><beats>4</beats><beat-type>4</beat-type></time>
+        <clef><sign>G</sign><line>2</line></clef>
+      </attributes>
+      <direction placement="below"><direction-type><dynamics><f/></dynamics></direction-type></direction>
+      <note>
+        <pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>half</type>
+        <notations><ornaments><trill-mark/></ornaments></notations>
+      </note>
+      <note>
+        <pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><type>half</type>
+        <notations><ornaments><mordent/></ornaments></notations>
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type>
+        <notations><articulations><staccato/></articulations></notations>
+      </note>
+      <note>
+        <pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type>
+        <notations><articulations><accent/></articulations></notations>
+      </note>
+      <note>
+        <pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>half</type>
+        <notations><ornaments><turn/></ornaments></notations>
+      </note>
+    </measure>
+    <measure number="3">
+      <note><grace slash="yes"/><pitch><step>G</step><octave>4</octave></pitch><type>eighth</type></note>
+      <note><pitch><step>A</step><octave>4</octave></pitch><duration>4</duration><type>half</type></note>
+      <note><grace/><pitch><step>F</step><octave>4</octave></pitch><type>eighth</type></note>
+      <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>half</type></note>
+    </measure>
+    <measure number="4">
+      <note>
+        <pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type>
+        <notations><articulations><tenuto/></articulations></notations>
+      </note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note>
+        <pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>half</type>
+        <notations><fermata type="upright"/></notations>
+      </note>
+      <barline location="right"><bar-style>light-heavy</bar-style></barline>
+    </measure>
+  </part>
+</score-partwise>
