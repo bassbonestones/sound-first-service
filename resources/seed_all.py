@@ -121,5 +121,9 @@ def main():
     print("=" * 50)
 
 
+# Alias for test import compatibility
+seed_all = main
+
+
 if __name__ == "__main__":
     main()

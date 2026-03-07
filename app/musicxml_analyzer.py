@@ -271,6 +271,7 @@ ARTICULATION_CAPABILITY_MAP = {
     'StrongAccent': 'articulation_marcato',
     'Tenuto': 'articulation_tenuto',
     'DetachedLegato': 'articulation_portato',
+    'BreathMark': 'notation_breath_mark',
 }
 
 # Map ornaments to capability names

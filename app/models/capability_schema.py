@@ -91,6 +91,11 @@ class Capability(Base):
     # for that soft gate dimension before this capability can be mastered (hard gate, no frontier buffer)
     soft_gate_requirements = Column(String, nullable=True)
     
+    # Music21 detection rule (JSON: {"type": "...", ...})
+    # Used for automatic capability detection from MusicXML files
+    # Types: element, value_match, compound, interval, text_match, time_signature, range, custom
+    music21_detection_json = Column(String, nullable=True)
+    
     # Archive/active status
     is_active = Column(Boolean, default=True)  # False = archived, not shown in normal views
     

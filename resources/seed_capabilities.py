@@ -33,6 +33,10 @@ def main() -> None:
     sgr = c.get("soft_gate_requirements")
     sgr_json = json.dumps(sgr) if sgr else None
     
+    # Handle music21_detection rules
+    detection_rule = c.get("music21_detection")
+    detection_json = json.dumps(detection_rule) if detection_rule else None
+    
     row = Capability(
      name=c["name"],
      display_name=c["display_name"],
@@ -52,6 +56,7 @@ def main() -> None:
      evidence_qualifier_json=json.dumps(c.get("evidence_qualifier_json", {})),
      difficulty_weight=c.get("difficulty_weight", 1.0),
      soft_gate_requirements=sgr_json,
+     music21_detection_json=detection_json,
     )
     session.add(row)
     session.flush()
@@ -75,6 +80,10 @@ def main() -> None:
     sgr = c.get("soft_gate_requirements")
     if sgr is not None:
      existing.soft_gate_requirements = json.dumps(sgr)
+    # Update music21_detection if provided
+    detection_rule = c.get("music21_detection")
+    if detection_rule is not None:
+     existing.music21_detection_json = json.dumps(detection_rule)
     name_to_row[c["name"]] = existing
 
   session.commit()

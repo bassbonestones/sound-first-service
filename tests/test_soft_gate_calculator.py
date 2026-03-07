@@ -412,7 +412,7 @@ class TestDensityMetrics:
     
     def test_notes_per_second(self):
         """Notes per second calculation."""
-        nps, npm, raw = calculate_density_metrics(
+        nps, npm, peak_nps, volatility, raw = calculate_density_metrics(
             total_notes=60,
             duration_seconds=30,
             measure_count=10,
@@ -422,12 +422,12 @@ class TestDensityMetrics:
     
     def test_zero_duration(self):
         """Zero duration should return 0 density."""
-        nps, npm, raw = calculate_density_metrics(10, 0, 5)
+        nps, npm, peak_nps, volatility, raw = calculate_density_metrics(10, 0, 5)
         assert nps == 0
     
     def test_zero_measures(self):
         """Zero measures should return 0 notes per measure."""
-        nps, npm, raw = calculate_density_metrics(10, 10, 0)
+        nps, npm, peak_nps, volatility, raw = calculate_density_metrics(10, 10, 0)
         assert npm == 0
 
 

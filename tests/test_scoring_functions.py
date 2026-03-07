@@ -18,6 +18,7 @@ from app.scoring_functions import (
     tempo_profile_to_scores,
     range_profile_to_scores,
     throughput_profile_to_scores,
+    analyze_range_domain,
     DomainScores,
     clamp,
     normalize_linear,
@@ -211,8 +212,8 @@ class TestTempoScoring:
     
     def test_slow_scores_lower_than_fast(self):
         """Slow tempo should score lower than fast."""
-        slow = tempo_profile_to_scores({'effective_bpm': 72})
-        fast = tempo_profile_to_scores({'effective_bpm': 160})
+        slow = tempo_profile_to_scores({'effective_bpm': 72, 'tempo_is_explicit': True})
+        fast = tempo_profile_to_scores({'effective_bpm': 160, 'tempo_is_explicit': True})
         
         assert slow['primary'] < fast['primary']
     
@@ -221,13 +222,16 @@ class TestTempoScoring:
         stable = tempo_profile_to_scores({
             'effective_bpm': 120,
             'tempo_volatility': 0.0,
-            'tempo_changes_count': 0,
+            'tempo_change_count': 0,
+            'tempo_is_explicit': True,
         })
         volatile = tempo_profile_to_scores({
             'effective_bpm': 120,
             'tempo_volatility': 0.4,
-            'tempo_changes_count': 6,
-            'has_accel_rit': True,
+            'tempo_change_count': 6,
+            'has_accelerando': True,
+            'has_ritardando': True,
+            'tempo_is_explicit': True,
         })
         
         assert stable['hazard'] < volatile['hazard']
@@ -240,21 +244,24 @@ class TestTempoScoring:
 class TestRangeScoring:
     """Test range profile to scores conversion."""
     
-    def test_narrow_range_scores_lower(self):
-        """Narrow tessitura should score lower than wide."""
-        narrow = range_profile_to_scores({
+    def test_range_returns_none_scores(self):
+        """Range scoring requires instrument context - should return None."""
+        result = range_profile_to_scores({
             'tessitura_span': 8,
             'span_semitones': 10,
-            'extreme_register_ratio': 0.02,
         })
-        wide = range_profile_to_scores({
-            'tessitura_span': 20,
-            'span_semitones': 30,
-            'extreme_register_ratio': 0.15,
-        })
+        # Range scoring deliberately returns None - requires instrument context
+        assert result['primary'] is None
+        assert result['hazard'] is None
+        assert result['overall'] is None
+    
+    def test_wider_range_has_higher_span_breadth_facet(self):
+        """Wider range should have higher span_breadth facet."""
+        narrow = analyze_range_domain({'span_semitones': 10})
+        wide = analyze_range_domain({'span_semitones': 30})
         
-        assert narrow['primary'] < wide['primary']
-        assert narrow['hazard'] < wide['hazard']
+        # span_breadth is the only facet for range (no difficulty scoring)
+        assert narrow.facet_scores['span_breadth'] < wide.facet_scores['span_breadth']
 
 
 # =============================================================================
@@ -532,7 +539,7 @@ class TestFacetAwareDomainResults:
         result = analyze_tonal_domain(profile)
         
         facets = result.facet_scores
-        assert 'diatonic_complexity' in facets
+        # Note: diatonic_complexity was removed - pitch_class_count is not meaningful
         assert 'chromatic_complexity' in facets
         assert 'accidental_load' in facets
         assert 'tonal_instability' in facets
@@ -553,9 +560,8 @@ class TestFacetAwareDomainResults:
         result = analyze_range_domain(profile)
         
         facets = result.facet_scores
+        # Range only produces span_breadth - other facets require instrument context
         assert 'span_breadth' in facets
-        assert 'tessitura_pressure' in facets
-        assert 'register_extremity' in facets
     
     def test_throughput_facet_scores_present(self):
         """Throughput should have all expected facet scores."""
@@ -565,7 +571,7 @@ class TestFacetAwareDomainResults:
         facets = result.facet_scores
         assert 'sustained_density' in facets
         assert 'peak_density' in facets
-        assert 'variability_pressure' in facets
+        assert 'adaptation_pressure' in facets  # renamed from variability_pressure
     
     def test_bands_derived_from_scores(self):
         """Bands should be correctly derived from scores."""
@@ -603,9 +609,13 @@ class TestFacetAwareDomainResults:
     
     def test_confidence_reflects_data_quality(self):
         """Confidence should be lower when data is missing."""
-        # Tempo without BPM marking should have lower confidence
+        # Tempo without explicit marking should have lower confidence
         no_bpm = analyze_tempo_domain({})
-        with_bpm = analyze_tempo_domain({'base_bpm': 120, 'effective_bpm': 120})
+        with_bpm = analyze_tempo_domain({
+            'base_bpm': 120, 
+            'effective_bpm': 120,
+            'tempo_is_explicit': True,
+        })
         
         assert no_bpm.confidence < with_bpm.confidence
     

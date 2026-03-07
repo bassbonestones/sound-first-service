@@ -47,6 +47,130 @@ DETECTION_RULES = {
         "type": "element",
         "class": "music21.spanner.Slur"
     },
+    "articulation_staccato": {
+        "type": "element",
+        "class": "music21.articulations.Staccato"
+    },
+    "articulation_staccatissimo": {
+        "type": "element",
+        "class": "music21.articulations.Staccatissimo"
+    },
+    "articulation_accent": {
+        "type": "element",
+        "class": "music21.articulations.Accent"
+    },
+    "articulation_marcato": {
+        "type": "element",
+        "class": "music21.articulations.StrongAccent"
+    },
+    "articulation_tenuto": {
+        "type": "element",
+        "class": "music21.articulations.Tenuto"
+    },
+    "articulation_portato": {
+        "type": "element",
+        "class": "music21.articulations.DetachedLegato"
+    },
+    
+    # ==========================================================================
+    # BASIC NOTE VALUES (RHYTHMS)
+    # ==========================================================================
+    "rhythm_whole_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "whole"
+    },
+    "rhythm_half_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "half"
+    },
+    "rhythm_quarter_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "quarter"
+    },
+    "rhythm_eighth_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "eighth"
+    },
+    "rhythm_sixteenth_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "sixteenth"
+    },
+    "rhythm_32nd_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "32nd"
+    },
+    "rhythm_64th_notes": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "64th"
+    },
+    
+    # ==========================================================================
+    # DOTTED RHYTHMS
+    # ==========================================================================
+    "rhythm_dotted_half": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "dotted_half"
+    },
+    "rhythm_dotted_quarter": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "dotted_quarter"
+    },
+    "rhythm_dotted_eighth": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "dotted_eighth"
+    },
+    
+    # ==========================================================================
+    # TIES AND SYNCOPATION
+    # ==========================================================================
+    "notation_ties": {
+        "type": "custom",
+        "function": "detect_ties"
+    },
+    "rhythm_syncopation": {
+        "type": "custom",
+        "function": "detect_syncopation"
+    },
+    
+    # ==========================================================================
+    # CLEFS - Basic clefs
+    # ==========================================================================
+    "clef_treble": {
+        "type": "element",
+        "class": "music21.clef.TrebleClef"
+    },
+    "clef_bass": {
+        "type": "element",
+        "class": "music21.clef.BassClef"
+    },
+    "clef_alto": {
+        "type": "element",
+        "class": "music21.clef.AltoClef"
+    },
+    "clef_tenor": {
+        "type": "element",
+        "class": "music21.clef.TenorClef"
+    },
     
     # ==========================================================================
     # CLEFS - Octave transposing clefs
@@ -62,6 +186,76 @@ DETECTION_RULES = {
     # clef_movable_c_f_g is a theory concept, not detectable
     
     # ==========================================================================
+    # DYNAMICS - Basic dynamic levels
+    # ==========================================================================
+    "dynamic_ppp": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "ppp"
+    },
+    "dynamic_pp": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "pp"
+    },
+    "dynamic_p": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "p"
+    },
+    "dynamic_mp": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "mp"
+    },
+    "dynamic_mf": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "mf"
+    },
+    "dynamic_f": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "f"
+    },
+    "dynamic_ff": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "ff"
+    },
+    "dynamic_fff": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "fff"
+    },
+    "dynamic_sf": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "sf"
+    },
+    "dynamic_sfz": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "sfz"
+    },
+    "dynamic_fp": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "fp"
+    },
+    
+    # ==========================================================================
     # DYNAMICS - Crescendo/Decrescendo via wedges
     # ==========================================================================
     "dynamic_crescendo": {
@@ -69,8 +263,8 @@ DETECTION_RULES = {
         "class": "music21.dynamics.Crescendo"
     },
     "dynamic_decrescendo": {
-        "type": "element",
-        "class": "music21.dynamics.Decrescendo"
+        "type": "custom",
+        "function": "detect_decrescendo"
     },
     "dynamic_diminuendo": {
         "type": "element",
@@ -95,9 +289,8 @@ DETECTION_RULES = {
         "eq": "sfp"
     },
     "dynamic_subito": {
-        "type": "text_match",
-        "source": "dynamics",
-        "contains": "subito"
+        "type": "custom",
+        "function": "detect_subito"
     },
     
     # ==========================================================================
@@ -178,6 +371,21 @@ DETECTION_RULES = {
         "source": "expressions",
         "contains": "tranquillo"
     },
+    "expression_dolce": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "dolce"
+    },
+    "expression_espressivo": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "espressivo"
+    },
+    "expression_cantabile": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "cantabile"
+    },
     
     # ==========================================================================
     # FORM - Repeats, endings, navigation
@@ -224,11 +432,66 @@ DETECTION_RULES = {
     },
     
     # ==========================================================================
-    # INTERVALS - Additional ones
+    # INTERVALS - Basic melodic intervals
     # ==========================================================================
+    "interval_play_minor_2": {
+        "type": "interval",
+        "quality": "m2",
+        "melodic": True
+    },
+    "interval_play_major_2": {
+        "type": "interval",
+        "quality": "M2",
+        "melodic": True
+    },
+    "interval_play_minor_3": {
+        "type": "interval",
+        "quality": "m3",
+        "melodic": True
+    },
+    "interval_play_major_3": {
+        "type": "interval",
+        "quality": "M3",
+        "melodic": True
+    },
+    "interval_play_perfect_4": {
+        "type": "interval",
+        "quality": "P4",
+        "melodic": True
+    },
     "interval_play_augmented_4": {
         "type": "interval",
         "quality": "A4",
+        "melodic": True
+    },
+    "interval_play_perfect_5": {
+        "type": "interval",
+        "quality": "P5",
+        "melodic": True
+    },
+    "interval_play_minor_6": {
+        "type": "interval",
+        "quality": "m6",
+        "melodic": True
+    },
+    "interval_play_major_6": {
+        "type": "interval",
+        "quality": "M6",
+        "melodic": True
+    },
+    "interval_play_minor_7": {
+        "type": "interval",
+        "quality": "m7",
+        "melodic": True
+    },
+    "interval_play_major_7": {
+        "type": "interval",
+        "quality": "M7",
+        "melodic": True
+    },
+    "interval_play_octave": {
+        "type": "interval",
+        "quality": "P8",
         "melodic": True
     },
     "interval_play_compound_9_plus": {
@@ -237,11 +500,56 @@ DETECTION_RULES = {
     },
     
     # ==========================================================================
-    # METER - Additional time signatures
+    # METER - Time signatures
     # ==========================================================================
     "time_signature_basics": {
         "type": "custom",
         "function": "detect_any_time_signature"
+    },
+    "time_signature_4_4": {
+        "type": "time_signature",
+        "numerator": 4,
+        "denominator": 4
+    },
+    "time_signature_3_4": {
+        "type": "time_signature",
+        "numerator": 3,
+        "denominator": 4
+    },
+    "time_signature_2_4": {
+        "type": "time_signature",
+        "numerator": 2,
+        "denominator": 4
+    },
+    "time_signature_2_2": {
+        "type": "time_signature",
+        "numerator": 2,
+        "denominator": 2
+    },
+    "time_signature_6_8": {
+        "type": "time_signature",
+        "numerator": 6,
+        "denominator": 8
+    },
+    "time_signature_3_8": {
+        "type": "time_signature",
+        "numerator": 3,
+        "denominator": 8
+    },
+    "time_signature_7_8": {
+        "type": "time_signature",
+        "numerator": 7,
+        "denominator": 8
+    },
+    "time_signature_9_8": {
+        "type": "time_signature",
+        "numerator": 9,
+        "denominator": 8
+    },
+    "time_signature_12_8": {
+        "type": "time_signature",
+        "numerator": 12,
+        "denominator": 8
     },
     "time_signature_5_4": {
         "type": "time_signature",
@@ -273,8 +581,12 @@ DETECTION_RULES = {
     # NOTATION SYMBOLS
     # ==========================================================================
     "notation_breath_mark": {
+        "type": "custom",
+        "function": "detect_breath_mark"
+    },
+    "notation_fermata": {
         "type": "element",
-        "class": "music21.articulations.BreathMark"
+        "class": "music21.expressions.Fermata"
     },
     "notation_chord_symbols": {
         "type": "custom",
@@ -286,8 +598,36 @@ DETECTION_RULES = {
     },
     
     # ==========================================================================
+    # KEY SIGNATURES
+    # ==========================================================================
+    "key_signature_basics": {
+        "type": "custom",
+        "function": "detect_any_key_signature"
+    },
+    
+    # ==========================================================================
     # ORNAMENTS
     # ==========================================================================
+    "ornament_trill": {
+        "type": "element",
+        "class": "music21.expressions.Trill"
+    },
+    "ornament_mordent": {
+        "type": "element",
+        "class": "music21.expressions.Mordent"
+    },
+    "ornament_inverted_mordent": {
+        "type": "element",
+        "class": "music21.expressions.InvertedMordent"
+    },
+    "ornament_turn": {
+        "type": "element",
+        "class": "music21.expressions.Turn"
+    },
+    "ornament_grace_note": {
+        "type": "custom",
+        "function": "detect_grace_note"
+    },
     "ornament_tremolo": {
         "type": "element",
         "class": "music21.expressions.Tremolo"
