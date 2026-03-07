@@ -53,6 +53,24 @@ class IntervalInfo:
     count: int = 1
 
 
+@dataclass
+class RhythmPatternAnalysis:
+    """Rhythm pattern analysis for sight-reading difficulty prediction.
+    
+    Measures how many unique rhythm patterns exist vs total measures.
+    Lower uniqueness = more repetition = easier sight-reading.
+    """
+    total_measures: int
+    unique_rhythm_patterns: int
+    rhythm_measure_uniqueness_ratio: float  # unique / total (0.0-1.0)
+    rhythm_measure_repetition_ratio: float  # 1.0 - uniqueness_ratio
+    # Pattern frequency: how often each pattern appears
+    pattern_counts: Dict[str, int] = field(default_factory=dict)
+    # Most common pattern for diagnostics
+    most_common_pattern: Optional[str] = None
+    most_common_count: int = 0
+
+
 @dataclass 
 class RangeAnalysis:
     """Pitch range analysis with density information."""
@@ -133,6 +151,9 @@ class ExtractionResult:
     
     # Range analysis
     range_analysis: Optional[RangeAnalysis] = None
+    
+    # Rhythm pattern analysis (sight-reading predictor)
+    rhythm_pattern_analysis: Optional[RhythmPatternAnalysis] = None
     
     # Chromatic analysis
     accidentals_outside_key: Dict[str, int] = field(default_factory=dict)  # {"F#": 3, "Bb": 1}
@@ -331,6 +352,9 @@ class MusicXMLAnalyzer:
         
         # Analyze chromatic complexity
         self._analyze_chromatic_complexity(score, result)
+        
+        # Analyze rhythm patterns (sight-reading predictor)
+        self._analyze_rhythm_patterns(score, result)
         
         # Count measures
         result.measure_count = len(score.parts[0].getElementsByClass('Measure')) if score.parts else 0
@@ -752,6 +776,78 @@ class MusicXMLAnalyzer:
             # Score based on ratio and variety of alterations
             result.chromatic_complexity_score = min(10.0, 
                 chromatic_ratio * 20 + unique_alterations * 0.5)
+    
+    def _analyze_rhythm_patterns(self, score: stream.Score, result: ExtractionResult):
+        """Analyze rhythm pattern uniqueness across measures.
+        
+        This is a key predictor of sight-reading difficulty:
+        - Low uniqueness ratio = many repeated patterns = easier to read
+        - High uniqueness ratio = every measure different = harder to read
+        
+        Creates a canonical rhythm signature per measure based on note/rest
+        durations only (ignores pitch), then counts unique vs total patterns.
+        """
+        pattern_counts = Counter()
+        
+        for part in score.parts:
+            measures = part.getElementsByClass('Measure')
+            
+            for measure in measures:
+                # Build canonical rhythm signature for this measure
+                # Format: sequence of duration quarterLengths, e.g., "1.0|0.5|0.5|1.0"
+                durations = []
+                
+                # Get all notes and rests in the measure, sorted by offset
+                elements = []
+                for elem in measure.notesAndRests:
+                    elements.append((elem.offset, elem.duration.quarterLength, 
+                                   'r' if isinstance(elem, note.Rest) else 'n'))
+                
+                # Also check voices within the measure
+                for voice in measure.voices:
+                    for elem in voice.notesAndRests:
+                        elements.append((elem.offset, elem.duration.quarterLength,
+                                       'r' if isinstance(elem, note.Rest) else 'n'))
+                
+                # Sort by offset, then build signature
+                elements.sort(key=lambda x: x[0])
+                
+                if elements:
+                    # Include both duration and note/rest type in signature
+                    # This distinguishes "quarter rest + quarter note" from "quarter note + quarter rest"
+                    signature = "|".join(f"{e[2]}{e[1]}" for e in elements)
+                    pattern_counts[signature] += 1
+        
+        total_measures = sum(pattern_counts.values())
+        unique_patterns = len(pattern_counts)
+        
+        if total_measures == 0:
+            result.rhythm_pattern_analysis = RhythmPatternAnalysis(
+                total_measures=0,
+                unique_rhythm_patterns=0,
+                rhythm_measure_uniqueness_ratio=0.0,
+                rhythm_measure_repetition_ratio=1.0,
+                pattern_counts={},
+            )
+            return
+        
+        uniqueness_ratio = unique_patterns / total_measures
+        repetition_ratio = 1.0 - uniqueness_ratio
+        
+        # Find most common pattern
+        most_common = pattern_counts.most_common(1)
+        most_common_pattern = most_common[0][0] if most_common else None
+        most_common_count = most_common[0][1] if most_common else 0
+        
+        result.rhythm_pattern_analysis = RhythmPatternAnalysis(
+            total_measures=total_measures,
+            unique_rhythm_patterns=unique_patterns,
+            rhythm_measure_uniqueness_ratio=round(uniqueness_ratio, 4),
+            rhythm_measure_repetition_ratio=round(repetition_ratio, 4),
+            pattern_counts=dict(pattern_counts),
+            most_common_pattern=most_common_pattern,
+            most_common_count=most_common_count,
+        )
     
     def get_capability_names(self, result: ExtractionResult) -> List[str]:
         """

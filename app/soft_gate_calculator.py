@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from collections import Counter
 
 try:
-    from music21 import converter, stream, note, chord, key, interval, pitch
+    from music21 import converter, stream, note, chord, key, interval, pitch, meter
     MUSIC21_AVAILABLE = True
 except ImportError:
     MUSIC21_AVAILABLE = False
@@ -37,13 +37,76 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 @dataclass
+class NoteEvent:
+    """Preprocessed note event for IVS calculation."""
+    pitch_midi: int
+    duration_ql: float  # quarterLength
+    offset_ql: float  # onset time
+
+
+@dataclass
+class IntervalProfile:
+    """
+    Comprehensive interval demand profile for a piece.
+    
+    Captures texture (what the piece is mostly made of), sustained demand
+    (overall interval challenge), and raw percentiles.
+    """
+    total_intervals: int
+    
+    # Texture ratios (sum to 1.0)
+    step_ratio: float      # 0-2 semitones
+    skip_ratio: float      # 3-5 semitones
+    leap_ratio: float      # 6-11 semitones
+    large_leap_ratio: float    # 12-17 semitones
+    extreme_leap_ratio: float  # 18+ semitones
+    
+    # Percentiles (in semitones)
+    interval_p50: int
+    interval_p75: int
+    interval_p90: int
+    interval_max: int
+
+
+@dataclass
+class IntervalLocalDifficulty:
+    """
+    Local clustering analysis for interval difficulty.
+    
+    Detects whether hard leaps are concentrated into spike moments
+    or spread throughout the piece.
+    """
+    max_large_leaps_in_window: int      # 12-17st leaps in hardest window
+    max_extreme_leaps_in_window: int    # 18+st leaps in hardest window
+    hardest_measure_numbers: List[int]  # Up to 3 measures with most difficulty
+    window_count: int                   # Total windows analyzed
+
+
+# Interval bucket boundaries (semitones)
+INTERVAL_BUCKET_STEP = (0, 2)       # Steps: 0-2 semitones
+INTERVAL_BUCKET_SKIP = (3, 5)       # Skips: 3-5 semitones
+INTERVAL_BUCKET_LEAP = (6, 11)      # Leaps: 6-11 semitones
+INTERVAL_BUCKET_LARGE = (12, 17)    # Large leaps: 12-17 semitones (octave to octave+P5)
+INTERVAL_BUCKET_EXTREME = (18, 999) # Extreme leaps: 18+ semitones (1.5+ octaves)
+
+
+@dataclass
 class SoftGateMetrics:
     """Complete soft gate metrics for a material."""
     # Staged dimensions
     tonal_complexity_stage: int  # 0-5
-    interval_size_stage: int  # 0-6
+    interval_size_stage: int  # 0-6 (DEPRECATED - use legacy_interval_size_stage)
     rhythm_complexity_score: float  # 0.0-1.0 (global score)
     range_usage_stage: int  # 0-6
+    
+    # NEW: Interval profile stages
+    interval_sustained_stage: int = 0  # 0-6, p75-driven, for assignment
+    interval_hazard_stage: int = 0     # 0-6, max-driven, for warnings
+    legacy_interval_size_stage: int = 0  # max(sustained, hazard) for backward compat
+    
+    # NEW: Interval profile data
+    interval_profile: Optional[IntervalProfile] = None
+    interval_local_difficulty: Optional[IntervalLocalDifficulty] = None
     
     # Windowed rhythm complexity (for pieces >= 32 qL)
     rhythm_complexity_peak: Optional[float] = None  # max window score
@@ -52,23 +115,22 @@ class SoftGateMetrics:
     # Continuous metrics
     density_notes_per_second: float = 0.0
     note_density_per_measure: float = 0.0
+    peak_notes_per_second: float = 0.0  # Max NPS in any measure
+    throughput_volatility: float = 0.0  # Std dev / mean of per-measure NPS
     tempo_difficulty_score: Optional[float] = None  # 0-1, None if no tempo specified
-    interval_velocity_score: float = 0.0  # 0-1
+    interval_velocity_score: float = 0.0  # 0-1 (global score)
+    
+    # Windowed interval velocity (for pieces >= 32 qL)
+    interval_velocity_peak: Optional[float] = None  # max window IVS
+    interval_velocity_p95: Optional[float] = None   # 95th percentile window IVS
     
     # Additional analysis
     unique_pitch_count: int = 0  # 0-12
     largest_interval_semitones: int = 0
+    tessitura_span_semitones: int = 0  # p10-p90 pitch range (working range)
     
     # Raw intermediate values (for debugging/tuning)
     raw_metrics: Dict[str, Any] = None
-
-
-@dataclass
-class NoteEvent:
-    """Preprocessed note event for IVS calculation."""
-    pitch_midi: int
-    duration_ql: float  # quarterLength
-    offset_ql: float  # onset time
 
 
 # =============================================================================
@@ -168,6 +230,264 @@ def calculate_interval_size_stage(
         stage = 6  # Sevenths/Octave+
     
     return stage, raw
+
+
+def calculate_interval_profile(
+    interval_semitones: List[int],
+) -> IntervalProfile:
+    """
+    Calculate comprehensive interval demand profile.
+    
+    Classifies intervals into buckets and computes percentiles to give
+    a complete picture of interval texture and demand.
+    
+    Args:
+        interval_semitones: List of absolute melodic interval sizes in semitones
+        
+    Returns:
+        IntervalProfile with texture ratios and percentiles
+    """
+    if not interval_semitones:
+        return IntervalProfile(
+            total_intervals=0,
+            step_ratio=1.0,  # Default to steps for empty
+            skip_ratio=0.0,
+            leap_ratio=0.0,
+            large_leap_ratio=0.0,
+            extreme_leap_ratio=0.0,
+            interval_p50=0,
+            interval_p75=0,
+            interval_p90=0,
+            interval_max=0,
+        )
+    
+    total = len(interval_semitones)
+    sorted_intervals = sorted(interval_semitones)
+    
+    # Count intervals by bucket
+    steps = sum(1 for i in interval_semitones if i <= INTERVAL_BUCKET_STEP[1])
+    skips = sum(1 for i in interval_semitones 
+                if INTERVAL_BUCKET_SKIP[0] <= i <= INTERVAL_BUCKET_SKIP[1])
+    leaps = sum(1 for i in interval_semitones 
+                if INTERVAL_BUCKET_LEAP[0] <= i <= INTERVAL_BUCKET_LEAP[1])
+    large_leaps = sum(1 for i in interval_semitones 
+                      if INTERVAL_BUCKET_LARGE[0] <= i <= INTERVAL_BUCKET_LARGE[1])
+    extreme_leaps = sum(1 for i in interval_semitones 
+                        if i >= INTERVAL_BUCKET_EXTREME[0])
+    
+    # Calculate percentiles
+    def percentile(sorted_list: List[int], p: float) -> int:
+        idx = int(len(sorted_list) * p)
+        return sorted_list[min(idx, len(sorted_list) - 1)]
+    
+    return IntervalProfile(
+        total_intervals=total,
+        step_ratio=steps / total,
+        skip_ratio=skips / total,
+        leap_ratio=leaps / total,
+        large_leap_ratio=large_leaps / total,
+        extreme_leap_ratio=extreme_leaps / total,
+        interval_p50=percentile(sorted_intervals, 0.50),
+        interval_p75=percentile(sorted_intervals, 0.75),
+        interval_p90=percentile(sorted_intervals, 0.90),
+        interval_max=max(interval_semitones),
+    )
+
+
+# Windowing constants for local interval difficulty
+INTERVAL_WINDOW_DURATION_QL = 16.0  # 4 measures of 4/4
+INTERVAL_WINDOW_STEP_QL = 4.0       # 1 measure step
+INTERVAL_WINDOW_MIN_PIECE_QL = 32.0 # 8 measures minimum for windowing
+
+
+def calculate_interval_local_difficulty(
+    interval_semitones: List[int],
+    offsets: List[float],  # onset times of the SECOND note in each interval
+    measure_numbers: List[int],  # measure number for each interval
+) -> Optional[IntervalLocalDifficulty]:
+    """
+    Analyze local clustering of large/extreme leaps.
+    
+    Uses sliding windows to detect concentrated difficulty spikes.
+    Also tracks which measures contain the most difficult intervals.
+    
+    Args:
+        interval_semitones: List of absolute melodic interval sizes
+        offsets: Onset times (quarterLength) of second note in each interval
+        measure_numbers: Measure number where each interval occurs
+        
+    Returns:
+        IntervalLocalDifficulty or None if piece is too short for windowing
+    """
+    if not interval_semitones or not offsets:
+        return None
+    
+    # Check if piece is long enough for windowing
+    total_duration = max(offsets) if offsets else 0
+    if total_duration < INTERVAL_WINDOW_MIN_PIECE_QL:
+        # For short pieces, still report measure-level stats
+        large_by_measure = Counter()
+        extreme_by_measure = Counter()
+        
+        for i, intv in enumerate(interval_semitones):
+            meas = measure_numbers[i] if i < len(measure_numbers) else 1
+            if INTERVAL_BUCKET_LARGE[0] <= intv <= INTERVAL_BUCKET_LARGE[1]:
+                large_by_measure[meas] += 1
+            elif intv >= INTERVAL_BUCKET_EXTREME[0]:
+                extreme_by_measure[meas] += 1
+        
+        # Find hardest measures (by total large+extreme)
+        combined = Counter()
+        for m, c in large_by_measure.items():
+            combined[m] += c
+        for m, c in extreme_by_measure.items():
+            combined[m] += c * 2  # Weight extreme more
+        
+        hardest = [m for m, _ in combined.most_common(3)]
+        
+        return IntervalLocalDifficulty(
+            max_large_leaps_in_window=max(large_by_measure.values()) if large_by_measure else 0,
+            max_extreme_leaps_in_window=max(extreme_by_measure.values()) if extreme_by_measure else 0,
+            hardest_measure_numbers=hardest,
+            window_count=0,  # Not enough for windowing
+        )
+    
+    # Build windows and track leap counts
+    window_large_counts = []
+    window_extreme_counts = []
+    window_start = 0.0
+    
+    while window_start + INTERVAL_WINDOW_DURATION_QL <= total_duration + INTERVAL_WINDOW_STEP_QL:
+        window_end = window_start + INTERVAL_WINDOW_DURATION_QL
+        
+        # Find intervals in this window
+        window_large = 0
+        window_extreme = 0
+        
+        for i, off in enumerate(offsets):
+            if window_start <= off < window_end:
+                intv = interval_semitones[i]
+                if INTERVAL_BUCKET_LARGE[0] <= intv <= INTERVAL_BUCKET_LARGE[1]:
+                    window_large += 1
+                elif intv >= INTERVAL_BUCKET_EXTREME[0]:
+                    window_extreme += 1
+        
+        window_large_counts.append(window_large)
+        window_extreme_counts.append(window_extreme)
+        window_start += INTERVAL_WINDOW_STEP_QL
+    
+    # Track by measure for hardest_measure_numbers
+    large_by_measure = Counter()
+    extreme_by_measure = Counter()
+    
+    for i, intv in enumerate(interval_semitones):
+        meas = measure_numbers[i] if i < len(measure_numbers) else 1
+        if INTERVAL_BUCKET_LARGE[0] <= intv <= INTERVAL_BUCKET_LARGE[1]:
+            large_by_measure[meas] += 1
+        elif intv >= INTERVAL_BUCKET_EXTREME[0]:
+            extreme_by_measure[meas] += 1
+    
+    # Find hardest measures
+    combined = Counter()
+    for m, c in large_by_measure.items():
+        combined[m] += c
+    for m, c in extreme_by_measure.items():
+        combined[m] += c * 2  # Weight extreme more
+    
+    hardest = [m for m, _ in combined.most_common(3)]
+    
+    return IntervalLocalDifficulty(
+        max_large_leaps_in_window=max(window_large_counts) if window_large_counts else 0,
+        max_extreme_leaps_in_window=max(window_extreme_counts) if window_extreme_counts else 0,
+        hardest_measure_numbers=hardest,
+        window_count=len(window_large_counts),
+    )
+
+
+def calculate_interval_sustained_stage(
+    profile: IntervalProfile,
+) -> int:
+    """
+    Calculate interval sustained stage (0-6) for overall suitability.
+    
+    Primary driver: p75 interval (reflects "upper-normal demand")
+    Modifier: bump +1 if large_leap_ratio > 0.15
+    
+    This stage answers: "Can a student reasonably live in this piece overall?"
+    
+    Args:
+        profile: IntervalProfile with percentiles and ratios
+        
+    Returns:
+        Stage 0-6
+    """
+    p75 = profile.interval_p75
+    
+    # Base stage from p75
+    if p75 <= 0:
+        stage = 0  # Unison
+    elif p75 <= 1:
+        stage = 1  # Half step
+    elif p75 <= 2:
+        stage = 2  # Whole step
+    elif p75 <= 4:
+        stage = 3  # Thirds
+    elif p75 <= 7:
+        stage = 4  # Fourths/Fifths
+    elif p75 <= 9:
+        stage = 5  # Sixths
+    else:
+        stage = 6  # Sevenths/Octave+
+    
+    # Bump up if many large leaps (>15%)
+    if profile.large_leap_ratio > 0.15:
+        stage = min(stage + 1, 6)
+    
+    return stage
+
+
+def calculate_interval_hazard_stage(
+    profile: IntervalProfile,
+    local_difficulty: Optional[IntervalLocalDifficulty],
+) -> int:
+    """
+    Calculate interval hazard stage (0-6) for peak danger.
+    
+    Primary driver: interval_max
+    Modifier: bump +1 if max_extreme_leaps_in_window >= 2
+    
+    This stage answers: "Does this piece contain moments requiring scaffolding?"
+    
+    Args:
+        profile: IntervalProfile with max interval
+        local_difficulty: Optional local clustering analysis
+        
+    Returns:
+        Stage 0-6
+    """
+    max_intv = profile.interval_max
+    
+    # Base stage from max interval (different thresholds than sustained)
+    if max_intv <= 2:
+        stage = 0  # Steps only
+    elif max_intv <= 4:
+        stage = 1  # Small skip
+    elif max_intv <= 7:
+        stage = 2  # Fourth/Fifth
+    elif max_intv <= 11:
+        stage = 3  # Up to major 7th
+    elif max_intv <= 15:
+        stage = 4  # Octave to 10th
+    elif max_intv <= 20:
+        stage = 5  # 10th to 13th
+    else:
+        stage = 6  # 14th+ (extreme)
+    
+    # Bump up if clustered extreme leaps
+    if local_difficulty and local_difficulty.max_extreme_leaps_in_window >= 2:
+        stage = min(stage + 1, 6)
+    
+    return stage
 
 
 # =============================================================================
@@ -408,28 +728,63 @@ def calculate_density_metrics(
     total_notes: int,
     duration_seconds: float,
     measure_count: int,
-) -> Tuple[float, float, Dict]:
+    notes_per_measure_list: Optional[List[int]] = None,
+    tempo_bpm: int = 120,
+    beats_per_measure: float = 4.0,
+) -> Tuple[float, float, float, float, Dict]:
     """
-    Calculate D5 density metrics.
+    Calculate D5 density metrics including per-measure peak and volatility.
     
     Args:
         total_notes: Total note count
         duration_seconds: Estimated duration in seconds
         measure_count: Number of measures
+        notes_per_measure_list: List of note counts per measure (for peak/volatility)
+        tempo_bpm: Tempo for converting quarter lengths to seconds
+        beats_per_measure: Quarter notes per measure (for NPS calculation)
         
     Returns:
-        Tuple of (notes_per_second, notes_per_measure, raw_dict)
+        Tuple of (notes_per_second, notes_per_measure, peak_nps, volatility, raw_dict)
     """
     notes_per_second = total_notes / duration_seconds if duration_seconds > 0 else 0
     notes_per_measure = total_notes / measure_count if measure_count > 0 else 0
+    
+    # Calculate per-measure density for peak and volatility
+    peak_nps = notes_per_second  # Default to average if no per-measure data
+    volatility = 0.0
+    
+    if notes_per_measure_list and len(notes_per_measure_list) > 0:
+        # Calculate seconds per measure
+        seconds_per_beat = 60.0 / tempo_bpm
+        seconds_per_measure = beats_per_measure * seconds_per_beat
+        
+        # Calculate NPS for each measure
+        measure_nps_values = [
+            count / seconds_per_measure 
+            for count in notes_per_measure_list
+            if count > 0  # Skip empty measures (rests)
+        ]
+        
+        if measure_nps_values:
+            peak_nps = max(measure_nps_values)
+            
+            # Volatility = coefficient of variation (std / mean)
+            if len(measure_nps_values) > 1:
+                mean_nps = sum(measure_nps_values) / len(measure_nps_values)
+                if mean_nps > 0:
+                    variance = sum((x - mean_nps) ** 2 for x in measure_nps_values) / len(measure_nps_values)
+                    std_nps = variance ** 0.5
+                    volatility = std_nps / mean_nps
     
     raw = {
         "total_notes": total_notes,
         "duration_seconds": duration_seconds,
         "measure_count": measure_count,
+        "peak_nps": round(peak_nps, 4),
+        "volatility": round(volatility, 4),
     }
     
-    return notes_per_second, notes_per_measure, raw
+    return notes_per_second, notes_per_measure, peak_nps, volatility, raw
 
 
 # =============================================================================
@@ -503,6 +858,89 @@ def calculate_interval_velocity_score(
     }
     
     return ivs, raw
+
+
+# =============================================================================
+# IVS WINDOWED — INTERVAL VELOCITY FOR LONG PIECES
+# =============================================================================
+
+# Windowing constants (shared with rhythm complexity)
+IVS_WINDOW_DURATION_QL = 16.0  # 4 measures of 4/4
+IVS_WINDOW_STEP_QL = 4.0       # 1 measure step
+IVS_WINDOW_MIN_PIECE_QL = 32.0 # 8 measures minimum for windowing
+
+
+def calculate_interval_velocity_windowed(
+    note_events: List[NoteEvent],
+    alpha: float = 1.0,
+    beta: float = 1.5,
+) -> Tuple[Optional[float], Optional[float], Dict]:
+    """
+    Calculate windowed interval velocity score for longer pieces.
+    
+    Uses sliding windows to find peak IVS regions, solving
+    the "mostly easy except one hard passage" problem.
+    
+    Args:
+        note_events: List of NoteEvent with pitch_midi, offset_ql
+        alpha: Size exponent (default 1.0)
+        beta: Speed exponent (default 1.5)
+        
+    Returns:
+        Tuple of (peak_score, p95_score, raw_metrics_dict)
+        Returns (None, None, {}) if piece is too short for windowing
+    """
+    if len(note_events) < 2:
+        return None, None, {"reason": "no_events"}
+    
+    # Calculate piece total duration from last note offset + duration
+    total_duration = max(e.offset_ql + e.duration_ql for e in note_events)
+    
+    if total_duration < IVS_WINDOW_MIN_PIECE_QL:
+        return None, None, {"reason": "piece_too_short", "duration_ql": total_duration}
+    
+    # Build windows
+    window_scores = []
+    window_start = 0.0
+    
+    while window_start + IVS_WINDOW_DURATION_QL <= total_duration + IVS_WINDOW_STEP_QL:
+        window_end = window_start + IVS_WINDOW_DURATION_QL
+        
+        # Find notes in this window
+        window_events = [
+            e for e in note_events
+            if window_start <= e.offset_ql < window_end
+        ]
+        
+        if len(window_events) >= 2:
+            # Calculate window IVS
+            w_score, _ = calculate_interval_velocity_score(window_events, alpha, beta)
+            window_scores.append(w_score)
+        
+        window_start += IVS_WINDOW_STEP_QL
+    
+    if not window_scores:
+        return None, None, {"reason": "no_valid_windows"}
+    
+    # Calculate peak and p95
+    sorted_scores = sorted(window_scores)
+    peak = max(window_scores)
+    
+    # P95: 95th percentile
+    p95_idx = int(len(sorted_scores) * 0.95)
+    p95 = sorted_scores[min(p95_idx, len(sorted_scores) - 1)]
+    
+    raw = {
+        "window_count": len(window_scores),
+        "total_duration_ql": total_duration,
+        "window_duration_ql": IVS_WINDOW_DURATION_QL,
+        "window_step_ql": IVS_WINDOW_STEP_QL,
+        "min_window_score": min(window_scores),
+        "max_window_score": peak,
+        "mean_window_score": sum(window_scores) / len(window_scores),
+    }
+    
+    return peak, p95, raw
 
 
 # =============================================================================
@@ -588,9 +1026,25 @@ class SoftGateCalculator:
             note_data["total_notes"],
         )
         
+        # Legacy D2 stage (for backward compatibility)
         d2_stage, d2_raw = calculate_interval_size_stage(
             note_data["interval_semitones"],
         )
+        
+        # NEW: Interval profile system
+        interval_profile = calculate_interval_profile(
+            note_data["interval_semitones"],
+        )
+        
+        interval_local_diff = calculate_interval_local_difficulty(
+            note_data["interval_semitones"],
+            note_data["interval_offsets"],
+            note_data["interval_measure_numbers"],
+        )
+        
+        interval_sustained = calculate_interval_sustained_stage(interval_profile)
+        interval_hazard = calculate_interval_hazard_stage(interval_profile, interval_local_diff)
+        legacy_interval_stage = max(interval_sustained, interval_hazard)
         
         d3_score, d3_raw = calculate_rhythm_complexity_score(
             note_data["durations"],
@@ -620,14 +1074,38 @@ class SoftGateCalculator:
         # Estimate duration
         duration_seconds = self._estimate_duration(score, tempo_bpm or 100, measure_count)
         
-        d5_nps, d5_npm, d5_raw = calculate_density_metrics(
+        # Get time signature for beats per measure
+        time_sigs = list(score.recurse().getElementsByClass(meter.TimeSignature))
+        if time_sigs:
+            beats_per_measure = time_sigs[0].beatCount * (4.0 / time_sigs[0].denominator)
+        else:
+            beats_per_measure = 4.0
+        
+        # Calculate notes per measure list for density volatility
+        notes_per_measure_list = []
+        if note_data["note_measure_numbers"]:
+            from collections import Counter
+            measure_counts = Counter(note_data["note_measure_numbers"])
+            # Convert to list ordered by measure number
+            max_measure = max(measure_counts.keys()) if measure_counts else 0
+            notes_per_measure_list = [measure_counts.get(m, 0) for m in range(1, max_measure + 1)]
+        
+        d5_nps, d5_npm, d5_peak, d5_vol, d5_raw = calculate_density_metrics(
             note_data["total_notes"],
             duration_seconds,
             measure_count,
+            notes_per_measure_list=notes_per_measure_list,
+            tempo_bpm=tempo_bpm or 120,
+            beats_per_measure=beats_per_measure,
         )
         
         # IVS
         ivs, ivs_raw = calculate_interval_velocity_score(
+            note_data["note_events"],
+        )
+        
+        # Windowed IVS for longer pieces
+        ivs_peak, ivs_p95, ivs_windowed_raw = calculate_interval_velocity_windowed(
             note_data["note_events"],
         )
         
@@ -641,19 +1119,40 @@ class SoftGateCalculator:
         # Largest interval
         largest_interval = max(note_data["interval_semitones"]) if note_data["interval_semitones"] else 0
         
+        # Tessitura (p10-p90 pitch range = working range)
+        tessitura_span = 0
+        if note_data["note_events"]:
+            pitches = sorted([e.pitch_midi for e in note_data["note_events"]])
+            if len(pitches) >= 2:
+                p10_idx = max(0, int(len(pitches) * 0.1))
+                p90_idx = min(len(pitches) - 1, int(len(pitches) * 0.9))
+                tessitura_span = pitches[p90_idx] - pitches[p10_idx]
+        
         return SoftGateMetrics(
             tonal_complexity_stage=d1_stage,
-            interval_size_stage=d2_stage,
+            interval_size_stage=d2_stage,  # DEPRECATED
             rhythm_complexity_score=d3_score,
             rhythm_complexity_peak=d3_peak,
             rhythm_complexity_p95=d3_p95,
             range_usage_stage=d4_stage,
+            # NEW: Interval profile stages
+            interval_sustained_stage=interval_sustained,
+            interval_hazard_stage=interval_hazard,
+            legacy_interval_size_stage=legacy_interval_stage,
+            interval_profile=interval_profile,
+            interval_local_difficulty=interval_local_diff,
+            # Continuous metrics
             density_notes_per_second=d5_nps,
             note_density_per_measure=d5_npm,
+            peak_notes_per_second=d5_peak,
+            throughput_volatility=d5_vol,
             tempo_difficulty_score=tempo_diff,
             interval_velocity_score=ivs,
+            interval_velocity_peak=ivs_peak,
+            interval_velocity_p95=ivs_p95,
             unique_pitch_count=note_data["pitch_class_count"],
             largest_interval_semitones=largest_interval,
+            tessitura_span_semitones=tessitura_span,
             raw_metrics={
                 "d1": d1_raw,
                 "d2": d2_raw,
@@ -662,7 +1161,26 @@ class SoftGateCalculator:
                 "d4": d4_raw,
                 "d5": d5_raw,
                 "ivs": ivs_raw,
+                "ivs_windowed": ivs_windowed_raw,
                 "tempo": tempo_raw,
+                "interval_profile": {
+                    "total_intervals": interval_profile.total_intervals,
+                    "step_ratio": interval_profile.step_ratio,
+                    "skip_ratio": interval_profile.skip_ratio,
+                    "leap_ratio": interval_profile.leap_ratio,
+                    "large_leap_ratio": interval_profile.large_leap_ratio,
+                    "extreme_leap_ratio": interval_profile.extreme_leap_ratio,
+                    "p50": interval_profile.interval_p50,
+                    "p75": interval_profile.interval_p75,
+                    "p90": interval_profile.interval_p90,
+                    "max": interval_profile.interval_max,
+                } if interval_profile else {},
+                "interval_local": {
+                    "max_large_in_window": interval_local_diff.max_large_leaps_in_window,
+                    "max_extreme_in_window": interval_local_diff.max_extreme_leaps_in_window,
+                    "hardest_measures": interval_local_diff.hardest_measure_numbers,
+                    "window_count": interval_local_diff.window_count,
+                } if interval_local_diff else {},
             },
         )
     
@@ -687,7 +1205,10 @@ class SoftGateCalculator:
         accidental_count = 0
         total_notes = 0
         interval_semitones = []
+        interval_offsets = []      # Offset of second note in each interval
+        interval_measure_numbers = []  # Measure number for each interval
         note_events = []
+        note_measure_numbers = []  # Track measure number for each note (for density calculation)
         
         durations = []
         types = []
@@ -725,10 +1246,19 @@ class SoftGateCalculator:
                 if n.pitch.name not in in_key_pitches:
                     accidental_count += 1
                 
+                # Get measure number for this note
+                try:
+                    measure_num = n.measureNumber if hasattr(n, 'measureNumber') and n.measureNumber else 1
+                except:
+                    measure_num = 1
+                note_measure_numbers.append(measure_num)
+                
                 # Interval from previous
                 if prev_midi is not None:
                     intv = abs(n.pitch.midi - prev_midi)
                     interval_semitones.append(intv)
+                    interval_offsets.append(n.offset)
+                    interval_measure_numbers.append(measure_num)
                     pitch_changes.append(n.pitch.midi - prev_midi)
                 
                 # Note event for IVS
@@ -757,11 +1287,22 @@ class SoftGateCalculator:
                     if p.name not in in_key_pitches:
                         accidental_count += 1
                 
+                # Get measure number for this chord
+                try:
+                    measure_num = n.measureNumber if hasattr(n, 'measureNumber') and n.measureNumber else 1
+                except:
+                    measure_num = 1
+                # Count all pitches in chord for density (matches total_notes counting)
+                for _ in n.pitches:
+                    note_measure_numbers.append(measure_num)
+                
                 # Use top note for intervals
                 top_pitch = max(n.pitches, key=lambda p: p.midi)
                 if prev_midi is not None:
                     intv = abs(top_pitch.midi - prev_midi)
                     interval_semitones.append(intv)
+                    interval_offsets.append(n.offset)
+                    interval_measure_numbers.append(measure_num)
                     pitch_changes.append(top_pitch.midi - prev_midi)
                 
                 note_events.append(NoteEvent(
@@ -786,7 +1327,10 @@ class SoftGateCalculator:
             "accidental_count": accidental_count,
             "total_notes": total_notes,
             "interval_semitones": interval_semitones,
+            "interval_offsets": interval_offsets,
+            "interval_measure_numbers": interval_measure_numbers,
             "note_events": note_events,
+            "note_measure_numbers": note_measure_numbers,
             "durations": durations,
             "types": types,
             "has_dots": has_dots,

@@ -2209,6 +2209,7 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
     - Extracted capabilities
     - Range analysis
     - Soft gate metrics (D1-D5, IVS, tempo difficulty)
+    - Unified scores (new schema: profile -> facet_scores -> scores -> bands)
     
     Useful for previewing a material before committing to the database.
     """
@@ -2229,7 +2230,30 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
             metrics = calculator.calculate_from_musicxml(data.musicxml_content)
             soft_gate_data = {
                 "tonal_complexity_stage": metrics.tonal_complexity_stage,
-                "interval_size_stage": metrics.interval_size_stage,
+                "interval_size_stage": metrics.interval_size_stage,  # DEPRECATED
+                # NEW: Interval profile stages
+                "interval_sustained_stage": metrics.interval_sustained_stage,
+                "interval_hazard_stage": metrics.interval_hazard_stage,
+                "legacy_interval_size_stage": metrics.legacy_interval_size_stage,
+                # Interval profile data
+                "interval_profile": {
+                    "total_intervals": metrics.interval_profile.total_intervals if metrics.interval_profile else 0,
+                    "step_ratio": round(metrics.interval_profile.step_ratio, 3) if metrics.interval_profile else 0,
+                    "skip_ratio": round(metrics.interval_profile.skip_ratio, 3) if metrics.interval_profile else 0,
+                    "leap_ratio": round(metrics.interval_profile.leap_ratio, 3) if metrics.interval_profile else 0,
+                    "large_leap_ratio": round(metrics.interval_profile.large_leap_ratio, 3) if metrics.interval_profile else 0,
+                    "extreme_leap_ratio": round(metrics.interval_profile.extreme_leap_ratio, 3) if metrics.interval_profile else 0,
+                    "p50": metrics.interval_profile.interval_p50 if metrics.interval_profile else 0,
+                    "p75": metrics.interval_profile.interval_p75 if metrics.interval_profile else 0,
+                    "p90": metrics.interval_profile.interval_p90 if metrics.interval_profile else 0,
+                    "max": metrics.interval_profile.interval_max if metrics.interval_profile else 0,
+                } if metrics.interval_profile else None,
+                "interval_local_difficulty": {
+                    "max_large_in_window": metrics.interval_local_difficulty.max_large_leaps_in_window,
+                    "max_extreme_in_window": metrics.interval_local_difficulty.max_extreme_leaps_in_window,
+                    "hardest_measures": metrics.interval_local_difficulty.hardest_measure_numbers,
+                    "window_count": metrics.interval_local_difficulty.window_count,
+                } if metrics.interval_local_difficulty else None,
                 "rhythm_complexity_score": round(metrics.rhythm_complexity_score, 3),
                 "rhythm_complexity_peak": round(metrics.rhythm_complexity_peak, 3) if metrics.rhythm_complexity_peak is not None else None,
                 "rhythm_complexity_p95": round(metrics.rhythm_complexity_p95, 3) if metrics.rhythm_complexity_p95 is not None else None,
@@ -2237,6 +2261,8 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
                 "density_notes_per_second": round(metrics.density_notes_per_second, 2) if metrics.density_notes_per_second else None,
                 "density_notes_per_measure": round(metrics.note_density_per_measure, 2) if metrics.note_density_per_measure else None,
                 "interval_velocity_score": round(metrics.interval_velocity_score, 3),
+                "interval_velocity_peak": round(metrics.interval_velocity_peak, 3) if metrics.interval_velocity_peak is not None else None,
+                "interval_velocity_p95": round(metrics.interval_velocity_p95, 3) if metrics.interval_velocity_p95 is not None else None,
                 "tempo_difficulty_score": round(metrics.tempo_difficulty_score, 3) if metrics.tempo_difficulty_score is not None else None,
             }
         except Exception as e:
@@ -2283,6 +2309,165 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
         if result.tempo_profile:
             tempo_response["tempo_profile"] = result.tempo_profile.to_dict()
         
+        # =================================================================
+        # UNIFIED SCORES (Facet-Aware Architecture)
+        # =================================================================
+        unified_scores = {}
+        try:
+            from app.scoring_functions import (
+                analyze_interval_domain,
+                analyze_rhythm_domain,
+                analyze_tonal_domain,
+                analyze_tempo_domain,
+                analyze_range_domain,
+                analyze_throughput_domain,
+            )
+            from app.difficulty_interactions import calculate_composite_difficulty
+            
+            # Build profiles from extraction data + soft gate metrics
+            
+            # Interval profile
+            interval_profile = {}
+            if metrics.interval_profile:
+                interval_profile = {
+                    'interval_p50': metrics.interval_profile.interval_p50,
+                    'interval_p75': metrics.interval_profile.interval_p75,
+                    'interval_p90': metrics.interval_profile.interval_p90,
+                    'interval_max': metrics.interval_profile.interval_max,
+                    'step_ratio': metrics.interval_profile.step_ratio,
+                    'skip_ratio': metrics.interval_profile.skip_ratio,
+                    'leap_ratio': metrics.interval_profile.leap_ratio,
+                    'large_leap_ratio': metrics.interval_profile.large_leap_ratio,
+                    'extreme_leap_ratio': metrics.interval_profile.extreme_leap_ratio,
+                    'total_intervals': metrics.interval_profile.total_intervals,
+                }
+            if metrics.interval_local_difficulty:
+                interval_profile['max_large_leaps_in_window'] = metrics.interval_local_difficulty.max_large_leaps_in_window
+                interval_profile['max_extreme_leaps_in_window'] = metrics.interval_local_difficulty.max_extreme_leaps_in_window
+            
+            # Rhythm profile
+            rhythm_profile = {
+                'rhythm_complexity_score': metrics.rhythm_complexity_score,
+                'rhythm_complexity_peak': metrics.rhythm_complexity_peak,
+            }
+            # Add from extraction result if available
+            if result.rhythm_pattern_analysis:
+                rhythm_profile['rhythm_measure_uniqueness_ratio'] = result.rhythm_pattern_analysis.rhythm_measure_uniqueness_ratio
+                rhythm_profile['rhythm_measure_repetition_ratio'] = result.rhythm_pattern_analysis.rhythm_measure_repetition_ratio
+            # Estimate ratios from extraction
+            total_notes = sum(result.note_values.values()) if result.note_values else 1
+            rhythm_profile['tuplet_ratio'] = sum(result.tuplets.values()) / max(total_notes, 1) if result.tuplets else 0.0
+            rhythm_profile['dot_ratio'] = len(result.dotted_notes) / max(total_notes, 1) if result.dotted_notes else 0.0
+            rhythm_profile['tie_ratio'] = 0.1 if result.has_ties else 0.0  # Estimate
+            # Shortest duration from note values
+            duration_map = {
+                'note_64th': 0.0625, 'note_32nd': 0.125, 'note_sixteenth': 0.25,
+                'note_eighth': 0.5, 'note_quarter': 1.0, 'note_half': 2.0, 'note_whole': 4.0,
+                # Alternative naming conventions
+                '64th': 0.0625, '32nd': 0.125, '16th': 0.25, 'eighth': 0.5,
+                'quarter': 1.0, 'half': 2.0, 'whole': 4.0,
+            }
+            shortest = 4.0
+            for nv in result.note_values.keys():
+                if nv in duration_map:
+                    shortest = min(shortest, duration_map[nv])
+            rhythm_profile['shortest_duration'] = shortest
+            
+            # Tonal profile
+            # Estimate pitch class count: diatonic pieces use ~7, chromatic adds more
+            # chromatic_complexity_score 0 = fully diatonic (7 pitch classes)
+            # chromatic_complexity_score 1 = highly chromatic (up to 12 pitch classes)
+            chromatic_score = result.chromatic_complexity_score or 0
+            estimated_pitch_classes = int(7 + chromatic_score * 5)  # 7-12 range
+            tonal_profile = {
+                'pitch_class_count': estimated_pitch_classes,
+                'accidental_rate': chromatic_score,
+                'chromatic_ratio': chromatic_score,
+                'unique_pitches': estimated_pitch_classes,
+            }
+            
+            # Tempo profile
+            # Check if tempo is explicitly marked in score or just defaulted
+            tempo_is_explicit = (
+                result.tempo_profile and 
+                result.tempo_profile.primary_source_type not in ('default', None)
+            )
+            tempo_profile_data = {
+                'base_bpm': result.tempo_bpm if tempo_is_explicit else None,
+                'effective_bpm': result.tempo_profile.effective_bpm if (result.tempo_profile and tempo_is_explicit) else None,
+                'tempo_is_explicit': tempo_is_explicit,
+            }
+            if result.tempo_profile and tempo_is_explicit:
+                tempo_profile_data['min_bpm'] = result.tempo_profile.min_bpm
+                tempo_profile_data['max_bpm'] = result.tempo_profile.max_bpm
+                tempo_profile_data['tempo_change_count'] = result.tempo_profile.tempo_change_count
+                # Calculate volatility from BPM range (only if we have explicit tempo)
+                eff_bpm = result.tempo_profile.effective_bpm
+                min_bpm = result.tempo_profile.min_bpm or eff_bpm
+                max_bpm = result.tempo_profile.max_bpm or eff_bpm
+                tempo_profile_data['tempo_volatility'] = (max_bpm - min_bpm) / eff_bpm if eff_bpm and eff_bpm > 0 else 0.0
+                tempo_profile_data['has_accelerando'] = result.tempo_profile.has_accelerando
+                tempo_profile_data['has_ritardando'] = result.tempo_profile.has_ritardando
+                tempo_profile_data['has_rubato'] = result.tempo_profile.has_rubato
+                tempo_profile_data['tempo_regions'] = len(result.tempo_profile.tempo_regions) if result.tempo_profile.tempo_regions else 0
+            
+            # Range profile (instrument-agnostic - just raw span data)
+            # Actual difficulty depends on instrument which is added later
+            range_profile = {
+                'span_semitones': result.range_analysis.range_semitones if result.range_analysis else None,
+                'tessitura_span': metrics.tessitura_span_semitones or None,
+                'lowest_pitch': result.range_analysis.lowest_pitch if result.range_analysis else None,
+                'highest_pitch': result.range_analysis.highest_pitch if result.range_analysis else None,
+            }
+            
+            # Throughput profile
+            throughput_profile = {
+                'notes_per_second': metrics.density_notes_per_second or 2.0,
+                'peak_notes_per_second': metrics.peak_notes_per_second or (metrics.density_notes_per_second or 2.0),
+                'notes_per_measure': metrics.note_density_per_measure or 8.0,
+                'throughput_volatility': metrics.throughput_volatility or 0.0,
+            }
+            
+            # Compute domain results
+            interval_result = analyze_interval_domain(interval_profile)
+            rhythm_result = analyze_rhythm_domain(rhythm_profile)
+            tonal_result = analyze_tonal_domain(tonal_profile)
+            tempo_result = analyze_tempo_domain(tempo_profile_data)
+            range_result = analyze_range_domain(range_profile)
+            throughput_result = analyze_throughput_domain(throughput_profile)
+            
+            # Compute composite difficulty
+            all_scores = {
+                'interval': interval_result.scores,
+                'rhythm': rhythm_result.scores,
+                'tonal': tonal_result.scores,
+                'tempo': tempo_result.scores,
+                'range': range_result.scores,
+                'throughput': throughput_result.scores,
+            }
+            composite = calculate_composite_difficulty(all_scores)
+            
+            unified_scores = {
+                'interval': interval_result.to_dict(),
+                'rhythm': rhythm_result.to_dict(),
+                'tonal': tonal_result.to_dict(),
+                'tempo': tempo_result.to_dict(),
+                'range': range_result.to_dict(),
+                'throughput': throughput_result.to_dict(),
+                'composite': composite,
+                '_debug_inputs': {
+                    'interval_profile': interval_profile,
+                    'rhythm_profile': rhythm_profile,
+                    'tonal_profile': tonal_profile,
+                    'tempo_profile': tempo_profile_data,
+                    'range_profile': range_profile,
+                    'throughput_profile': throughput_profile,
+                }
+            }
+        except Exception as e:
+            import traceback
+            unified_scores = {"error": str(e), "traceback": traceback.format_exc()}
+        
         return {
             "title": result.title or data.title,
             "capabilities": detected_capabilities,
@@ -2295,6 +2480,7 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
             "tempo_marking": list(result.tempo_markings)[0] if result.tempo_markings else None,
             "tempo_profile": result.tempo_profile.to_dict() if result.tempo_profile else None,
             "soft_gates": soft_gate_data,
+            "unified_scores": unified_scores,
             "detailed_extraction": result.to_dict(),
         }
     except Exception as e:
@@ -2501,7 +2687,27 @@ def reanalyze_single_material(
         
         # Update analysis record
         analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
-        analysis.interval_size_stage = soft_gates.interval_size_stage
+        analysis.interval_size_stage = soft_gates.interval_size_stage  # DEPRECATED
+        # NEW: Interval profile stages
+        analysis.interval_sustained_stage = soft_gates.interval_sustained_stage
+        analysis.interval_hazard_stage = soft_gates.interval_hazard_stage
+        analysis.legacy_interval_size_stage = soft_gates.legacy_interval_size_stage
+        # Interval profile data
+        if soft_gates.interval_profile:
+            analysis.interval_step_ratio = soft_gates.interval_profile.step_ratio
+            analysis.interval_skip_ratio = soft_gates.interval_profile.skip_ratio
+            analysis.interval_leap_ratio = soft_gates.interval_profile.leap_ratio
+            analysis.interval_large_leap_ratio = soft_gates.interval_profile.large_leap_ratio
+            analysis.interval_extreme_leap_ratio = soft_gates.interval_profile.extreme_leap_ratio
+            analysis.interval_p50 = soft_gates.interval_profile.interval_p50
+            analysis.interval_p75 = soft_gates.interval_profile.interval_p75
+            analysis.interval_p90 = soft_gates.interval_profile.interval_p90
+        if soft_gates.interval_local_difficulty:
+            analysis.interval_max_large_in_window = soft_gates.interval_local_difficulty.max_large_leaps_in_window
+            analysis.interval_max_extreme_in_window = soft_gates.interval_local_difficulty.max_extreme_leaps_in_window
+            import json
+            analysis.interval_hardest_measures = json.dumps(soft_gates.interval_local_difficulty.hardest_measure_numbers)
+        
         analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
         analysis.rhythm_complexity_peak = soft_gates.rhythm_complexity_peak
         analysis.rhythm_complexity_p95 = soft_gates.rhythm_complexity_p95
@@ -2510,12 +2716,18 @@ def reanalyze_single_material(
         analysis.note_density_per_measure = soft_gates.note_density_per_measure
         analysis.tempo_difficulty_score = soft_gates.tempo_difficulty_score
         analysis.interval_velocity_score = soft_gates.interval_velocity_score
+        analysis.interval_velocity_peak = soft_gates.interval_velocity_peak
+        analysis.interval_velocity_p95 = soft_gates.interval_velocity_p95
         analysis.unique_pitch_count = soft_gates.unique_pitch_count
         analysis.largest_interval_semitones = soft_gates.largest_interval_semitones
         
         result_data["soft_gates"] = {
             "tonal_complexity_stage": soft_gates.tonal_complexity_stage,
-            "interval_size_stage": soft_gates.interval_size_stage,
+            "interval_size_stage": soft_gates.interval_size_stage,  # DEPRECATED
+            # NEW: Interval profile stages
+            "interval_sustained_stage": soft_gates.interval_sustained_stage,
+            "interval_hazard_stage": soft_gates.interval_hazard_stage,
+            "legacy_interval_size_stage": soft_gates.legacy_interval_size_stage,
             "rhythm_complexity_score": round(soft_gates.rhythm_complexity_score, 3),
             "rhythm_complexity_peak": round(soft_gates.rhythm_complexity_peak, 3) if soft_gates.rhythm_complexity_peak is not None else None,
             "rhythm_complexity_p95": round(soft_gates.rhythm_complexity_p95, 3) if soft_gates.rhythm_complexity_p95 is not None else None,
@@ -2523,6 +2735,8 @@ def reanalyze_single_material(
             "density_notes_per_second": round(soft_gates.density_notes_per_second, 3),
             "tempo_difficulty_score": round(soft_gates.tempo_difficulty_score, 3) if soft_gates.tempo_difficulty_score is not None else None,
             "interval_velocity_score": round(soft_gates.interval_velocity_score, 3),
+            "interval_velocity_peak": round(soft_gates.interval_velocity_peak, 3) if soft_gates.interval_velocity_peak is not None else None,
+            "interval_velocity_p95": round(soft_gates.interval_velocity_p95, 3) if soft_gates.interval_velocity_p95 is not None else None,
         }
         metrics_updated.append("soft_gates")
     
@@ -2660,7 +2874,26 @@ def reanalyze_all_materials(
             if "soft_gates" in metrics and calculator:
                 soft_gates = calculator.calculate_from_musicxml(material.musicxml_canonical)
                 analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
-                analysis.interval_size_stage = soft_gates.interval_size_stage
+                analysis.interval_size_stage = soft_gates.interval_size_stage  # DEPRECATED
+                # NEW: Interval profile stages
+                analysis.interval_sustained_stage = soft_gates.interval_sustained_stage
+                analysis.interval_hazard_stage = soft_gates.interval_hazard_stage
+                analysis.legacy_interval_size_stage = soft_gates.legacy_interval_size_stage
+                # Interval profile data
+                if soft_gates.interval_profile:
+                    analysis.interval_step_ratio = soft_gates.interval_profile.step_ratio
+                    analysis.interval_skip_ratio = soft_gates.interval_profile.skip_ratio
+                    analysis.interval_leap_ratio = soft_gates.interval_profile.leap_ratio
+                    analysis.interval_large_leap_ratio = soft_gates.interval_profile.large_leap_ratio
+                    analysis.interval_extreme_leap_ratio = soft_gates.interval_profile.extreme_leap_ratio
+                    analysis.interval_p50 = soft_gates.interval_profile.interval_p50
+                    analysis.interval_p75 = soft_gates.interval_profile.interval_p75
+                    analysis.interval_p90 = soft_gates.interval_profile.interval_p90
+                if soft_gates.interval_local_difficulty:
+                    analysis.interval_max_large_in_window = soft_gates.interval_local_difficulty.max_large_leaps_in_window
+                    analysis.interval_max_extreme_in_window = soft_gates.interval_local_difficulty.max_extreme_leaps_in_window
+                    analysis.interval_hardest_measures = json.dumps(soft_gates.interval_local_difficulty.hardest_measure_numbers)
+                
                 analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
                 analysis.rhythm_complexity_peak = soft_gates.rhythm_complexity_peak
                 analysis.rhythm_complexity_p95 = soft_gates.rhythm_complexity_p95
@@ -2669,6 +2902,8 @@ def reanalyze_all_materials(
                 analysis.note_density_per_measure = soft_gates.note_density_per_measure
                 analysis.tempo_difficulty_score = soft_gates.tempo_difficulty_score
                 analysis.interval_velocity_score = soft_gates.interval_velocity_score
+                analysis.interval_velocity_peak = soft_gates.interval_velocity_peak
+                analysis.interval_velocity_p95 = soft_gates.interval_velocity_p95
                 analysis.unique_pitch_count = soft_gates.unique_pitch_count
                 analysis.largest_interval_semitones = soft_gates.largest_interval_semitones
             
@@ -3887,7 +4122,10 @@ def admin_get_materials(
                 "measure_count": analysis.measure_count,
                 "estimated_duration_seconds": analysis.estimated_duration_seconds,
                 "tonal_complexity_stage": analysis.tonal_complexity_stage,
-                "interval_size_stage": analysis.interval_size_stage,
+                "interval_size_stage": analysis.interval_size_stage,  # DEPRECATED
+                "interval_sustained_stage": analysis.interval_sustained_stage,
+                "interval_hazard_stage": analysis.interval_hazard_stage,
+                "legacy_interval_size_stage": analysis.legacy_interval_size_stage,
                 "rhythm_complexity_stage": analysis.rhythm_complexity_stage,
                 "range_usage_stage": analysis.range_usage_stage,
                 "difficulty_index": analysis.difficulty_index,
@@ -3955,7 +4193,9 @@ def admin_check_material_gates(
         
         dimension_mapping = {
             "tonal_complexity_stage": analysis.tonal_complexity_stage,
-            "interval_size_stage": analysis.interval_size_stage,
+            "interval_size_stage": analysis.interval_size_stage,  # DEPRECATED
+            "interval_sustained_stage": analysis.interval_sustained_stage,
+            "interval_hazard_stage": analysis.interval_hazard_stage,
             "rhythm_complexity_stage": analysis.rhythm_complexity_stage,
             "range_usage_stage": analysis.range_usage_stage,
         }
@@ -4185,7 +4425,9 @@ def admin_get_session_candidates(
         if analysis:
             dimension_mapping = {
                 "tonal_complexity_stage": analysis.tonal_complexity_stage,
-                "interval_size_stage": analysis.interval_size_stage,
+                "interval_size_stage": analysis.interval_size_stage,  # DEPRECATED
+                "interval_sustained_stage": analysis.interval_sustained_stage,
+                "interval_hazard_stage": analysis.interval_hazard_stage,
                 "rhythm_complexity_stage": analysis.rhythm_complexity_stage,
                 "range_usage_stage": analysis.range_usage_stage,
             }

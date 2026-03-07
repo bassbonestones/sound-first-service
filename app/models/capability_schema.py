@@ -170,7 +170,30 @@ class MaterialAnalysis(Base):
     
     # Staged content dimensions (for adaptive engine filtering)
     tonal_complexity_stage = Column(Integer, nullable=True)  # 0-5 stages
-    interval_size_stage = Column(Integer, nullable=True)  # 0-6 stages
+    interval_size_stage = Column(Integer, nullable=True)  # 0-6 stages (DEPRECATED)
+    
+    # NEW: Interval profile stages
+    interval_sustained_stage = Column(Integer, nullable=True)  # 0-6, p75-driven, for assignment
+    interval_hazard_stage = Column(Integer, nullable=True)  # 0-6, max-driven, for warnings
+    legacy_interval_size_stage = Column(Integer, nullable=True)  # max(sustained, hazard) for compat
+    
+    # NEW: Interval profile ratios
+    interval_step_ratio = Column(Float, nullable=True)  # 0-2 semitones
+    interval_skip_ratio = Column(Float, nullable=True)  # 3-5 semitones
+    interval_leap_ratio = Column(Float, nullable=True)  # 6-11 semitones
+    interval_large_leap_ratio = Column(Float, nullable=True)  # 12-17 semitones
+    interval_extreme_leap_ratio = Column(Float, nullable=True)  # 18+ semitones
+    
+    # NEW: Interval percentiles (semitones)
+    interval_p50 = Column(Integer, nullable=True)
+    interval_p75 = Column(Integer, nullable=True)
+    interval_p90 = Column(Integer, nullable=True)
+    
+    # NEW: Interval local clustering
+    interval_max_large_in_window = Column(Integer, nullable=True)
+    interval_max_extreme_in_window = Column(Integer, nullable=True)
+    interval_hardest_measures = Column(String, nullable=True)  # JSON array
+    
     rhythm_complexity_stage = Column(Float, nullable=True)  # 0.0-1.0 continuous (global)
     rhythm_complexity_peak = Column(Float, nullable=True)  # 0.0-1.0 windowed max
     rhythm_complexity_p95 = Column(Float, nullable=True)  # 0.0-1.0 windowed 95th percentile
@@ -181,7 +204,9 @@ class MaterialAnalysis(Base):
     # New soft gate metrics (Phase 2)
     density_notes_per_second = Column(Float, nullable=True)  # Tempo-adjusted note density
     tempo_difficulty_score = Column(Float, nullable=True)  # 0-1 combined tempo difficulty
-    interval_velocity_score = Column(Float, nullable=True)  # 0-1 IVS score
+    interval_velocity_score = Column(Float, nullable=True)  # 0-1 IVS score (global)
+    interval_velocity_peak = Column(Float, nullable=True)  # 0.0-1.0 windowed max
+    interval_velocity_p95 = Column(Float, nullable=True)  # 0.0-1.0 windowed 95th percentile
     
     # Additional analysis metrics
     unique_pitch_count = Column(Integer, nullable=True)  # Distinct pitch classes (0-12)

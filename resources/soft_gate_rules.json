@@ -1,5 +1,5 @@
 {
-  "version": "v1",
+  "version": "v2",
   "soft_gate_rules": [
     {
       "dimension_name": "tonal_complexity_stage",
@@ -32,14 +32,26 @@
       "decay_halflife_days": null
     },
     {
-      "dimension_name": "interval_size_stage",
+      "dimension_name": "interval_sustained_stage",
       "frontier_buffer": 1.0,
       "promotion_step": 1.0,
       "min_attempts": 10,
       "success_rating_threshold": 4,
       "success_required_count": 8,
       "success_window_count": null,
-      "decay_halflife_days": null
+      "decay_halflife_days": null,
+      "description": "Overall interval suitability (p75-driven). Used for material assignment."
+    },
+    {
+      "dimension_name": "interval_hazard_stage",
+      "frontier_buffer": 1.0,
+      "promotion_step": 1.0,
+      "min_attempts": 10,
+      "success_rating_threshold": 4,
+      "success_required_count": 8,
+      "success_window_count": null,
+      "decay_halflife_days": null,
+      "description": "Peak interval danger (max-driven). Used for warnings and scaffolding."
     },
     {
       "dimension_name": "density_notes_per_second",
@@ -91,7 +103,13 @@
       "frontier_success_ema": 0.0,
       "frontier_attempt_count_since_last_promo": 0
     },
-    "interval_size_stage": {
+    "interval_sustained_stage": {
+      "comfortable_value": 0,
+      "max_demonstrated_value": 0,
+      "frontier_success_ema": 0.0,
+      "frontier_attempt_count_since_last_promo": 0
+    },
+    "interval_hazard_stage": {
       "comfortable_value": 0,
       "max_demonstrated_value": 0,
       "frontier_success_ema": 0.0,
