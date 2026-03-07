@@ -963,5 +963,77 @@
       "rhythm_tuplet_3_quarters",
       "rhythm_quarter_notes"
     ]
+  },
+  "136_rest_32nd.musicxml": {
+    "description": "32nd rest",
+    "expected_capabilities": [
+      "rest_32nd"
+    ]
+  },
+  "137_rest_64th.musicxml": {
+    "description": "64th rest",
+    "expected_capabilities": [
+      "rest_64th"
+    ]
+  },
+  "138_rest_multimeasure.musicxml": {
+    "description": "Multi-measure rest",
+    "expected_capabilities": [
+      "rest_multimeasure"
+    ]
+  },
+  "139_rest_triplet_eighth.musicxml": {
+    "description": "Triplet eighth rest",
+    "expected_capabilities": [
+      "rest_triplet_eighth"
+    ]
+  },
+  "140_rest_tuplet_3_quarter.musicxml": {
+    "description": "Quarter note rest in triplet",
+    "expected_capabilities": [
+      "rest_tuplet_3_quarter"
+    ]
+  },
+  "141_articulation_legato.musicxml": {
+    "description": "Legato (slur)",
+    "expected_capabilities": [
+      "articulation_legato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "142_articulation_portato.musicxml": {
+    "description": "Portato (detached legato)",
+    "expected_capabilities": [
+      "articulation_portato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "143_articulation_staccatissimo.musicxml": {
+    "description": "Staccatissimo",
+    "expected_capabilities": [
+      "articulation_staccatissimo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "144_accidental_natural.musicxml": {
+    "description": "Natural accidental",
+    "expected_capabilities": [
+      "accidental_natural_symbol",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "145_double_flat.musicxml": {
+    "description": "Double flat accidental",
+    "expected_capabilities": [
+      "double_flat_symbol",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "146_double_sharp.musicxml": {
+    "description": "Double sharp accidental",
+    "expected_capabilities": [
+      "double_sharp_symbol",
+      "rhythm_quarter_notes"
+    ]
   }
 }

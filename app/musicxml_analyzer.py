@@ -173,6 +173,7 @@ REST_CAPABILITY_MAP = {
     'eighth': 'rest_eighth',
     '16th': 'rest_sixteenth',
     '32nd': 'rest_thirty_second',
+    '64th': 'rest_sixty_fourth',
 }
 
 # Map dynamics to capability names

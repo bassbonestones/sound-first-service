@@ -75,7 +75,18 @@ Files are numbered and organized by category:
 | 133_rhythm_double_dotted_half.musicxml | Double-dotted half note | `rhythm_double_dotted_half`, `rhythm_half_notes` |
 | 134_rhythm_syncopation.musicxml | Syncopation pattern | `rhythm_syncopation`, `rhythm_eighth_notes` |
 | 135_rhythm_tuplet_3_quarters.musicxml | Rhythm: 3 quarter note tuplet in time of 2 | `rhythm_tuplet_3_quarters`, `rhythm_quarter_notes` |
+| 136_rest_32nd.musicxml | 32nd rest | `rest_32nd` |
+| 137_rest_64th.musicxml | 64th rest | `rest_64th` |
+| 138_rest_multimeasure.musicxml | Multi-measure rest | `rest_multimeasure` |
+| 139_rest_triplet_eighth.musicxml | Triplet eighth rest | `rest_triplet_eighth` |
 | 13_time_sig_2_2.musicxml | 2/2 (cut time) time signature | `time_signature_2_2`, `rhythm_half_notes` |
+| 140_rest_tuplet_3_quarter.musicxml | Quarter note rest in triplet | `rest_tuplet_3_quarter` |
+| 141_articulation_legato.musicxml | Legato (slur) | `articulation_legato`, `rhythm_quarter_notes` |
+| 142_articulation_portato.musicxml | Portato (detached legato) | `articulation_portato`, `rhythm_quarter_notes` |
+| 143_articulation_staccatissimo.musicxml | Staccatissimo | `articulation_staccatissimo`, `rhythm_quarter_notes` |
+| 144_accidental_natural.musicxml | Natural accidental | `accidental_natural_symbol`, `rhythm_quarter_notes` |
+| 145_double_flat.musicxml | Double flat accidental | `double_flat_symbol`, `rhythm_quarter_notes` |
+| 146_double_sharp.musicxml | Double sharp accidental | `double_sharp_symbol`, `rhythm_quarter_notes` |
 | 14_time_sig_7_8.musicxml | 7/8 time signature | `time_signature_7_8`, `rhythm_eighth_notes` |
 | 15_time_sig_5_4.musicxml | 5/4 time signature | `time_signature_5_4`, `rhythm_quarter_notes` |
 | 16_clef_bass.musicxml | Bass clef | `clef_bass`, `rhythm_whole_notes` |

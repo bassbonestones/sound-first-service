@@ -779,6 +779,66 @@ class TestAdvancedRhythm:
         assert "rhythm_tuplet_3_quarters" in caps, f"Expected rhythm_tuplet_3_quarters, got {caps}"
 
 
+# =============================================================================
+# Stage 6: Rests & Articulations (11 tests)
+# =============================================================================
+
+class TestAdvancedRests:
+    """Test detection of advanced rest capabilities."""
+    
+    def test_rest_32nd(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("136_rest_32nd.musicxml"), analyzer, engine)
+        assert "rest_32nd" in caps, f"Expected rest_32nd, got {caps}"
+    
+    def test_rest_64th(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("137_rest_64th.musicxml"), analyzer, engine)
+        assert "rest_64th" in caps, f"Expected rest_64th, got {caps}"
+    
+    def test_rest_multimeasure(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("138_rest_multimeasure.musicxml"), analyzer, engine)
+        assert "rest_multimeasure" in caps, f"Expected rest_multimeasure, got {caps}"
+    
+    def test_rest_triplet_eighth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("139_rest_triplet_eighth.musicxml"), analyzer, engine)
+        assert "rest_triplet_eighth" in caps, f"Expected rest_triplet_eighth, got {caps}"
+    
+    def test_rest_tuplet_3_quarter(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("140_rest_tuplet_3_quarter.musicxml"), analyzer, engine)
+        assert "rest_tuplet_3_quarter" in caps, f"Expected rest_tuplet_3_quarter, got {caps}"
+
+
+class TestAdvancedArticulations:
+    """Test detection of advanced articulation capabilities."""
+    
+    def test_articulation_legato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("141_articulation_legato.musicxml"), analyzer, engine)
+        assert "articulation_legato" in caps, f"Expected articulation_legato, got {caps}"
+    
+    def test_articulation_portato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("142_articulation_portato.musicxml"), analyzer, engine)
+        assert "articulation_portato" in caps, f"Expected articulation_portato, got {caps}"
+    
+    def test_articulation_staccatissimo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("143_articulation_staccatissimo.musicxml"), analyzer, engine)
+        assert "articulation_staccatissimo" in caps, f"Expected articulation_staccatissimo, got {caps}"
+
+
+class TestAdvancedAccidentals:
+    """Test detection of advanced accidental capabilities."""
+    
+    def test_accidental_natural(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("144_accidental_natural.musicxml"), analyzer, engine)
+        assert "accidental_natural_symbol" in caps, f"Expected accidental_natural_symbol, got {caps}"
+    
+    def test_double_flat(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("145_double_flat.musicxml"), analyzer, engine)
+        assert "double_flat_symbol" in caps, f"Expected double_flat_symbol, got {caps}"
+    
+    def test_double_sharp(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("146_double_sharp.musicxml"), analyzer, engine)
+        assert "double_sharp_symbol" in caps, f"Expected double_sharp_symbol, got {caps}"
+
+
 class TestManifestComprehensive:
     """Test all files against their manifest expectations."""
     

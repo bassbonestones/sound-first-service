@@ -167,32 +167,32 @@ This document tracks the implementation of test files for all 108 capabilities t
 
 ---
 
-## Stage 6: Rests & Articulations (11 capabilities)
+## Stage 6: Rests & Articulations (11 capabilities) ✅ COMPLETE
 
 **Priority:** Medium
 
 ### Rests (5 tests)
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 136 | `rest_32nd` | value_match | ⬜ |
-| 137 | `rest_64th` | value_match | ⬜ |
-| 138 | `rest_multimeasure` | custom | ⬜ |
-| 139 | `rest_triplet_eighth` | custom | ⬜ |
-| 140 | `rest_tuplet_3_quarter` | custom | ⬜ |
+| 136 | `rest_32nd` | value_match | ✅ |
+| 137 | `rest_64th` | value_match | ✅ |
+| 138 | `rest_multimeasure` | custom | ✅ |
+| 139 | `rest_triplet_eighth` | custom | ✅ |
+| 140 | `rest_tuplet_3_quarter` | custom | ✅ |
 
 ### Articulations (3 tests)
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 141 | `articulation_legato` | element | ⬜ |
-| 142 | `articulation_portato` | element | ⬜ |
-| 143 | `articulation_staccatissimo` | element | ⬜ |
+| 141 | `articulation_legato` | element | ✅ |
+| 142 | `articulation_portato` | element | ✅ |
+| 143 | `articulation_staccatissimo` | element | ✅ |
 
 ### Accidentals (3 tests)
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 144 | `accidental_natural_symbol` | custom | ⬜ |
-| 145 | `double_flat_symbol` | custom | ⬜ |
-| 146 | `double_sharp_symbol` | custom | ⬜ |
+| 144 | `accidental_natural_symbol` | custom | ✅ |
+| 145 | `double_flat_symbol` | custom | ✅ |
+| 146 | `double_sharp_symbol` | custom | ✅ |
 
 ---
 
