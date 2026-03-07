@@ -543,6 +543,142 @@ class TestRangeSpans:
         assert "range_span_octave" in caps, f"Expected range_span_octave, got {caps}"
 
 
+# =============================================================================
+# STAGE 3: TEMPO TERMS
+# =============================================================================
+
+class TestTempoTerms:
+    """Test detection of tempo term capabilities."""
+    
+    def test_tempo_adagio(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("88_tempo_adagio.musicxml"), analyzer, engine)
+        assert "tempo_term_adagio" in caps, f"Expected tempo_term_adagio, got {caps}"
+    
+    def test_tempo_allegretto(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("89_tempo_allegretto.musicxml"), analyzer, engine)
+        assert "tempo_term_allegretto" in caps, f"Expected tempo_term_allegretto, got {caps}"
+    
+    def test_tempo_largo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("90_tempo_largo.musicxml"), analyzer, engine)
+        assert "tempo_term_largo" in caps, f"Expected tempo_term_largo, got {caps}"
+    
+    def test_tempo_moderato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("91_tempo_moderato.musicxml"), analyzer, engine)
+        assert "tempo_term_moderato" in caps, f"Expected tempo_term_moderato, got {caps}"
+    
+    def test_tempo_prestissimo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("92_tempo_prestissimo.musicxml"), analyzer, engine)
+        assert "tempo_term_prestissimo" in caps, f"Expected tempo_term_prestissimo, got {caps}"
+    
+    def test_tempo_presto(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("93_tempo_presto.musicxml"), analyzer, engine)
+        assert "tempo_term_presto" in caps, f"Expected tempo_term_presto, got {caps}"
+    
+    def test_tempo_vivace(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("94_tempo_vivace.musicxml"), analyzer, engine)
+        assert "tempo_term_vivace" in caps, f"Expected tempo_term_vivace, got {caps}"
+
+
+# =============================================================================
+# STAGE 3: TEMPO SKILLS
+# =============================================================================
+
+class TestTempoSkills:
+    """Test detection of tempo skill capabilities."""
+    
+    def test_tempo_a_tempo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("95_tempo_a_tempo.musicxml"), analyzer, engine)
+        assert "tempo_skill_a_tempo" in caps, f"Expected tempo_skill_a_tempo, got {caps}"
+    
+    def test_tempo_accelerando(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("96_tempo_accelerando.musicxml"), analyzer, engine)
+        assert "tempo_skill_accelerando" in caps, f"Expected tempo_skill_accelerando, got {caps}"
+    
+    def test_tempo_rallentando(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("97_tempo_rallentando.musicxml"), analyzer, engine)
+        assert "tempo_skill_rallentando" in caps, f"Expected tempo_skill_rallentando, got {caps}"
+    
+    def test_tempo_ritardando(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("98_tempo_ritardando.musicxml"), analyzer, engine)
+        assert "tempo_skill_ritardando" in caps, f"Expected tempo_skill_ritardando, got {caps}"
+    
+    def test_tempo_rubato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("99_tempo_rubato.musicxml"), analyzer, engine)
+        assert "tempo_skill_rubato" in caps, f"Expected tempo_skill_rubato, got {caps}"
+
+
+# =============================================================================
+# STAGE 3: EXPRESSION TERMS
+# =============================================================================
+
+class TestExpressionTerms:
+    """Test detection of expression term capabilities."""
+    
+    def test_expression_agitato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("100_expression_agitato.musicxml"), analyzer, engine)
+        assert "expression_agitato" in caps, f"Expected expression_agitato, got {caps}"
+    
+    def test_expression_animato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("101_expression_animato.musicxml"), analyzer, engine)
+        assert "expression_animato" in caps, f"Expected expression_animato, got {caps}"
+    
+    def test_expression_appassionato(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("102_expression_appassionato.musicxml"), analyzer, engine)
+        assert "expression_appassionato" in caps, f"Expected expression_appassionato, got {caps}"
+    
+    def test_expression_brillante(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("103_expression_brillante.musicxml"), analyzer, engine)
+        assert "expression_brillante" in caps, f"Expected expression_brillante, got {caps}"
+    
+    def test_expression_cantabile(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("104_expression_cantabile.musicxml"), analyzer, engine)
+        assert "expression_cantabile" in caps, f"Expected expression_cantabile, got {caps}"
+    
+    def test_expression_con_brio(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("105_expression_con_brio.musicxml"), analyzer, engine)
+        assert "expression_con_brio" in caps, f"Expected expression_con_brio, got {caps}"
+    
+    def test_expression_con_fuoco(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("106_expression_con_fuoco.musicxml"), analyzer, engine)
+        assert "expression_con_fuoco" in caps, f"Expected expression_con_fuoco, got {caps}"
+    
+    def test_expression_con_moto(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("107_expression_con_moto.musicxml"), analyzer, engine)
+        assert "expression_con_moto" in caps, f"Expected expression_con_moto, got {caps}"
+    
+    def test_expression_grazioso(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("108_expression_grazioso.musicxml"), analyzer, engine)
+        assert "expression_grazioso" in caps, f"Expected expression_grazioso, got {caps}"
+    
+    def test_expression_leggiero(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("109_expression_leggiero.musicxml"), analyzer, engine)
+        assert "expression_leggiero" in caps, f"Expected expression_leggiero, got {caps}"
+    
+    def test_expression_maestoso(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("110_expression_maestoso.musicxml"), analyzer, engine)
+        assert "expression_maestoso" in caps, f"Expected expression_maestoso, got {caps}"
+    
+    def test_expression_morendo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("111_expression_morendo.musicxml"), analyzer, engine)
+        assert "expression_morendo" in caps, f"Expected expression_morendo, got {caps}"
+    
+    def test_expression_perdendosi(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("112_expression_perdendosi.musicxml"), analyzer, engine)
+        assert "expression_perdendosi" in caps, f"Expected expression_perdendosi, got {caps}"
+    
+    def test_expression_pesante(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("113_expression_pesante.musicxml"), analyzer, engine)
+        assert "expression_pesante" in caps, f"Expected expression_pesante, got {caps}"
+    
+    def test_expression_sostenuto(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("114_expression_sostenuto.musicxml"), analyzer, engine)
+        assert "expression_sostenuto" in caps, f"Expected expression_sostenuto, got {caps}"
+    
+    def test_expression_tranquillo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("115_expression_tranquillo.musicxml"), analyzer, engine)
+        assert "expression_tranquillo" in caps, f"Expected expression_tranquillo, got {caps}"
+
+
 class TestManifestComprehensive:
     """Test all files against their manifest expectations."""
     

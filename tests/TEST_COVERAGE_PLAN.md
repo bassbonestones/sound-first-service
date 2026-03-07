@@ -2,7 +2,7 @@
 
 This document tracks the implementation of test files for all 108 capabilities that have `music21_detection` rules but are not yet tested.
 
-**Current Status:** 88 tests covering 81 capabilities  
+**Current Status:** 116 tests covering 109+ capabilities  
 **Target:** 108 additional capabilities to test  
 **Total after completion:** ~160+ test files
 
@@ -78,49 +78,49 @@ This document tracks the implementation of test files for all 108 capabilities t
 
 ---
 
-## Stage 3: Tempo & Expression Terms (28 capabilities)
+## Stage 3: Tempo & Expression Terms (28 capabilities) ✅ COMPLETE
 
 **Priority:** High - All text_match, batch-efficient
 
-### Tempo Terms (7 tests)
+### Tempo Terms (7 tests) ✅
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 88 | `tempo_term_adagio` | text_match | ⬜ |
-| 89 | `tempo_term_allegretto` | text_match | ⬜ |
-| 90 | `tempo_term_largo` | text_match | ⬜ |
-| 91 | `tempo_term_moderato` | text_match | ⬜ |
-| 92 | `tempo_term_prestissimo` | text_match | ⬜ |
-| 93 | `tempo_term_presto` | text_match | ⬜ |
-| 94 | `tempo_term_vivace` | text_match | ⬜ |
+| 88 | `tempo_term_adagio` | text_match | ✅ |
+| 89 | `tempo_term_allegretto` | text_match | ✅ |
+| 90 | `tempo_term_largo` | text_match | ✅ |
+| 91 | `tempo_term_moderato` | text_match | ✅ |
+| 92 | `tempo_term_prestissimo` | text_match | ✅ |
+| 93 | `tempo_term_presto` | text_match | ✅ |
+| 94 | `tempo_term_vivace` | text_match | ✅ |
 
-### Tempo Skills (5 tests)
+### Tempo Skills (5 tests) ✅
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 95 | `tempo_skill_a_tempo` | text_match | ⬜ |
-| 96 | `tempo_skill_accelerando` | text_match | ⬜ |
-| 97 | `tempo_skill_rallentando` | text_match | ⬜ |
-| 98 | `tempo_skill_ritardando` | text_match | ⬜ |
-| 99 | `tempo_skill_rubato` | text_match | ⬜ |
+| 95 | `tempo_skill_a_tempo` | text_match | ✅ |
+| 96 | `tempo_skill_accelerando` | text_match | ✅ |
+| 97 | `tempo_skill_rallentando` | text_match | ✅ |
+| 98 | `tempo_skill_ritardando` | text_match | ✅ |
+| 99 | `tempo_skill_rubato` | text_match | ✅ |
 
-### Expression Terms (16 tests)
+### Expression Terms (16 tests) ✅
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 100 | `expression_agitato` | text_match | ⬜ |
-| 101 | `expression_animato` | text_match | ⬜ |
-| 102 | `expression_appassionato` | text_match | ⬜ |
-| 103 | `expression_brillante` | text_match | ⬜ |
-| 104 | `expression_cantabile` | text_match | ⬜ |
-| 105 | `expression_con_brio` | text_match | ⬜ |
-| 106 | `expression_con_fuoco` | text_match | ⬜ |
-| 107 | `expression_con_moto` | text_match | ⬜ |
-| 108 | `expression_grazioso` | text_match | ⬜ |
-| 109 | `expression_leggiero` | text_match | ⬜ |
-| 110 | `expression_maestoso` | text_match | ⬜ |
-| 111 | `expression_morendo` | text_match | ⬜ |
-| 112 | `expression_perdendosi` | text_match | ⬜ |
-| 113 | `expression_pesante` | text_match | ⬜ |
-| 114 | `expression_sostenuto` | text_match | ⬜ |
-| 115 | `expression_tranquillo` | text_match | ⬜ |
+| 100 | `expression_agitato` | text_match | ✅ |
+| 101 | `expression_animato` | text_match | ✅ |
+| 102 | `expression_appassionato` | text_match | ✅ |
+| 103 | `expression_brillante` | text_match | ✅ |
+| 104 | `expression_cantabile` | text_match | ✅ |
+| 105 | `expression_con_brio` | text_match | ✅ |
+| 106 | `expression_con_fuoco` | text_match | ✅ |
+| 107 | `expression_con_moto` | text_match | ✅ |
+| 108 | `expression_grazioso` | text_match | ✅ |
+| 109 | `expression_leggiero` | text_match | ✅ |
+| 110 | `expression_maestoso` | text_match | ✅ |
+| 111 | `expression_morendo` | text_match | ✅ |
+| 112 | `expression_perdendosi` | text_match | ✅ |
+| 113 | `expression_pesante` | text_match | ✅ |
+| 114 | `expression_sostenuto` | text_match | ✅ |
+| 115 | `expression_tranquillo` | text_match | ✅ |
 
 ---
 

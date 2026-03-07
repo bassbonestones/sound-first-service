@@ -36,7 +36,23 @@ Files are numbered and organized by category:
 | 07_dotted_half.musicxml | Dotted half note | `rhythm_dotted_half`, `rhythm_half_notes`, `time_signature_4_4` |
 | 08_dotted_quarter.musicxml | Dotted quarter note | `rhythm_dotted_quarter`, `rhythm_quarter_notes`, `rhythm_eighth_notes` |
 | 09_dotted_eighth.musicxml | Dotted eighth note | `rhythm_dotted_eighth`, `rhythm_eighth_notes`, `rhythm_sixteenth_notes` |
+| 100_expression_agitato.musicxml | Agitato expression marking | `expression_agitato`, `rhythm_quarter_notes` |
+| 101_expression_animato.musicxml | Animato expression marking | `expression_animato`, `rhythm_quarter_notes` |
+| 102_expression_appassionato.musicxml | Appassionato expression marking | `expression_appassionato`, `rhythm_quarter_notes` |
+| 103_expression_brillante.musicxml | Brillante expression marking | `expression_brillante`, `rhythm_quarter_notes` |
+| 104_expression_cantabile.musicxml | Cantabile expression marking | `expression_cantabile`, `rhythm_quarter_notes` |
+| 105_expression_con_brio.musicxml | Con brio expression marking | `expression_con_brio`, `rhythm_quarter_notes` |
+| 106_expression_con_fuoco.musicxml | Con fuoco expression marking | `expression_con_fuoco`, `rhythm_quarter_notes` |
+| 107_expression_con_moto.musicxml | Con moto expression marking | `expression_con_moto`, `rhythm_quarter_notes` |
+| 108_expression_grazioso.musicxml | Grazioso expression marking | `expression_grazioso`, `rhythm_quarter_notes` |
+| 109_expression_leggiero.musicxml | Leggiero expression marking | `expression_leggiero`, `rhythm_quarter_notes` |
 | 10_time_sig_3_4.musicxml | 3/4 time signature | `time_signature_3_4`, `rhythm_quarter_notes` |
+| 110_expression_maestoso.musicxml | Maestoso expression marking | `expression_maestoso`, `rhythm_quarter_notes` |
+| 111_expression_morendo.musicxml | Morendo expression marking | `expression_morendo`, `rhythm_quarter_notes` |
+| 112_expression_perdendosi.musicxml | Perdendosi expression marking | `expression_perdendosi`, `rhythm_quarter_notes` |
+| 113_expression_pesante.musicxml | Pesante expression marking | `expression_pesante`, `rhythm_quarter_notes` |
+| 114_expression_sostenuto.musicxml | Sostenuto expression marking | `expression_sostenuto`, `rhythm_quarter_notes` |
+| 115_expression_tranquillo.musicxml | Tranquillo expression marking | `expression_tranquillo`, `rhythm_quarter_notes` |
 | 11_time_sig_6_8.musicxml | 6/8 time signature | `time_signature_6_8`, `rhythm_eighth_notes` |
 | 12_time_sig_2_4.musicxml | 2/4 time signature | `time_signature_2_4`, `rhythm_quarter_notes` |
 | 13_time_sig_2_2.musicxml | 2/2 (cut time) time signature | `time_signature_2_2`, `rhythm_half_notes` |
@@ -114,6 +130,18 @@ Files are numbered and organized by category:
 | 85_range_minor_seventh.musicxml | Range span of minor 7th (10 semitones) | `range_span_minor_seventh`, `rhythm_quarter_notes` |
 | 86_range_major_seventh.musicxml | Range span of major 7th (11 semitones) | `range_span_major_seventh`, `rhythm_quarter_notes` |
 | 87_range_octave.musicxml | Range span of octave (12 semitones) | `range_span_octave`, `rhythm_quarter_notes` |
+| 88_tempo_adagio.musicxml | Adagio tempo marking | `tempo_term_adagio`, `rhythm_quarter_notes` |
+| 89_tempo_allegretto.musicxml | Allegretto tempo marking | `tempo_term_allegretto`, `rhythm_quarter_notes` |
+| 90_tempo_largo.musicxml | Largo tempo marking | `tempo_term_largo`, `rhythm_quarter_notes` |
+| 91_tempo_moderato.musicxml | Moderato tempo marking | `tempo_term_moderato`, `rhythm_quarter_notes` |
+| 92_tempo_prestissimo.musicxml | Prestissimo tempo marking | `tempo_term_prestissimo`, `rhythm_quarter_notes` |
+| 93_tempo_presto.musicxml | Presto tempo marking | `tempo_term_presto`, `rhythm_quarter_notes` |
+| 94_tempo_vivace.musicxml | Vivace tempo marking | `tempo_term_vivace`, `rhythm_quarter_notes` |
+| 95_tempo_a_tempo.musicxml | A tempo marking | `tempo_skill_a_tempo`, `rhythm_quarter_notes` |
+| 96_tempo_accelerando.musicxml | Accelerando marking | `tempo_skill_accelerando`, `rhythm_quarter_notes` |
+| 97_tempo_rallentando.musicxml | Rallentando marking | `tempo_skill_rallentando`, `rhythm_quarter_notes` |
+| 98_tempo_ritardando.musicxml | Ritardando marking | `tempo_skill_ritardando`, `rhythm_quarter_notes` |
+| 99_tempo_rubato.musicxml | Rubato marking | `tempo_skill_rubato`, `rhythm_quarter_notes` |
 
 ## Running Tests
 

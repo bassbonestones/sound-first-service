@@ -1160,11 +1160,21 @@ class DetectionEngine:
         else:
             return False
         
+        # For expression_terms, items are stored as capability names like "expression_con_brio"
+        # So we also need to check the underscore-converted form
+        contains_underscore = contains.replace(" ", "_")
+        equals_underscore = equals.replace(" ", "_")
+        
         for text in texts:
             text_lower = text.lower()
             if equals and text_lower == equals:
                 return True
             if contains and contains in text_lower:
+                return True
+            # Also check with underscore conversion for capability-style names
+            if equals_underscore and equals_underscore in text_lower:
+                return True
+            if contains_underscore and contains_underscore in text_lower:
                 return True
         
         return False

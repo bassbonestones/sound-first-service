@@ -625,5 +625,201 @@
       "range_span_octave",
       "rhythm_quarter_notes"
     ]
+  },
+  "88_tempo_adagio.musicxml": {
+    "description": "Adagio tempo marking",
+    "expected_capabilities": [
+      "tempo_term_adagio",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "89_tempo_allegretto.musicxml": {
+    "description": "Allegretto tempo marking",
+    "expected_capabilities": [
+      "tempo_term_allegretto",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "90_tempo_largo.musicxml": {
+    "description": "Largo tempo marking",
+    "expected_capabilities": [
+      "tempo_term_largo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "91_tempo_moderato.musicxml": {
+    "description": "Moderato tempo marking",
+    "expected_capabilities": [
+      "tempo_term_moderato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "92_tempo_prestissimo.musicxml": {
+    "description": "Prestissimo tempo marking",
+    "expected_capabilities": [
+      "tempo_term_prestissimo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "93_tempo_presto.musicxml": {
+    "description": "Presto tempo marking",
+    "expected_capabilities": [
+      "tempo_term_presto",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "94_tempo_vivace.musicxml": {
+    "description": "Vivace tempo marking",
+    "expected_capabilities": [
+      "tempo_term_vivace",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "95_tempo_a_tempo.musicxml": {
+    "description": "A tempo marking",
+    "expected_capabilities": [
+      "tempo_skill_a_tempo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "96_tempo_accelerando.musicxml": {
+    "description": "Accelerando marking",
+    "expected_capabilities": [
+      "tempo_skill_accelerando",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "97_tempo_rallentando.musicxml": {
+    "description": "Rallentando marking",
+    "expected_capabilities": [
+      "tempo_skill_rallentando",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "98_tempo_ritardando.musicxml": {
+    "description": "Ritardando marking",
+    "expected_capabilities": [
+      "tempo_skill_ritardando",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "99_tempo_rubato.musicxml": {
+    "description": "Rubato marking",
+    "expected_capabilities": [
+      "tempo_skill_rubato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "100_expression_agitato.musicxml": {
+    "description": "Agitato expression marking",
+    "expected_capabilities": [
+      "expression_agitato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "101_expression_animato.musicxml": {
+    "description": "Animato expression marking",
+    "expected_capabilities": [
+      "expression_animato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "102_expression_appassionato.musicxml": {
+    "description": "Appassionato expression marking",
+    "expected_capabilities": [
+      "expression_appassionato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "103_expression_brillante.musicxml": {
+    "description": "Brillante expression marking",
+    "expected_capabilities": [
+      "expression_brillante",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "104_expression_cantabile.musicxml": {
+    "description": "Cantabile expression marking",
+    "expected_capabilities": [
+      "expression_cantabile",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "105_expression_con_brio.musicxml": {
+    "description": "Con brio expression marking",
+    "expected_capabilities": [
+      "expression_con_brio",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "106_expression_con_fuoco.musicxml": {
+    "description": "Con fuoco expression marking",
+    "expected_capabilities": [
+      "expression_con_fuoco",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "107_expression_con_moto.musicxml": {
+    "description": "Con moto expression marking",
+    "expected_capabilities": [
+      "expression_con_moto",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "108_expression_grazioso.musicxml": {
+    "description": "Grazioso expression marking",
+    "expected_capabilities": [
+      "expression_grazioso",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "109_expression_leggiero.musicxml": {
+    "description": "Leggiero expression marking",
+    "expected_capabilities": [
+      "expression_leggiero",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "110_expression_maestoso.musicxml": {
+    "description": "Maestoso expression marking",
+    "expected_capabilities": [
+      "expression_maestoso",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "111_expression_morendo.musicxml": {
+    "description": "Morendo expression marking",
+    "expected_capabilities": [
+      "expression_morendo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "112_expression_perdendosi.musicxml": {
+    "description": "Perdendosi expression marking",
+    "expected_capabilities": [
+      "expression_perdendosi",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "113_expression_pesante.musicxml": {
+    "description": "Pesante expression marking",
+    "expected_capabilities": [
+      "expression_pesante",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "114_expression_sostenuto.musicxml": {
+    "description": "Sostenuto expression marking",
+    "expected_capabilities": [
+      "expression_sostenuto",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "115_expression_tranquillo.musicxml": {
+    "description": "Tranquillo expression marking",
+    "expected_capabilities": [
+      "expression_tranquillo",
+      "rhythm_quarter_notes"
+    ]
   }
 }
