@@ -94,6 +94,26 @@ Files are numbered and organized by category:
 | 65_dynamic_decrescendo.musicxml | Decrescendo (hairpin) | `dynamic_decrescendo`, `rhythm_quarter_notes` |
 | 66_dynamic_diminuendo.musicxml | Diminuendo text marking | `dynamic_diminuendo`, `rhythm_half_notes` |
 | 67_dynamic_subito.musicxml | Subito dynamic change | `dynamic_subito`, `rhythm_quarter_notes` |
+| 68_interval_major_2.musicxml | Major 2nd interval (whole step) | `interval_play_major_2`, `rhythm_half_notes` |
+| 69_interval_minor_3.musicxml | Minor 3rd interval | `interval_play_minor_3`, `rhythm_half_notes` |
+| 70_interval_perfect_4.musicxml | Perfect 4th interval | `interval_play_perfect_4`, `rhythm_half_notes` |
+| 71_interval_minor_6.musicxml | Minor 6th interval | `interval_play_minor_6`, `rhythm_half_notes` |
+| 72_interval_major_6.musicxml | Major 6th interval | `interval_play_major_6`, `rhythm_half_notes` |
+| 73_interval_minor_7.musicxml | Minor 7th interval | `interval_play_minor_7`, `rhythm_half_notes` |
+| 74_interval_major_7.musicxml | Major 7th interval | `interval_play_major_7`, `rhythm_half_notes` |
+| 75_interval_compound_9.musicxml | Compound interval (9th or greater) | `interval_play_compound_9_plus`, `rhythm_half_notes` |
+| 76_range_minor_second.musicxml | Range span of minor 2nd (1 semitone) | `range_span_minor_second`, `rhythm_quarter_notes` |
+| 77_range_major_second.musicxml | Range span of major 2nd (2 semitones) | `range_span_major_second`, `rhythm_quarter_notes` |
+| 78_range_minor_third.musicxml | Range span of minor 3rd (3 semitones) | `range_span_minor_third`, `rhythm_quarter_notes` |
+| 79_range_major_third.musicxml | Range span of major 3rd (4 semitones) | `range_span_major_third`, `rhythm_quarter_notes` |
+| 80_range_perfect_fourth.musicxml | Range span of perfect 4th (5 semitones) | `range_span_perfect_fourth`, `rhythm_quarter_notes` |
+| 81_range_augmented_fourth.musicxml | Range span of augmented 4th / tritone (6 semitones) | `range_span_augmented_fourth`, `rhythm_quarter_notes` |
+| 82_range_perfect_fifth.musicxml | Range span of perfect 5th (7 semitones) | `range_span_perfect_fifth`, `rhythm_quarter_notes` |
+| 83_range_minor_sixth.musicxml | Range span of minor 6th (8 semitones) | `range_span_minor_sixth`, `rhythm_quarter_notes` |
+| 84_range_major_sixth.musicxml | Range span of major 6th (9 semitones) | `range_span_major_sixth`, `rhythm_quarter_notes` |
+| 85_range_minor_seventh.musicxml | Range span of minor 7th (10 semitones) | `range_span_minor_seventh`, `rhythm_quarter_notes` |
+| 86_range_major_seventh.musicxml | Range span of major 7th (11 semitones) | `range_span_major_seventh`, `rhythm_quarter_notes` |
+| 87_range_octave.musicxml | Range span of octave (12 semitones) | `range_span_octave`, `rhythm_quarter_notes` |
 
 ## Running Tests
 

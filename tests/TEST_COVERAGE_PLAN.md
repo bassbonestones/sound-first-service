@@ -2,7 +2,7 @@
 
 This document tracks the implementation of test files for all 108 capabilities that have `music21_detection` rules but are not yet tested.
 
-**Current Status:** 50 tests covering 61 capabilities  
+**Current Status:** 88 tests covering 81 capabilities  
 **Target:** 108 additional capabilities to test  
 **Total after completion:** ~160+ test files
 
@@ -44,37 +44,37 @@ This document tracks the implementation of test files for all 108 capabilities t
 
 ---
 
-## Stage 2: Intervals & Range Spans (20 capabilities)
+## Stage 2: Intervals & Range Spans (20 capabilities) ✅ COMPLETE
 
 **Priority:** High - Important for melodic analysis
 
-### Intervals (8 tests)
+### Intervals (8 tests) ✅
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 68 | `interval_play_major_2` | interval | ⬜ |
-| 69 | `interval_play_minor_3` | interval | ⬜ |
-| 70 | `interval_play_perfect_4` | interval | ⬜ |
-| 71 | `interval_play_minor_6` | interval | ⬜ |
-| 72 | `interval_play_major_6` | interval | ⬜ |
-| 73 | `interval_play_minor_7` | interval | ⬜ |
-| 74 | `interval_play_major_7` | interval | ⬜ |
-| 75 | `interval_play_compound_9_plus` | custom | ⬜ |
+| 68 | `interval_play_major_2` | interval | ✅ |
+| 69 | `interval_play_minor_3` | interval | ✅ |
+| 70 | `interval_play_perfect_4` | interval | ✅ |
+| 71 | `interval_play_minor_6` | interval | ✅ |
+| 72 | `interval_play_major_6` | interval | ✅ |
+| 73 | `interval_play_minor_7` | interval | ✅ |
+| 74 | `interval_play_major_7` | interval | ✅ |
+| 75 | `interval_play_compound_9_plus` | custom | ✅ |
 
-### Range Spans (12 tests)
+### Range Spans (12 tests) ✅
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 76 | `range_span_minor_second` | range | ⬜ |
-| 77 | `range_span_major_second` | range | ⬜ |
-| 78 | `range_span_minor_third` | range | ⬜ |
-| 79 | `range_span_major_third` | range | ⬜ |
-| 80 | `range_span_perfect_fourth` | range | ⬜ |
-| 81 | `range_span_augmented_fourth` | range | ⬜ |
-| 82 | `range_span_perfect_fifth` | range | ⬜ |
-| 83 | `range_span_minor_sixth` | range | ⬜ |
-| 84 | `range_span_major_sixth` | range | ⬜ |
-| 85 | `range_span_minor_seventh` | range | ⬜ |
-| 86 | `range_span_major_seventh` | range | ⬜ |
-| 87 | `range_span_octave` | range | ⬜ |
+| 76 | `range_span_minor_second` | range | ✅ |
+| 77 | `range_span_major_second` | range | ✅ |
+| 78 | `range_span_minor_third` | range | ✅ |
+| 79 | `range_span_major_third` | range | ✅ |
+| 80 | `range_span_perfect_fourth` | range | ✅ |
+| 81 | `range_span_augmented_fourth` | range | ✅ |
+| 82 | `range_span_perfect_fifth` | range | ✅ |
+| 83 | `range_span_minor_sixth` | range | ✅ |
+| 84 | `range_span_major_sixth` | range | ✅ |
+| 85 | `range_span_minor_seventh` | range | ✅ |
+| 86 | `range_span_major_seventh` | range | ✅ |
+| 87 | `range_span_octave` | range | ✅ |
 
 ---
 

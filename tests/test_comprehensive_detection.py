@@ -447,6 +447,102 @@ class TestDynamicsHairpins:
         assert "dynamic_subito" in caps, f"Expected dynamic_subito, got {caps}"
 
 
+# =============================================================================
+# STAGE 2: ADDITIONAL INTERVAL TESTS
+# =============================================================================
+
+class TestAdditionalIntervals:
+    """Test detection of additional interval capabilities."""
+    
+    def test_interval_major_2(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("68_interval_major_2.musicxml"), analyzer, engine)
+        assert "interval_play_major_2" in caps, f"Expected interval_play_major_2, got {caps}"
+    
+    def test_interval_minor_3(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("69_interval_minor_3.musicxml"), analyzer, engine)
+        assert "interval_play_minor_3" in caps, f"Expected interval_play_minor_3, got {caps}"
+    
+    def test_interval_perfect_4(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("70_interval_perfect_4.musicxml"), analyzer, engine)
+        assert "interval_play_perfect_4" in caps, f"Expected interval_play_perfect_4, got {caps}"
+    
+    def test_interval_minor_6(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("71_interval_minor_6.musicxml"), analyzer, engine)
+        assert "interval_play_minor_6" in caps, f"Expected interval_play_minor_6, got {caps}"
+    
+    def test_interval_major_6(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("72_interval_major_6.musicxml"), analyzer, engine)
+        assert "interval_play_major_6" in caps, f"Expected interval_play_major_6, got {caps}"
+    
+    def test_interval_minor_7(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("73_interval_minor_7.musicxml"), analyzer, engine)
+        assert "interval_play_minor_7" in caps, f"Expected interval_play_minor_7, got {caps}"
+    
+    def test_interval_major_7(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("74_interval_major_7.musicxml"), analyzer, engine)
+        assert "interval_play_major_7" in caps, f"Expected interval_play_major_7, got {caps}"
+    
+    def test_interval_compound_9_plus(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("75_interval_compound_9.musicxml"), analyzer, engine)
+        assert "interval_play_compound_9_plus" in caps, f"Expected interval_play_compound_9_plus, got {caps}"
+
+
+# =============================================================================
+# STAGE 2: RANGE SPAN TESTS
+# =============================================================================
+
+class TestRangeSpans:
+    """Test detection of range span capabilities."""
+    
+    def test_range_minor_second(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("76_range_minor_second.musicxml"), analyzer, engine)
+        assert "range_span_minor_second" in caps, f"Expected range_span_minor_second, got {caps}"
+    
+    def test_range_major_second(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("77_range_major_second.musicxml"), analyzer, engine)
+        assert "range_span_major_second" in caps, f"Expected range_span_major_second, got {caps}"
+    
+    def test_range_minor_third(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("78_range_minor_third.musicxml"), analyzer, engine)
+        assert "range_span_minor_third" in caps, f"Expected range_span_minor_third, got {caps}"
+    
+    def test_range_major_third(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("79_range_major_third.musicxml"), analyzer, engine)
+        assert "range_span_major_third" in caps, f"Expected range_span_major_third, got {caps}"
+    
+    def test_range_perfect_fourth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("80_range_perfect_fourth.musicxml"), analyzer, engine)
+        assert "range_span_perfect_fourth" in caps, f"Expected range_span_perfect_fourth, got {caps}"
+    
+    def test_range_augmented_fourth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("81_range_augmented_fourth.musicxml"), analyzer, engine)
+        assert "range_span_augmented_fourth" in caps, f"Expected range_span_augmented_fourth, got {caps}"
+    
+    def test_range_perfect_fifth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("82_range_perfect_fifth.musicxml"), analyzer, engine)
+        assert "range_span_perfect_fifth" in caps, f"Expected range_span_perfect_fifth, got {caps}"
+    
+    def test_range_minor_sixth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("83_range_minor_sixth.musicxml"), analyzer, engine)
+        assert "range_span_minor_sixth" in caps, f"Expected range_span_minor_sixth, got {caps}"
+    
+    def test_range_major_sixth(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("84_range_major_sixth.musicxml"), analyzer, engine)
+        assert "range_span_major_sixth" in caps, f"Expected range_span_major_sixth, got {caps}"
+    
+    def test_range_minor_seventh(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("85_range_minor_seventh.musicxml"), analyzer, engine)
+        assert "range_span_minor_seventh" in caps, f"Expected range_span_minor_seventh, got {caps}"
+    
+    def test_range_major_seventh(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("86_range_major_seventh.musicxml"), analyzer, engine)
+        assert "range_span_major_seventh" in caps, f"Expected range_span_major_seventh, got {caps}"
+    
+    def test_range_octave(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("87_range_octave.musicxml"), analyzer, engine)
+        assert "range_span_octave" in caps, f"Expected range_span_octave, got {caps}"
+
+
 class TestManifestComprehensive:
     """Test all files against their manifest expectations."""
     
