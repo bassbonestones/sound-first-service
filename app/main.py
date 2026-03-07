@@ -2314,156 +2314,49 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
         # =================================================================
         unified_scores = {}
         try:
-            from app.scoring_functions import (
-                analyze_interval_domain,
-                analyze_rhythm_domain,
-                analyze_tonal_domain,
-                analyze_tempo_domain,
-                analyze_range_domain,
-                analyze_throughput_domain,
-            )
+            from app.soft_gate_calculator import calculate_unified_domain_scores
             from app.difficulty_interactions import calculate_composite_difficulty
             
-            # Build profiles from extraction data + soft gate metrics
+            # Build tempo profile dict
+            tempo_profile_dict = None
+            if result.tempo_profile:
+                tempo_profile_dict = result.tempo_profile.to_dict()
             
-            # Interval profile
-            interval_profile = {}
-            if metrics.interval_profile:
-                interval_profile = {
-                    'interval_p50': metrics.interval_profile.interval_p50,
-                    'interval_p75': metrics.interval_profile.interval_p75,
-                    'interval_p90': metrics.interval_profile.interval_p90,
-                    'interval_max': metrics.interval_profile.interval_max,
-                    'step_ratio': metrics.interval_profile.step_ratio,
-                    'skip_ratio': metrics.interval_profile.skip_ratio,
-                    'leap_ratio': metrics.interval_profile.leap_ratio,
-                    'large_leap_ratio': metrics.interval_profile.large_leap_ratio,
-                    'extreme_leap_ratio': metrics.interval_profile.extreme_leap_ratio,
-                    'total_intervals': metrics.interval_profile.total_intervals,
-                }
-            if metrics.interval_local_difficulty:
-                interval_profile['max_large_leaps_in_window'] = metrics.interval_local_difficulty.max_large_leaps_in_window
-                interval_profile['max_extreme_leaps_in_window'] = metrics.interval_local_difficulty.max_extreme_leaps_in_window
+            # Build range analysis dict
+            range_analysis_dict = None
+            if result.range_analysis:
+                range_analysis_dict = result.range_analysis.__dict__
             
-            # Rhythm profile
-            rhythm_profile = {
-                'rhythm_complexity_score': metrics.rhythm_complexity_score,
-                'rhythm_complexity_peak': metrics.rhythm_complexity_peak,
+            # Build extraction dict with note values and other details
+            extraction_dict = {
+                'note_values': dict(result.note_values) if result.note_values else {},
+                'tuplets': dict(result.tuplets) if result.tuplets else {},
+                'dotted_notes': list(result.dotted_notes) if result.dotted_notes else [],
+                'has_ties': result.has_ties,
             }
-            # Add from extraction result if available
             if result.rhythm_pattern_analysis:
-                rhythm_profile['rhythm_measure_uniqueness_ratio'] = result.rhythm_pattern_analysis.rhythm_measure_uniqueness_ratio
-                rhythm_profile['rhythm_measure_repetition_ratio'] = result.rhythm_pattern_analysis.rhythm_measure_repetition_ratio
-            # Estimate ratios from extraction
-            total_notes = sum(result.note_values.values()) if result.note_values else 1
-            rhythm_profile['tuplet_ratio'] = sum(result.tuplets.values()) / max(total_notes, 1) if result.tuplets else 0.0
-            rhythm_profile['dot_ratio'] = len(result.dotted_notes) / max(total_notes, 1) if result.dotted_notes else 0.0
-            rhythm_profile['tie_ratio'] = 0.1 if result.has_ties else 0.0  # Estimate
-            # Shortest duration from note values
-            duration_map = {
-                'note_64th': 0.0625, 'note_32nd': 0.125, 'note_sixteenth': 0.25,
-                'note_eighth': 0.5, 'note_quarter': 1.0, 'note_half': 2.0, 'note_whole': 4.0,
-                # Alternative naming conventions
-                '64th': 0.0625, '32nd': 0.125, '16th': 0.25, 'eighth': 0.5,
-                'quarter': 1.0, 'half': 2.0, 'whole': 4.0,
-            }
-            shortest = 4.0
-            for nv in result.note_values.keys():
-                if nv in duration_map:
-                    shortest = min(shortest, duration_map[nv])
-            rhythm_profile['shortest_duration'] = shortest
+                extraction_dict['rhythm_measure_uniqueness_ratio'] = result.rhythm_pattern_analysis.rhythm_measure_uniqueness_ratio
+                extraction_dict['rhythm_measure_repetition_ratio'] = result.rhythm_pattern_analysis.rhythm_measure_repetition_ratio
             
-            # Tonal profile
-            # Estimate pitch class count: diatonic pieces use ~7, chromatic adds more
-            # chromatic_complexity_score 0 = fully diatonic (7 pitch classes)
-            # chromatic_complexity_score 1 = highly chromatic (up to 12 pitch classes)
-            chromatic_score = result.chromatic_complexity_score or 0
-            estimated_pitch_classes = int(7 + chromatic_score * 5)  # 7-12 range
-            tonal_profile = {
-                'pitch_class_count': estimated_pitch_classes,
-                'accidental_rate': chromatic_score,
-                'chromatic_ratio': chromatic_score,
-                'unique_pitches': estimated_pitch_classes,
-            }
-            
-            # Tempo profile
-            # Check if tempo is explicitly marked in score or just defaulted
-            tempo_is_explicit = (
-                result.tempo_profile and 
-                result.tempo_profile.primary_source_type not in ('default', None)
+            # Compute domain results using unified scoring
+            domain_results = calculate_unified_domain_scores(
+                metrics=metrics,
+                tempo_profile=tempo_profile_dict,
+                range_analysis=range_analysis_dict,
+                extraction=extraction_dict,
             )
-            tempo_profile_data = {
-                'base_bpm': result.tempo_bpm if tempo_is_explicit else None,
-                'effective_bpm': result.tempo_profile.effective_bpm if (result.tempo_profile and tempo_is_explicit) else None,
-                'tempo_is_explicit': tempo_is_explicit,
-            }
-            if result.tempo_profile and tempo_is_explicit:
-                tempo_profile_data['min_bpm'] = result.tempo_profile.min_bpm
-                tempo_profile_data['max_bpm'] = result.tempo_profile.max_bpm
-                tempo_profile_data['tempo_change_count'] = result.tempo_profile.tempo_change_count
-                # Calculate volatility from BPM range (only if we have explicit tempo)
-                eff_bpm = result.tempo_profile.effective_bpm
-                min_bpm = result.tempo_profile.min_bpm or eff_bpm
-                max_bpm = result.tempo_profile.max_bpm or eff_bpm
-                tempo_profile_data['tempo_volatility'] = (max_bpm - min_bpm) / eff_bpm if eff_bpm and eff_bpm > 0 else 0.0
-                tempo_profile_data['has_accelerando'] = result.tempo_profile.has_accelerando
-                tempo_profile_data['has_ritardando'] = result.tempo_profile.has_ritardando
-                tempo_profile_data['has_rubato'] = result.tempo_profile.has_rubato
-                tempo_profile_data['tempo_regions'] = len(result.tempo_profile.tempo_regions) if result.tempo_profile.tempo_regions else 0
-            
-            # Range profile (instrument-agnostic - just raw span data)
-            # Actual difficulty depends on instrument which is added later
-            range_profile = {
-                'span_semitones': result.range_analysis.range_semitones if result.range_analysis else None,
-                'tessitura_span': metrics.tessitura_span_semitones or None,
-                'lowest_pitch': result.range_analysis.lowest_pitch if result.range_analysis else None,
-                'highest_pitch': result.range_analysis.highest_pitch if result.range_analysis else None,
-            }
-            
-            # Throughput profile
-            throughput_profile = {
-                'notes_per_second': metrics.density_notes_per_second or 2.0,
-                'peak_notes_per_second': metrics.peak_notes_per_second or (metrics.density_notes_per_second or 2.0),
-                'notes_per_measure': metrics.note_density_per_measure or 8.0,
-                'throughput_volatility': metrics.throughput_volatility or 0.0,
-            }
-            
-            # Compute domain results
-            interval_result = analyze_interval_domain(interval_profile)
-            rhythm_result = analyze_rhythm_domain(rhythm_profile)
-            tonal_result = analyze_tonal_domain(tonal_profile)
-            tempo_result = analyze_tempo_domain(tempo_profile_data)
-            range_result = analyze_range_domain(range_profile)
-            throughput_result = analyze_throughput_domain(throughput_profile)
             
             # Compute composite difficulty
             all_scores = {
-                'interval': interval_result.scores,
-                'rhythm': rhythm_result.scores,
-                'tonal': tonal_result.scores,
-                'tempo': tempo_result.scores,
-                'range': range_result.scores,
-                'throughput': throughput_result.scores,
+                name: dr.scores for name, dr in domain_results.items()
             }
             composite = calculate_composite_difficulty(all_scores)
             
             unified_scores = {
-                'interval': interval_result.to_dict(),
-                'rhythm': rhythm_result.to_dict(),
-                'tonal': tonal_result.to_dict(),
-                'tempo': tempo_result.to_dict(),
-                'range': range_result.to_dict(),
-                'throughput': throughput_result.to_dict(),
-                'composite': composite,
-                '_debug_inputs': {
-                    'interval_profile': interval_profile,
-                    'rhythm_profile': rhythm_profile,
-                    'tonal_profile': tonal_profile,
-                    'tempo_profile': tempo_profile_data,
-                    'range_profile': range_profile,
-                    'throughput_profile': throughput_profile,
-                }
+                name: dr.to_dict() for name, dr in domain_results.items()
             }
+            unified_scores['composite'] = composite
+            
         except Exception as e:
             import traceback
             unified_scores = {"error": str(e), "traceback": traceback.format_exc()}
