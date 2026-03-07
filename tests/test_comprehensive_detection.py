@@ -839,6 +839,86 @@ class TestAdvancedAccidentals:
         assert "double_sharp_symbol" in caps, f"Expected double_sharp_symbol, got {caps}"
 
 
+# =============================================================================
+# Stage 7: Ornaments, Notation & Misc
+# =============================================================================
+
+class TestOrnaments:
+    """Test detection of ornament capabilities."""
+    
+    def test_ornament_grace_note(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("147_ornament_grace_note.musicxml"), analyzer, engine)
+        assert "ornament_grace_note" in caps, f"Expected ornament_grace_note, got {caps}"
+    
+    def test_ornament_inverted_mordent(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("148_ornament_inverted_mordent.musicxml"), analyzer, engine)
+        assert "ornament_inverted_mordent" in caps, f"Expected ornament_inverted_mordent, got {caps}"
+    
+    def test_ornament_tremolo(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("149_ornament_tremolo.musicxml"), analyzer, engine)
+        assert "ornament_tremolo" in caps, f"Expected ornament_tremolo, got {caps}"
+
+
+class TestNotation:
+    """Test detection of notation capabilities."""
+    
+    def test_notation_breath_mark(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("150_notation_breath_mark.musicxml"), analyzer, engine)
+        assert "notation_breath_mark" in caps, f"Expected notation_breath_mark, got {caps}"
+    
+    def test_notation_chord_symbols(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("151_notation_chord_symbols.musicxml"), analyzer, engine)
+        assert "notation_chord_symbols" in caps, f"Expected notation_chord_symbols, got {caps}"
+    
+    def test_notation_figured_bass(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("152_notation_figured_bass.musicxml"), analyzer, engine)
+        assert "notation_figured_bass" in caps, f"Expected notation_figured_bass, got {caps}"
+
+
+class TestClefs:
+    """Test detection of clef capabilities."""
+    
+    def test_clef_bass_8va(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("153_clef_bass_8va.musicxml"), analyzer, engine)
+        assert "clef_bass_8va" in caps, f"Expected clef_bass_8va, got {caps}"
+    
+    def test_clef_treble_8vb(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("154_clef_treble_8vb.musicxml"), analyzer, engine)
+        assert "clef_treble_8vb" in caps, f"Expected clef_treble_8vb, got {caps}"
+
+
+class TestTexture:
+    """Test detection of texture capabilities."""
+    
+    def test_texture_two_voices(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("155_texture_two_voices.musicxml"), analyzer, engine)
+        assert "texture_two_voices" in caps, f"Expected texture_two_voices, got {caps}"
+    
+    def test_texture_three_voices(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("156_texture_three_voices.musicxml"), analyzer, engine)
+        assert "texture_three_voices" in caps, f"Expected texture_three_voices, got {caps}"
+    
+    def test_texture_four_voices(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("157_texture_four_voices.musicxml"), analyzer, engine)
+        assert "texture_four_voices" in caps, f"Expected texture_four_voices, got {caps}"
+
+
+class TestTechnique:
+    """Test detection of technique capabilities."""
+    
+    def test_technique_glissando(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("158_technique_glissando.musicxml"), analyzer, engine)
+        assert "technique_glissando" in caps, f"Expected technique_glissando, got {caps}"
+
+
+class TestTonal:
+    """Test detection of tonal capabilities."""
+    
+    def test_tonal_modulation_awareness(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("159_tonal_modulation.musicxml"), analyzer, engine)
+        assert "tonal_modulation_awareness" in caps, f"Expected tonal_modulation_awareness, got {caps}"
+
+
 class TestManifestComprehensive:
     """Test all files against their manifest expectations."""
     

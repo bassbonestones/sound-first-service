@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.1">
+  <work><work-title>Figured Bass Test</work-title></work>
+  <part-list>
+    <score-part id="P1"><part-name>Bass Part</part-name></score-part>
+  </part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes>
+        <divisions>4</divisions>
+        <key><fifths>0</fifths></key>
+        <time><beats>4</beats><beat-type>4</beat-type></time>
+        <clef><sign>F</sign><line>4</line></clef>
+      </attributes>
+      <figured-bass>
+        <figure><figure-number>6</figure-number></figure>
+        <figure><figure-number>4</figure-number></figure>
+      </figured-bass>
+      <note>
+        <pitch><step>C</step><octave>3</octave></pitch>
+        <duration>4</duration>
+        <type>quarter</type>
+      </note>
+      <figured-bass>
+        <figure><figure-number>5</figure-number></figure>
+        <figure><figure-number>3</figure-number></figure>
+      </figured-bass>
+      <note>
+        <pitch><step>G</step><octave>2</octave></pitch>
+        <duration>4</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>C</step><octave>3</octave></pitch>
+        <duration>8</duration>
+        <type>half</type>
+      </note>
+    </measure>
+  </part>
+</score-partwise>

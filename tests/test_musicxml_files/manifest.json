@@ -1035,5 +1035,93 @@
       "double_sharp_symbol",
       "rhythm_quarter_notes"
     ]
+  },
+  "147_ornament_grace_note.musicxml": {
+    "description": "Grace note",
+    "expected_capabilities": [
+      "ornament_grace_note",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "148_ornament_inverted_mordent.musicxml": {
+    "description": "Inverted mordent",
+    "expected_capabilities": [
+      "ornament_inverted_mordent",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "149_ornament_tremolo.musicxml": {
+    "description": "Tremolo",
+    "expected_capabilities": [
+      "ornament_tremolo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "150_notation_breath_mark.musicxml": {
+    "description": "Breath mark",
+    "expected_capabilities": [
+      "notation_breath_mark",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "151_notation_chord_symbols.musicxml": {
+    "description": "Chord symbols",
+    "expected_capabilities": [
+      "notation_chord_symbols",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "152_notation_figured_bass.musicxml": {
+    "description": "Figured bass",
+    "expected_capabilities": [
+      "notation_figured_bass",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "153_clef_bass_8va.musicxml": {
+    "description": "Bass clef 8va (octave up)",
+    "expected_capabilities": [
+      "clef_bass_8va",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "154_clef_treble_8vb.musicxml": {
+    "description": "Treble clef 8vb (octave down)",
+    "expected_capabilities": [
+      "clef_treble_8vb",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "155_texture_two_voices.musicxml": {
+    "description": "Two voices (two parts)",
+    "expected_capabilities": [
+      "texture_two_voices"
+    ]
+  },
+  "156_texture_three_voices.musicxml": {
+    "description": "Three voices (three parts)",
+    "expected_capabilities": [
+      "texture_three_voices"
+    ]
+  },
+  "157_texture_four_voices.musicxml": {
+    "description": "Four voices (four parts - SATB)",
+    "expected_capabilities": [
+      "texture_four_voices"
+    ]
+  },
+  "158_technique_glissando.musicxml": {
+    "description": "Glissando",
+    "expected_capabilities": [
+      "technique_glissando",
+      "rhythm_half_notes"
+    ]
+  },
+  "159_tonal_modulation.musicxml": {
+    "description": "Modulation (key change)",
+    "expected_capabilities": [
+      "tonal_modulation_awareness",
+      "rhythm_quarter_notes"
+    ]
   }
 }

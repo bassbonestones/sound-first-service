@@ -87,7 +87,20 @@ Files are numbered and organized by category:
 | 144_accidental_natural.musicxml | Natural accidental | `accidental_natural_symbol`, `rhythm_quarter_notes` |
 | 145_double_flat.musicxml | Double flat accidental | `double_flat_symbol`, `rhythm_quarter_notes` |
 | 146_double_sharp.musicxml | Double sharp accidental | `double_sharp_symbol`, `rhythm_quarter_notes` |
+| 147_ornament_grace_note.musicxml | Grace note | `ornament_grace_note`, `rhythm_quarter_notes` |
+| 148_ornament_inverted_mordent.musicxml | Inverted mordent | `ornament_inverted_mordent`, `rhythm_quarter_notes` |
+| 149_ornament_tremolo.musicxml | Tremolo | `ornament_tremolo`, `rhythm_quarter_notes` |
 | 14_time_sig_7_8.musicxml | 7/8 time signature | `time_signature_7_8`, `rhythm_eighth_notes` |
+| 150_notation_breath_mark.musicxml | Breath mark | `notation_breath_mark`, `rhythm_quarter_notes` |
+| 151_notation_chord_symbols.musicxml | Chord symbols | `notation_chord_symbols`, `rhythm_quarter_notes` |
+| 152_notation_figured_bass.musicxml | Figured bass | `notation_figured_bass`, `rhythm_quarter_notes` |
+| 153_clef_bass_8va.musicxml | Bass clef 8va (octave up) | `clef_bass_8va`, `rhythm_quarter_notes` |
+| 154_clef_treble_8vb.musicxml | Treble clef 8vb (octave down) | `clef_treble_8vb`, `rhythm_quarter_notes` |
+| 155_texture_two_voices.musicxml | Two voices (two parts) | `texture_two_voices` |
+| 156_texture_three_voices.musicxml | Three voices (three parts) | `texture_three_voices` |
+| 157_texture_four_voices.musicxml | Four voices (four parts - SATB) | `texture_four_voices` |
+| 158_technique_glissando.musicxml | Glissando | `technique_glissando`, `rhythm_half_notes` |
+| 159_tonal_modulation.musicxml | Modulation (key change) | `tonal_modulation_awareness`, `rhythm_quarter_notes` |
 | 15_time_sig_5_4.musicxml | 5/4 time signature | `time_signature_5_4`, `rhythm_quarter_notes` |
 | 16_clef_bass.musicxml | Bass clef | `clef_bass`, `rhythm_whole_notes` |
 | 17_clef_alto.musicxml | Alto clef (viola) | `clef_alto`, `rhythm_whole_notes` |

@@ -445,7 +445,7 @@ def detect_any_time_signature(extraction_result, score) -> bool:
 @register_custom_detector("detect_chord_symbols")
 def detect_chord_symbols(extraction_result, score) -> bool:
     """Detect chord symbols (lead sheet notation)."""
-    if extraction_result.chord_symbols > 0:
+    if len(extraction_result.chord_symbols) > 0:
         return True
     if score is None:
         return False
@@ -458,14 +458,75 @@ def detect_chord_symbols(extraction_result, score) -> bool:
 @register_custom_detector("detect_figured_bass")
 def detect_figured_bass(extraction_result, score) -> bool:
     """Detect figured bass notation."""
+    if extraction_result.figured_bass:
+        return True
     if score is None:
         return False
-    from music21 import figuredBass
+    # Try multiple approaches for figured bass detection
     try:
+        from music21 import figuredBass
         for fb in score.recurse().getElementsByClass(figuredBass.notation.Notation):
             return True
     except:
         pass
+    # Also check for FiguredBassIndication from music21.figuredBass.realizer
+    try:
+        for fb in score.recurse().getElementsByClass('FiguredBass'):
+            return True
+    except:
+        pass
+    # Check for standalone figured bass elements (music21 FiguredBassLine)
+    try:
+        from music21.figuredBass import notation as figuredBassNotation
+        for elem in score.recurse():
+            if 'FiguredBass' in type(elem).__name__:
+                return True
+    except:
+        pass
+    # music21 may not fully parse figured-bass XML, so check the raw source
+    try:
+        file_path = None
+        if hasattr(score, 'filePath') and score.filePath:
+            file_path = score.filePath
+        elif hasattr(score, 'metadata') and hasattr(score.metadata, 'filePath') and score.metadata.filePath:
+            file_path = score.metadata.filePath
+        if file_path:
+            import os
+            if os.path.exists(file_path):
+                with open(file_path, 'r') as f:
+                    content = f.read()
+                    if '<figured-bass>' in content or '<figure-number>' in content:
+                        return True
+    except:
+        pass
+    return False
+
+
+@register_custom_detector("detect_grace_note")
+def detect_grace_note(extraction_result, score) -> bool:
+    """Detect grace notes."""
+    if score is None:
+        return False
+    from music21 import note
+    for n in score.recurse().getElementsByClass(note.Note):
+        if n.duration.isGrace:
+            return True
+    return False
+
+
+@register_custom_detector("detect_breath_mark")
+def detect_breath_mark(extraction_result, score) -> bool:
+    """Detect breath marks."""
+    if extraction_result.breath_marks > 0:
+        return True
+    if score is None:
+        return False
+    from music21 import articulations
+    # Check note articulations
+    for n in score.recurse().notes:
+        for art in n.articulations:
+            if isinstance(art, articulations.BreathMark):
+                return True
     return False
 
 

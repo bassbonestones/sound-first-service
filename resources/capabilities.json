@@ -2723,8 +2723,8 @@
       "soft_gate_requirements": null,
       "bit_index": 112,
       "music21_detection": {
-        "type": "element",
-        "class": "music21.articulations.BreathMark"
+        "type": "custom",
+        "function": "detect_breath_mark"
       }
     },
     {
@@ -2843,14 +2843,8 @@
       "soft_gate_requirements": null,
       "bit_index": 117,
       "music21_detection": {
-        "type": "compound",
-        "source": "notes",
-        "conditions": [
-          {
-            "field": "duration.isGrace",
-            "eq": true
-          }
-        ]
+        "type": "custom",
+        "function": "detect_grace_note"
       }
     },
     {
