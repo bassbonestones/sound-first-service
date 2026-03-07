@@ -53,7 +53,15 @@ Files are numbered and organized by category:
 | 113_expression_pesante.musicxml | Pesante expression marking | `expression_pesante`, `rhythm_quarter_notes` |
 | 114_expression_sostenuto.musicxml | Sostenuto expression marking | `expression_sostenuto`, `rhythm_quarter_notes` |
 | 115_expression_tranquillo.musicxml | Tranquillo expression marking | `expression_tranquillo`, `rhythm_quarter_notes` |
+| 116_form_repeat_sign.musicxml | Repeat sign (barline) | `form_repeat_sign`, `rhythm_quarter_notes` |
+| 117_form_first_ending.musicxml | First ending bracket | `form_first_ending`, `form_repeat_sign`, `rhythm_quarter_notes` |
+| 118_form_second_ending.musicxml | Second ending bracket | `form_second_ending`, `form_first_ending`, `form_repeat_sign`, `rhythm_quarter_notes` |
+| 119_form_dc.musicxml | Da Capo (D.C.) marking | `form_dc`, `rhythm_quarter_notes` |
 | 11_time_sig_6_8.musicxml | 6/8 time signature | `time_signature_6_8`, `rhythm_eighth_notes` |
+| 120_form_ds.musicxml | Dal Segno (D.S.) marking | `form_ds`, `rhythm_quarter_notes` |
+| 121_form_fine.musicxml | Fine marking | `form_fine`, `rhythm_quarter_notes` |
+| 122_form_coda.musicxml | Coda marking | `form_coda`, `rhythm_quarter_notes` |
+| 123_form_segno.musicxml | Segno sign | `form_segno`, `rhythm_quarter_notes` |
 | 12_time_sig_2_4.musicxml | 2/4 time signature | `time_signature_2_4`, `rhythm_quarter_notes` |
 | 13_time_sig_2_2.musicxml | 2/2 (cut time) time signature | `time_signature_2_2`, `rhythm_half_notes` |
 | 14_time_sig_7_8.musicxml | 7/8 time signature | `time_signature_7_8`, `rhythm_eighth_notes` |

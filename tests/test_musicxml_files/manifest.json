@@ -821,5 +821,64 @@
       "expression_tranquillo",
       "rhythm_quarter_notes"
     ]
+  },
+  "116_form_repeat_sign.musicxml": {
+    "description": "Repeat sign (barline)",
+    "expected_capabilities": [
+      "form_repeat_sign",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "117_form_first_ending.musicxml": {
+    "description": "First ending bracket",
+    "expected_capabilities": [
+      "form_first_ending",
+      "form_repeat_sign",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "118_form_second_ending.musicxml": {
+    "description": "Second ending bracket",
+    "expected_capabilities": [
+      "form_second_ending",
+      "form_first_ending",
+      "form_repeat_sign",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "119_form_dc.musicxml": {
+    "description": "Da Capo (D.C.) marking",
+    "expected_capabilities": [
+      "form_dc",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "120_form_ds.musicxml": {
+    "description": "Dal Segno (D.S.) marking",
+    "expected_capabilities": [
+      "form_ds",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "121_form_fine.musicxml": {
+    "description": "Fine marking",
+    "expected_capabilities": [
+      "form_fine",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "122_form_coda.musicxml": {
+    "description": "Coda marking",
+    "expected_capabilities": [
+      "form_coda",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "123_form_segno.musicxml": {
+    "description": "Segno sign",
+    "expected_capabilities": [
+      "form_segno",
+      "rhythm_quarter_notes"
+    ]
   }
 }

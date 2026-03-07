@@ -2,7 +2,7 @@
 
 This document tracks the implementation of test files for all 108 capabilities that have `music21_detection` rules but are not yet tested.
 
-**Current Status:** 116 tests covering 109+ capabilities  
+**Current Status:** 124 tests covering 117+ capabilities  
 **Target:** 108 additional capabilities to test  
 **Total after completion:** ~160+ test files
 
@@ -124,20 +124,20 @@ This document tracks the implementation of test files for all 108 capabilities t
 
 ---
 
-## Stage 4: Form Structure (8 capabilities)
+## Stage 4: Form Structure (8 capabilities) ✅ COMPLETE
 
 **Priority:** Medium - All custom detectors
 
 | # | Capability | Detection Type | Status |
 |---|------------|----------------|--------|
-| 116 | `form_coda` | custom | ⬜ |
-| 117 | `form_dc` | custom | ⬜ |
-| 118 | `form_ds` | custom | ⬜ |
-| 119 | `form_fine` | custom | ⬜ |
-| 120 | `form_first_ending` | custom | ⬜ |
-| 121 | `form_repeat_sign` | custom | ⬜ |
-| 122 | `form_second_ending` | custom | ⬜ |
-| 123 | `form_segno` | custom | ⬜ |
+| 116 | `form_repeat_sign` | custom | ✅ |
+| 117 | `form_first_ending` | custom | ✅ |
+| 118 | `form_second_ending` | custom | ✅ |
+| 119 | `form_dc` | custom | ✅ |
+| 120 | `form_ds` | custom | ✅ |
+| 121 | `form_fine` | custom | ✅ |
+| 122 | `form_coda` | custom | ✅ |
+| 123 | `form_segno` | custom | ✅ |
 
 ---
 

@@ -679,6 +679,46 @@ class TestExpressionTerms:
         assert "expression_tranquillo" in caps, f"Expected expression_tranquillo, got {caps}"
 
 
+# =============================================================================
+# STAGE 4: FORM STRUCTURE
+# =============================================================================
+
+class TestFormStructure:
+    """Test detection of form structure capabilities."""
+    
+    def test_form_repeat_sign(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("116_form_repeat_sign.musicxml"), analyzer, engine)
+        assert "form_repeat_sign" in caps, f"Expected form_repeat_sign, got {caps}"
+    
+    def test_form_first_ending(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("117_form_first_ending.musicxml"), analyzer, engine)
+        assert "form_first_ending" in caps, f"Expected form_first_ending, got {caps}"
+    
+    def test_form_second_ending(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("118_form_second_ending.musicxml"), analyzer, engine)
+        assert "form_second_ending" in caps, f"Expected form_second_ending, got {caps}"
+    
+    def test_form_dc(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("119_form_dc.musicxml"), analyzer, engine)
+        assert "form_dc" in caps, f"Expected form_dc, got {caps}"
+    
+    def test_form_ds(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("120_form_ds.musicxml"), analyzer, engine)
+        assert "form_ds" in caps, f"Expected form_ds, got {caps}"
+    
+    def test_form_fine(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("121_form_fine.musicxml"), analyzer, engine)
+        assert "form_fine" in caps, f"Expected form_fine, got {caps}"
+    
+    def test_form_coda(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("122_form_coda.musicxml"), analyzer, engine)
+        assert "form_coda" in caps, f"Expected form_coda, got {caps}"
+    
+    def test_form_segno(self, engine, analyzer):
+        caps = detect_capabilities(get_test_file_path("123_form_segno.musicxml"), analyzer, engine)
+        assert "form_segno" in caps, f"Expected form_segno, got {caps}"
+
+
 class TestManifestComprehensive:
     """Test all files against their manifest expectations."""
     
