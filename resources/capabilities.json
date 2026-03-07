@@ -20,7 +20,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 0
+      "bit_index": 0,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_flat_accidentals"
+      }
     },
     {
       "name": "accidental_sharp_symbol",
@@ -40,7 +44,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 1
+      "bit_index": 1,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_sharp_accidentals"
+      }
     },
     {
       "name": "accidental_natural_symbol",
@@ -60,7 +68,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 2
+      "bit_index": 2,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_natural_accidentals"
+      }
     },
     {
       "name": "double_flat_symbol",
@@ -80,7 +92,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 3
+      "bit_index": 3,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_double_flat_accidentals"
+      }
     },
     {
       "name": "double_sharp_symbol",
@@ -100,7 +116,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 4
+      "bit_index": 4,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_double_sharp_accidentals"
+      }
     },
     {
       "name": "articulation_legato",
@@ -121,7 +141,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 5
+      "bit_index": 5,
+      "music21_detection": {
+        "type": "element",
+        "class": "music21.spanner.Slur"
+      }
     },
     {
       "name": "articulation_accent",
@@ -334,7 +358,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 14
+      "bit_index": 14,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_clef_bass_8va"
+      }
     },
     {
       "name": "clef_movable_c_f_g",
@@ -423,7 +451,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 18
+      "bit_index": 18,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_clef_treble_8vb"
+      }
     },
     {
       "name": "dynamic_crescendo",
@@ -443,7 +475,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 19
+      "bit_index": 19,
+      "music21_detection": {
+        "type": "element",
+        "class": "music21.dynamics.Crescendo"
+      }
     },
     {
       "name": "dynamic_decrescendo",
@@ -463,7 +499,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 20
+      "bit_index": 20,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_decrescendo"
+      }
     },
     {
       "name": "dynamic_diminuendo",
@@ -483,7 +523,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 21
+      "bit_index": 21,
+      "music21_detection": {
+        "type": "element",
+        "class": "music21.dynamics.Diminuendo"
+      }
     },
     {
       "name": "dynamic_f",
@@ -735,7 +779,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 31
+      "bit_index": 31,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "rf"
+      }
     },
     {
       "name": "dynamic_rfz",
@@ -755,7 +805,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 32
+      "bit_index": 32,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "rfz"
+      }
     },
     {
       "name": "dynamic_sf",
@@ -801,7 +857,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 34
+      "bit_index": 34,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "dynamics",
+        "field": "value",
+        "eq": "sfp"
+      }
     },
     {
       "name": "dynamic_sfz",
@@ -847,7 +909,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 36
+      "bit_index": 36,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_subito"
+      }
     },
     {
       "name": "expression_agitato",
@@ -867,7 +933,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 37
+      "bit_index": 37,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "agitato"
+      }
     },
     {
       "name": "expression_animato",
@@ -887,7 +958,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 38
+      "bit_index": 38,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "animato"
+      }
     },
     {
       "name": "expression_appassionato",
@@ -907,7 +983,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 39
+      "bit_index": 39,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "appassionato"
+      }
     },
     {
       "name": "expression_brillante",
@@ -927,7 +1008,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 40
+      "bit_index": 40,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "brillante"
+      }
     },
     {
       "name": "expression_cantabile",
@@ -972,7 +1058,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 42
+      "bit_index": 42,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "con brio"
+      }
     },
     {
       "name": "expression_con_fuoco",
@@ -992,7 +1083,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 43
+      "bit_index": 43,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "con fuoco"
+      }
     },
     {
       "name": "expression_con_moto",
@@ -1012,7 +1108,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 44
+      "bit_index": 44,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "con moto"
+      }
     },
     {
       "name": "expression_dolce",
@@ -1082,7 +1183,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 47
+      "bit_index": 47,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "grazioso"
+      }
     },
     {
       "name": "expression_leggiero",
@@ -1102,7 +1208,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 48
+      "bit_index": 48,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "leggiero"
+      }
     },
     {
       "name": "expression_maestoso",
@@ -1122,7 +1233,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 49
+      "bit_index": 49,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "maestoso"
+      }
     },
     {
       "name": "expression_morendo",
@@ -1142,7 +1258,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 50
+      "bit_index": 50,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "morendo"
+      }
     },
     {
       "name": "expression_perdendosi",
@@ -1162,7 +1283,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 51
+      "bit_index": 51,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "perdendosi"
+      }
     },
     {
       "name": "expression_pesante",
@@ -1182,7 +1308,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 52
+      "bit_index": 52,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "pesante"
+      }
     },
     {
       "name": "expression_sostenuto",
@@ -1202,7 +1333,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 53
+      "bit_index": 53,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "sostenuto"
+      }
     },
     {
       "name": "expression_tranquillo",
@@ -1222,7 +1358,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 54
+      "bit_index": 54,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "expressions",
+        "contains": "tranquillo"
+      }
     },
     {
       "name": "form_coda",
@@ -1242,7 +1383,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 55
+      "bit_index": 55,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_coda"
+      }
     },
     {
       "name": "form_dc",
@@ -1262,7 +1407,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 56
+      "bit_index": 56,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_da_capo"
+      }
     },
     {
       "name": "form_ds",
@@ -1282,7 +1431,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 57
+      "bit_index": 57,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_dal_segno"
+      }
     },
     {
       "name": "form_fine",
@@ -1302,7 +1455,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 58
+      "bit_index": 58,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_fine"
+      }
     },
     {
       "name": "form_first_ending",
@@ -1322,7 +1479,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 59
+      "bit_index": 59,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_first_ending"
+      }
     },
     {
       "name": "form_repeat_sign",
@@ -1342,7 +1503,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 60
+      "bit_index": 60,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_repeat_sign"
+      }
     },
     {
       "name": "form_second_ending",
@@ -1362,7 +1527,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 61
+      "bit_index": 61,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_second_ending"
+      }
     },
     {
       "name": "form_segno",
@@ -1382,7 +1551,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 62
+      "bit_index": 62,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_segno"
+      }
     },
     {
       "name": "technique_glissando",
@@ -1402,7 +1575,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 63
+      "bit_index": 63,
+      "music21_detection": {
+        "type": "element",
+        "class": "music21.spanner.Glissando"
+      }
     },
     {
       "name": "interval_play_minor_2",
@@ -1578,7 +1755,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 70
+      "bit_index": 70,
+      "music21_detection": {
+        "type": "interval",
+        "quality": "A4",
+        "melodic": true
+      }
     },
     {
       "name": "interval_play_minor_6",
@@ -1728,7 +1910,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 76
+      "bit_index": 76,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_compound_intervals"
+      }
     },
     {
       "name": "interval_theory_minor_2",
@@ -2090,7 +2276,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 94
+      "bit_index": 94,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_any_time_signature"
+      }
     },
     {
       "name": "time_signature_4_4",
@@ -2319,7 +2509,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 103
+      "bit_index": 103,
+      "music21_detection": {
+        "type": "time_signature",
+        "numerator": 5,
+        "denominator": 4
+      }
     },
     {
       "name": "time_signature_7_8",
@@ -2366,7 +2561,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 105
+      "bit_index": 105,
+      "music21_detection": {
+        "type": "time_signature",
+        "numerator": 5,
+        "denominator": 8
+      }
     },
     {
       "name": "time_signature_3_2",
@@ -2387,7 +2587,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 106
+      "bit_index": 106,
+      "music21_detection": {
+        "type": "time_signature",
+        "numerator": 3,
+        "denominator": 2
+      }
     },
     {
       "name": "time_signature_6_4",
@@ -2407,7 +2612,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 107
+      "bit_index": 107,
+      "music21_detection": {
+        "type": "time_signature",
+        "numerator": 6,
+        "denominator": 4
+      }
     },
     {
       "name": "time_signature_3_16",
@@ -2428,7 +2638,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 108
+      "bit_index": 108,
+      "music21_detection": {
+        "type": "time_signature",
+        "numerator": 3,
+        "denominator": 16
+      }
     },
     {
       "name": "ledger_lines",
@@ -2506,7 +2721,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 112
+      "bit_index": 112,
+      "music21_detection": {
+        "type": "element",
+        "class": "music21.articulations.BreathMark"
+      }
     },
     {
       "name": "notation_fermata",
@@ -2574,7 +2793,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 115
+      "bit_index": 115,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_chord_symbols"
+      }
     },
     {
       "name": "notation_figured_bass",
@@ -2594,7 +2817,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 116
+      "bit_index": 116,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_figured_bass"
+      }
     },
     {
       "name": "ornament_grace_note",
@@ -2693,7 +2920,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 120
+      "bit_index": 120,
+      "music21_detection": {
+        "type": "element",
+        "class": "music21.expressions.Tremolo"
+      }
     },
     {
       "name": "ornament_trill",
@@ -2839,7 +3070,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 127
+      "bit_index": 127,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 1,
+        "max_semitones": 1
+      }
     },
     {
       "name": "range_span_major_second",
@@ -2857,7 +3093,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 128
+      "bit_index": 128,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 2,
+        "max_semitones": 2
+      }
     },
     {
       "name": "range_span_minor_third",
@@ -2875,7 +3116,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 129
+      "bit_index": 129,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 3,
+        "max_semitones": 3
+      }
     },
     {
       "name": "range_span_major_third",
@@ -2893,7 +3139,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 130
+      "bit_index": 130,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 4,
+        "max_semitones": 4
+      }
     },
     {
       "name": "range_span_perfect_fourth",
@@ -2911,7 +3162,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 131
+      "bit_index": 131,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 5,
+        "max_semitones": 5
+      }
     },
     {
       "name": "range_span_augmented_fourth",
@@ -2929,7 +3185,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 132
+      "bit_index": 132,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 6,
+        "max_semitones": 6
+      }
     },
     {
       "name": "range_span_perfect_fifth",
@@ -2947,7 +3208,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 133
+      "bit_index": 133,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 7,
+        "max_semitones": 7
+      }
     },
     {
       "name": "range_span_minor_sixth",
@@ -2965,7 +3231,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 134
+      "bit_index": 134,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 8,
+        "max_semitones": 8
+      }
     },
     {
       "name": "range_span_major_sixth",
@@ -2983,7 +3254,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 135
+      "bit_index": 135,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 9,
+        "max_semitones": 9
+      }
     },
     {
       "name": "range_span_minor_seventh",
@@ -3001,7 +3277,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 136
+      "bit_index": 136,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 10,
+        "max_semitones": 10
+      }
     },
     {
       "name": "range_span_major_seventh",
@@ -3019,7 +3300,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 137
+      "bit_index": 137,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 11,
+        "max_semitones": 11
+      }
     },
     {
       "name": "range_span_octave",
@@ -3037,7 +3323,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 138
+      "bit_index": 138,
+      "music21_detection": {
+        "type": "range",
+        "min_semitones": 12,
+        "max_semitones": 12
+      }
     },
     {
       "name": "rest_whole",
@@ -3057,7 +3348,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 139
+      "bit_index": 139,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "whole"
+      }
     },
     {
       "name": "rest_half",
@@ -3078,7 +3375,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 140
+      "bit_index": 140,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "half"
+      }
     },
     {
       "name": "rest_quarter",
@@ -3099,7 +3402,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 141
+      "bit_index": 141,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "quarter"
+      }
     },
     {
       "name": "rest_eighth",
@@ -3120,7 +3429,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 142
+      "bit_index": 142,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "eighth"
+      }
     },
     {
       "name": "rest_triplet_eighth",
@@ -3141,7 +3456,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 143
+      "bit_index": 143,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_triplet_eighth_rest"
+      }
     },
     {
       "name": "rest_sixteenth",
@@ -3162,7 +3481,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 144
+      "bit_index": 144,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "sixteenth"
+      }
     },
     {
       "name": "rest_multimeasure",
@@ -3182,7 +3507,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 145
+      "bit_index": 145,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_multimeasure_rest"
+      }
     },
     {
       "name": "rest_tuplet_3_quarter",
@@ -3203,7 +3532,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 146
+      "bit_index": 146,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_tuplet_3_quarter_rest"
+      }
     },
     {
       "name": "rest_32nd",
@@ -3224,7 +3557,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 147
+      "bit_index": 147,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "32nd"
+      }
     },
     {
       "name": "rest_64th",
@@ -3245,7 +3584,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 148
+      "bit_index": 148,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "64th"
+      }
     },
     {
       "name": "rhythm_whole_notes",
@@ -3429,7 +3774,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 155
+      "bit_index": 155,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_ties"
+      }
     },
     {
       "name": "rhythm_triplets_eighth",
@@ -3449,7 +3798,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 156
+      "bit_index": 156,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_eighth_triplets"
+      }
     },
     {
       "name": "rhythm_sixteenth_notes",
@@ -3549,7 +3902,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 160
+      "bit_index": 160,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_quarter_triplets"
+      }
     },
     {
       "name": "rhythm_32nd_notes",
@@ -3595,7 +3952,21 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 162
+      "bit_index": 162,
+      "music21_detection": {
+        "type": "compound",
+        "source": "notes",
+        "conditions": [
+          {
+            "field": "type",
+            "eq": "sixteenth"
+          },
+          {
+            "field": "dots",
+            "gte": 1
+          }
+        ]
+      }
     },
     {
       "name": "rhythm_double_dotted_half",
@@ -3615,7 +3986,21 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 163
+      "bit_index": 163,
+      "music21_detection": {
+        "type": "compound",
+        "source": "notes",
+        "conditions": [
+          {
+            "field": "type",
+            "eq": "half"
+          },
+          {
+            "field": "dots",
+            "gte": 2
+          }
+        ]
+      }
     },
     {
       "name": "rhythm_dotted_whole",
@@ -3637,7 +4022,21 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 164
+      "bit_index": 164,
+      "music21_detection": {
+        "type": "compound",
+        "source": "notes",
+        "conditions": [
+          {
+            "field": "type",
+            "eq": "whole"
+          },
+          {
+            "field": "dots",
+            "gte": 1
+          }
+        ]
+      }
     },
     {
       "name": "rhythm_64th_notes",
@@ -3657,7 +4056,13 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 165
+      "bit_index": 165,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "64th"
+      }
     },
     {
       "name": "pulse_tracking",
@@ -4240,7 +4645,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 194
+      "bit_index": 194,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "a tempo"
+      }
     },
     {
       "name": "tempo_skill_accelerando",
@@ -4260,7 +4670,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 195
+      "bit_index": 195,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "accel"
+      }
     },
     {
       "name": "tempo_skill_rallentando",
@@ -4280,7 +4695,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 196
+      "bit_index": 196,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "rall"
+      }
     },
     {
       "name": "tempo_skill_ritardando",
@@ -4300,7 +4720,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 197
+      "bit_index": 197,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "rit"
+      }
     },
     {
       "name": "tempo_skill_rubato",
@@ -4320,7 +4745,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 198
+      "bit_index": 198,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "rubato"
+      }
     },
     {
       "name": "tempo_term_adagio",
@@ -4341,7 +4771,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 199
+      "bit_index": 199,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "adagio"
+      }
     },
     {
       "name": "tempo_term_allegretto",
@@ -4362,7 +4797,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 200
+      "bit_index": 200,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "allegretto"
+      }
     },
     {
       "name": "tempo_term_allegro",
@@ -4384,7 +4824,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 201
+      "bit_index": 201,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "allegro"
+      }
     },
     {
       "name": "tempo_term_andante",
@@ -4406,7 +4851,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 202
+      "bit_index": 202,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "andante"
+      }
     },
     {
       "name": "tempo_term_largo",
@@ -4427,7 +4877,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 203
+      "bit_index": 203,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "largo"
+      }
     },
     {
       "name": "tempo_term_moderato",
@@ -4448,7 +4903,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 204
+      "bit_index": 204,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "moderato"
+      }
     },
     {
       "name": "tempo_term_prestissimo",
@@ -4469,7 +4929,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 205
+      "bit_index": 205,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "prestissimo"
+      }
     },
     {
       "name": "tempo_term_presto",
@@ -4490,7 +4955,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 206
+      "bit_index": 206,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "presto"
+      }
     },
     {
       "name": "tempo_term_vivace",
@@ -4511,7 +4981,12 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 207
+      "bit_index": 207,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "vivace"
+      }
     },
     {
       "name": "texture_four_voices",
@@ -4531,7 +5006,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 208
+      "bit_index": 208,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_four_voices"
+      }
     },
     {
       "name": "texture_three_voices",
@@ -4551,7 +5030,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 209
+      "bit_index": 209,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_three_voices"
+      }
     },
     {
       "name": "texture_two_voices",
@@ -4571,7 +5054,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 210
+      "bit_index": 210,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_two_voices"
+      }
     },
     {
       "name": "diatonic_scale_fragment_2",
@@ -4591,7 +5078,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 211
+      "bit_index": 211,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_scale_fragment_2"
+      }
     },
     {
       "name": "diatonic_scale_fragment_3",
@@ -4612,7 +5103,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 212
+      "bit_index": 212,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_scale_fragment_3"
+      }
     },
     {
       "name": "diatonic_scale_fragment_4",
@@ -4633,7 +5128,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 213
+      "bit_index": 213,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_scale_fragment_4"
+      }
     },
     {
       "name": "diatonic_scale_fragment_5",
@@ -4654,7 +5153,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 214
+      "bit_index": 214,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_scale_fragment_5"
+      }
     },
     {
       "name": "diatonic_scale_fragment_6",
@@ -4675,7 +5178,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 215
+      "bit_index": 215,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_scale_fragment_6"
+      }
     },
     {
       "name": "diatonic_scale_fragment_7",
@@ -4696,7 +5203,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 216
+      "bit_index": 216,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_scale_fragment_7"
+      }
     },
     {
       "name": "tonal_chromatic_approach_tones",
@@ -4716,7 +5227,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 217
+      "bit_index": 217,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_chromatic_approach_tones"
+      }
     },
     {
       "name": "tonal_modulation_awareness",
@@ -4736,7 +5251,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 218
+      "bit_index": 218,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_modulation"
+      }
     },
     {
       "name": "tuplet_duplet",
@@ -4756,7 +5275,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 219
+      "bit_index": 219,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_duplet"
+      }
     },
     {
       "name": "tuplet_quintuplet",
@@ -4776,7 +5299,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 220
+      "bit_index": 220,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_quintuplet"
+      }
     },
     {
       "name": "tuplet_septuplet",
@@ -4796,7 +5323,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 221
+      "bit_index": 221,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_septuplet"
+      }
     },
     {
       "name": "tuplet_sextuplet",
@@ -4816,7 +5347,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 222
+      "bit_index": 222,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_sextuplet"
+      }
     },
     {
       "name": "tuplet_triplet_general",
@@ -4836,7 +5371,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 223
+      "bit_index": 223,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_triplet_general"
+      }
     },
     {
       "name": "tuplet_triplet_quarter",
@@ -4857,7 +5396,11 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 224
+      "bit_index": 224,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_quarter_triplets"
+      }
     }
   ]
 }

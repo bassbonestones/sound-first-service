@@ -1,0 +1,489 @@
+{
+  "01_whole_notes.musicxml": {
+    "description": "Whole notes in 4/4",
+    "expected_capabilities": [
+      "rhythm_whole_notes",
+      "time_signature_4_4",
+      "clef_treble",
+      "time_signature_basics",
+      "key_signature_basics"
+    ]
+  },
+  "02_half_notes.musicxml": {
+    "description": "Half notes in 4/4",
+    "expected_capabilities": [
+      "rhythm_half_notes",
+      "time_signature_4_4",
+      "clef_treble"
+    ]
+  },
+  "03_quarter_notes.musicxml": {
+    "description": "Quarter notes in 4/4",
+    "expected_capabilities": [
+      "rhythm_quarter_notes",
+      "time_signature_4_4"
+    ]
+  },
+  "04_eighth_notes.musicxml": {
+    "description": "Eighth notes in 4/4",
+    "expected_capabilities": [
+      "rhythm_eighth_notes",
+      "time_signature_4_4",
+      "diatonic_scale_fragment_3"
+    ]
+  },
+  "05_sixteenth_notes.musicxml": {
+    "description": "Sixteenth notes in 4/4",
+    "expected_capabilities": [
+      "rhythm_sixteenth_notes",
+      "time_signature_4_4"
+    ]
+  },
+  "06_32nd_notes.musicxml": {
+    "description": "32nd notes",
+    "expected_capabilities": [
+      "rhythm_32nd_notes",
+      "time_signature_4_4"
+    ]
+  },
+  "07_dotted_half.musicxml": {
+    "description": "Dotted half note",
+    "expected_capabilities": [
+      "rhythm_dotted_half",
+      "rhythm_half_notes",
+      "time_signature_4_4"
+    ]
+  },
+  "08_dotted_quarter.musicxml": {
+    "description": "Dotted quarter note",
+    "expected_capabilities": [
+      "rhythm_dotted_quarter",
+      "rhythm_quarter_notes",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "09_dotted_eighth.musicxml": {
+    "description": "Dotted eighth note",
+    "expected_capabilities": [
+      "rhythm_dotted_eighth",
+      "rhythm_eighth_notes",
+      "rhythm_sixteenth_notes"
+    ]
+  },
+  "10_time_sig_3_4.musicxml": {
+    "description": "3/4 time signature",
+    "expected_capabilities": [
+      "time_signature_3_4",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "11_time_sig_6_8.musicxml": {
+    "description": "6/8 time signature",
+    "expected_capabilities": [
+      "time_signature_6_8",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "12_time_sig_2_4.musicxml": {
+    "description": "2/4 time signature",
+    "expected_capabilities": [
+      "time_signature_2_4",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "13_time_sig_2_2.musicxml": {
+    "description": "2/2 (cut time) time signature",
+    "expected_capabilities": [
+      "time_signature_2_2",
+      "rhythm_half_notes"
+    ]
+  },
+  "14_time_sig_7_8.musicxml": {
+    "description": "7/8 time signature",
+    "expected_capabilities": [
+      "time_signature_7_8",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "15_time_sig_5_4.musicxml": {
+    "description": "5/4 time signature",
+    "expected_capabilities": [
+      "time_signature_5_4",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "16_clef_bass.musicxml": {
+    "description": "Bass clef",
+    "expected_capabilities": [
+      "clef_bass",
+      "rhythm_whole_notes"
+    ]
+  },
+  "17_clef_alto.musicxml": {
+    "description": "Alto clef (viola)",
+    "expected_capabilities": [
+      "clef_alto",
+      "rhythm_whole_notes"
+    ]
+  },
+  "18_clef_tenor.musicxml": {
+    "description": "Tenor clef",
+    "expected_capabilities": [
+      "clef_tenor",
+      "rhythm_whole_notes"
+    ]
+  },
+  "19_dynamics_basic.musicxml": {
+    "description": "Basic dynamics (f, p, mf, mp)",
+    "expected_capabilities": [
+      "dynamic_f",
+      "dynamic_p",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "20_dynamics_extremes.musicxml": {
+    "description": "Extreme dynamics (fff, ppp)",
+    "expected_capabilities": [
+      "dynamic_fff",
+      "dynamic_ppp",
+      "rhythm_half_notes"
+    ]
+  },
+  "21_dynamics_sfz.musicxml": {
+    "description": "Sforzando dynamics (sf, sfz)",
+    "expected_capabilities": [
+      "dynamic_sf",
+      "dynamic_sfz",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "22_articulations_staccato.musicxml": {
+    "description": "Staccato articulation",
+    "expected_capabilities": [
+      "articulation_staccato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "23_articulations_accent.musicxml": {
+    "description": "Accent articulation",
+    "expected_capabilities": [
+      "articulation_accent",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "24_articulations_tenuto.musicxml": {
+    "description": "Tenuto articulation",
+    "expected_capabilities": [
+      "articulation_tenuto",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "25_articulations_marcato.musicxml": {
+    "description": "Marcato (strong accent) articulation",
+    "expected_capabilities": [
+      "articulation_marcato",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "26_rests_whole.musicxml": {
+    "description": "Whole rest",
+    "expected_capabilities": [
+      "rest_whole",
+      "time_signature_4_4"
+    ]
+  },
+  "27_rests_half.musicxml": {
+    "description": "Half rest",
+    "expected_capabilities": [
+      "rest_half",
+      "rhythm_half_notes"
+    ]
+  },
+  "28_rests_quarter.musicxml": {
+    "description": "Quarter rest",
+    "expected_capabilities": [
+      "rest_quarter",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "29_rests_eighth.musicxml": {
+    "description": "Eighth rest",
+    "expected_capabilities": [
+      "rest_eighth",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "30_rests_sixteenth.musicxml": {
+    "description": "Sixteenth rest",
+    "expected_capabilities": [
+      "rest_sixteenth",
+      "rhythm_sixteenth_notes"
+    ]
+  },
+  "31_interval_minor_2.musicxml": {
+    "description": "Minor 2nd interval (semitone)",
+    "expected_capabilities": [
+      "interval_play_minor_2",
+      "diatonic_scale_fragment_2",
+      "tonal_chromatic_approach_tones"
+    ]
+  },
+  "32_interval_major_3.musicxml": {
+    "description": "Major 3rd interval",
+    "expected_capabilities": [
+      "interval_play_major_3",
+      "rhythm_half_notes"
+    ]
+  },
+  "33_interval_perfect_5.musicxml": {
+    "description": "Perfect 5th interval",
+    "expected_capabilities": [
+      "interval_play_perfect_5",
+      "rhythm_half_notes"
+    ]
+  },
+  "34_interval_octave.musicxml": {
+    "description": "Octave interval",
+    "expected_capabilities": [
+      "interval_play_octave",
+      "rhythm_half_notes"
+    ]
+  },
+  "35_interval_augmented_4.musicxml": {
+    "description": "Augmented 4th (tritone) interval",
+    "expected_capabilities": [
+      "interval_play_augmented_4",
+      "rhythm_half_notes"
+    ]
+  },
+  "36_accidental_sharp.musicxml": {
+    "description": "Sharp accidental",
+    "expected_capabilities": [
+      "accidental_sharp_symbol",
+      "rhythm_half_notes"
+    ]
+  },
+  "37_accidental_flat.musicxml": {
+    "description": "Flat accidental",
+    "expected_capabilities": [
+      "accidental_flat_symbol",
+      "rhythm_half_notes"
+    ]
+  },
+  "38_ties.musicxml": {
+    "description": "Tied notes",
+    "expected_capabilities": [
+      "notation_ties",
+      "rhythm_ties_across_beats",
+      "rhythm_half_notes"
+    ]
+  },
+  "39_ornament_trill.musicxml": {
+    "description": "Trill ornament",
+    "expected_capabilities": [
+      "ornament_trill",
+      "rhythm_whole_notes"
+    ]
+  },
+  "40_ornament_mordent.musicxml": {
+    "description": "Mordent ornament",
+    "expected_capabilities": [
+      "ornament_mordent",
+      "rhythm_whole_notes"
+    ]
+  },
+  "41_ornament_turn.musicxml": {
+    "description": "Turn ornament",
+    "expected_capabilities": [
+      "ornament_turn",
+      "rhythm_whole_notes"
+    ]
+  },
+  "42_fermata.musicxml": {
+    "description": "Fermata notation",
+    "expected_capabilities": [
+      "notation_fermata",
+      "rhythm_whole_notes"
+    ]
+  },
+  "43_key_sig_g_major.musicxml": {
+    "description": "G major key signature (1 sharp)",
+    "expected_capabilities": [
+      "key_signature_basics",
+      "rhythm_whole_notes"
+    ]
+  },
+  "44_key_sig_f_major.musicxml": {
+    "description": "F major key signature (1 flat)",
+    "expected_capabilities": [
+      "key_signature_basics",
+      "rhythm_whole_notes"
+    ]
+  },
+  "45_tempo_allegro.musicxml": {
+    "description": "Allegro tempo marking",
+    "expected_capabilities": [
+      "tempo_term_allegro",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "46_tempo_andante.musicxml": {
+    "description": "Andante tempo marking",
+    "expected_capabilities": [
+      "tempo_term_andante",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "47_expression_dolce.musicxml": {
+    "description": "Dolce expression",
+    "expected_capabilities": [
+      "expression_dolce",
+      "rhythm_half_notes"
+    ]
+  },
+  "48_expression_espressivo.musicxml": {
+    "description": "Espressivo expression",
+    "expected_capabilities": [
+      "expression_espressivo",
+      "rhythm_half_notes"
+    ]
+  },
+  "49_scale_ascending.musicxml": {
+    "description": "Ascending scale (tests scale fragments)",
+    "expected_capabilities": [
+      "diatonic_scale_fragment_7",
+      "diatonic_scale_fragment_6",
+      "diatonic_scale_fragment_5",
+      "diatonic_scale_fragment_4",
+      "diatonic_scale_fragment_3",
+      "diatonic_scale_fragment_2",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "50_time_sig_9_8.musicxml": {
+    "description": "9/8 time signature (compound triple)",
+    "expected_capabilities": [
+      "time_signature_9_8",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "51_time_sig_12_8.musicxml": {
+    "description": "12/8 time signature (compound quadruple)",
+    "expected_capabilities": [
+      "time_signature_12_8",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "52_time_sig_3_8.musicxml": {
+    "description": "3/8 time signature",
+    "expected_capabilities": [
+      "time_signature_3_8",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "53_time_sig_3_2.musicxml": {
+    "description": "3/2 time signature",
+    "expected_capabilities": [
+      "time_signature_3_2",
+      "rhythm_half_notes"
+    ]
+  },
+  "54_time_sig_6_4.musicxml": {
+    "description": "6/4 time signature",
+    "expected_capabilities": [
+      "time_signature_6_4",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "55_time_sig_5_8.musicxml": {
+    "description": "5/8 time signature (asymmetric)",
+    "expected_capabilities": [
+      "time_signature_5_8",
+      "rhythm_eighth_notes"
+    ]
+  },
+  "56_dynamic_ff.musicxml": {
+    "description": "Fortissimo (ff) dynamic",
+    "expected_capabilities": [
+      "dynamic_ff",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "57_dynamic_pp.musicxml": {
+    "description": "Pianissimo (pp) dynamic",
+    "expected_capabilities": [
+      "dynamic_pp",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "58_dynamic_mf.musicxml": {
+    "description": "Mezzo forte (mf) dynamic",
+    "expected_capabilities": [
+      "dynamic_mf",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "59_dynamic_mp.musicxml": {
+    "description": "Mezzo piano (mp) dynamic",
+    "expected_capabilities": [
+      "dynamic_mp",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "60_dynamic_fp.musicxml": {
+    "description": "Forte-piano (fp) dynamic",
+    "expected_capabilities": [
+      "dynamic_fp",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "61_dynamic_rf.musicxml": {
+    "description": "Rinforzando (rf) dynamic",
+    "expected_capabilities": [
+      "dynamic_rf",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "62_dynamic_rfz.musicxml": {
+    "description": "Rinforzando (rfz) dynamic",
+    "expected_capabilities": [
+      "dynamic_rfz",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "63_dynamic_sfp.musicxml": {
+    "description": "Sforzando-piano (sfp) dynamic",
+    "expected_capabilities": [
+      "dynamic_sfp",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "64_dynamic_crescendo.musicxml": {
+    "description": "Crescendo (hairpin)",
+    "expected_capabilities": [
+      "dynamic_crescendo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "65_dynamic_decrescendo.musicxml": {
+    "description": "Decrescendo (hairpin)",
+    "expected_capabilities": [
+      "dynamic_decrescendo",
+      "rhythm_quarter_notes"
+    ]
+  },
+  "66_dynamic_diminuendo.musicxml": {
+    "description": "Diminuendo text marking",
+    "expected_capabilities": [
+      "dynamic_diminuendo",
+      "rhythm_half_notes"
+    ]
+  },
+  "67_dynamic_subito.musicxml": {
+    "description": "Subito dynamic change",
+    "expected_capabilities": [
+      "dynamic_subito",
+      "rhythm_quarter_notes"
+    ]
+  }
+}

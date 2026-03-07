@@ -471,19 +471,27 @@ class MusicXMLAnalyzer:
             interval.Specifier.MINOR: 'minor',
             interval.Specifier.AUGMENTED: 'augmented',
             interval.Specifier.DIMINISHED: 'diminished',
-            interval.Specifier.DOUBLY_AUGMENTED: 'doubly_augmented',
-            interval.Specifier.DOUBLY_DIMINISHED: 'doubly_diminished',
         }
         quality_name = quality_names.get(quality, 'unknown')
         
-        # Simple interval name (reducing compound intervals)
-        simple_intv = intv.simpleName  # e.g., "M3", "P5"
+        # Use simpleName for small intervals, but preserve octaves
+        # (simpleName reduces P8 to P1 which loses information)
+        abs_semitones = abs(intv.semitones)
+        if abs_semitones == 12:
+            # Exact octave - use P8
+            interval_name = "P8"
+        elif abs_semitones > 12:
+            # Compound interval - use full name to preserve info
+            interval_name = intv.name
+        else:
+            # Simple interval - use simple name
+            interval_name = intv.simpleName
         
         return IntervalInfo(
-            name=simple_intv,
+            name=interval_name,
             direction=direction,
             quality=quality_name,
-            semitones=abs(intv.semitones),
+            semitones=abs_semitones,
             is_melodic=is_melodic,
         )
     
@@ -558,10 +566,15 @@ class MusicXMLAnalyzer:
                     if term in text_lower:
                         result.tempo_markings.add(f"tempo_{term.replace(' ', '_')}")
         
-        # Expression text
+        # Expression text (including tempo terms since they can appear as TextExpression)
         for te in score.recurse().getElementsByClass(expressions.TextExpression):
             if te.content:
                 text_lower = te.content.lower()
+                # Check for tempo terms in TextExpression too
+                for term in TEMPO_TERMS:
+                    if term in text_lower:
+                        result.tempo_markings.add(f"tempo_{term.replace(' ', '_')}")
+                # Check for expression terms
                 for term in EXPRESSION_TERMS:
                     if term in text_lower:
                         result.expression_terms.add(f"expression_{term.replace(' ', '_')}")
