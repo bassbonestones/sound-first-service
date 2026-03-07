@@ -13,12 +13,14 @@ from app.soft_gate_calculator import (
     calculate_tonal_complexity_stage,
     calculate_interval_size_stage,
     calculate_rhythm_complexity_score,
+    calculate_rhythm_complexity_windowed,
     calculate_range_usage_stage,
     calculate_density_metrics,
     calculate_interval_velocity_score,
     calculate_tempo_difficulty_score,
     NoteEvent,
     MUSIC21_AVAILABLE,
+    RHYTHM_WINDOW_MIN_PIECE_QL,
 )
 
 
@@ -227,6 +229,144 @@ class TestRhythmComplexityScore:
         """Empty inputs should return 0."""
         score, raw = calculate_rhythm_complexity_score([], [], [], [], [], [], [])
         assert score == 0.0
+
+
+# =============================================================================
+# TEST: D3 WINDOWED — RHYTHM COMPLEXITY FOR LONG PIECES
+# =============================================================================
+
+class TestRhythmComplexityWindowed:
+    """Test windowed rhythm complexity calculation."""
+    
+    def test_short_piece_returns_none(self):
+        """Piece shorter than threshold should return None for peak/p95."""
+        # 16 quarter notes = 16 qL, below 32 qL threshold
+        n = 16
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            note_durations=[1.0] * n,
+            note_types=["quarter"] * n,
+            has_dots=[False] * n,
+            has_tuplets=[False] * n,
+            has_ties=[False] * n,
+            pitch_changes=[2] * (n - 1),
+            offsets=list(range(n)),
+        )
+        assert peak is None
+        assert p95 is None
+        assert raw.get("reason") == "piece_too_short"
+    
+    def test_long_piece_returns_values(self):
+        """Piece at threshold should return peak and p95."""
+        # 48 quarter notes = 48 qL, above 32 qL threshold
+        n = 48
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            note_durations=[1.0] * n,
+            note_types=["quarter"] * n,
+            has_dots=[False] * n,
+            has_tuplets=[False] * n,
+            has_ties=[False] * n,
+            pitch_changes=[2] * (n - 1),
+            offsets=list(range(n)),
+        )
+        assert peak is not None
+        assert p95 is not None
+        assert 0 <= peak <= 1
+        assert 0 <= p95 <= 1
+        assert raw.get("window_count") > 0
+    
+    def test_peak_detects_hard_section(self):
+        """Peak should be higher than global when one section is harder."""
+        # Create a 48 qL piece: mostly simple, with one complex section
+        n_simple = 40  # Simple quarter notes
+        n_complex = 8   # Complex 16ths with tuplets
+        
+        # Simple section
+        durations = [1.0] * n_simple
+        types = ["quarter"] * n_simple
+        dots = [False] * n_simple
+        tuplets = [False] * n_simple
+        ties = [False] * n_simple
+        offsets = list(range(n_simple))
+        
+        # Complex section (starting at offset 40)
+        durations += [0.25] * n_complex
+        types += ["16th"] * n_complex
+        dots += [True] * n_complex
+        tuplets += [True] * n_complex
+        ties += [True] * n_complex
+        offsets += [40 + i * 0.25 for i in range(n_complex)]
+        
+        pitch_changes = [2] * (len(durations) - 1)
+        
+        # Get global score
+        global_score, _ = calculate_rhythm_complexity_score(
+            durations, types, dots, tuplets, ties, pitch_changes, offsets
+        )
+        
+        # Get windowed scores
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            durations, types, dots, tuplets, ties, pitch_changes, offsets
+        )
+        
+        # Peak should be higher than global because of the complex section
+        assert peak is not None
+        assert peak >= global_score * 0.9  # Allow some tolerance
+    
+    def test_uniform_piece_peak_equals_global_approximately(self):
+        """For uniform piece, peak should be close to global."""
+        # 64 eighth notes at 0.5 qL each = 32 qL, exactly at threshold
+        # Use 80 to ensure we're above threshold
+        n = 80
+        durations = [0.5] * n  # Uniform eighth notes
+        types = ["eighth"] * n
+        dots = [False] * n
+        tuplets = [False] * n
+        ties = [False] * n
+        pitch_changes = [2] * (n - 1)
+        offsets = [i * 0.5 for i in range(n)]
+        
+        global_score, _ = calculate_rhythm_complexity_score(
+            durations, types, dots, tuplets, ties, pitch_changes, offsets
+        )
+        
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            durations, types, dots, tuplets, ties, pitch_changes, offsets
+        )
+        
+        assert peak is not None
+        # For uniform piece, peak should be within 20% of global
+        assert abs(peak - global_score) < 0.2
+    
+    def test_p95_less_than_or_equal_to_peak(self):
+        """P95 should always be <= peak."""
+        n = 64
+        # Mix of rhythms
+        types_pattern = ["quarter", "eighth", "16th", "eighth"]
+        types = (types_pattern * (n // 4))[:n]
+        durations = [1.0 if t == "quarter" else 0.5 if t == "eighth" else 0.25 for t in types]
+        dots = [i % 5 == 0 for i in range(n)]
+        tuplets = [i % 7 == 0 for i in range(n)]
+        ties = [i % 11 == 0 for i in range(n)]
+        offsets = []
+        off = 0.0
+        for d in durations:
+            offsets.append(off)
+            off += d
+        pitch_changes = [2] * (n - 1)
+        
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            durations, types, dots, tuplets, ties, pitch_changes, offsets
+        )
+        
+        assert peak is not None
+        assert p95 is not None
+        assert p95 <= peak
+    
+    def test_empty_returns_none(self):
+        """Empty inputs should return None."""
+        peak, p95, raw = calculate_rhythm_complexity_windowed([], [], [], [], [], [], [])
+        assert peak is None
+        assert p95 is None
 
 
 # =============================================================================

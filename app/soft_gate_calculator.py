@@ -42,18 +42,22 @@ class SoftGateMetrics:
     # Staged dimensions
     tonal_complexity_stage: int  # 0-5
     interval_size_stage: int  # 0-6
-    rhythm_complexity_score: float  # 0.0-1.0
+    rhythm_complexity_score: float  # 0.0-1.0 (global score)
     range_usage_stage: int  # 0-6
     
+    # Windowed rhythm complexity (for pieces >= 32 qL)
+    rhythm_complexity_peak: Optional[float] = None  # max window score
+    rhythm_complexity_p95: Optional[float] = None   # 95th percentile window score
+    
     # Continuous metrics
-    density_notes_per_second: float
-    note_density_per_measure: float
-    tempo_difficulty_score: Optional[float]  # 0-1, None if no tempo specified
-    interval_velocity_score: float  # 0-1
+    density_notes_per_second: float = 0.0
+    note_density_per_measure: float = 0.0
+    tempo_difficulty_score: Optional[float] = None  # 0-1, None if no tempo specified
+    interval_velocity_score: float = 0.0  # 0-1
     
     # Additional analysis
-    unique_pitch_count: int  # 0-12
-    largest_interval_semitones: int
+    unique_pitch_count: int = 0  # 0-12
+    largest_interval_semitones: int = 0
     
     # Raw intermediate values (for debugging/tuning)
     raw_metrics: Dict[str, Any] = None
@@ -261,6 +265,111 @@ def calculate_rhythm_complexity_score(
     raw = {"f1": f1, "f2": f2, "f3": f3, "f4": f4, "f5": f5, "raw_score": raw_score}
     
     return score, raw
+
+
+# =============================================================================
+# D3 WINDOWED — RHYTHM COMPLEXITY FOR LONG PIECES
+# =============================================================================
+
+# Windowing constants
+RHYTHM_WINDOW_DURATION_QL = 16.0  # 4 measures of 4/4
+RHYTHM_WINDOW_STEP_QL = 4.0       # 1 measure step
+RHYTHM_WINDOW_MIN_PIECE_QL = 32.0 # 8 measures minimum for windowing
+
+
+def calculate_rhythm_complexity_windowed(
+    note_durations: List[float],
+    note_types: List[str],
+    has_dots: List[bool],
+    has_tuplets: List[bool],
+    has_ties: List[bool],
+    pitch_changes: List[int],
+    offsets: List[float],
+) -> Tuple[Optional[float], Optional[float], Dict]:
+    """
+    Calculate windowed rhythm complexity for longer pieces.
+    
+    Uses sliding windows to find peak complexity regions, solving
+    the "mostly easy except one hard passage" problem.
+    
+    Args:
+        Same as calculate_rhythm_complexity_score
+        
+    Returns:
+        Tuple of (peak_score, p95_score, raw_metrics_dict)
+        Returns (None, None, {}) if piece is too short for windowing
+    """
+    if not offsets:
+        return None, None, {"reason": "no_notes"}
+    
+    # Calculate piece total duration
+    total_duration = max(offsets) + (note_durations[-1] if note_durations else 0)
+    
+    if total_duration < RHYTHM_WINDOW_MIN_PIECE_QL:
+        return None, None, {"reason": "piece_too_short", "duration_ql": total_duration}
+    
+    # Build windows
+    window_scores = []
+    window_start = 0.0
+    
+    while window_start + RHYTHM_WINDOW_DURATION_QL <= total_duration + RHYTHM_WINDOW_STEP_QL:
+        window_end = window_start + RHYTHM_WINDOW_DURATION_QL
+        
+        # Find notes in this window
+        indices = [
+            i for i, off in enumerate(offsets)
+            if window_start <= off < window_end
+        ]
+        
+        if len(indices) >= 2:  # Need at least 2 notes for meaningful analysis
+            # Extract windowed data
+            w_durations = [note_durations[i] for i in indices]
+            w_types = [note_types[i] for i in indices] if note_types else []
+            w_dots = [has_dots[i] for i in indices] if has_dots else []
+            w_tuplets = [has_tuplets[i] for i in indices] if has_tuplets else []
+            w_ties = [has_ties[i] for i in indices] if has_ties else []
+            w_offsets = [offsets[i] for i in indices]
+            
+            # Pitch changes need special handling - they're between notes
+            w_pitch_changes = []
+            for i in indices[1:]:
+                if i - 1 in indices and i - 1 < len(pitch_changes):
+                    w_pitch_changes.append(pitch_changes[i - 1])
+                elif i <= len(pitch_changes):
+                    # Use the pitch change leading into this note
+                    w_pitch_changes.append(pitch_changes[i - 1] if i > 0 else 0)
+            
+            # Calculate window score
+            w_score, _ = calculate_rhythm_complexity_score(
+                w_durations, w_types, w_dots, w_tuplets, w_ties,
+                w_pitch_changes, w_offsets
+            )
+            window_scores.append(w_score)
+        
+        window_start += RHYTHM_WINDOW_STEP_QL
+    
+    if not window_scores:
+        return None, None, {"reason": "no_valid_windows"}
+    
+    # Calculate peak and p95
+    sorted_scores = sorted(window_scores)
+    peak = max(window_scores)
+    
+    # P95: 95th percentile
+    p95_idx = int(len(sorted_scores) * 0.95)
+    p95 = sorted_scores[min(p95_idx, len(sorted_scores) - 1)]
+    
+    raw = {
+        "window_count": len(window_scores),
+        "total_duration_ql": total_duration,
+        "window_duration_ql": RHYTHM_WINDOW_DURATION_QL,
+        "window_step_ql": RHYTHM_WINDOW_STEP_QL,
+        "min_window_score": min(window_scores),
+        "max_window_score": peak,
+        "mean_window_score": sum(window_scores) / len(window_scores),
+    }
+    
+    return peak, p95, raw
 
 
 # =============================================================================
@@ -493,6 +602,17 @@ class SoftGateCalculator:
             note_data["offsets"],
         )
         
+        # Windowed rhythm complexity for longer pieces
+        d3_peak, d3_p95, d3_windowed_raw = calculate_rhythm_complexity_windowed(
+            note_data["durations"],
+            note_data["types"],
+            note_data["has_dots"],
+            note_data["has_tuplets"],
+            note_data["has_ties"],
+            note_data["pitch_changes"],
+            note_data["offsets"],
+        )
+        
         d4_stage, d4_raw = calculate_range_usage_stage(
             note_data["note_steps"],
         )
@@ -525,6 +645,8 @@ class SoftGateCalculator:
             tonal_complexity_stage=d1_stage,
             interval_size_stage=d2_stage,
             rhythm_complexity_score=d3_score,
+            rhythm_complexity_peak=d3_peak,
+            rhythm_complexity_p95=d3_p95,
             range_usage_stage=d4_stage,
             density_notes_per_second=d5_nps,
             note_density_per_measure=d5_npm,
@@ -536,6 +658,7 @@ class SoftGateCalculator:
                 "d1": d1_raw,
                 "d2": d2_raw,
                 "d3": d3_raw,
+                "d3_windowed": d3_windowed_raw,
                 "d4": d4_raw,
                 "d5": d5_raw,
                 "ivs": ivs_raw,

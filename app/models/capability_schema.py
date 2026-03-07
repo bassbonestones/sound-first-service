@@ -171,7 +171,9 @@ class MaterialAnalysis(Base):
     # Staged content dimensions (for adaptive engine filtering)
     tonal_complexity_stage = Column(Integer, nullable=True)  # 0-5 stages
     interval_size_stage = Column(Integer, nullable=True)  # 0-6 stages
-    rhythm_complexity_stage = Column(Float, nullable=True)  # 0.0-1.0 continuous
+    rhythm_complexity_stage = Column(Float, nullable=True)  # 0.0-1.0 continuous (global)
+    rhythm_complexity_peak = Column(Float, nullable=True)  # 0.0-1.0 windowed max
+    rhythm_complexity_p95 = Column(Float, nullable=True)  # 0.0-1.0 windowed 95th percentile
     range_usage_stage = Column(Integer, nullable=True)  # 0-6 stages
     melodic_predictability_stage = Column(Integer, nullable=True)  # optional later
     difficulty_index = Column(Float, nullable=True)  # 0..1 derived composite difficulty

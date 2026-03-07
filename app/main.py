@@ -2231,11 +2231,13 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
                 "tonal_complexity_stage": metrics.tonal_complexity_stage,
                 "interval_size_stage": metrics.interval_size_stage,
                 "rhythm_complexity_score": round(metrics.rhythm_complexity_score, 3),
+                "rhythm_complexity_peak": round(metrics.rhythm_complexity_peak, 3) if metrics.rhythm_complexity_peak is not None else None,
+                "rhythm_complexity_p95": round(metrics.rhythm_complexity_p95, 3) if metrics.rhythm_complexity_p95 is not None else None,
                 "range_usage_stage": metrics.range_usage_stage,
                 "density_notes_per_second": round(metrics.density_notes_per_second, 2) if metrics.density_notes_per_second else None,
                 "density_notes_per_measure": round(metrics.note_density_per_measure, 2) if metrics.note_density_per_measure else None,
                 "interval_velocity_score": round(metrics.interval_velocity_score, 3),
-                "tempo_difficulty_score": round(metrics.tempo_difficulty_score, 3),
+                "tempo_difficulty_score": round(metrics.tempo_difficulty_score, 3) if metrics.tempo_difficulty_score is not None else None,
             }
         except Exception as e:
             soft_gate_data = {"error": str(e)}
@@ -2501,6 +2503,8 @@ def reanalyze_single_material(
         analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
         analysis.interval_size_stage = soft_gates.interval_size_stage
         analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
+        analysis.rhythm_complexity_peak = soft_gates.rhythm_complexity_peak
+        analysis.rhythm_complexity_p95 = soft_gates.rhythm_complexity_p95
         analysis.range_usage_stage = soft_gates.range_usage_stage
         analysis.density_notes_per_second = soft_gates.density_notes_per_second
         analysis.note_density_per_measure = soft_gates.note_density_per_measure
@@ -2513,9 +2517,11 @@ def reanalyze_single_material(
             "tonal_complexity_stage": soft_gates.tonal_complexity_stage,
             "interval_size_stage": soft_gates.interval_size_stage,
             "rhythm_complexity_score": round(soft_gates.rhythm_complexity_score, 3),
+            "rhythm_complexity_peak": round(soft_gates.rhythm_complexity_peak, 3) if soft_gates.rhythm_complexity_peak is not None else None,
+            "rhythm_complexity_p95": round(soft_gates.rhythm_complexity_p95, 3) if soft_gates.rhythm_complexity_p95 is not None else None,
             "range_usage_stage": soft_gates.range_usage_stage,
             "density_notes_per_second": round(soft_gates.density_notes_per_second, 3),
-            "tempo_difficulty_score": round(soft_gates.tempo_difficulty_score, 3),
+            "tempo_difficulty_score": round(soft_gates.tempo_difficulty_score, 3) if soft_gates.tempo_difficulty_score is not None else None,
             "interval_velocity_score": round(soft_gates.interval_velocity_score, 3),
         }
         metrics_updated.append("soft_gates")
@@ -2656,6 +2662,8 @@ def reanalyze_all_materials(
                 analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
                 analysis.interval_size_stage = soft_gates.interval_size_stage
                 analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
+                analysis.rhythm_complexity_peak = soft_gates.rhythm_complexity_peak
+                analysis.rhythm_complexity_p95 = soft_gates.rhythm_complexity_p95
                 analysis.range_usage_stage = soft_gates.range_usage_stage
                 analysis.density_notes_per_second = soft_gates.density_notes_per_second
                 analysis.note_density_per_measure = soft_gates.note_density_per_measure
