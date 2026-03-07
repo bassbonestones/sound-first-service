@@ -37,6 +37,7 @@ from app.scoring_functions import (
     analyze_tempo_domain,
     analyze_range_domain,
     analyze_throughput_domain,
+    analyze_pattern_domain,
     DomainResult,
 )
 
@@ -1568,5 +1569,24 @@ def calculate_unified_domain_scores(
         'notes_per_measure': metrics.note_density_per_measure,
     }
     results['throughput'] = analyze_throughput_domain(throughput_profile)
+    
+    # -------------------------------------------------------------------------
+    # PATTERN / PREDICTABILITY DOMAIN
+    # -------------------------------------------------------------------------
+    # Get melodic pattern analysis from extraction if available
+    melodic_pattern = extraction.get('melodic_pattern_analysis', {}) if extraction else {}
+    
+    pattern_profile = {
+        'total_melodic_motifs': melodic_pattern.get('total_motifs', 0),
+        'unique_melodic_motifs': melodic_pattern.get('unique_motifs', 0),
+        'melodic_motif_uniqueness_ratio': melodic_pattern.get('motif_uniqueness_ratio'),
+        'melodic_motif_repetition_ratio': melodic_pattern.get('motif_repetition_ratio'),
+        'sequence_count': melodic_pattern.get('sequence_count', 0),
+        'sequence_coverage_ratio': melodic_pattern.get('sequence_coverage_ratio', 0.0),
+        # Include rhythm pattern metrics
+        'rhythm_uniqueness_ratio': rhythm_uniqueness,
+        'rhythm_repetition_ratio': rhythm_repetition,
+    }
+    results['pattern'] = analyze_pattern_domain(pattern_profile)
     
     return results

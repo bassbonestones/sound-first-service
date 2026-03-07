@@ -64,6 +64,16 @@ class EngineConfig:
     # Maturity calculation weights
     maturity_cap_weight: float = 0.6
     maturity_mat_weight: float = 0.4
+    
+    # Unified scoring eligibility (Phase 6)
+    use_unified_score_eligibility: bool = True  # Enable unified score-based filtering
+    max_primary_score_delta: float = 0.30  # Max (material - user) primary score gap allowed
+    max_hazard_score: float = 0.75  # Hard cap on hazard score for new materials
+    hazard_tolerance_maintenance: float = 0.90  # Higher tolerance for maintenance bucket
+    
+    # Unified scoring ranking weights (Phase 6)
+    ranking_overall_score_weight: float = 0.4  # Weight for overall_score in ranking
+    ranking_interaction_bonus_weight: float = 0.1  # Weight for interaction bonus
 
 
 # Global default config (can be overridden)
@@ -106,6 +116,12 @@ class MaterialCandidate:
     last_attempt_at: Optional[datetime] = None
     status: MaterialStatus = MaterialStatus.UNEXPLORED
     shelf: MaterialShelf = MaterialShelf.DEFAULT
+    # Unified scoring fields (Phase 6)
+    overall_score: Optional[float] = None  # Composite unified score (0-1)
+    primary_scores: Dict[str, Optional[float]] = field(default_factory=dict)  # {domain: score}
+    hazard_scores: Dict[str, Optional[float]] = field(default_factory=dict)  # {domain: score}
+    interaction_bonus: float = 0.0  # Difficulty interaction bonus
+    hazard_flags: List[str] = field(default_factory=list)  # Warning flags
 
 
 @dataclass
@@ -140,6 +156,10 @@ class SessionMaterial:
     material_id: int
     bucket: Bucket
     focus_targets: List[FocusTarget] = field(default_factory=list)
+    # Unified scoring hazard warnings (Phase 6)
+    hazard_warnings: List[str] = field(default_factory=list)
+    overall_score: Optional[float] = None
+    interaction_bonus: float = 0.0
 
 
 # =============================================================================
@@ -266,6 +286,89 @@ def is_material_eligible(
             return False
     
     return True
+
+
+def check_unified_score_eligibility(
+    material_candidate: 'MaterialCandidate',
+    user_ability_scores: Dict[str, float],
+    bucket: 'Bucket' = None,
+    config: EngineConfig = None
+) -> Tuple[bool, List[str]]:
+    """
+    Check eligibility based on unified scoring (Phase 6).
+    
+    Returns:
+        (is_eligible, list_of_blocking_reasons)
+    
+    Checks:
+    1. Primary score delta: material's primary scores should not exceed
+       user's ability scores by more than max_primary_score_delta.
+    2. Hazard cap: material's hazard scores should not exceed max_hazard_score
+       (relaxed for maintenance bucket).
+    """
+    if config is None:
+        config = DEFAULT_CONFIG
+    
+    if not config.use_unified_score_eligibility:
+        return True, []
+    
+    blocking_reasons = []
+    
+    # Get hazard tolerance (relaxed for maintenance)
+    if bucket == Bucket.MAINTENANCE:
+        hazard_cap = config.hazard_tolerance_maintenance
+    else:
+        hazard_cap = config.max_hazard_score
+    
+    # Check primary score deltas
+    for domain, material_score in material_candidate.primary_scores.items():
+        if material_score is None:
+            continue
+        
+        user_score = user_ability_scores.get(domain, 0.0)
+        delta = material_score - user_score
+        
+        if delta > config.max_primary_score_delta:
+            blocking_reasons.append(
+                f"{domain}_too_hard: material={material_score:.2f}, user={user_score:.2f}, delta={delta:.2f}"
+            )
+    
+    # Check hazard scores
+    for domain, hazard_score in material_candidate.hazard_scores.items():
+        if hazard_score is None:
+            continue
+        
+        if hazard_score > hazard_cap:
+            blocking_reasons.append(
+                f"{domain}_hazard_too_high: {hazard_score:.2f} > {hazard_cap:.2f}"
+            )
+    
+    return len(blocking_reasons) == 0, blocking_reasons
+
+
+def get_hazard_warnings(
+    material_candidate: 'MaterialCandidate',
+    config: EngineConfig = None
+) -> List[str]:
+    """
+    Get hazard warnings for a material (informational, not blocking).
+    
+    Returns flags and high hazard scores that teachers/UI should surface.
+    """
+    if config is None:
+        config = DEFAULT_CONFIG
+    
+    warnings = list(material_candidate.hazard_flags)  # Copy existing flags
+    
+    # Add warnings for moderately high hazard scores
+    warn_threshold = config.max_hazard_score * 0.8  # 80% of blocking threshold
+    for domain, hazard_score in material_candidate.hazard_scores.items():
+        if hazard_score is None:
+            continue
+        if hazard_score >= warn_threshold:
+            warnings.append(f"{domain}_elevated_hazard: {hazard_score:.2f}")
+    
+    return warnings
 
 
 # =============================================================================
@@ -548,19 +651,55 @@ def compute_novelty_value(candidate: MaterialCandidate) -> float:
     return 0.0
 
 
+def compute_difficulty_match_value(
+    candidate: MaterialCandidate,
+    user_maturity: float,
+    config: EngineConfig = None
+) -> float:
+    """
+    Compute difficulty match value using unified scoring (Phase 6).
+    
+    Prefer materials whose overall_score aligns with user's maturity level.
+    A perfect match is when material difficulty = user maturity.
+    
+    Returns 0-1 where 1 = perfect match.
+    """
+    if config is None:
+        config = DEFAULT_CONFIG
+    
+    if candidate.overall_score is None:
+        # Fallback to difficulty_index if unified scoring not available
+        material_difficulty = candidate.difficulty_index
+    else:
+        material_difficulty = candidate.overall_score
+    
+    # Compute how well difficulty matches user maturity
+    # Smaller gap = better match
+    gap = abs(material_difficulty - user_maturity)
+    match_value = max(0.0, 1.0 - gap)
+    
+    return match_value
+
+
 def score_candidate(
     candidate: MaterialCandidate,
     bucket: Bucket,
     capability_progress: Dict[int, CapabilityProgress],
     now: datetime = None,
-    config: EngineConfig = None
+    config: EngineConfig = None,
+    user_maturity: float = 0.5
 ) -> float:
     """
     Score a candidate based on its bucket.
     
+    Base formulas:
     NEW: 1.0*progressValue + 0.5*noveltyValue - 0.3*fatiguePenalty
     IN_PROGRESS: 1.0*progressValue + 0.8*maintenanceValue - 0.3*fatiguePenalty
     MAINTENANCE: 0.6*maintenanceValue + 0.3*progressValue - 0.3*fatiguePenalty
+    
+    Plus unified scoring bonus (Phase 6):
+    + ranking_overall_score_weight * difficultyMatchValue
+    + ranking_interaction_bonus_weight * interactionBonus
     """
     if config is None:
         config = DEFAULT_CONFIG
@@ -570,12 +709,22 @@ def score_candidate(
     novelty_val = compute_novelty_value(candidate)
     fatigue_pen = compute_fatigue_penalty(candidate.last_attempt_at, now, config)
     
+    # Base score by bucket
     if bucket == Bucket.NEW:
-        return 1.0 * progress_val + 0.5 * novelty_val - 0.3 * fatigue_pen
+        base_score = 1.0 * progress_val + 0.5 * novelty_val - 0.3 * fatigue_pen
     elif bucket == Bucket.IN_PROGRESS:
-        return 1.0 * progress_val + 0.8 * maintenance_val - 0.3 * fatigue_pen
+        base_score = 1.0 * progress_val + 0.8 * maintenance_val - 0.3 * fatigue_pen
     else:  # MAINTENANCE
-        return 0.6 * maintenance_val + 0.3 * progress_val - 0.3 * fatigue_pen
+        base_score = 0.6 * maintenance_val + 0.3 * progress_val - 0.3 * fatigue_pen
+    
+    # Add unified scoring bonus (Phase 6)
+    difficulty_match = compute_difficulty_match_value(candidate, user_maturity, config)
+    unified_bonus = (
+        config.ranking_overall_score_weight * difficulty_match
+        + config.ranking_interaction_bonus_weight * candidate.interaction_bonus
+    )
+    
+    return base_score + unified_bonus
 
 
 def rank_candidates(
@@ -583,11 +732,12 @@ def rank_candidates(
     bucket: Bucket,
     capability_progress: Dict[int, CapabilityProgress],
     now: datetime = None,
-    config: EngineConfig = None
+    config: EngineConfig = None,
+    user_maturity: float = 0.5
 ) -> List[MaterialCandidate]:
     """Rank candidates by score within a bucket."""
     scored = [
-        (c, score_candidate(c, bucket, capability_progress, now, config))
+        (c, score_candidate(c, bucket, capability_progress, now, config, user_maturity))
         for c in candidates
     ]
     scored.sort(key=lambda x: x[1], reverse=True)
@@ -658,18 +808,26 @@ def select_material(
         candidates = filter_candidates_by_bucket(pool, bucket)
         
         if candidates:
-            ranked = rank_candidates(candidates, bucket, cap_progress_dict, now, config)
+            ranked = rank_candidates(candidates, bucket, cap_progress_dict, now, config, maturity)
             if ranked:
+                selected = ranked[0]
                 return SessionMaterial(
-                    material_id=ranked[0].material_id,
-                    bucket=bucket
+                    material_id=selected.material_id,
+                    bucket=bucket,
+                    hazard_warnings=get_hazard_warnings(selected, config),
+                    overall_score=selected.overall_score,
+                    interaction_bonus=selected.interaction_bonus,
                 )
     
     # Fallback: pick anything from pool
     if pool:
+        selected = pool[0]
         return SessionMaterial(
-            material_id=pool[0].material_id,
-            bucket=Bucket.IN_PROGRESS
+            material_id=selected.material_id,
+            bucket=Bucket.IN_PROGRESS,
+            hazard_warnings=get_hazard_warnings(selected, config),
+            overall_score=selected.overall_score,
+            interaction_bonus=selected.interaction_bonus,
         )
     
     return None

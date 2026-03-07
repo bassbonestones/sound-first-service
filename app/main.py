@@ -2502,7 +2502,8 @@ def reanalyze_single_material(
     """
     from app.musicxml_analyzer import MusicXMLAnalyzer, compute_capability_bitmask
     from app.capability_registry import CapabilityRegistry, DetectionEngine
-    from app.soft_gate_calculator import SoftGateCalculator
+    from app.soft_gate_calculator import SoftGateCalculator, calculate_unified_domain_scores
+    from app.difficulty_interactions import calculate_composite_difficulty
     from app.models.capability_schema import Capability, MaterialCapability, MaterialAnalysis
     
     material = db.query(Material).filter_by(id=material_id).first()
@@ -2513,7 +2514,7 @@ def reanalyze_single_material(
         raise HTTPException(status_code=400, detail="Material has no MusicXML content")
     
     # Determine which metrics to update
-    metrics = data.metrics or ["capabilities", "soft_gates", "range"]
+    metrics = data.metrics or ["capabilities", "soft_gates", "range", "unified_scores"]
     metrics_updated = []
     
     # Initialize analyzers as needed
@@ -2633,6 +2634,61 @@ def reanalyze_single_material(
         }
         metrics_updated.append("soft_gates")
     
+    # Persist unified scores (Phase 4)
+    if "unified_scores" in metrics or "soft_gates" in metrics:
+        try:
+            # Build extraction dict for unified scoring
+            extraction_dict = {
+                'note_values': dict(extraction_result.note_values) if extraction_result.note_values else {},
+                'tuplets': dict(extraction_result.tuplets) if extraction_result.tuplets else {},
+                'dotted_notes': list(extraction_result.dotted_notes) if extraction_result.dotted_notes else [],
+                'has_ties': extraction_result.has_ties,
+            }
+            if extraction_result.rhythm_pattern_analysis:
+                extraction_dict['rhythm_measure_uniqueness_ratio'] = extraction_result.rhythm_pattern_analysis.rhythm_measure_uniqueness_ratio
+                extraction_dict['rhythm_measure_repetition_ratio'] = extraction_result.rhythm_pattern_analysis.rhythm_measure_repetition_ratio
+            
+            # Build inputs for calculate_unified_domain_scores
+            tempo_profile_dict = extraction_result.tempo_profile.to_dict() if extraction_result.tempo_profile else None
+            range_analysis_dict = extraction_result.range_analysis.__dict__ if extraction_result.range_analysis else None
+            
+            # Calculate unified domain scores
+            domain_results = calculate_unified_domain_scores(
+                metrics=soft_gates,
+                tempo_profile=tempo_profile_dict,
+                range_analysis=range_analysis_dict,
+                extraction=extraction_dict,
+            )
+            
+            # Persist JSON columns
+            analysis.analysis_schema_version = 1
+            analysis.interval_analysis_json = json.dumps(domain_results['interval'].to_dict()) if 'interval' in domain_results else None
+            analysis.rhythm_analysis_json = json.dumps(domain_results['rhythm'].to_dict()) if 'rhythm' in domain_results else None
+            analysis.tonal_analysis_json = json.dumps(domain_results['tonal'].to_dict()) if 'tonal' in domain_results else None
+            analysis.tempo_analysis_json = json.dumps(domain_results['tempo'].to_dict()) if 'tempo' in domain_results else None
+            analysis.range_analysis_json = json.dumps(domain_results['range'].to_dict()) if 'range' in domain_results else None
+            analysis.throughput_analysis_json = json.dumps(domain_results['throughput'].to_dict()) if 'throughput' in domain_results else None
+            
+            # Persist indexed primary scores
+            analysis.interval_primary_score = domain_results['interval'].scores.get('primary') if 'interval' in domain_results and domain_results['interval'].scores else None
+            analysis.rhythm_primary_score = domain_results['rhythm'].scores.get('primary') if 'rhythm' in domain_results and domain_results['rhythm'].scores else None
+            analysis.tonal_primary_score = domain_results['tonal'].scores.get('primary') if 'tonal' in domain_results and domain_results['tonal'].scores else None
+            analysis.tempo_primary_score = domain_results['tempo'].scores.get('primary') if 'tempo' in domain_results and domain_results['tempo'].scores else None
+            analysis.range_primary_score = domain_results['range'].scores.get('primary') if 'range' in domain_results and domain_results['range'].scores else None
+            analysis.throughput_primary_score = domain_results['throughput'].scores.get('primary') if 'throughput' in domain_results and domain_results['throughput'].scores else None
+            
+            # Compute and persist composite scores
+            all_scores = {name: dr.scores for name, dr in domain_results.items()}
+            composite = calculate_composite_difficulty(all_scores)
+            analysis.overall_score = composite.get('overall')
+            analysis.interaction_bonus = composite.get('interaction_bonus')
+            
+            metrics_updated.append("unified_scores")
+        except Exception as e:
+            # Don't fail the whole reanalyze if unified scores fail
+            import traceback
+            result_data["unified_scores_error"] = str(e)
+    
     # Re-analyze range
     if "range" in metrics:
         range_data = extraction_result.range_analysis
@@ -2694,7 +2750,8 @@ def reanalyze_all_materials(
     """
     from app.musicxml_analyzer import MusicXMLAnalyzer, compute_capability_bitmask
     from app.capability_registry import CapabilityRegistry, DetectionEngine
-    from app.soft_gate_calculator import SoftGateCalculator
+    from app.soft_gate_calculator import SoftGateCalculator, calculate_unified_domain_scores
+    from app.difficulty_interactions import calculate_composite_difficulty
     from app.models.capability_schema import Capability, MaterialCapability, MaterialAnalysis
     
     # Get materials to process
@@ -2799,6 +2856,50 @@ def reanalyze_all_materials(
                 analysis.interval_velocity_p95 = soft_gates.interval_velocity_p95
                 analysis.unique_pitch_count = soft_gates.unique_pitch_count
                 analysis.largest_interval_semitones = soft_gates.largest_interval_semitones
+                
+                # Persist unified scores (Phase 4)
+                try:
+                    extraction_dict = {
+                        'note_values': dict(extraction_result.note_values) if extraction_result.note_values else {},
+                        'tuplets': dict(extraction_result.tuplets) if extraction_result.tuplets else {},
+                        'dotted_notes': list(extraction_result.dotted_notes) if extraction_result.dotted_notes else [],
+                        'has_ties': extraction_result.has_ties,
+                    }
+                    if extraction_result.rhythm_pattern_analysis:
+                        extraction_dict['rhythm_measure_uniqueness_ratio'] = extraction_result.rhythm_pattern_analysis.rhythm_measure_uniqueness_ratio
+                        extraction_dict['rhythm_measure_repetition_ratio'] = extraction_result.rhythm_pattern_analysis.rhythm_measure_repetition_ratio
+                    
+                    tempo_profile_dict = extraction_result.tempo_profile.to_dict() if extraction_result.tempo_profile else None
+                    range_analysis_dict = extraction_result.range_analysis.__dict__ if extraction_result.range_analysis else None
+                    
+                    domain_results = calculate_unified_domain_scores(
+                        metrics=soft_gates,
+                        tempo_profile=tempo_profile_dict,
+                        range_analysis=range_analysis_dict,
+                        extraction=extraction_dict,
+                    )
+                    
+                    analysis.analysis_schema_version = 1
+                    analysis.interval_analysis_json = json.dumps(domain_results['interval'].to_dict()) if 'interval' in domain_results else None
+                    analysis.rhythm_analysis_json = json.dumps(domain_results['rhythm'].to_dict()) if 'rhythm' in domain_results else None
+                    analysis.tonal_analysis_json = json.dumps(domain_results['tonal'].to_dict()) if 'tonal' in domain_results else None
+                    analysis.tempo_analysis_json = json.dumps(domain_results['tempo'].to_dict()) if 'tempo' in domain_results else None
+                    analysis.range_analysis_json = json.dumps(domain_results['range'].to_dict()) if 'range' in domain_results else None
+                    analysis.throughput_analysis_json = json.dumps(domain_results['throughput'].to_dict()) if 'throughput' in domain_results else None
+                    
+                    analysis.interval_primary_score = domain_results['interval'].scores.get('primary') if 'interval' in domain_results and domain_results['interval'].scores else None
+                    analysis.rhythm_primary_score = domain_results['rhythm'].scores.get('primary') if 'rhythm' in domain_results and domain_results['rhythm'].scores else None
+                    analysis.tonal_primary_score = domain_results['tonal'].scores.get('primary') if 'tonal' in domain_results and domain_results['tonal'].scores else None
+                    analysis.tempo_primary_score = domain_results['tempo'].scores.get('primary') if 'tempo' in domain_results and domain_results['tempo'].scores else None
+                    analysis.range_primary_score = domain_results['range'].scores.get('primary') if 'range' in domain_results and domain_results['range'].scores else None
+                    analysis.throughput_primary_score = domain_results['throughput'].scores.get('primary') if 'throughput' in domain_results and domain_results['throughput'].scores else None
+                    
+                    all_scores = {name: dr.scores for name, dr in domain_results.items()}
+                    composite = calculate_composite_difficulty(all_scores)
+                    analysis.overall_score = composite.get('overall')
+                    analysis.interaction_bonus = composite.get('interaction_bonus')
+                except Exception:
+                    pass  # Don't fail batch on unified score errors
             
             if "range" in metrics:
                 range_data = extraction_result.range_analysis

@@ -18,7 +18,7 @@ from .models.capability_schema import (
     Capability, MaterialCapability, MaterialTeachesCapability,
     MaterialAnalysis, UserCapability, UserMaterialState,
     UserPitchFocusStats, UserCapabilityEvidenceEvent, UserLicense,
-    UserSoftGateState
+    UserSoftGateState, UserComplexityScores
 )
 from .practice_engine import (
     EngineConfig, DEFAULT_CONFIG, MaterialCandidate, CapabilityProgress,
@@ -29,8 +29,10 @@ from .practice_engine import (
     select_target_capabilities, build_candidate_pool, compute_bucket_weights,
     sample_bucket, filter_candidates_by_bucket, rank_candidates,
     select_focus_targets, process_attempt, compute_ema,
-    check_material_mastery, check_capability_mastery, set_capability_bit
+    check_material_mastery, check_capability_mastery, set_capability_bit,
+    get_hazard_warnings, check_unified_score_eligibility
 )
+from .scoring_functions import score_to_stage
 
 
 class PracticeEngineService:
@@ -57,23 +59,87 @@ class PracticeEngineService:
                 MaterialTeachesCapability.material_id == s.material_id
             ).all()
             
-            # Get difficulty index from analysis
+            # Get analysis data including unified scores
             analysis = self.db.query(MaterialAnalysis).filter(
                 MaterialAnalysis.material_id == s.material_id
             ).first()
             
+            # Extract unified scoring data
+            primary_scores = {}
+            hazard_scores = {}
+            hazard_flags = []
+            overall_score = None
+            interaction_bonus = 0.0
+            difficulty_index = 0.5
+            
+            if analysis:
+                difficulty_index = analysis.difficulty_index or 0.5
+                overall_score = analysis.overall_score
+                interaction_bonus = analysis.interaction_bonus or 0.0
+                
+                # Extract primary scores
+                primary_scores = {
+                    'interval': analysis.interval_primary_score,
+                    'rhythm': analysis.rhythm_primary_score,
+                    'tonal': analysis.tonal_primary_score,
+                    'tempo': analysis.tempo_primary_score,
+                    'range': analysis.range_primary_score,
+                    'throughput': analysis.throughput_primary_score,
+                }
+                
+                # Extract hazard scores from JSON analysis columns
+                hazard_scores, hazard_flags = self._extract_hazard_data(analysis)
+            
             result[s.material_id] = MaterialCandidate(
                 material_id=s.material_id,
                 teaches_capabilities=[t[0] for t in teaches],
-                difficulty_index=analysis.difficulty_index if analysis and analysis.difficulty_index else 0.5,
+                difficulty_index=difficulty_index,
                 ema_score=s.ema_score or 0.0,
                 attempt_count=s.attempt_count or 0,
                 last_attempt_at=s.last_attempt_at,
                 status=MaterialStatus(s.status) if s.status else MaterialStatus.UNEXPLORED,
                 shelf=MaterialShelf(s.shelf) if s.shelf else MaterialShelf.DEFAULT,
+                overall_score=overall_score,
+                primary_scores=primary_scores,
+                hazard_scores=hazard_scores,
+                interaction_bonus=interaction_bonus,
+                hazard_flags=hazard_flags,
             )
         
         return result
+    
+    def _extract_hazard_data(self, analysis: MaterialAnalysis) -> tuple:
+        """Extract hazard scores and flags from analysis JSON columns."""
+        hazard_scores = {}
+        hazard_flags = []
+        
+        # Domain JSON column mapping
+        domain_columns = [
+            ('interval', analysis.interval_analysis_json),
+            ('rhythm', analysis.rhythm_analysis_json),
+            ('tonal', analysis.tonal_analysis_json),
+            ('tempo', analysis.tempo_analysis_json),
+            ('range', analysis.range_analysis_json),
+            ('throughput', analysis.throughput_analysis_json),
+        ]
+        
+        for domain, json_str in domain_columns:
+            if not json_str:
+                continue
+            try:
+                data = json.loads(json_str)
+                # Extract hazard score
+                scores = data.get('scores', {})
+                hazard_scores[domain] = scores.get('hazard')
+                
+                # Extract flags
+                flags = data.get('flags', [])
+                for flag in flags:
+                    hazard_flags.append(f"{domain}:{flag}")
+            except (json.JSONDecodeError, TypeError):
+                continue
+        
+        return hazard_scores, hazard_flags
     
     def get_capability_progress(self, user_id: int) -> List[CapabilityProgress]:
         """Load capability progress for a user."""
@@ -111,6 +177,36 @@ class PracticeEngineService:
             result[t.capability_id].append(t.material_id)
         
         return result
+    
+    def get_user_ability_scores(self, user_id: int) -> Dict[str, float]:
+        """
+        Get user's unified ability scores for eligibility checking.
+        
+        Returns a dict mapping domain name to ability score (0.0-1.0).
+        """
+        scores = self.db.query(UserComplexityScores).filter(
+            UserComplexityScores.user_id == user_id
+        ).first()
+        
+        if not scores:
+            # Return zeros for new users
+            return {
+                'interval': 0.0,
+                'rhythm': 0.0,
+                'tonal': 0.0,
+                'tempo': 0.0,
+                'range': 0.0,
+                'throughput': 0.0,
+            }
+        
+        return {
+            'interval': scores.interval_ability_score or 0.0,
+            'rhythm': scores.rhythm_ability_score or 0.0,
+            'tonal': scores.tonal_ability_score or 0.0,
+            'tempo': scores.tempo_ability_score or 0.0,
+            'range': scores.range_ability_score or 0.0,
+            'throughput': scores.throughput_ability_score or 0.0,
+        }
     
     def get_pitch_focus_stats(
         self, 
@@ -185,6 +281,7 @@ class PracticeEngineService:
         materials_by_teaches = self.get_materials_by_teaches()
         material_states = self.get_user_material_states(user_id)
         maturity = self.compute_user_maturity(user_id)
+        user_ability_scores = self.get_user_ability_scores(user_id)
         
         # Create mask lookup function
         material_masks_cache = {}
@@ -227,19 +324,34 @@ class PracticeEngineService:
             bucket = sample_bucket(bucket_weights)
             candidates = filter_candidates_by_bucket(pool, bucket)
             
+            # Apply unified score eligibility filter (Phase 7)
+            if self.config.use_unified_score_eligibility:
+                candidates = [
+                    c for c in candidates
+                    if check_unified_score_eligibility(c, user_ability_scores, bucket, self.config)[0]
+                ]
+            
             if candidates:
-                ranked = rank_candidates(candidates, bucket, cap_progress_dict, now, self.config)
+                ranked = rank_candidates(candidates, bucket, cap_progress_dict, now, self.config, maturity)
                 if ranked:
+                    selected = ranked[0]
                     return SessionMaterial(
-                        material_id=ranked[0].material_id,
-                        bucket=bucket
+                        material_id=selected.material_id,
+                        bucket=bucket,
+                        hazard_warnings=get_hazard_warnings(selected, self.config),
+                        overall_score=selected.overall_score,
+                        interaction_bonus=selected.interaction_bonus,
                     )
         
         # Fallback
         if pool:
+            selected = pool[0]
             return SessionMaterial(
-                material_id=pool[0].material_id,
-                bucket=Bucket.IN_PROGRESS
+                material_id=selected.material_id,
+                bucket=Bucket.IN_PROGRESS,
+                hazard_warnings=get_hazard_warnings(selected, self.config),
+                overall_score=selected.overall_score,
+                interaction_bonus=selected.interaction_bonus,
             )
         
         return None
@@ -361,6 +473,11 @@ class PracticeEngineService:
             config=self.config
         )
         
+        # Detect material mastery transition
+        was_mastered = (candidate.status == MaterialStatus.MASTERED)
+        is_now_mastered = (result.new_status == MaterialStatus.MASTERED)
+        material_newly_mastered = is_now_mastered and not was_mastered
+        
         # Update material state
         state.ema_score = result.new_ema
         state.attempt_count = result.new_attempt_count
@@ -435,6 +552,10 @@ class PracticeEngineService:
                 # Update user's capability bitmask
                 if cap.bit_index is not None:
                     self._set_user_capability_bit(user_id, cap.bit_index)
+        
+        # Update user ability scores if material newly mastered (Phase 7)
+        if material_newly_mastered:
+            self._update_user_ability_scores(user_id, material_id)
         
         # Update pitch/focus stats if provided
         if focus_card_id and pitch_midi:
@@ -534,6 +655,55 @@ class PracticeEngineService:
                 return False
         
         return True
+
+    def _update_user_ability_scores(self, user_id: int, material_id: int):
+        """
+        Update user's unified ability scores when a material is mastered.
+        
+        For each domain, updates the user's ability score to:
+            max(current_ability, material_primary_score)
+        
+        Also updates the derived stage columns.
+        """
+        # Get material analysis
+        analysis = self.db.query(MaterialAnalysis).filter(
+            MaterialAnalysis.material_id == material_id
+        ).first()
+        
+        if not analysis:
+            return
+        
+        # Get or create user complexity scores
+        scores = self.db.query(UserComplexityScores).filter(
+            UserComplexityScores.user_id == user_id
+        ).first()
+        
+        if not scores:
+            scores = UserComplexityScores(user_id=user_id)
+            self.db.add(scores)
+        
+        # Domain mapping: (analysis_column, ability_column, stage_column)
+        domains = [
+            (analysis.interval_primary_score, 'interval_ability_score', 'interval_demonstrated_stage'),
+            (analysis.rhythm_primary_score, 'rhythm_ability_score', 'rhythm_demonstrated_stage'),
+            (analysis.tonal_primary_score, 'tonal_ability_score', 'tonal_demonstrated_stage'),
+            (analysis.tempo_primary_score, 'tempo_ability_score', 'tempo_demonstrated_stage'),
+            (analysis.range_primary_score, 'range_ability_score', 'range_demonstrated_stage'),
+            (analysis.throughput_primary_score, 'throughput_ability_score', 'throughput_demonstrated_stage'),
+        ]
+        
+        for material_score, ability_col, stage_col in domains:
+            if material_score is None:
+                continue
+            
+            current_ability = getattr(scores, ability_col) or 0.0
+            new_ability = max(current_ability, material_score)
+            
+            if new_ability > current_ability:
+                setattr(scores, ability_col, new_ability)
+                setattr(scores, stage_col, score_to_stage(new_ability))
+        
+        scores.updated_at = datetime.now()
 
     def _pitch_name_to_midi(self, pitch_name: str) -> int:
         """Convert pitch name like 'C4' to MIDI number."""

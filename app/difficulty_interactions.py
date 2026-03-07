@@ -207,12 +207,13 @@ def has_interaction_hazard(
 
 # Default weights for composite calculation
 DEFAULT_DOMAIN_WEIGHTS = {
-    'rhythm': 0.25,
-    'interval': 0.20,
-    'tonal': 0.15,
-    'tempo': 0.15,
-    'throughput': 0.15,
-    'notation': 0.10,  # Future
+    'rhythm': 0.22,
+    'interval': 0.18,
+    'tonal': 0.14,
+    'tempo': 0.14,
+    'throughput': 0.14,
+    'pattern': 0.10,   # Predictability/cognitive load
+    'notation': 0.08,  # Future
 }
 
 

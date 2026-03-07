@@ -1,43 +1,37 @@
-"""Initial consolidated schema
+"""Consolidated schema - Sound First Service
+================================================================================
+This file represents the COMPLETE database schema as of 2026-03-08.
+Use this for fresh database setup or future migration reset baseline.
 
-Revision ID: 20260306_initial
-Revises: 
-Create Date: 2026-03-06
+Migration History (consolidated):
+- 20260306_initial: Base schema (users, capabilities, materials, etc.)
+- 20260307_soft_gates: Added soft gate metrics to material_analysis
+- 20260307_rhythm_windowed: Added windowed complexity metrics
+- 20260307_interval_profile: Added interval demand profile system
+- 20260308_unified_scoring: Added unified scoring schema (JSON + indexed scores)
 
-This is a clean, consolidated schema that includes all tables
-in their final form. Previous migrations have been merged.
-
-Tables:
-- users: User accounts with day0 tracking and bitmask columns
-- capabilities: Skill nodes in the capability graph (evidence-based)
-- materials: MusicXML exercises with bitmask columns
-- focus_cards: Curated practice topics
-- user_capabilities: Per-user capability state with evidence tracking
-- user_ranges: User instrument range settings
-- practice_sessions, mini_sessions: Session tracking
-- curriculum_steps, practice_attempts: Detailed attempt data
-- material_capabilities, material_analysis: Material metadata
-- user_complexity_scores: User complexity preferences
-- licenses, user_licenses, collections, collection_materials: Licensing system
-- material_teaches_capability: Material-to-capability teaching relationship
-- user_material_state: Per-user material mastery tracking
-- user_pitch_focus_stats: Pitch practice statistics
-- user_capability_evidence_event: Evidence event log
-- soft_gate_rules, user_soft_gate_state: Soft gate system
+To reset migrations and use this consolidated schema:
+1. Drop all tables or delete the database
+2. Delete all files in alembic/versions/
+3. Move this file to alembic/versions/20260308_consolidated.py
+4. Run: alembic upgrade head
+================================================================================
 """
 from alembic import op
 import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '20260306_initial'
+revision = '20260308_consolidated'
 down_revision = None
 branch_labels = None
 depends_on = None
 
 
 def upgrade() -> None:
-    # ========== USERS ==========
+    # ==========================================================================
+    # USERS
+    # ==========================================================================
     op.create_table(
         'users',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -63,7 +57,9 @@ def upgrade() -> None:
         sa.Column('cap_mask_7', sa.BigInteger(), default=0),
     )
 
-    # ========== CAPABILITIES (evidence-based) ==========
+    # ==========================================================================
+    # CAPABILITIES (evidence-based skill nodes)
+    # ==========================================================================
     op.create_table(
         'capabilities',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -76,7 +72,7 @@ def upgrade() -> None:
         sa.Column('bit_index', sa.Integer(), nullable=True, unique=True),
         sa.Column('explanation', sa.String(), nullable=True),
         sa.Column('difficulty_tier', sa.Integer(), default=1),
-        sa.Column('introduction_material_id', sa.Integer(), nullable=True),  # FK added later
+        sa.Column('introduction_material_id', sa.Integer(), nullable=True),
         sa.Column('mastery_type', sa.String(), default='single'),
         sa.Column('mastery_count', sa.Integer(), default=1),
         # Evidence profile fields
@@ -93,7 +89,9 @@ def upgrade() -> None:
     op.create_index('ix_capability_domain', 'capabilities', ['domain'])
     op.create_index('ix_capability_bit_index', 'capabilities', ['bit_index'])
 
-    # ========== MATERIALS ==========
+    # ==========================================================================
+    # MATERIALS (MusicXML exercises)
+    # ==========================================================================
     op.create_table(
         'materials',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -117,7 +115,9 @@ def upgrade() -> None:
         sa.Column('req_cap_mask_7', sa.BigInteger(), default=0),
     )
 
-    # ========== FOCUS CARDS ==========
+    # ==========================================================================
+    # FOCUS CARDS (curated practice topics)
+    # ==========================================================================
     op.create_table(
         'focus_cards',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -129,7 +129,9 @@ def upgrade() -> None:
         sa.Column('prompts', sa.String(), nullable=True),
     )
 
-    # ========== USER CAPABILITIES (evidence-based tracking) ==========
+    # ==========================================================================
+    # USER CAPABILITIES (evidence-based tracking)
+    # ==========================================================================
     op.create_table(
         'user_capabilities',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -146,7 +148,9 @@ def upgrade() -> None:
     op.create_index('ix_user_capability_pair', 'user_capabilities', ['user_id', 'capability_id'], unique=True)
     op.create_index('ix_user_capability_active', 'user_capabilities', ['user_id', 'is_active'])
 
-    # ========== USER RANGES ==========
+    # ==========================================================================
+    # USER RANGES
+    # ==========================================================================
     op.create_table(
         'user_ranges',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -155,7 +159,9 @@ def upgrade() -> None:
         sa.Column('range_high', sa.String(), nullable=True),
     )
 
-    # ========== PRACTICE SESSIONS ==========
+    # ==========================================================================
+    # PRACTICE SESSIONS
+    # ==========================================================================
     op.create_table(
         'practice_sessions',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -166,7 +172,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_practice_sessions_user_id', 'practice_sessions', ['user_id'])
 
-    # ========== MINI SESSIONS ==========
+    # ==========================================================================
+    # MINI SESSIONS
+    # ==========================================================================
     op.create_table(
         'mini_sessions',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -182,7 +190,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_mini_sessions_practice_session_id', 'mini_sessions', ['practice_session_id'])
 
-    # ========== CURRICULUM STEPS ==========
+    # ==========================================================================
+    # CURRICULUM STEPS
+    # ==========================================================================
     op.create_table(
         'curriculum_steps',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -197,7 +207,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_curriculum_steps_mini_session_id', 'curriculum_steps', ['mini_session_id'])
 
-    # ========== PRACTICE ATTEMPTS ==========
+    # ==========================================================================
+    # PRACTICE ATTEMPTS
+    # ==========================================================================
     op.create_table(
         'practice_attempts',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -213,7 +225,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_practice_attempts_user_id', 'practice_attempts', ['user_id'])
 
-    # ========== MATERIAL CAPABILITIES (junction table) ==========
+    # ==========================================================================
+    # MATERIAL CAPABILITIES (junction table - what caps a material REQUIRES)
+    # ==========================================================================
     op.create_table(
         'material_capabilities',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -224,37 +238,128 @@ def upgrade() -> None:
     )
     op.create_index('ix_material_capability_pair', 'material_capabilities', ['material_id', 'capability_id'], unique=True)
 
-    # ========== MATERIAL ANALYSIS ==========
+    # ==========================================================================
+    # MATERIAL ANALYSIS (MusicXML analysis metrics)
+    # Includes: soft gates, windowed metrics, interval profile, unified scoring
+    # ==========================================================================
     op.create_table(
         'material_analysis',
         sa.Column('id', sa.Integer(), primary_key=True),
         sa.Column('material_id', sa.Integer(), sa.ForeignKey('materials.id'), unique=True, nullable=False),
+        
+        # --- Range analysis ---
         sa.Column('lowest_pitch', sa.String(), nullable=True),
         sa.Column('highest_pitch', sa.String(), nullable=True),
         sa.Column('range_semitones', sa.Integer(), nullable=True),
+        
+        # --- Pitch density (what % of notes fall in each zone) ---
         sa.Column('pitch_density_low', sa.Float(), nullable=True),
         sa.Column('pitch_density_mid', sa.Float(), nullable=True),
         sa.Column('pitch_density_high', sa.Float(), nullable=True),
+        
+        # --- Trill range concerns ---
         sa.Column('trill_lowest', sa.String(), nullable=True),
         sa.Column('trill_highest', sa.String(), nullable=True),
+        
+        # --- Complexity scores (legacy 1-10 scale) ---
         sa.Column('chromatic_complexity', sa.Float(), nullable=True),
         sa.Column('rhythmic_complexity', sa.Float(), nullable=True),
         sa.Column('reading_complexity', sa.Float(), nullable=True),
+        
+        # --- Tempo ---
         sa.Column('tempo_marking', sa.String(), nullable=True),
         sa.Column('tempo_bpm', sa.Integer(), nullable=True),
+        
+        # --- Duration ---
         sa.Column('measure_count', sa.Integer(), nullable=True),
         sa.Column('estimated_duration_seconds', sa.Integer(), nullable=True),
+        
+        # --- Raw extraction data (JSON) ---
         sa.Column('raw_extraction_json', sa.String(), nullable=True),
-        # Staged content dimensions
+        
+        # --- Staged content dimensions (legacy) ---
         sa.Column('tonal_complexity_stage', sa.Integer(), nullable=True),
-        sa.Column('interval_size_stage', sa.Integer(), nullable=True),
-        sa.Column('rhythm_complexity_stage', sa.Integer(), nullable=True),
+        sa.Column('interval_size_stage', sa.Integer(), nullable=True),  # DEPRECATED: use interval_sustained_stage
+        sa.Column('rhythm_complexity_stage', sa.Float(), nullable=True),  # 0-1 continuous (global)
         sa.Column('range_usage_stage', sa.Integer(), nullable=True),
         sa.Column('melodic_predictability_stage', sa.Integer(), nullable=True),
         sa.Column('difficulty_index', sa.Float(), nullable=True),
+        
+        # --- Soft gate metrics (Phase 2) ---
+        sa.Column('density_notes_per_second', sa.Float(), nullable=True),
+        sa.Column('tempo_difficulty_score', sa.Float(), nullable=True),
+        sa.Column('interval_velocity_score', sa.Float(), nullable=True),  # global
+        sa.Column('interval_velocity_peak', sa.Float(), nullable=True),   # windowed max
+        sa.Column('interval_velocity_p95', sa.Float(), nullable=True),    # windowed 95th percentile
+        sa.Column('unique_pitch_count', sa.Integer(), nullable=True),
+        sa.Column('largest_interval_semitones', sa.Integer(), nullable=True),
+        sa.Column('note_density_per_measure', sa.Float(), nullable=True),
+        
+        # --- Windowed rhythm complexity ---
+        sa.Column('rhythm_complexity_peak', sa.Float(), nullable=True),
+        sa.Column('rhythm_complexity_p95', sa.Float(), nullable=True),
+        
+        # --- Interval demand profile system ---
+        # New staged assessments (replaces interval_size_stage)
+        sa.Column('interval_sustained_stage', sa.Integer(), nullable=True),  # p75-driven, for assignment
+        sa.Column('interval_hazard_stage', sa.Integer(), nullable=True),     # max-driven, for warnings
+        sa.Column('legacy_interval_size_stage', sa.Integer(), nullable=True),# max(sustained, hazard) for compat
+        
+        # Interval profile ratios
+        sa.Column('interval_step_ratio', sa.Float(), nullable=True),        # 0-2 semitones
+        sa.Column('interval_skip_ratio', sa.Float(), nullable=True),        # 3-5 semitones
+        sa.Column('interval_leap_ratio', sa.Float(), nullable=True),        # 6-11 semitones
+        sa.Column('interval_large_leap_ratio', sa.Float(), nullable=True),  # 12-17 semitones
+        sa.Column('interval_extreme_leap_ratio', sa.Float(), nullable=True),# 18+ semitones
+        
+        # Interval percentiles
+        sa.Column('interval_p50', sa.Integer(), nullable=True),  # median
+        sa.Column('interval_p75', sa.Integer(), nullable=True),
+        sa.Column('interval_p90', sa.Integer(), nullable=True),
+        
+        # Local clustering
+        sa.Column('interval_max_large_in_window', sa.Integer(), nullable=True),
+        sa.Column('interval_max_extreme_in_window', sa.Integer(), nullable=True),
+        sa.Column('interval_hardest_measures', sa.String(), nullable=True),  # JSON array
+        
+        # =======================================================================
+        # UNIFIED SCORING SCHEMA (Phase 4) - Facet-aware domain analysis
+        # =======================================================================
+        sa.Column('analysis_schema_version', sa.Integer(), nullable=True, server_default='1'),
+        
+        # Full domain analysis JSON (preserves all facets, bands, flags, confidence)
+        sa.Column('interval_analysis_json', sa.Text(), nullable=True),
+        sa.Column('rhythm_analysis_json', sa.Text(), nullable=True),
+        sa.Column('tonal_analysis_json', sa.Text(), nullable=True),
+        sa.Column('tempo_analysis_json', sa.Text(), nullable=True),
+        sa.Column('range_analysis_json', sa.Text(), nullable=True),
+        sa.Column('throughput_analysis_json', sa.Text(), nullable=True),
+        
+        # Indexed primary scores for fast filtering/ranking (nullable for instrument-dependent)
+        sa.Column('interval_primary_score', sa.Float(), nullable=True),
+        sa.Column('rhythm_primary_score', sa.Float(), nullable=True),
+        sa.Column('tonal_primary_score', sa.Float(), nullable=True),
+        sa.Column('tempo_primary_score', sa.Float(), nullable=True),
+        sa.Column('range_primary_score', sa.Float(), nullable=True),
+        sa.Column('throughput_primary_score', sa.Float(), nullable=True),
+        
+        # Composite scores
+        sa.Column('overall_score', sa.Float(), nullable=True),
+        sa.Column('interaction_bonus', sa.Float(), nullable=True),
     )
+    
+    # Indexes for unified scoring (fast score-based queries)
+    op.create_index('ix_material_analysis_interval_primary_score', 'material_analysis', ['interval_primary_score'])
+    op.create_index('ix_material_analysis_rhythm_primary_score', 'material_analysis', ['rhythm_primary_score'])
+    op.create_index('ix_material_analysis_tonal_primary_score', 'material_analysis', ['tonal_primary_score'])
+    op.create_index('ix_material_analysis_tempo_primary_score', 'material_analysis', ['tempo_primary_score'])
+    op.create_index('ix_material_analysis_range_primary_score', 'material_analysis', ['range_primary_score'])
+    op.create_index('ix_material_analysis_throughput_primary_score', 'material_analysis', ['throughput_primary_score'])
+    op.create_index('ix_material_analysis_overall_score', 'material_analysis', ['overall_score'])
 
-    # ========== USER COMPLEXITY SCORES ==========
+    # ==========================================================================
+    # USER COMPLEXITY SCORES
+    # ==========================================================================
     op.create_table(
         'user_complexity_scores',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -268,7 +373,9 @@ def upgrade() -> None:
         sa.Column('updated_at', sa.DateTime(), nullable=True),
     )
 
-    # ========== LICENSES ==========
+    # ==========================================================================
+    # LICENSES
+    # ==========================================================================
     op.create_table(
         'licenses',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -277,7 +384,9 @@ def upgrade() -> None:
         sa.Column('metadata_json', sa.String(), nullable=True),
     )
 
-    # ========== USER LICENSES ==========
+    # ==========================================================================
+    # USER LICENSES
+    # ==========================================================================
     op.create_table(
         'user_licenses',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -287,7 +396,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_ul_user_license', 'user_licenses', ['user_id', 'license_id'], unique=True)
 
-    # ========== COLLECTIONS ==========
+    # ==========================================================================
+    # COLLECTIONS
+    # ==========================================================================
     op.create_table(
         'collections',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -298,7 +409,9 @@ def upgrade() -> None:
         sa.Column('metadata_json', sa.String(), nullable=True),
     )
 
-    # ========== COLLECTION MATERIALS (junction) ==========
+    # ==========================================================================
+    # COLLECTION MATERIALS (junction)
+    # ==========================================================================
     op.create_table(
         'collection_materials',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -308,7 +421,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_cm_collection_material', 'collection_materials', ['collection_id', 'material_id'], unique=True)
 
-    # ========== MATERIAL TEACHES CAPABILITY ==========
+    # ==========================================================================
+    # MATERIAL TEACHES CAPABILITY (pedagogical relationship)
+    # ==========================================================================
     op.create_table(
         'material_teaches_capability',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -319,7 +434,9 @@ def upgrade() -> None:
     )
     op.create_index('ix_mtc_material_capability', 'material_teaches_capability', ['material_id', 'capability_id'], unique=True)
 
-    # ========== USER MATERIAL STATE ==========
+    # ==========================================================================
+    # USER MATERIAL STATE (per-user material mastery tracking)
+    # ==========================================================================
     op.create_table(
         'user_material_state',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -337,7 +454,9 @@ def upgrade() -> None:
     op.create_index('ix_ums_user_status', 'user_material_state', ['user_id', 'status'])
     op.create_index('ix_ums_user_shelf', 'user_material_state', ['user_id', 'shelf'])
 
-    # ========== USER PITCH FOCUS STATS ==========
+    # ==========================================================================
+    # USER PITCH FOCUS STATS
+    # ==========================================================================
     op.create_table(
         'user_pitch_focus_stats',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -350,10 +469,13 @@ def upgrade() -> None:
         sa.Column('attempt_count', sa.Integer(), default=0),
         sa.Column('last_attempt_at', sa.DateTime(), nullable=True),
     )
-    op.create_index('ix_upfs_unique', 'user_pitch_focus_stats', ['user_id', 'focus_card_id', 'pitch_midi', 'context_type', 'context_id'], unique=True)
+    op.create_index('ix_upfs_unique', 'user_pitch_focus_stats', 
+                    ['user_id', 'focus_card_id', 'pitch_midi', 'context_type', 'context_id'], unique=True)
     op.create_index('ix_upfs_user_context', 'user_pitch_focus_stats', ['user_id', 'context_type', 'context_id'])
 
-    # ========== USER CAPABILITY EVIDENCE EVENT ==========
+    # ==========================================================================
+    # USER CAPABILITY EVIDENCE EVENT (evidence event log)
+    # ==========================================================================
     op.create_table(
         'user_capability_evidence_event',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -366,9 +488,12 @@ def upgrade() -> None:
         sa.Column('is_off_course', sa.Boolean(), default=False),
     )
     op.create_index('ix_ucee_user_cap', 'user_capability_evidence_event', ['user_id', 'capability_id'])
-    op.create_index('ix_ucee_user_cap_material', 'user_capability_evidence_event', ['user_id', 'capability_id', 'material_id'])
+    op.create_index('ix_ucee_user_cap_material', 'user_capability_evidence_event', 
+                    ['user_id', 'capability_id', 'material_id'])
 
-    # ========== SOFT GATE RULES ==========
+    # ==========================================================================
+    # SOFT GATE RULES
+    # ==========================================================================
     op.create_table(
         'soft_gate_rules',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -382,7 +507,9 @@ def upgrade() -> None:
         sa.Column('decay_halflife_days', sa.Float(), nullable=True),
     )
 
-    # ========== USER SOFT GATE STATE ==========
+    # ==========================================================================
+    # USER SOFT GATE STATE
+    # ==========================================================================
     op.create_table(
         'user_soft_gate_state',
         sa.Column('id', sa.Integer(), primary_key=True),
@@ -399,7 +526,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Drop all tables in reverse order
+    # Drop all tables in reverse order of creation
     op.drop_table('user_soft_gate_state')
     op.drop_table('soft_gate_rules')
     op.drop_table('user_capability_evidence_event')
@@ -411,7 +538,7 @@ def downgrade() -> None:
     op.drop_table('user_licenses')
     op.drop_table('licenses')
     op.drop_table('user_complexity_scores')
-    op.drop_table('material_analysis')
+    op.drop_table('material_analysis')  # Includes unified scoring indexes
     op.drop_table('material_capabilities')
     op.drop_table('practice_attempts')
     op.drop_table('curriculum_steps')

@@ -212,6 +212,31 @@ class MaterialAnalysis(Base):
     unique_pitch_count = Column(Integer, nullable=True)  # Distinct pitch classes (0-12)
     largest_interval_semitones = Column(Integer, nullable=True)  # Max melodic leap
     note_density_per_measure = Column(Float, nullable=True)  # Notes per measure (tempo-independent)
+    
+    # ==========================================================================
+    # UNIFIED SCORING SCHEMA (Phase 4) - Facet-aware domain analysis
+    # ==========================================================================
+    analysis_schema_version = Column(Integer, nullable=True, default=1)
+    
+    # Full domain analysis JSON (preserves all facets, bands, flags, confidence)
+    interval_analysis_json = Column(String, nullable=True)
+    rhythm_analysis_json = Column(String, nullable=True)
+    tonal_analysis_json = Column(String, nullable=True)
+    tempo_analysis_json = Column(String, nullable=True)
+    range_analysis_json = Column(String, nullable=True)
+    throughput_analysis_json = Column(String, nullable=True)
+    
+    # Indexed primary scores for fast filtering/ranking (nullable for instrument-dependent)
+    interval_primary_score = Column(Float, nullable=True, index=True)
+    rhythm_primary_score = Column(Float, nullable=True, index=True)
+    tonal_primary_score = Column(Float, nullable=True, index=True)
+    tempo_primary_score = Column(Float, nullable=True, index=True)
+    range_primary_score = Column(Float, nullable=True, index=True)
+    throughput_primary_score = Column(Float, nullable=True, index=True)
+    
+    # Composite scores
+    overall_score = Column(Float, nullable=True, index=True)
+    interaction_bonus = Column(Float, nullable=True)
 
 
 class UserCapability(Base):
@@ -256,15 +281,36 @@ class UserComplexityScores(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, unique=True)
     
-    # Max demonstrated complexity (from mastered materials)
+    # Max demonstrated complexity (from mastered materials) - LEGACY
     max_chromatic_complexity = Column(Float, default=1.0)
     max_rhythmic_complexity = Column(Float, default=1.0)
     max_reading_complexity = Column(Float, default=1.0)
     
-    # Comfortable complexity (average of recent successful attempts)
+    # Comfortable complexity (average of recent successful attempts) - LEGACY
     comfortable_chromatic = Column(Float, default=1.0)
     comfortable_rhythmic = Column(Float, default=1.0)
     comfortable_reading = Column(Float, default=1.0)
+    
+    # ==========================================================================
+    # UNIFIED SCORING ABILITY MODEL (Phase 7)
+    # ==========================================================================
+    # User's demonstrated ability on unified scoring domains (0.0-1.0)
+    # Updated when materials are mastered using max(current, material_score)
+    
+    interval_ability_score = Column(Float, default=0.0, index=True)
+    rhythm_ability_score = Column(Float, default=0.0, index=True)
+    tonal_ability_score = Column(Float, default=0.0, index=True)
+    tempo_ability_score = Column(Float, default=0.0, index=True)
+    range_ability_score = Column(Float, default=0.0, index=True)
+    throughput_ability_score = Column(Float, default=0.0, index=True)
+    
+    # Derived stages (0-6) for quick comparison
+    interval_demonstrated_stage = Column(Integer, default=0)
+    rhythm_demonstrated_stage = Column(Integer, default=0)
+    tonal_demonstrated_stage = Column(Integer, default=0)
+    tempo_demonstrated_stage = Column(Integer, default=0)
+    range_demonstrated_stage = Column(Integer, default=0)
+    throughput_demonstrated_stage = Column(Integer, default=0)
     
     updated_at = Column(DateTime, nullable=True)
 

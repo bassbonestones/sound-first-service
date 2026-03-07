@@ -71,6 +71,29 @@ class RhythmPatternAnalysis:
     most_common_count: int = 0
 
 
+@dataclass
+class MelodicPatternAnalysis:
+    """Melodic pattern/motif analysis for predictability scoring (Phase 8).
+    
+    Measures how many unique melodic motifs exist vs total.
+    Higher repetition = more predictable = easier sight-reading.
+    
+    Motifs are detected using sliding windows of 3-4 notes,
+    encoded as interval direction sequences (e.g., "+2_-3_+1").
+    """
+    total_motifs: int  # Total 3-note and 4-note windows analyzed
+    unique_motifs: int  # Distinct melodic patterns found
+    motif_uniqueness_ratio: float  # unique / total (0.0-1.0)
+    motif_repetition_ratio: float  # 1.0 - uniqueness_ratio
+    # Sequence detection: repeated sequences of 4+ notes
+    sequence_count: int = 0  # Number of detected sequences
+    sequence_total_notes: int = 0  # Total notes in detected sequences
+    sequence_coverage_ratio: float = 0.0  # sequence_notes / total_notes
+    # Most common motif for diagnostics
+    most_common_motif: Optional[str] = None
+    most_common_count: int = 0
+
+
 @dataclass 
 class RangeAnalysis:
     """Pitch range analysis with density information."""
@@ -154,6 +177,9 @@ class ExtractionResult:
     
     # Rhythm pattern analysis (sight-reading predictor)
     rhythm_pattern_analysis: Optional[RhythmPatternAnalysis] = None
+    
+    # Melodic pattern analysis (Phase 8 - predictability)
+    melodic_pattern_analysis: Optional[MelodicPatternAnalysis] = None
     
     # Chromatic analysis
     accidentals_outside_key: Dict[str, int] = field(default_factory=dict)  # {"F#": 3, "Bb": 1}
@@ -355,6 +381,9 @@ class MusicXMLAnalyzer:
         
         # Analyze rhythm patterns (sight-reading predictor)
         self._analyze_rhythm_patterns(score, result)
+        
+        # Analyze melodic patterns (Phase 8 - predictability)
+        self._analyze_melodic_patterns(score, result)
         
         # Count measures
         result.measure_count = len(score.parts[0].getElementsByClass('Measure')) if score.parts else 0
@@ -846,6 +875,118 @@ class MusicXMLAnalyzer:
             rhythm_measure_repetition_ratio=round(repetition_ratio, 4),
             pattern_counts=dict(pattern_counts),
             most_common_pattern=most_common_pattern,
+            most_common_count=most_common_count,
+        )
+    
+    def _analyze_melodic_patterns(self, score: stream.Score, result: ExtractionResult):
+        """
+        Analyze melodic patterns/motifs for predictability scoring (Phase 8).
+        
+        Detects:
+        1. Short motifs (3-4 note interval sequences)
+        2. Longer sequences (repeated phrases of 4+ notes)
+        
+        Higher repetition = more predictable = easier sight-reading.
+        """
+        # Collect all melodic intervals in sequence
+        all_intervals = []  # List of (interval_semitones, pitch_midi) tuples
+        all_pitches = []  # For sequence detection
+        
+        for part in score.parts:
+            prev_note = None
+            
+            for elem in part.flatten().notesAndRests:
+                if isinstance(elem, note.Note):
+                    all_pitches.append(elem.pitch.midi)
+                    
+                    if prev_note is not None:
+                        interval_semitones = elem.pitch.midi - prev_note.pitch.midi
+                        all_intervals.append(interval_semitones)
+                    
+                    prev_note = elem
+                elif isinstance(elem, note.Rest):
+                    # Rest breaks the melodic line
+                    prev_note = None
+        
+        if len(all_intervals) < 2:
+            result.melodic_pattern_analysis = MelodicPatternAnalysis(
+                total_motifs=0,
+                unique_motifs=0,
+                motif_uniqueness_ratio=0.0,
+                motif_repetition_ratio=1.0,
+            )
+            return
+        
+        # Detect 3-note motifs (2 intervals)
+        motif_counts_2 = Counter()  # 2-interval motifs
+        for i in range(len(all_intervals) - 1):
+            motif = f"{all_intervals[i]}_{all_intervals[i+1]}"
+            motif_counts_2[motif] += 1
+        
+        # Detect 4-note motifs (3 intervals)
+        motif_counts_3 = Counter()
+        for i in range(len(all_intervals) - 2):
+            motif = f"{all_intervals[i]}_{all_intervals[i+1]}_{all_intervals[i+2]}"
+            motif_counts_3[motif] += 1
+        
+        # Combine motif counts (weight 3-interval motifs more)
+        combined_counts = Counter()
+        for motif, count in motif_counts_2.items():
+            combined_counts[motif] = count
+        for motif, count in motif_counts_3.items():
+            combined_counts[motif] += count * 2  # Weight longer patterns more
+        
+        total_motifs = sum(combined_counts.values())
+        unique_motifs = len(combined_counts)
+        
+        if total_motifs == 0:
+            result.melodic_pattern_analysis = MelodicPatternAnalysis(
+                total_motifs=0,
+                unique_motifs=0,
+                motif_uniqueness_ratio=0.0,
+                motif_repetition_ratio=1.0,
+            )
+            return
+        
+        uniqueness_ratio = unique_motifs / total_motifs if total_motifs > 0 else 0.0
+        repetition_ratio = 1.0 - uniqueness_ratio
+        
+        # Detect longer sequences (4+ consecutive matching pitches)
+        sequence_count = 0
+        sequence_notes = 0
+        
+        if len(all_pitches) >= 8:
+            # Look for repeated 4-note phrases
+            phrase_length = 4
+            seen_phrases = {}
+            
+            for i in range(len(all_pitches) - phrase_length + 1):
+                phrase = tuple(all_pitches[i:i + phrase_length])
+                # Normalize to relative intervals for comparison
+                normalized = tuple(phrase[j+1] - phrase[j] for j in range(len(phrase) - 1))
+                
+                if normalized in seen_phrases:
+                    sequence_count += 1
+                    sequence_notes += phrase_length
+                else:
+                    seen_phrases[normalized] = i
+        
+        sequence_coverage = sequence_notes / len(all_pitches) if all_pitches else 0.0
+        
+        # Find most common motif
+        most_common = combined_counts.most_common(1)
+        most_common_motif = most_common[0][0] if most_common else None
+        most_common_count = most_common[0][1] if most_common else 0
+        
+        result.melodic_pattern_analysis = MelodicPatternAnalysis(
+            total_motifs=total_motifs,
+            unique_motifs=unique_motifs,
+            motif_uniqueness_ratio=round(uniqueness_ratio, 4),
+            motif_repetition_ratio=round(repetition_ratio, 4),
+            sequence_count=sequence_count,
+            sequence_total_notes=sequence_notes,
+            sequence_coverage_ratio=round(sequence_coverage, 4),
+            most_common_motif=most_common_motif,
             most_common_count=most_common_count,
         )
     
