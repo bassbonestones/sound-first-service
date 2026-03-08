@@ -1,0 +1,608 @@
+{
+  "version": "1.0.0",
+  "description": "Exercise templates for teaching modules - reusable interaction patterns",
+  "templates": [
+    {
+      "id": "aural_compare",
+      "display_name": "Same or Different?",
+      "description": "Compare two sounds and identify if they are the same or different",
+      "interaction_type": "listen_and_choose",
+      "category": "aural_discrimination",
+      "required_components": [
+        "audio_playback",
+        "choice_buttons",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "comparison_type": {
+          "type": "string",
+          "description": "What to compare: pitch, rhythm, duration",
+          "default": "pitch",
+          "options": ["pitch", "rhythm", "duration"]
+        },
+        "allowed_answers": {
+          "type": "array",
+          "description": "Available answer choices",
+          "default": ["same", "different"]
+        },
+        "interval_pool": {
+          "type": "array",
+          "description": "Intervals to use for 'different' examples",
+          "default": ["P5", "P4", "M3"]
+        },
+        "sequence_length": {
+          "type": "integer",
+          "description": "Number of notes in sequence",
+          "default": 2
+        },
+        "use_first_note": {
+          "type": "boolean",
+          "description": "Start from user's first note",
+          "default": true
+        },
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        }
+      },
+      "flow": [
+        "play_model_sound",
+        "show_choices",
+        "await_answer",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 8
+      }
+    },
+    {
+      "id": "pitch_direction",
+      "display_name": "Pitch Direction",
+      "description": "Identify if pitch goes up, down, or stays the same",
+      "interaction_type": "listen_and_choose",
+      "category": "aural_discrimination",
+      "required_components": [
+        "audio_playback",
+        "choice_buttons",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "allowed_answers": {
+          "type": "array",
+          "description": "Available answer choices",
+          "default": ["up", "down"]
+        },
+        "interval_pool": {
+          "type": "array",
+          "description": "Intervals to use",
+          "default": ["M2", "m2", "M3", "P4", "P5"]
+        },
+        "sequence_length": {
+          "type": "integer",
+          "description": "Number of notes",
+          "default": 2
+        },
+        "use_first_note": {
+          "type": "boolean",
+          "description": "Start from user's first note",
+          "default": true
+        }
+      },
+      "flow": [
+        "play_model_sound",
+        "show_choices",
+        "await_answer",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 8
+      }
+    },
+    {
+      "id": "contour_copy",
+      "display_name": "Contour Copy",
+      "description": "Identify and reproduce the melodic contour",
+      "interaction_type": "call_and_response",
+      "category": "response",
+      "required_components": [
+        "audio_playback",
+        "record_button",
+        "contour_visual",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "contour_types": {
+          "type": "array",
+          "description": "Allowed contour shapes",
+          "default": ["up-down", "down-up", "up-up", "down-down"]
+        },
+        "sequence_length": {
+          "type": "integer",
+          "description": "Number of notes",
+          "default": 3
+        },
+        "mode": {
+          "type": "string",
+          "description": "Exercise mode",
+          "default": "identify_then_sing",
+          "options": ["identify_only", "identify_then_sing", "sing_then_play"]
+        },
+        "use_first_note": {
+          "type": "boolean",
+          "description": "Start from user's first note",
+          "default": true
+        }
+      },
+      "flow": [
+        "play_model_sound",
+        "show_contour_choices",
+        "await_answer",
+        "prompt_sing_back",
+        "record_response",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 6
+      }
+    },
+    {
+      "id": "tap_with_beat",
+      "display_name": "Tap Along",
+      "description": "Tap along with a steady beat",
+      "interaction_type": "beat_tracking",
+      "category": "pulse",
+      "required_components": [
+        "audio_playback",
+        "tap_area",
+        "beat_indicator",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "beats_per_measure": {
+          "type": "integer",
+          "description": "Beats per measure",
+          "default": 4
+        },
+        "exercise_measures": {
+          "type": "integer",
+          "description": "Number of measures",
+          "default": 4
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats",
+          "default": 4
+        },
+        "timing_tolerance_ms": {
+          "type": "integer",
+          "description": "Acceptable timing error in ms",
+          "default": 200
+        }
+      },
+      "flow": [
+        "play_count_in",
+        "play_click_track",
+        "detect_taps",
+        "analyze_timing",
+        "show_feedback"
+      ],
+      "timing_feedback": {
+        "perfect_ms": 50,
+        "great_ms": 100,
+        "good_ms": 200,
+        "ok_ms": 300
+      },
+      "default_mastery": {
+        "correct_streak": 8
+      }
+    },
+    {
+      "id": "enter_on_beat_one",
+      "display_name": "Enter on Beat One",
+      "description": "Identify and tap on beat 1",
+      "interaction_type": "beat_tracking",
+      "category": "pulse",
+      "required_components": ["audio_playback", "tap_area", "feedback_card"],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "beats_per_measure": {
+          "type": "integer",
+          "description": "Beats per measure",
+          "default": 4
+        },
+        "exercise_measures": {
+          "type": "integer",
+          "description": "Number of measures to wait",
+          "default": 2
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats",
+          "default": 4
+        },
+        "target_beat": {
+          "type": "integer",
+          "description": "Which beat to tap on",
+          "default": 1
+        },
+        "timing_tolerance_ms": {
+          "type": "integer",
+          "description": "Acceptable timing error in ms",
+          "default": 150
+        },
+        "accent_beat_one": {
+          "type": "boolean",
+          "description": "Make beat 1 louder",
+          "default": true
+        }
+      },
+      "flow": [
+        "play_count_in",
+        "play_click_track",
+        "await_single_tap",
+        "analyze_timing",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 8
+      }
+    },
+    {
+      "id": "start_on_cue",
+      "display_name": "Start on Cue",
+      "description": "Play your first note precisely on the cue",
+      "interaction_type": "sustain_control",
+      "category": "pulse",
+      "required_components": [
+        "audio_playback",
+        "audio_input",
+        "countdown_overlay",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "beats_per_measure": {
+          "type": "integer",
+          "description": "Beats per measure",
+          "default": 4
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats",
+          "default": 4
+        },
+        "target_beat": {
+          "type": "integer",
+          "description": "Which beat to play on",
+          "default": 1
+        },
+        "timing_tolerance_ms": {
+          "type": "integer",
+          "description": "Acceptable timing error in ms",
+          "default": 100
+        },
+        "use_first_note": {
+          "type": "boolean",
+          "description": "Expect user's first note",
+          "default": true
+        }
+      },
+      "flow": [
+        "play_count_in",
+        "await_sound_start",
+        "analyze_entry_timing",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 8
+      }
+    },
+    {
+      "id": "internal_pulse",
+      "display_name": "Internal Pulse",
+      "description": "Continue the beat internally after clicks stop",
+      "interaction_type": "beat_tracking",
+      "category": "pulse",
+      "required_components": ["audio_playback", "tap_area", "feedback_card"],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "beats_per_measure": {
+          "type": "integer",
+          "description": "Beats per measure",
+          "default": 4
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats",
+          "default": 4
+        },
+        "silent_beats": {
+          "type": "integer",
+          "description": "How many beats of silence",
+          "default": 4
+        },
+        "reentry_beat": {
+          "type": "integer",
+          "description": "Which beat to re-enter on",
+          "default": 1
+        },
+        "timing_tolerance_ms": {
+          "type": "integer",
+          "description": "Acceptable timing error in ms",
+          "default": 100
+        }
+      },
+      "flow": [
+        "play_count_in",
+        "play_initial_clicks",
+        "go_silent",
+        "await_tap_at_reentry",
+        "analyze_timing",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 6
+      }
+    },
+    {
+      "id": "target_note_match",
+      "display_name": "Target Note Match",
+      "description": "Play a specific target note",
+      "interaction_type": "target_matching",
+      "category": "response",
+      "required_components": [
+        "audio_playback",
+        "audio_input",
+        "pitch_target_display",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "target_pitch": {
+          "type": "string",
+          "description": "The pitch to play (or 'first_note')",
+          "default": "first_note"
+        },
+        "pitch_tolerance_cents": {
+          "type": "integer",
+          "description": "Acceptable pitch deviation in cents",
+          "default": 50
+        },
+        "allow_range_exploration": {
+          "type": "boolean",
+          "description": "Allow user to explore range",
+          "default": false
+        }
+      },
+      "flow": [
+        "play_model_note",
+        "await_user_note",
+        "analyze_pitch",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 3
+      }
+    },
+    {
+      "id": "call_response_pitch",
+      "display_name": "Call and Response (Pitch)",
+      "description": "Listen to a melody and sing/play it back",
+      "interaction_type": "call_and_response",
+      "category": "response",
+      "required_components": [
+        "audio_playback",
+        "audio_input",
+        "countdown_overlay",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats before response",
+          "default": 4
+        },
+        "sequence_length": {
+          "type": "integer",
+          "description": "Number of notes in melody",
+          "default": 2
+        },
+        "interval_pool": {
+          "type": "array",
+          "description": "Intervals to use",
+          "default": ["M2", "m2", "M3"]
+        },
+        "use_first_note": {
+          "type": "boolean",
+          "description": "Start from user's first note",
+          "default": true
+        },
+        "pitch_tolerance_cents": {
+          "type": "integer",
+          "description": "Acceptable pitch deviation in cents",
+          "default": 50
+        }
+      },
+      "flow": [
+        "play_model_phrase",
+        "play_count_in",
+        "record_response",
+        "analyze_pitch_sequence",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 6
+      }
+    },
+    {
+      "id": "call_response_rhythm",
+      "display_name": "Call and Response (Rhythm)",
+      "description": "Listen to a rhythm and clap/play it back",
+      "interaction_type": "call_and_response",
+      "category": "response",
+      "required_components": [
+        "audio_playback",
+        "tap_area",
+        "countdown_overlay",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats before response",
+          "default": 4
+        },
+        "beats_per_measure": {
+          "type": "integer",
+          "description": "Beats per measure",
+          "default": 4
+        },
+        "rhythm_pattern": {
+          "type": "array",
+          "description": "Rhythm pattern to echo",
+          "default": [1, 0, 1, 0]
+        },
+        "timing_tolerance_ms": {
+          "type": "integer",
+          "description": "Acceptable timing error in ms",
+          "default": 150
+        }
+      },
+      "flow": [
+        "play_model_rhythm",
+        "play_count_in",
+        "record_tap_response",
+        "analyze_rhythm",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 6
+      }
+    },
+    {
+      "id": "sustain_for_beats",
+      "display_name": "Sustain for Beats",
+      "description": "Hold a note for a specific number of beats",
+      "interaction_type": "sustain_control",
+      "category": "duration",
+      "required_components": [
+        "audio_playback",
+        "audio_input",
+        "countdown_overlay",
+        "duration_indicator",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "count_in_beats": {
+          "type": "integer",
+          "description": "Count-in beats",
+          "default": 4
+        },
+        "sustain_beats": {
+          "type": "integer",
+          "description": "How many beats to hold",
+          "default": 4
+        },
+        "use_first_note": {
+          "type": "boolean",
+          "description": "Use user's first note",
+          "default": true
+        },
+        "timing_tolerance_ms": {
+          "type": "integer",
+          "description": "Acceptable timing error in ms",
+          "default": 200
+        }
+      },
+      "flow": [
+        "play_model_sustained_note",
+        "play_count_in",
+        "await_sound_start",
+        "track_duration",
+        "await_sound_end",
+        "analyze_duration",
+        "show_feedback"
+      ],
+      "default_mastery": {
+        "correct_streak": 6
+      }
+    },
+    {
+      "id": "hear_then_see",
+      "display_name": "Hear Then See",
+      "description": "Listen first, then reveal the notation",
+      "interaction_type": "notation_reveal",
+      "category": "notation",
+      "required_components": [
+        "audio_playback",
+        "notation_display",
+        "reveal_button",
+        "feedback_card"
+      ],
+      "configurable_params": {
+        "bpm": {
+          "type": "integer",
+          "description": "Tempo in beats per minute",
+          "default": 60
+        },
+        "listen_repetitions": {
+          "type": "integer",
+          "description": "How many times to hear before reveal",
+          "default": 2
+        },
+        "notation_type": {
+          "type": "string",
+          "description": "What notation to show",
+          "default": "rhythm",
+          "options": ["rhythm", "pitch", "full"]
+        }
+      },
+      "flow": [
+        "play_model_sound",
+        "prompt_listen_again",
+        "reveal_notation",
+        "play_with_notation"
+      ],
+      "default_mastery": {
+        "correct_streak": 5
+      }
+    }
+  ]
+}

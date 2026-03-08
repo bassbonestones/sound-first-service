@@ -7,7 +7,7 @@ from .audio import router as audio_router
 from .materials import router as materials_router
 from .capabilities import router as capabilities_router
 from .users import router as users_router
-from .admin import router as admin_router
+from .teaching_modules import router as teaching_modules_router
 
 __all__ = [
     "onboarding_router",
@@ -18,5 +18,5 @@ __all__ = [
     "materials_router",
     "capabilities_router",
     "users_router",
-    "admin_router",
+    "teaching_modules_router",
 ]

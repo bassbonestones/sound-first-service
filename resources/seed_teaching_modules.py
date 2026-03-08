@@ -1,0 +1,385 @@
+"""Seed teaching modules into the database.
+
+Run with: python -m resources.seed_teaching_modules
+"""
+import json
+import sys
+sys.path.insert(0, '.')
+
+from app.db import SessionLocal
+from app.models.teaching_module import TeachingModule, Lesson
+
+# ============================================================
+# TEACHING MODULE DEFINITIONS
+# ============================================================
+
+MODULES = [
+    # Note: first_note is established during Day 0 onboarding, not as a separate module
+    # These modules become available after Day 0 is complete
+    {
+        "id": "pitch_direction_module",
+        "capability_name": "pitch_direction_awareness",
+        "display_name": "Pitch Direction",
+        "description": "Learn to hear when melody moves up, down, or stays the same",
+        "icon": "arrow-up-down",
+        "prerequisite_module_ids": [],  # Available after Day 0
+        "estimated_duration_minutes": 15,
+        "difficulty_tier": 1,
+        "display_order": 10,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "pulse_tracking_module",
+        "capability_name": "pulse_tracking",
+        "display_name": "Feel the Pulse",
+        "description": "Develop an internal sense of steady beat",
+        "icon": "metronome",
+        "prerequisite_module_ids": [],  # Available after Day 0
+        "estimated_duration_minutes": 12,
+        "difficulty_tier": 1,
+        "display_order": 11,
+        "completion_type": "all_required",
+    },
+]
+
+# ============================================================
+# LESSON DEFINITIONS
+# ============================================================
+
+LESSONS = [
+    # Note: No first_note lessons - Day 0 handles that
+
+    # ========== Pitch Direction Module ==========
+    {
+        "id": "pitch_direction_L1_same_different",
+        "module_id": "pitch_direction_module",
+        "display_name": "Same or Different?",
+        "description": "Hear if two notes are the same or different",
+        "exercise_template_id": "aural_compare",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "comparison_type": "pitch",
+            "allowed_answers": ["same", "different"],
+            "interval_pool": ["P1", "P5", "P4", "M3"],
+            "sequence_length": 2,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 8,
+        },
+        "feedback": {
+            "correct": ["Yes!", "That's right!", "You got it!"],
+            "incorrect": ["Not quite. Listen again.", "Try once more."],
+        },
+        "hints": [
+            "Close your eyes and really listen",
+            "Focus on whether the pitch changed at all",
+        ],
+    },
+    {
+        "id": "pitch_direction_L2_up_down_easy",
+        "module_id": "pitch_direction_module",
+        "display_name": "Up or Down? (Easy)",
+        "description": "Hear if the pitch goes up or down - large intervals",
+        "exercise_template_id": "pitch_direction",
+        "sequence_order": 2,
+        "is_required": True,
+        "config": {
+            "allowed_answers": ["up", "down"],
+            "interval_pool": ["P5", "P4", "M3"],
+            "sequence_length": 2,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 8,
+        },
+        "hints": [
+            "Think about going up stairs vs down stairs",
+            "Large jumps are easier to hear",
+        ],
+    },
+    {
+        "id": "pitch_direction_L3_up_down_medium",
+        "module_id": "pitch_direction_module",
+        "display_name": "Up or Down? (Medium)",
+        "description": "Hear if the pitch goes up or down - smaller intervals",
+        "exercise_template_id": "pitch_direction",
+        "sequence_order": 3,
+        "is_required": True,
+        "config": {
+            "allowed_answers": ["up", "down"],
+            "interval_pool": ["M2", "m2", "m3"],
+            "sequence_length": 2,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 8,
+        },
+        "hints": [
+            "Small steps require more careful listening",
+            "Feel whether the note is higher or lower",
+        ],
+    },
+    {
+        "id": "pitch_direction_L4_three_way",
+        "module_id": "pitch_direction_module",
+        "display_name": "Up, Down, or Same?",
+        "description": "Choose from all three possibilities",
+        "exercise_template_id": "pitch_direction",
+        "sequence_order": 4,
+        "is_required": True,
+        "config": {
+            "allowed_answers": ["up", "down", "same"],
+            "interval_pool": ["P1", "M2", "m2", "M3", "m3"],
+            "sequence_length": 2,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 10,
+        },
+    },
+    {
+        "id": "pitch_direction_L5_contour",
+        "module_id": "pitch_direction_module",
+        "display_name": "Follow the Contour",
+        "description": "Track the shape of a 3-note melody",
+        "exercise_template_id": "contour_copy",
+        "sequence_order": 5,
+        "is_required": True,
+        "config": {
+            "contour_types": ["up-down", "down-up", "up-up", "down-down"],
+            "sequence_length": 3,
+            "use_first_note": True,
+            "mode": "identify_then_sing",
+        },
+        "mastery": {
+            "correct_streak": 6,
+        },
+    },
+    
+    # ========== Pulse Tracking Module ==========
+    {
+        "id": "pulse_L1_tap_along",
+        "module_id": "pulse_tracking_module",
+        "display_name": "Tap Along",
+        "description": "Tap along with a steady beat",
+        "exercise_template_id": "tap_with_beat",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "beats_per_measure": 4,
+            "exercise_measures": 4,
+            "count_in_beats": 4,
+            "timing_tolerance_ms": 200,
+        },
+        "mastery": {
+            "correct_streak": 8,
+        },
+        "feedback": {
+            "correct": ["Great timing!", "Right on the beat!", "Perfect!"],
+            "incorrect": ["A bit off. Feel the pulse.", "Listen and try again."],
+        },
+        "hints": [
+            "Let your body feel the pulse",
+            "Don't think - just feel the beat",
+            "Relax your shoulders",
+        ],
+    },
+    {
+        "id": "pulse_L2_find_beat_one",
+        "module_id": "pulse_tracking_module",
+        "display_name": "Feel Beat 1",
+        "description": "Identify and feel the downbeat (beat 1)",
+        "exercise_template_id": "enter_on_beat_one",
+        "sequence_order": 2,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "beats_per_measure": 4,
+            "exercise_measures": 2,
+            "count_in_beats": 4,
+            "target_beat": 1,
+            "timing_tolerance_ms": 150,
+            "accent_beat_one": True,
+        },
+        "mastery": {
+            "correct_streak": 8,
+        },
+        "feedback": {
+            "correct": ["Right on beat 1!", "You found it!", "Perfect entry!"],
+            "incorrect": ["That wasn't beat 1. Listen for the accent.", "Try feeling where the pattern starts."],
+        },
+        "hints": [
+            "Beat 1 usually feels stronger",
+            "Feel where the pattern restarts",
+            "Listen for the natural emphasis",
+        ],
+    },
+    {
+        "id": "pulse_L3_enter_on_one",
+        "module_id": "pulse_tracking_module",
+        "display_name": "Enter on One",
+        "description": "Play your first note precisely on beat 1",
+        "exercise_template_id": "start_on_cue",
+        "sequence_order": 3,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "beats_per_measure": 4,
+            "count_in_beats": 4,
+            "target_beat": 1,
+            "timing_tolerance_ms": 100,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 8,
+        },
+        "feedback": {
+            "correct": ["Perfect entry!", "Right on time!", "Excellent timing!"],
+            "incorrect": ["A bit early/late. Feel the pulse first.", "Wait for beat 1."],
+        },
+        "hints": [
+            "Hear the note in your head before playing",
+            "Let the pulse carry you in",
+            "Don't rush - trust the timing",
+        ],
+    },
+    {
+        "id": "pulse_L4_internal_pulse",
+        "module_id": "pulse_tracking_module",
+        "display_name": "Internal Pulse",
+        "description": "Continue the beat internally after clicks stop",
+        "exercise_template_id": "internal_pulse",
+        "sequence_order": 4,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "beats_per_measure": 4,
+            "count_in_beats": 4,
+            "silent_beats": 4,
+            "reentry_beat": 1,
+            "timing_tolerance_ms": 100,
+        },
+        "mastery": {
+            "correct_streak": 6,
+        },
+        "feedback": {
+            "correct": ["You kept the pulse!", "Perfect internal timing!", "Great internal clock!"],
+            "incorrect": ["Lost the pulse. Try keeping it in your body.", "Feel it internally."],
+        },
+        "hints": [
+            "Feel the pulse in your body, not just your ears",
+            "Let your body be the metronome",
+            "Keep breathing with the beat",
+        ],
+    },
+]
+
+
+def seed_modules(db):
+    """Seed teaching modules into database."""
+    print("Seeding teaching modules...")
+    
+    for module_data in MODULES:
+        existing = db.query(TeachingModule).filter(
+            TeachingModule.id == module_data["id"]
+        ).first()
+        
+        if existing:
+            # Update existing
+            for key, value in module_data.items():
+                if key == "prerequisite_module_ids":
+                    value = json.dumps(value)
+                setattr(existing, key, value)
+            print(f"  Updated module: {module_data['id']}")
+        else:
+            # Create new
+            module = TeachingModule(
+                id=module_data["id"],
+                capability_name=module_data["capability_name"],
+                display_name=module_data["display_name"],
+                description=module_data.get("description"),
+                icon=module_data.get("icon"),
+                prerequisite_module_ids=json.dumps(module_data.get("prerequisite_module_ids", [])),
+                estimated_duration_minutes=module_data.get("estimated_duration_minutes"),
+                difficulty_tier=module_data.get("difficulty_tier", 1),
+                display_order=module_data.get("display_order", 0),
+                completion_type=module_data.get("completion_type", "all_required"),
+                completion_count=module_data.get("completion_count"),
+                is_active=True,
+            )
+            db.add(module)
+            print(f"  Created module: {module_data['id']}")
+    
+    db.commit()
+    print(f"  Total: {len(MODULES)} modules")
+
+
+def seed_lessons(db):
+    """Seed lessons into database."""
+    print("Seeding lessons...")
+    
+    for lesson_data in LESSONS:
+        existing = db.query(Lesson).filter(
+            Lesson.id == lesson_data["id"]
+        ).first()
+        
+        config_json = json.dumps(lesson_data.get("config", {}))
+        mastery_json = json.dumps(lesson_data.get("mastery", {}))
+        feedback_json = json.dumps(lesson_data.get("feedback", {})) if lesson_data.get("feedback") else None
+        hints_json = json.dumps(lesson_data.get("hints", [])) if lesson_data.get("hints") else None
+        
+        if existing:
+            # Update existing
+            existing.module_id = lesson_data["module_id"]
+            existing.display_name = lesson_data["display_name"]
+            existing.description = lesson_data.get("description")
+            existing.exercise_template_id = lesson_data["exercise_template_id"]
+            existing.config_json = config_json
+            existing.mastery_json = mastery_json
+            existing.feedback_json = feedback_json
+            existing.hints_json = hints_json
+            existing.sequence_order = lesson_data["sequence_order"]
+            existing.is_required = lesson_data.get("is_required", True)
+            existing.unlock_condition = lesson_data.get("unlock_condition", "previous")
+            print(f"  Updated lesson: {lesson_data['id']}")
+        else:
+            # Create new
+            lesson = Lesson(
+                id=lesson_data["id"],
+                module_id=lesson_data["module_id"],
+                display_name=lesson_data["display_name"],
+                description=lesson_data.get("description"),
+                exercise_template_id=lesson_data["exercise_template_id"],
+                config_json=config_json,
+                mastery_json=mastery_json,
+                feedback_json=feedback_json,
+                hints_json=hints_json,
+                sequence_order=lesson_data["sequence_order"],
+                is_required=lesson_data.get("is_required", True),
+                unlock_condition=lesson_data.get("unlock_condition", "previous"),
+                is_active=True,
+            )
+            db.add(lesson)
+            print(f"  Created lesson: {lesson_data['id']}")
+    
+    db.commit()
+    print(f"  Total: {len(LESSONS)} lessons")
+
+
+def main():
+    """Main entry point."""
+    db = SessionLocal()
+    try:
+        seed_modules(db)
+        seed_lessons(db)
+        print("\nDone! Teaching modules seeded successfully.")
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()

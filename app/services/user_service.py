@@ -14,6 +14,7 @@ from app.models.core import (
     PracticeAttempt, CurriculumStep
 )
 from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis
+from app.models.teaching_module import UserLessonProgress, UserModuleProgress
 from app.curriculum import JourneyMetrics, estimate_journey_stage
 from app.spaced_repetition import build_sr_item_from_db, estimate_mastery_level
 
@@ -238,6 +239,10 @@ class UserService:
         
         # Delete user capabilities
         db.query(UserCapability).filter(UserCapability.user_id == user_id).delete()
+        
+        # Delete teaching module progress
+        db.query(UserLessonProgress).filter(UserLessonProgress.user_id == user_id).delete()
+        db.query(UserModuleProgress).filter(UserModuleProgress.user_id == user_id).delete()
     
     @classmethod
     def grant_capability(

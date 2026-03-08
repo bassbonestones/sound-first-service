@@ -8,9 +8,7 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "note_basics"
-      ],
+      "prerequisite_names": ["note_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -32,9 +30,7 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "note_basics"
-      ],
+      "prerequisite_names": ["note_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -56,9 +52,7 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "note_basics"
-      ],
+      "prerequisite_names": ["note_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -80,9 +74,7 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "accidental_flat_symbol"
-      ],
+      "prerequisite_names": ["accidental_flat_symbol"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -104,9 +96,7 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "accidental_sharp_symbol"
-      ],
+      "prerequisite_names": ["accidental_sharp_symbol"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -128,10 +118,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "first_note",
-        "rhythm_quarter_notes"
-      ],
+      "prerequisite_names": ["first_note", "rhythm_quarter_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -153,9 +140,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "articulation_staccato"
-      ],
+      "prerequisite_names": ["articulation_staccato"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -177,9 +162,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "articulation_accent"
-      ],
+      "prerequisite_names": ["articulation_accent"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -201,9 +184,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "articulation_marcato"
-      ],
+      "prerequisite_names": ["articulation_marcato"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -225,9 +206,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "articulation_portato"
-      ],
+      "prerequisite_names": ["articulation_portato"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -249,10 +228,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "articulation_tenuto",
-        "rhythm_eighth_notes"
-      ],
+      "prerequisite_names": ["articulation_tenuto", "rhythm_eighth_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -274,9 +250,7 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "articulation_legato"
-      ],
+      "prerequisite_names": ["articulation_legato"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -298,9 +272,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -322,9 +294,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -346,9 +316,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "clef_bass"
-      ],
+      "prerequisite_names": ["clef_bass"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -370,10 +338,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "clef_alto",
-        "clef_tenor"
-      ],
+      "prerequisite_names": ["clef_alto", "clef_tenor"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -391,9 +356,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -415,9 +378,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -439,9 +400,7 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "clef_treble"
-      ],
+      "prerequisite_names": ["clef_treble"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -463,9 +422,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_pp"
-      ],
+      "prerequisite_names": ["dynamic_pp"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -487,9 +444,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_crescendo"
-      ],
+      "prerequisite_names": ["dynamic_crescendo"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -511,9 +466,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_decrescendo"
-      ],
+      "prerequisite_names": ["dynamic_decrescendo"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -535,9 +488,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_mf"
-      ],
+      "prerequisite_names": ["dynamic_mf"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -561,9 +512,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_mp"
-      ],
+      "prerequisite_names": ["dynamic_mp"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -587,9 +536,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_rfz"
-      ],
+      "prerequisite_names": ["dynamic_rfz"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -613,9 +560,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_sfp"
-      ],
+      "prerequisite_names": ["dynamic_sfp"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -663,9 +608,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_p"
-      ],
+      "prerequisite_names": ["dynamic_p"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -689,9 +632,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_f"
-      ],
+      "prerequisite_names": ["dynamic_f"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -715,9 +656,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_ff"
-      ],
+      "prerequisite_names": ["dynamic_ff"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -741,9 +680,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_fff"
-      ],
+      "prerequisite_names": ["dynamic_fff"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -767,9 +704,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_fp"
-      ],
+      "prerequisite_names": ["dynamic_fp"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -793,9 +728,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_rf"
-      ],
+      "prerequisite_names": ["dynamic_rf"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -819,9 +752,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_subito"
-      ],
+      "prerequisite_names": ["dynamic_subito"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -845,9 +776,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_sfz"
-      ],
+      "prerequisite_names": ["dynamic_sfz"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -871,9 +800,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_sf"
-      ],
+      "prerequisite_names": ["dynamic_sf"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -897,9 +824,7 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "dynamic_diminuendo"
-      ],
+      "prerequisite_names": ["dynamic_diminuendo"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -921,9 +846,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -946,9 +869,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -971,9 +892,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -996,9 +915,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1021,9 +938,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1046,9 +961,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1071,9 +984,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1096,9 +1007,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1121,9 +1030,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1146,9 +1053,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1171,9 +1076,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1196,9 +1099,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1221,9 +1122,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1246,9 +1145,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1271,9 +1168,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1296,9 +1191,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1321,9 +1214,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1346,9 +1237,7 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1371,9 +1260,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_ds"
-      ],
+      "prerequisite_names": ["form_ds"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1395,9 +1282,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_repeat_sign"
-      ],
+      "prerequisite_names": ["form_repeat_sign"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1419,9 +1304,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_repeat_sign"
-      ],
+      "prerequisite_names": ["form_repeat_sign"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1443,9 +1326,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_dc"
-      ],
+      "prerequisite_names": ["form_dc"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1467,9 +1348,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_repeat_sign"
-      ],
+      "prerequisite_names": ["form_repeat_sign"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1491,9 +1370,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1515,9 +1392,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_first_ending"
-      ],
+      "prerequisite_names": ["form_first_ending"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1539,9 +1414,7 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "form_ds"
-      ],
+      "prerequisite_names": ["form_ds"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1563,9 +1436,7 @@
       "domain": "instrument_technique",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "first_note"
-      ],
+      "prerequisite_names": ["first_note"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1587,9 +1458,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "first_note"
-      ],
+      "prerequisite_names": ["first_note"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1612,9 +1481,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_2"
-      ],
+      "prerequisite_names": ["interval_play_minor_2"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1637,9 +1504,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_2"
-      ],
+      "prerequisite_names": ["interval_play_major_2"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1662,9 +1527,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_3"
-      ],
+      "prerequisite_names": ["interval_play_minor_3"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1687,9 +1550,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_3"
-      ],
+      "prerequisite_names": ["interval_play_major_3"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1712,9 +1573,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_perfect_4"
-      ],
+      "prerequisite_names": ["interval_play_perfect_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1737,9 +1596,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_perfect_5"
-      ],
+      "prerequisite_names": ["interval_play_perfect_5"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1762,9 +1619,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_augmented_4"
-      ],
+      "prerequisite_names": ["interval_play_augmented_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1787,9 +1642,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_6"
-      ],
+      "prerequisite_names": ["interval_play_minor_6"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1812,9 +1665,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_6"
-      ],
+      "prerequisite_names": ["interval_play_major_6"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1837,9 +1688,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_7"
-      ],
+      "prerequisite_names": ["interval_play_minor_7"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1862,9 +1711,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_7"
-      ],
+      "prerequisite_names": ["interval_play_major_7"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1887,9 +1734,7 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_octave"
-      ],
+      "prerequisite_names": ["interval_play_octave"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1911,9 +1756,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_2"
-      ],
+      "prerequisite_names": ["interval_play_minor_2"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1931,9 +1774,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_2"
-      ],
+      "prerequisite_names": ["interval_play_major_2"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1951,9 +1792,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_3"
-      ],
+      "prerequisite_names": ["interval_play_minor_3"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1971,9 +1810,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_3"
-      ],
+      "prerequisite_names": ["interval_play_major_3"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1991,9 +1828,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_perfect_4"
-      ],
+      "prerequisite_names": ["interval_play_perfect_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2011,9 +1846,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_perfect_5"
-      ],
+      "prerequisite_names": ["interval_play_perfect_5"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2031,9 +1864,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_augmented_4"
-      ],
+      "prerequisite_names": ["interval_play_augmented_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2051,9 +1882,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_6"
-      ],
+      "prerequisite_names": ["interval_play_minor_6"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2071,9 +1900,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_6"
-      ],
+      "prerequisite_names": ["interval_play_major_6"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2091,9 +1918,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_minor_7"
-      ],
+      "prerequisite_names": ["interval_play_minor_7"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2111,9 +1936,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_7"
-      ],
+      "prerequisite_names": ["interval_play_major_7"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2131,9 +1954,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_octave"
-      ],
+      "prerequisite_names": ["interval_play_octave"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2151,9 +1972,7 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_compound_9_plus"
-      ],
+      "prerequisite_names": ["interval_play_compound_9_plus"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2171,9 +1990,7 @@
       "domain": "key_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "key_signature_basics"
-      ],
+      "prerequisite_names": ["key_signature_basics"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2191,9 +2008,7 @@
       "domain": "key_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "key_signature_basics"
-      ],
+      "prerequisite_names": ["key_signature_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2233,9 +2048,7 @@
       "domain": "key_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "key_signature_basics"
-      ],
+      "prerequisite_names": ["key_signature_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2253,9 +2066,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2277,9 +2088,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_basics"
-      ],
+      "prerequisite_names": ["time_signature_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2383,9 +2192,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_2_4"
-      ],
+      "prerequisite_names": ["time_signature_2_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2408,10 +2215,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_3_4",
-        "time_signature_6_8"
-      ],
+      "prerequisite_names": ["time_signature_3_4", "time_signature_6_8"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2434,10 +2238,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_4_4",
-        "time_signature_6_8"
-      ],
+      "prerequisite_names": ["time_signature_4_4", "time_signature_6_8"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2460,9 +2261,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_6_8"
-      ],
+      "prerequisite_names": ["time_signature_6_8"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2485,10 +2284,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_3_4",
-        "time_signature_2_4"
-      ],
+      "prerequisite_names": ["time_signature_3_4", "time_signature_2_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2511,10 +2307,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_3_8",
-        "time_signature_5_4"
-      ],
+      "prerequisite_names": ["time_signature_3_8", "time_signature_5_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2537,10 +2330,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_3_8",
-        "time_signature_5_4"
-      ],
+      "prerequisite_names": ["time_signature_3_8", "time_signature_5_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2563,10 +2353,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_2_2",
-        "time_signature_3_4"
-      ],
+      "prerequisite_names": ["time_signature_2_2", "time_signature_3_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2589,9 +2376,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_5_4"
-      ],
+      "prerequisite_names": ["time_signature_5_4"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2614,10 +2399,7 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_sixteenth_notes",
-        "time_signature_3_8"
-      ],
+      "prerequisite_names": ["rhythm_sixteenth_notes", "time_signature_3_8"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2640,9 +2422,7 @@
       "domain": "notation_fundamentals",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2660,9 +2440,7 @@
       "domain": "notation_fundamentals",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2698,9 +2476,7 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2722,9 +2498,7 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2746,9 +2520,7 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2770,9 +2542,7 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "key_signature_basics"
-      ],
+      "prerequisite_names": ["key_signature_basics"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2794,9 +2564,7 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "notation_chord_symbols"
-      ],
+      "prerequisite_names": ["notation_chord_symbols"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2818,9 +2586,7 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_sixteenth_notes"
-      ],
+      "prerequisite_names": ["rhythm_sixteenth_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2842,9 +2608,7 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "ornament_trill"
-      ],
+      "prerequisite_names": ["ornament_trill"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2866,9 +2630,7 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "ornament_mordent"
-      ],
+      "prerequisite_names": ["ornament_mordent"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2890,10 +2652,7 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_32nd_notes",
-        "ornament_turn"
-      ],
+      "prerequisite_names": ["rhythm_32nd_notes", "ornament_turn"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2943,9 +2702,7 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "ornament_inverted_mordent"
-      ],
+      "prerequisite_names": ["ornament_inverted_mordent"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3023,9 +2780,7 @@
       "domain": "pitch_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "first_note"
-      ],
+      "prerequisite_names": ["first_note"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3319,9 +3074,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_whole_notes"
-      ],
+      "prerequisite_names": ["rhythm_whole_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3345,10 +3098,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_whole",
-        "rhythm_half_notes"
-      ],
+      "prerequisite_names": ["rest_whole", "rhythm_half_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3372,10 +3122,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_half",
-        "rhythm_quarter_notes"
-      ],
+      "prerequisite_names": ["rest_half", "rhythm_quarter_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3399,10 +3146,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_quarter",
-        "rhythm_eighth_notes"
-      ],
+      "prerequisite_names": ["rest_quarter", "rhythm_eighth_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3426,10 +3170,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_eighth",
-        "rhythm_triplets_eighth"
-      ],
+      "prerequisite_names": ["rest_eighth", "rhythm_triplets_eighth"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3451,10 +3192,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_triplet_eighth",
-        "rhythm_sixteenth_notes"
-      ],
+      "prerequisite_names": ["rest_triplet_eighth", "rhythm_sixteenth_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3478,9 +3216,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_sixteenth"
-      ],
+      "prerequisite_names": ["rest_sixteenth"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3502,10 +3238,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_multimeasure",
-        "rhythm_tuplet_3_quarters"
-      ],
+      "prerequisite_names": ["rest_multimeasure", "rhythm_tuplet_3_quarters"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3527,10 +3260,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_tuplet_3_quarter",
-        "rhythm_32nd_notes"
-      ],
+      "prerequisite_names": ["rest_tuplet_3_quarter", "rhythm_32nd_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3554,10 +3284,7 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rest_32nd",
-        "rhythm_64th_notes"
-      ],
+      "prerequisite_names": ["rest_32nd", "rhythm_64th_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3581,9 +3308,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3607,9 +3332,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_whole_notes"
-      ],
+      "prerequisite_names": ["rhythm_whole_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3633,9 +3356,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_half_notes"
-      ],
+      "prerequisite_names": ["rhythm_half_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3659,9 +3380,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_quarter_notes"
-      ],
+      "prerequisite_names": ["rhythm_quarter_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3685,9 +3404,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_eighth_notes"
-      ],
+      "prerequisite_names": ["rhythm_eighth_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3711,9 +3428,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_dotted_half"
-      ],
+      "prerequisite_names": ["rhythm_dotted_half"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3737,9 +3452,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_dotted_quarter"
-      ],
+      "prerequisite_names": ["rhythm_dotted_quarter"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3761,9 +3474,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_ties_across_beats"
-      ],
+      "prerequisite_names": ["rhythm_ties_across_beats"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3785,9 +3496,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_triplets_eighth"
-      ],
+      "prerequisite_names": ["rhythm_triplets_eighth"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3811,9 +3520,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_sixteenth_notes"
-      ],
+      "prerequisite_names": ["rhythm_sixteenth_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3835,9 +3542,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_syncopation"
-      ],
+      "prerequisite_names": ["rhythm_syncopation"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3861,9 +3566,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_dotted_eighth"
-      ],
+      "prerequisite_names": ["rhythm_dotted_eighth"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3885,9 +3588,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_tuplet_3_quarters"
-      ],
+      "prerequisite_names": ["rhythm_tuplet_3_quarters"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3911,9 +3612,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_32nd_notes"
-      ],
+      "prerequisite_names": ["rhythm_32nd_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3945,9 +3644,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_dotted_sixteenth"
-      ],
+      "prerequisite_names": ["rhythm_dotted_sixteenth"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4015,9 +3712,7 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_32nd_notes"
-      ],
+      "prerequisite_names": ["rhythm_32nd_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4041,9 +3736,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "time_signature_basics"
-      ],
+      "prerequisite_names": ["first_note"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4061,9 +3754,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking_drum_loop"
-      ],
+      "prerequisite_names": ["pulse_tracking_drum_loop"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4081,9 +3772,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4101,9 +3790,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4121,9 +3808,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4141,9 +3826,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4161,9 +3844,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4181,9 +3862,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4201,9 +3880,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking_polyrhythm_intro"
-      ],
+      "prerequisite_names": ["pulse_tracking_polyrhythm_intro"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4221,9 +3898,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking_subdividing"
-      ],
+      "prerequisite_names": ["pulse_tracking_subdividing"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4241,9 +3916,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4261,9 +3934,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking_call_response"
-      ],
+      "prerequisite_names": ["pulse_tracking_call_response"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4281,9 +3952,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4301,9 +3970,7 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking"
-      ],
+      "prerequisite_names": ["pulse_tracking"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4344,9 +4011,7 @@
       "domain": "scales_diatonic",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_major"
-      ],
+      "prerequisite_names": ["scale_major"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4364,9 +4029,7 @@
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_chromatic"
-      ],
+      "prerequisite_names": ["scale_chromatic"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4384,9 +4047,7 @@
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "mode_mixolydian"
-      ],
+      "prerequisite_names": ["mode_mixolydian"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4404,9 +4065,7 @@
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "mode_phrygian"
-      ],
+      "prerequisite_names": ["mode_phrygian"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4424,9 +4083,7 @@
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "mode_lydian"
-      ],
+      "prerequisite_names": ["mode_lydian"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4444,9 +4101,7 @@
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "mode_dorian"
-      ],
+      "prerequisite_names": ["mode_dorian"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4464,9 +4119,7 @@
       "domain": "scales_pentatonic",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_major"
-      ],
+      "prerequisite_names": ["scale_major"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4484,9 +4137,7 @@
       "domain": "scales_pentatonic",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_natural_minor"
-      ],
+      "prerequisite_names": ["scale_natural_minor"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4504,9 +4155,7 @@
       "domain": "scales_symmetric",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_minor_pentatonic"
-      ],
+      "prerequisite_names": ["scale_minor_pentatonic"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4524,9 +4173,7 @@
       "domain": "scales_variations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_natural_minor"
-      ],
+      "prerequisite_names": ["scale_natural_minor"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4544,9 +4191,7 @@
       "domain": "scales_variations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_minor_major"
-      ],
+      "prerequisite_names": ["scale_minor_major"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4564,9 +4209,7 @@
       "domain": "scales_variations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_harmonic_minor"
-      ],
+      "prerequisite_names": ["scale_harmonic_minor"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4584,9 +4227,7 @@
       "domain": "scales_variations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "scale_melodic_minor"
-      ],
+      "prerequisite_names": ["scale_melodic_minor"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4604,9 +4245,7 @@
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tempo_skill_ritardando"
-      ],
+      "prerequisite_names": ["tempo_skill_ritardando"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4629,9 +4268,7 @@
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tempo_skill_a_tempo"
-      ],
+      "prerequisite_names": ["tempo_skill_a_tempo"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4654,9 +4291,7 @@
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tempo_skill_ritardando"
-      ],
+      "prerequisite_names": ["tempo_skill_ritardando"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4679,9 +4314,7 @@
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tempo_term_allegro"
-      ],
+      "prerequisite_names": ["tempo_term_allegro"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4704,9 +4337,7 @@
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tempo_skill_accelerando"
-      ],
+      "prerequisite_names": ["tempo_skill_accelerando"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4729,10 +4360,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "tempo_term_largo"
-      ],
+      "prerequisite_names": ["pulse_tracking", "tempo_term_largo"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4755,10 +4383,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "tempo_term_moderato"
-      ],
+      "prerequisite_names": ["pulse_tracking", "tempo_term_moderato"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4835,10 +4460,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "rhythm_whole_notes"
-      ],
+      "prerequisite_names": ["pulse_tracking", "rhythm_whole_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4861,10 +4483,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "tempo_term_andante"
-      ],
+      "prerequisite_names": ["pulse_tracking", "tempo_term_andante"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4887,10 +4506,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "tempo_term_presto"
-      ],
+      "prerequisite_names": ["pulse_tracking", "tempo_term_presto"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4913,10 +4529,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "tempo_term_vivace"
-      ],
+      "prerequisite_names": ["pulse_tracking", "tempo_term_vivace"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4939,10 +4552,7 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "pulse_tracking",
-        "tempo_term_allegro"
-      ],
+      "prerequisite_names": ["pulse_tracking", "tempo_term_allegro"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4965,9 +4575,7 @@
       "domain": "texture",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "texture_three_voices"
-      ],
+      "prerequisite_names": ["texture_three_voices"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4989,9 +4597,7 @@
       "domain": "texture",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "texture_two_voices"
-      ],
+      "prerequisite_names": ["texture_two_voices"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5013,9 +4619,7 @@
       "domain": "texture",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "staff_basics"
-      ],
+      "prerequisite_names": ["staff_basics"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5037,9 +4641,7 @@
       "domain": "tonal_context",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "interval_play_major_2"
-      ],
+      "prerequisite_names": ["interval_play_major_2"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5186,9 +4788,7 @@
       "domain": "tonal_context",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "diatonic_scale_fragment_7"
-      ],
+      "prerequisite_names": ["diatonic_scale_fragment_7"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5210,9 +4810,7 @@
       "domain": "tonal_context",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tonal_chromatic_approach_tones"
-      ],
+      "prerequisite_names": ["tonal_chromatic_approach_tones"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5234,9 +4832,7 @@
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tuplet_triplet_general"
-      ],
+      "prerequisite_names": ["tuplet_triplet_general"],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5258,9 +4854,7 @@
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tuplet_triplet_general"
-      ],
+      "prerequisite_names": ["tuplet_triplet_general"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5282,9 +4876,7 @@
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tuplet_sextuplet"
-      ],
+      "prerequisite_names": ["tuplet_sextuplet"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5306,9 +4898,7 @@
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tuplet_quintuplet"
-      ],
+      "prerequisite_names": ["tuplet_quintuplet"],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5330,9 +4920,7 @@
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "rhythm_triplets_eighth"
-      ],
+      "prerequisite_names": ["rhythm_triplets_eighth"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -5354,10 +4942,7 @@
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": [
-        "tuplet_triplet_general",
-        "rhythm_quarter_notes"
-      ],
+      "prerequisite_names": ["tuplet_triplet_general", "rhythm_quarter_notes"],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,

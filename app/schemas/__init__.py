@@ -46,6 +46,30 @@ from .admin_schemas import (
     UserSoftGateStateReset,
 )
 
+from .teaching_module_schemas import (
+    ModuleStatus,
+    LessonStatus,
+    ExerciseTemplateInfo,
+    LessonConfig,
+    LessonMastery,
+    LessonBase,
+    LessonDetail,
+    LessonWithProgress,
+    ModuleBase,
+    ModuleSummary,
+    ModuleDetail,
+    ModuleWithProgress,
+    UserModuleProgressOut,
+    UserLessonProgressOut,
+    LessonAttemptCreate,
+    LessonAttemptOut,
+    LessonAttemptResult,
+    StartModuleRequest,
+    StartLessonRequest,
+    GeneratedExercise,
+    ExerciseResultSubmit,
+)
+
 __all__ = [
     # Session schemas
     "OnboardingIn",

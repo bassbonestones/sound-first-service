@@ -22,3 +22,10 @@ from .capability_schema import (
     SoftGateRule,
     UserSoftGateState,
 )
+from .teaching_module import (
+    TeachingModule,
+    Lesson,
+    UserModuleProgress,
+    UserLessonProgress,
+    LessonAttempt,
+)

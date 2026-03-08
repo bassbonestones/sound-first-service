@@ -32,22 +32,40 @@ class PracticeAttemptIn(BaseModel):
 
 
 class MiniSessionOut(BaseModel):
-    material_id: int
-    material_title: str
-    focus_card_id: int
-    focus_card_name: str
+    """A mini-session can be either a material-based session or a teaching module lesson."""
+    # Session type discriminator: "material" or "teaching_module"
+    session_type: str = "material"
+    
+    # Material-based session fields (populated when session_type == "material")
+    material_id: Optional[int] = None
+    material_title: Optional[str] = None
+    focus_card_id: Optional[int] = None
+    focus_card_name: Optional[str] = None
     focus_card_description: str = ""
     focus_card_category: str = ""
     focus_card_attention_cue: str = ""
     focus_card_micro_cues: List[str] = []
     focus_card_prompts: dict = {}
-    goal_type: str
-    goal_label: str
-    show_notation: bool
+    goal_type: Optional[str] = None
+    goal_label: Optional[str] = None
+    show_notation: bool = False
     target_key: str = None
     original_key_center: str = None
     resolved_musicxml: str = None
     starting_pitch: str = None
+    
+    # Teaching module session fields (populated when session_type == "teaching_module")
+    module_id: Optional[str] = None
+    module_display_name: Optional[str] = None
+    module_description: Optional[str] = None
+    lesson_id: Optional[str] = None
+    lesson_display_name: Optional[str] = None
+    lesson_description: Optional[str] = None
+    exercise_template_id: Optional[str] = None
+    exercise_config: Optional[dict] = None
+    mastery_config: Optional[dict] = None
+    hints: Optional[List[str]] = None
+    capability_name: Optional[str] = None
 
 
 class PracticeSessionResponse(BaseModel):
@@ -56,6 +74,7 @@ class PracticeSessionResponse(BaseModel):
     planned_duration_minutes: int
     generated_at: datetime.datetime
     mini_sessions: List[MiniSessionOut]
+    user_resonant_note: Optional[str] = None  # User's first note for teaching modules
 
 
 class FocusCardOut(BaseModel):
