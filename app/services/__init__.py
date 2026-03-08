@@ -48,8 +48,8 @@ from .user_service import (
     BASS_CLEF_INSTRUMENTS,
 )
 
-# Practice engine (from app/ - legacy location)
-from app.practice_engine_service import (
+# Practice engine (from services/engine/)
+from .engine import (
     PracticeEngineService,
 )
 
