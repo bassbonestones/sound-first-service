@@ -1,53 +1,68 @@
 """
-Curriculum generation - backwards-compatible facade.
+Curriculum generation following the Sound-First Ear-First Doctrine.
 
-This module re-exports all curriculum functionality from the
-app.curriculum package for backwards compatibility.
+Core principle: The ear leads the body.
+Sequence: LISTEN → SING → IMAGINE → PLAY → REFLECT
 
-The actual implementation is now split across:
-- curriculum/types.py - Dataclasses and constants
-- curriculum/utils.py - Note/MIDI conversion utilities
-- curriculum/filters.py - Material and key filtering
-- curriculum/generators.py - Step generation
-- curriculum/teaching.py - Capability introduction lessons
-- curriculum/journey.py - Journey stage estimation
+Step Types:
+- LISTEN: Hear the model phrase/pitch
+- SING: Vocalize the material
+- IMAGINE: Audiate the instrument sound in your head
+- PLAY: Play on your instrument
+- REFLECT: Rate satisfaction and fatigue
+- RECOVERY: Breathing reset, physical rest (inserted automatically)
 """
 
-# Re-export everything from the curriculum package
-from app.curriculum import (
-    # Types
+# Types and constants
+from .types import (
     CurriculumStepData,
     JourneyMetrics,
     CURRICULUM_TEMPLATES,
     DEFAULT_CURRICULUM,
     CAPABILITY_LESSON_TEMPLATE,
     JOURNEY_STAGES,
-    # Utils
+)
+
+# Utility functions
+from .utils import (
     NOTE_TO_MIDI,
     KEY_TRANSPOSITION_OFFSET,
     note_to_midi,
     midi_to_note,
-    # Filters
+)
+
+# Material and key filtering
+from .filters import (
     check_material_in_range,
     filter_materials_by_capabilities,
     filter_materials_by_range,
     estimate_material_pitch_range,
     filter_keys_by_range,
     select_key_for_mini_session,
-    # Generators
+)
+
+# Step generators
+from .generators import (
     generate_curriculum_steps,
     get_goals_for_fatigue,
     insert_recovery_steps,
-    # Teaching
+)
+
+# Capability teaching
+from .teaching import (
     should_introduce_capability,
     get_next_capability_to_introduce,
     generate_capability_lesson_steps,
     get_capabilities_for_material,
     get_help_menu_capabilities,
-    # Journey
+)
+
+# Journey stage estimation
+from .journey import (
     estimate_journey_stage,
     get_stage_adaptive_weights,
 )
+
 
 __all__ = [
     # Types
@@ -83,5 +98,3 @@ __all__ = [
     "estimate_journey_stage",
     "get_stage_adaptive_weights",
 ]
-
-

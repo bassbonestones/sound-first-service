@@ -1,19 +1,15 @@
 """User endpoints for Sound First API."""
 from fastapi import APIRouter, Depends, Body, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session as DbSession
 from pydantic import BaseModel
 from typing import List, Optional
 import datetime
 
 from app.db import get_db
-from app.models.core import User, Material, PracticeSession, MiniSession, PracticeAttempt, CurriculumStep
+from app.models.core import User, Material
 from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis
-from app.curriculum import (
-    JourneyMetrics,
-    estimate_journey_stage,
-    get_next_capability_to_introduce,
-)
-from app.spaced_repetition import build_sr_item_from_db, estimate_mastery_level
+from app.curriculum import get_next_capability_to_introduce
+from app.services import UserService
 
 router = APIRouter(tags=["users"])
 
@@ -27,92 +23,14 @@ class UserUpdateIn(BaseModel):
 
 
 class UserRangeIn(BaseModel):
-    range_low: str  # e.g., "E3"
-    range_high: str  # e.g., "C6"
-
-
-# --- Constants ---
-# Day 0 capabilities that all users learn
-DAY0_BASE_CAPABILITIES = [
-    "staff_basics",       # Stage 3: The Musical Staff
-    "ledger_lines",       # Stage 3: The Musical Staff (ledger lines)
-    "note_basics",        # Stage 4: What is a Note?
-    "first_note",         # Stage 1: Play Your Note
-    "accidental_raise_pitch",    # Stage 6: Sharps raise pitch
-    "accidental_lower_pitch",    # Stage 6: Flats lower pitch
-]
-
-# Instruments that use bass clef (all others use treble)
-BASS_CLEF_INSTRUMENTS = {
-    "Tenor Trombone", "Bass Trombone", "Euphonium", "Tuba",
-    "Bassoon", "Cello", "Double Bass", "Bass Voice",
-    "trombone", "bass_trombone", "euphonium", "tuba",
-    "bassoon", "cello", "double_bass", "bass_voice",
-}
-
-
-# --- Helper Functions ---
-def grant_day0_capabilities(user, db: Session):
-    """
-    Grant all Day 0 capabilities to a user when they complete the first-note flow.
-    
-    This marks the user as having mastered:
-    - staff_basics, ledger_lines, note_basics, first_note
-    - accidental symbols (flat, natural, sharp)
-    - their instrument's clef (treble or bass)
-    """
-    # Determine which clef to grant based on instrument
-    user_instrument = user.instrument or ""
-    clef_capability = "clef_bass" if user_instrument in BASS_CLEF_INSTRUMENTS else "clef_treble"
-    
-    # Full list of capabilities to grant
-    capabilities_to_grant = DAY0_BASE_CAPABILITIES + [clef_capability]
-    
-    # Look up capability IDs
-    caps = db.query(Capability).filter(Capability.name.in_(capabilities_to_grant)).all()
-    cap_map = {c.name: c for c in caps}
-    
-    now = datetime.datetime.utcnow()
-    granted = []
-    
-    for cap_name in capabilities_to_grant:
-        cap = cap_map.get(cap_name)
-        if not cap:
-            print(f"[grant_day0_capabilities] Warning: Capability '{cap_name}' not found")
-            continue
-        
-        # Check if already exists
-        existing = db.query(UserCapability).filter_by(
-            user_id=user.id,
-            capability_id=cap.id
-        ).first()
-        
-        if existing:
-            # Update to mastered if not already
-            if not existing.mastered_at:
-                existing.mastered_at = now
-                existing.is_active = True
-                granted.append(cap_name)
-        else:
-            # Create new mastered capability
-            user_cap = UserCapability(
-                user_id=user.id,
-                capability_id=cap.id,
-                introduced_at=now,
-                mastered_at=now,
-                is_active=True,
-                evidence_count=1,  # Day 0 completion counts as evidence
-            )
-            db.add(user_cap)
-            granted.append(cap_name)
-    
-    print(f"[grant_day0_capabilities] Granted {len(granted)} capabilities to user {user.id}: {granted}")
-    return granted
+    range_low: str
+    range_high: str
 
 
 # --- Endpoints ---
 @router.get("/users/{user_id}")
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: int, db: DbSession = Depends(get_db)):
+    """Get user details."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -126,197 +44,43 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/users/{user_id}/journey-stage")
-def get_user_journey_stage(user_id: int, db: Session = Depends(get_db)):
-    """
-    Estimate user's journey stage based on practice history.
-    
-    INTERNAL USE: Per spec, users are never told their stage.
-    This is for adaptive system behavior only.
-    
-    Returns stage 1-6 with name and contributing factors.
-    """
+def get_user_journey_stage(user_id: int, db: DbSession = Depends(get_db)):
+    """Estimate user's journey stage based on practice history."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Gather metrics
-    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
-    attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
-    
-    # Calculate days since first session
-    days_since_first = 0
-    if sessions:
-        first_session = min(s.started_at for s in sessions if s.started_at)
-        if first_session:
-            days_since_first = (datetime.datetime.now() - first_session).days
-    
-    # Calculate average rating (excluding nulls)
-    ratings = [a.rating for a in attempts if a.rating is not None]
-    avg_rating = sum(ratings) / len(ratings) if ratings else 0.0
-    
-    # Calculate average fatigue
-    fatigues = [a.fatigue for a in attempts if a.fatigue is not None]
-    avg_fatigue = sum(fatigues) / len(fatigues) if fatigues else 3.0
-    
-    # Build SR items for mastery counts
-    materials = db.query(Material).all()
-    attempt_history = {}
-    for a in attempts:
-        if a.material_id not in attempt_history:
-            attempt_history[a.material_id] = []
-        attempt_history[a.material_id].append({
-            "rating": a.rating,
-            "timestamp": a.timestamp.isoformat() if a.timestamp else None,
-        })
-    
-    mastered_count = 0
-    familiar_count = 0
-    stabilizing_count = 0
-    learning_count = 0
-    
-    for m in materials:
-        mat_attempts = attempt_history.get(m.id, [])
-        if not mat_attempts:
-            continue
-        sr_item = build_sr_item_from_db(m.id, mat_attempts)
-        mastery = estimate_mastery_level(sr_item)
-        if mastery == "mastered":
-            mastered_count += 1
-        elif mastery == "familiar":
-            familiar_count += 1
-        elif mastery == "stabilizing":
-            stabilizing_count += 1
-        elif mastery in ("learning", "new"):
-            learning_count += 1
-    
-    # Count unique keys practiced
-    unique_keys = set()
-    mini_sessions = db.query(MiniSession).join(PracticeSession).filter(
-        PracticeSession.user_id == user_id
-    ).all()
-    for ms in mini_sessions:
-        if ms.key:
-            unique_keys.add(ms.key)
-    
-    # Count capabilities mastered (V2)
-    cap_progress = db.query(UserCapability).filter(
-        UserCapability.user_id == user_id,
-        UserCapability.mastered_at.isnot(None)
-    ).count()
-    
-    # Count self-directed sessions
-    self_directed_count = len([s for s in sessions if s.practice_mode == "self_directed"])
-    
-    # Build metrics
-    metrics = JourneyMetrics(
-        total_sessions=len(sessions),
-        total_attempts=len(attempts),
-        days_since_first_session=days_since_first,
-        average_rating=avg_rating,
-        average_fatigue=avg_fatigue,
-        mastered_count=mastered_count,
-        familiar_count=familiar_count,
-        stabilizing_count=stabilizing_count,
-        learning_count=learning_count,
-        unique_keys_practiced=len(unique_keys),
-        capabilities_introduced=cap_progress,
-        self_directed_sessions=self_directed_count,
-    )
-    
-    # Estimate stage
-    stage_num, stage_name, factors = estimate_journey_stage(metrics)
+    result = UserService.estimate_journey_stage(user_id, db)
     
     return {
         "user_id": user_id,
-        "stage": stage_num,
-        "stage_name": stage_name,
-        "factors": factors,
-        "metrics": {
-            "total_sessions": metrics.total_sessions,
-            "total_attempts": metrics.total_attempts,
-            "days_active": metrics.days_since_first_session,
-            "average_rating": round(metrics.average_rating, 2),
-            "mastered_count": metrics.mastered_count,
-            "familiar_count": metrics.familiar_count,
-            "stabilizing_count": metrics.stabilizing_count,
-            "unique_keys": metrics.unique_keys_practiced,
-            "capabilities_introduced": metrics.capabilities_introduced,
-            "self_directed_sessions": metrics.self_directed_sessions,
-        }
+        "stage": result.stage,
+        "stage_name": result.stage_name,
+        "factors": result.factors,
+        "metrics": result.metrics
     }
 
 
 @router.post("/users/{user_id}/reset")
-def reset_user_data(user_id: int, db: Session = Depends(get_db)):
-    """
-    Reset all user data to start fresh.
-    Clears: instrument, resonant_note, range, day0 progress, capabilities, 
-            practice sessions, attempts, mini-sessions, etc.
-    """
+def reset_user_data(user_id: int, db: DbSession = Depends(get_db)):
+    """Reset all user data to start fresh."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Clear user profile data
-    user.instrument = None
-    user.resonant_note = None
-    user.range_low = None
-    user.range_high = None
-    user.comfortable_capabilities = None
-    user.max_melodic_interval = "M2"
-    user.day0_completed = False
-    user.day0_stage = 0
-    
-    # Reset capability bitmasks
-    user.cap_mask_0 = 0
-    user.cap_mask_1 = 0
-    user.cap_mask_2 = 0
-    user.cap_mask_3 = 0
-    user.cap_mask_4 = 0
-    user.cap_mask_5 = 0
-    user.cap_mask_6 = 0
-    user.cap_mask_7 = 0
-    
-    # Delete all practice attempts for this user
-    db.query(PracticeAttempt).filter_by(user_id=user_id).delete()
-    
-    # Delete all curriculum steps, mini-sessions, and sessions for this user
-    # First get all sessions
-    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
-    for session in sessions:
-        # Get mini-sessions for this session
-        mini_sessions = db.query(MiniSession).filter_by(practice_session_id=session.id).all()
-        for ms in mini_sessions:
-            # Delete curriculum steps for this mini-session
-            db.query(CurriculumStep).filter_by(mini_session_id=ms.id).delete()
-        # Delete mini-sessions
-        db.query(MiniSession).filter_by(practice_session_id=session.id).delete()
-    
-    # Delete sessions
-    db.query(PracticeSession).filter_by(user_id=user_id).delete()
-    
-    # Delete user capability progress (V2)
-    db.query(UserCapability).filter(UserCapability.user_id == user_id).delete()
-    
-    # Reset user's day0 status
-    user = db.query(User).filter_by(id=user_id).first()
-    if user:
-        user.day0_completed = False
-        user.day0_stage = 0
-    
+    UserService.reset_user_data(user, db)
     db.commit()
     
     return {"status": "success", "message": "User data reset successfully"}
 
 
 @router.patch("/users/{user_id}")
-def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depends(get_db)):
+def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = Depends(get_db)):
     """Update user fields (day0 progress, range, etc.)."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Track if day0 is being completed for the first time
     was_day0_completed = user.day0_completed
     
     if data.day0_completed is not None:
@@ -328,9 +92,7 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depe
     if data.range_high is not None:
         user.range_high = data.range_high
     
-    # Grant Day 0 capabilities if:
-    # 1. day0_completed is being set to true for the first time, OR
-    # 2. day0_completed is true but user has no mastered capabilities (seeded user edge case)
+    # Grant Day 0 capabilities if being completed for the first time
     granted_capabilities = []
     if data.day0_completed:
         mastered_count = db.query(UserCapability).filter(
@@ -339,7 +101,7 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depe
         ).count()
         
         if not was_day0_completed or mastered_count == 0:
-            granted_capabilities = grant_day0_capabilities(user, db)
+            granted_capabilities = UserService.grant_day0_capabilities(user, db)
     
     db.commit()
     return {
@@ -350,7 +112,7 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: Session = Depe
 
 
 @router.patch("/users/{user_id}/range")
-def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: Session = Depends(get_db)):
+def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: DbSession = Depends(get_db)):
     """Update user's comfortable playing range."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -363,27 +125,18 @@ def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: Session =
 
 
 @router.get("/users/{user_id}/capability-progress")
-def get_user_capability_progress(user_id: int, db: Session = Depends(get_db)):
-    """
-    Get user's progress on capability learning (V2).
-    
-    Returns stats on mastered vs in-progress capabilities.
-    """
+def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)):
+    """Get user's progress on capability learning."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Get all user capabilities (V2)
     user_caps = db.query(UserCapability).filter(UserCapability.user_id == user_id).all()
-    
-    # Get all capabilities (V2)
     all_caps = db.query(Capability).all()
-    total_capabilities = len(all_caps)
     
     mastered_caps = [c for c in user_caps if c.mastered_at is not None]
     in_progress_caps = [c for c in user_caps if c.mastered_at is None]
     
-    # Get most recent mastery date
     last_mastery = None
     if mastered_caps:
         mastery_dates = [c.mastered_at for c in mastered_caps if c.mastered_at]
@@ -392,7 +145,7 @@ def get_user_capability_progress(user_id: int, db: Session = Depends(get_db)):
     
     return {
         "user_id": user_id,
-        "total_capabilities": total_capabilities,
+        "total_capabilities": len(all_caps),
         "capabilities_mastered": len(mastered_caps),
         "capabilities_in_progress": len(in_progress_caps),
         "last_mastery": last_mastery.isoformat() if last_mastery else None,
@@ -401,43 +154,36 @@ def get_user_capability_progress(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/users/{user_id}/next-capability")
-def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
-    """
-    Get the next capability that should be introduced to the user (V2).
-    
-    Based on sequence order and user's current mastery.
-    """
+def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)):
+    """Get the next capability that should be introduced to the user."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Get user's mastered capabilities (V2)
+    # Get mastered capability names
     mastered = db.query(UserCapability).filter(
         UserCapability.user_id == user_id,
         UserCapability.mastered_at.isnot(None)
     ).all()
-    mastered_cap_ids = [m.capability_id for m in mastered]
     
-    # Get names of mastered caps
     mastered_cap_names = []
-    for cap_id in mastered_cap_ids:
-        cap = db.query(Capability).filter_by(id=cap_id).first()
+    for m in mastered:
+        cap = db.query(Capability).filter_by(id=m.capability_id).first()
         if cap:
             mastered_cap_names.append(cap.name)
     
-    # Get all capabilities ordered by domain and bit_index (V2)
+    # Get all capabilities ordered
     all_caps = db.query(Capability).order_by(Capability.domain, Capability.bit_index).all()
-    
-    # Build list for the logic function
-    caps_list = []
-    for cap in all_caps:
-        caps_list.append({
+    caps_list = [
+        {
             "id": cap.id,
             "name": cap.name,
             "display_name": cap.display_name,
             "explanation": cap.explanation,
             "domain": cap.domain
-        })
+        }
+        for cap in all_caps
+    ]
     
     next_cap = get_next_capability_to_introduce(mastered_cap_names, caps_list)
     
@@ -456,30 +202,15 @@ def get_next_capability_for_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/users/{user_id}/eligible-materials")
-def get_eligible_materials(user_id: int, db: Session = Depends(get_db)):
-    """
-    Get materials the user is eligible for based on their capabilities.
-    
-    Uses bitmask for fast O(1) per-material eligibility check.
-    """
+def get_eligible_materials(user_id: int, db: DbSession = Depends(get_db)):
+    """Get materials the user is eligible for based on their capabilities."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Get user's capability masks
-    user_masks = [
-        user.cap_mask_0 or 0,
-        user.cap_mask_1 or 0,
-        user.cap_mask_2 or 0,
-        user.cap_mask_3 or 0,
-        user.cap_mask_4 or 0,
-        user.cap_mask_5 or 0,
-        user.cap_mask_6 or 0,
-        user.cap_mask_7 or 0,
-    ]
+    user_masks = UserService.get_user_masks(user)
     
     # Query materials using bitmask check
-    # User has all required caps if: (material_mask & ~user_mask) == 0 for all masks
     materials = db.query(Material).filter(
         ((Material.req_cap_mask_0 or 0).op('&')(~user_masks[0])) == 0,
         ((Material.req_cap_mask_1 or 0).op('&')(~user_masks[1])) == 0,
@@ -491,7 +222,6 @@ def get_eligible_materials(user_id: int, db: Session = Depends(get_db)):
         ((Material.req_cap_mask_7 or 0).op('&')(~user_masks[7])) == 0,
     ).all()
     
-    # Get analysis data for eligible materials
     material_ids = [m.id for m in materials]
     analyses = db.query(MaterialAnalysis).filter(
         MaterialAnalysis.material_id.in_(material_ids)
@@ -522,13 +252,9 @@ def get_eligible_materials(user_id: int, db: Session = Depends(get_db)):
 def grant_capability(
     user_id: int,
     capability_id: int = Body(..., embed=True),
-    db: Session = Depends(get_db)
+    db: DbSession = Depends(get_db)
 ):
-    """
-    Grant a capability to a user (mark as mastered).
-    
-    Updates both the normalized table and the user's bitmask.
-    """
+    """Grant a capability to a user (mark as mastered)."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -537,58 +263,19 @@ def grant_capability(
     if not cap:
         raise HTTPException(status_code=404, detail="Capability not found")
     
-    # Check if already granted
-    existing = db.query(UserCapability).filter_by(
-        user_id=user_id, capability_id=capability_id
-    ).first()
-    
-    if existing:
-        if existing.is_active:
-            return {"message": "Capability already granted", "capability": cap.name}
-        else:
-            # Reactivate
-            existing.is_active = True
-            existing.deactivated_at = None
-            existing.mastered_at = datetime.datetime.now()
-    else:
-        # Create new record
-        user_cap = UserCapability(
-            user_id=user_id,
-            capability_id=capability_id,
-            introduced_at=datetime.datetime.now(),
-            mastered_at=datetime.datetime.now(),
-            is_active=True,
-        )
-        db.add(user_cap)
-    
-    # Update bitmask
-    if cap.bit_index is not None:
-        bucket = cap.bit_index // 64
-        bit_position = cap.bit_index % 64
-        
-        mask_attrs = ['cap_mask_0', 'cap_mask_1', 'cap_mask_2', 'cap_mask_3',
-                      'cap_mask_4', 'cap_mask_5', 'cap_mask_6', 'cap_mask_7']
-        
-        current_mask = getattr(user, mask_attrs[bucket]) or 0
-        new_mask = current_mask | (1 << bit_position)
-        setattr(user, mask_attrs[bucket], new_mask)
-    
+    was_granted, message = UserService.grant_capability(user, cap, db)
     db.commit()
     
-    return {"message": "Capability granted", "capability": cap.name}
+    return {"message": message, "capability": cap.name}
 
 
 @router.post("/users/{user_id}/capabilities/revoke")
 def revoke_capability(
     user_id: int,
     capability_id: int = Body(..., embed=True),
-    db: Session = Depends(get_db)
+    db: DbSession = Depends(get_db)
 ):
-    """
-    Revoke a capability from a user (mark as no longer able).
-    
-    Updates both the normalized table and the user's bitmask.
-    """
+    """Revoke a capability from a user."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -597,29 +284,7 @@ def revoke_capability(
     if not cap:
         raise HTTPException(status_code=404, detail="Capability not found")
     
-    existing = db.query(UserCapability).filter_by(
-        user_id=user_id, capability_id=capability_id
-    ).first()
-    
-    if not existing or not existing.is_active:
-        return {"message": "Capability not currently active", "capability": cap.name}
-    
-    # Deactivate
-    existing.is_active = False
-    existing.deactivated_at = datetime.datetime.now()
-    
-    # Update bitmask (clear the bit)
-    if cap.bit_index is not None:
-        bucket = cap.bit_index // 64
-        bit_position = cap.bit_index % 64
-        
-        mask_attrs = ['cap_mask_0', 'cap_mask_1', 'cap_mask_2', 'cap_mask_3',
-                      'cap_mask_4', 'cap_mask_5', 'cap_mask_6', 'cap_mask_7']
-        
-        current_mask = getattr(user, mask_attrs[bucket]) or 0
-        new_mask = current_mask & ~(1 << bit_position)
-        setattr(user, mask_attrs[bucket], new_mask)
-    
+    was_revoked, message = UserService.revoke_capability(user, cap, db)
     db.commit()
     
-    return {"message": "Capability revoked", "capability": cap.name}
+    return {"message": message, "capability": cap.name}

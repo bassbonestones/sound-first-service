@@ -1,48 +1,64 @@
 """
-Tempo Profile Analyzer - backwards-compatible facade.
+Tempo Profile Analyzer for Sound First
 
-This module re-exports all tempo analysis functionality from the
-app.tempo package for backwards compatibility.
+Analyzes MusicXML scores to build comprehensive tempo profiles including:
+- Multiple tempo regions with boundaries
+- Base, min, max, and weighted effective BPM
+- Tempo change classification (gradual vs sudden, a tempo returns, etc.)
+- Foundation for tempo speed and control difficulty metrics
 
-The actual implementation is now split across:
-- tempo/types.py - Enums, dataclasses, and constants
-- tempo/parsing.py - Tempo event parsing
-- tempo/regions.py - Region building and effective BPM
-- tempo/profile.py - Profile building
-- tempo/difficulty.py - Difficulty calculations
-- tempo/analyzer.py - Main API
+This module replaces the simplistic "last tempo wins" approach with a
+proper temporal model of tempo events.
 """
 
-# Re-export everything from the tempo package
-from app.tempo import (
-    # Constants
+# Types and constants
+from .types import (
     TEMPO_TERM_BPM,
     TEMPO_MODIFIER_TERMS,
-    MUSIC21_AVAILABLE,
-    # Types
     TempoSourceType,
     TempoChangeType,
     TempoEvent,
     TempoRegion,
     TempoProfile,
     TempoDifficultyMetrics,
-    # Parsing
+)
+
+# Parsing functions
+from .parsing import (
     estimate_bpm_from_term,
     classify_tempo_term,
     parse_tempo_events,
-    # Regions
+)
+
+# Region building
+from .regions import (
     build_tempo_regions,
     calculate_effective_bpm,
-    # Profile
-    build_tempo_profile,
-    # Difficulty
+)
+
+# Profile building
+from .profile import build_tempo_profile
+
+# Difficulty calculations
+from .difficulty import (
     calculate_tempo_speed_difficulty,
     calculate_tempo_control_difficulty,
     calculate_tempo_difficulty_metrics,
-    # Main API
+)
+
+# Main API
+from .analyzer import (
     analyze_tempo,
     get_legacy_tempo_bpm,
 )
+
+# Check for music21 availability
+try:
+    from music21 import stream
+    MUSIC21_AVAILABLE = True
+except ImportError:
+    MUSIC21_AVAILABLE = False
+
 
 __all__ = [
     # Constants
