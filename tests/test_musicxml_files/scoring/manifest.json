@@ -1,0 +1,294 @@
+{
+  "description": "Scoring domain test files with expected score ranges",
+  "domains": [
+    "interval",
+    "rhythm",
+    "pattern",
+    "throughput",
+    "tonal",
+    "range"
+  ],
+  "levels": [
+    "baseline",
+    "moderate",
+    "complex"
+  ],
+  "files": [
+    {
+      "filename": "interval_baseline_stepwise.musicxml",
+      "domain": "interval",
+      "level": "baseline",
+      "description": "Stepwise motion only (seconds)",
+      "expected_score_range": {
+        "primary": [
+          0.0,
+          0.2
+        ],
+        "hazard": [
+          0.0,
+          0.1
+        ]
+      }
+    },
+    {
+      "filename": "interval_moderate_mixed.musicxml",
+      "domain": "interval",
+      "level": "moderate",
+      "description": "Mixed steps, skips, and small leaps",
+      "expected_score_range": {
+        "primary": [
+          0.3,
+          0.5
+        ],
+        "hazard": [
+          0.1,
+          0.3
+        ]
+      }
+    },
+    {
+      "filename": "interval_complex_large_leaps.musicxml",
+      "domain": "interval",
+      "level": "complex",
+      "description": "Large leaps including octaves and beyond",
+      "expected_score_range": {
+        "primary": [
+          0.6,
+          0.9
+        ],
+        "hazard": [
+          0.4,
+          0.8
+        ]
+      }
+    },
+    {
+      "filename": "rhythm_baseline_quarters.musicxml",
+      "domain": "rhythm",
+      "level": "baseline",
+      "description": "Quarter notes only at moderate tempo",
+      "expected_score_range": {
+        "primary": [
+          0.0,
+          0.2
+        ],
+        "hazard": [
+          0.0,
+          0.1
+        ]
+      }
+    },
+    {
+      "filename": "rhythm_moderate_mixed.musicxml",
+      "domain": "rhythm",
+      "level": "moderate",
+      "description": "Mixed note values: quarters, eighths, dotted",
+      "expected_score_range": {
+        "primary": [
+          0.3,
+          0.5
+        ],
+        "hazard": [
+          0.1,
+          0.3
+        ]
+      }
+    },
+    {
+      "filename": "rhythm_complex_tuplets.musicxml",
+      "domain": "rhythm",
+      "level": "complex",
+      "description": "Tuplets, sixteenths, complex subdivisions",
+      "expected_score_range": {
+        "primary": [
+          0.6,
+          0.9
+        ],
+        "hazard": [
+          0.4,
+          0.8
+        ]
+      }
+    },
+    {
+      "filename": "pattern_baseline_repetitive.musicxml",
+      "domain": "pattern",
+      "level": "baseline",
+      "description": "Highly repetitive melodic/rhythmic pattern",
+      "expected_score_range": {
+        "primary": [
+          0.0,
+          0.2
+        ],
+        "hazard": [
+          0.0,
+          0.2
+        ]
+      }
+    },
+    {
+      "filename": "pattern_moderate_varied.musicxml",
+      "domain": "pattern",
+      "level": "moderate",
+      "description": "Some repetition with variations",
+      "expected_score_range": {
+        "primary": [
+          0.3,
+          0.5
+        ],
+        "hazard": [
+          0.2,
+          0.4
+        ]
+      }
+    },
+    {
+      "filename": "pattern_complex_unique.musicxml",
+      "domain": "pattern",
+      "level": "complex",
+      "description": "No repetition, unique throughout",
+      "expected_score_range": {
+        "primary": [
+          0.6,
+          0.9
+        ],
+        "hazard": [
+          0.5,
+          0.8
+        ]
+      }
+    },
+    {
+      "filename": "throughput_baseline_sparse.musicxml",
+      "domain": "throughput",
+      "level": "baseline",
+      "description": "Sparse: ~1-2 notes per second (whole and half notes)",
+      "expected_score_range": {
+        "primary": [
+          0.0,
+          0.2
+        ],
+        "hazard": [
+          0.0,
+          0.1
+        ]
+      }
+    },
+    {
+      "filename": "throughput_moderate.musicxml",
+      "domain": "throughput",
+      "level": "moderate.musicxml",
+      "description": "Moderate: ~3-4 notes per second",
+      "expected_score_range": {
+        "primary": [
+          0.3,
+          0.5
+        ],
+        "hazard": [
+          0.1,
+          0.3
+        ]
+      }
+    },
+    {
+      "filename": "throughput_complex_dense.musicxml",
+      "domain": "throughput",
+      "level": "complex",
+      "description": "Dense: 5+ notes per second",
+      "expected_score_range": {
+        "primary": [
+          0.6,
+          0.9
+        ],
+        "hazard": [
+          0.4,
+          0.8
+        ]
+      }
+    },
+    {
+      "filename": "tonal_baseline_diatonic.musicxml",
+      "domain": "tonal",
+      "level": "baseline",
+      "description": "Pure diatonic (C major, no accidentals)",
+      "expected_score_range": {
+        "primary": [
+          0.0,
+          0.2
+        ],
+        "hazard": [
+          0.0,
+          0.1
+        ]
+      }
+    },
+    {
+      "filename": "tonal_moderate_accidentals.musicxml",
+      "domain": "tonal",
+      "level": "moderate",
+      "description": "Some accidentals (secondary dominants, passing tones)",
+      "expected_score_range": {
+        "primary": [
+          0.3,
+          0.5
+        ],
+        "hazard": [
+          0.1,
+          0.4
+        ]
+      }
+    },
+    {
+      "filename": "tonal_complex_chromatic.musicxml",
+      "domain": "tonal",
+      "level": "complex",
+      "description": "Chromatic scale passages",
+      "expected_score_range": {
+        "primary": [
+          0.6,
+          0.9
+        ],
+        "hazard": [
+          0.5,
+          0.9
+        ]
+      }
+    },
+    {
+      "filename": "range_baseline_narrow.musicxml",
+      "domain": "range",
+      "level": "baseline",
+      "description": "Narrow range: 6th or less",
+      "expected_score_range": {
+        "primary": [
+          0.0,
+          0.2
+        ]
+      }
+    },
+    {
+      "filename": "range_moderate_octave.musicxml",
+      "domain": "range",
+      "level": "moderate",
+      "description": "Moderate range: within octave",
+      "expected_score_range": {
+        "primary": [
+          0.3,
+          0.5
+        ]
+      }
+    },
+    {
+      "filename": "range_complex_wide.musicxml",
+      "domain": "range",
+      "level": "complex",
+      "description": "Wide range: beyond octave (C4 to G5 = P12)",
+      "expected_score_range": {
+        "primary": [
+          0.6,
+          0.9
+        ]
+      }
+    }
+  ]
+}
