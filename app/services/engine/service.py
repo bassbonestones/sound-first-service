@@ -62,9 +62,14 @@ class PracticeEngineService:
         """Load all material states for a user."""
         return load_user_material_states(self.db, user_id)
     
-    def get_capability_progress(self, user_id: int) -> List[CapabilityProgress]:
-        """Load capability progress for a user."""
-        return load_capability_progress(self.db, user_id)
+    def get_capability_progress(self, user_id: int, instrument_id: int = None) -> List[CapabilityProgress]:
+        """Load capability progress for a user.
+        
+        Args:
+            user_id: User ID
+            instrument_id: Optional instrument ID for instrument-specific capabilities
+        """
+        return load_capability_progress(self.db, user_id, instrument_id)
     
     def get_materials_by_teaches(self) -> Dict[int, List[int]]:
         """Build index of materials by capability they teach."""
@@ -116,14 +121,19 @@ class PracticeEngineService:
     #  Material Selection
     # ─────────────────────────────────────────────────────────────────────────────
     
-    def select_next_material(self, user_id: int) -> Optional[SessionMaterial]:
-        """Select the next material for a practice session."""
+    def select_next_material(self, user_id: int, instrument_id: int = None) -> Optional[SessionMaterial]:
+        """Select the next material for a practice session.
+        
+        Args:
+            user_id: User ID
+            instrument_id: Optional instrument ID for instrument-specific capability filtering
+        """
         user = self.db.query(User).get(user_id)
         if not user:
             return None
         
         user_masks = get_user_capability_masks(user)
-        cap_progress = self.get_capability_progress(user_id)
+        cap_progress = self.get_capability_progress(user_id, instrument_id)
         materials_by_teaches = self.get_materials_by_teaches()
         material_states = self.get_user_material_states(user_id)
         maturity = self.compute_user_maturity(user_id)

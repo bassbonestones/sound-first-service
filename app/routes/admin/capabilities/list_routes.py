@@ -103,6 +103,7 @@ def admin_get_capabilities(
             "soft_gate_requirements": soft_gate_reqs,
             "detection_rule": detection_rule,
             "is_active": cap.is_active if cap.is_active is not None else True,
+            "is_global": cap.is_global if cap.is_global is not None else True,
             "prerequisite_ids": prereq_ids_list,
             "prerequisite_names": prereq_names,
             "materials_requiring": requires_count,

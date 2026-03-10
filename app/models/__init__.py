@@ -7,6 +7,7 @@ from .capability_schema import (
     Capability,
     MaterialCapability,
     MaterialAnalysis,
+    UserInstrument,
     UserCapability,
     UserComplexityScores,
     # Adaptive engine models

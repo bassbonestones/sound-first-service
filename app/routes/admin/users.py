@@ -10,7 +10,7 @@ from app.db import get_db
 from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession, PracticeAttempt
 from app.models.capability_schema import (
     Capability, UserCapability, SoftGateRule, UserSoftGateState,
-    MaterialCapability, MaterialAnalysis, UserMaterialState
+    MaterialCapability, MaterialAnalysis, UserMaterialState, UserInstrument
 )
 from app.models.teaching_module import UserLessonProgress, UserModuleProgress
 from app.curriculum import (
@@ -48,18 +48,42 @@ class CapabilityAdd(BaseModel):
     """Add a capability to user."""
     capability_id: int
     mastered: bool = False
+    instrument_id: Optional[int] = None  # None for global caps, set for instrument-specific
 
 
 @router.get("/users/{user_id}/progression")
-def admin_get_user_progression(user_id: int, db: Session = Depends(get_db)):
-    """Get comprehensive user progression data."""
+def admin_get_user_progression(user_id: int, instrument_id: Optional[int] = None, db: Session = Depends(get_db)):
+    """Get comprehensive user progression data.
+    
+    Args:
+        user_id: User ID
+        instrument_id: If provided, filters capabilities to show:
+                       - Global capabilities (instrument_id IS NULL)
+                       - Instrument-specific capabilities for this instrument
+    """
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    user_caps = db.query(UserCapability, Capability).join(
+    # Load user's instruments
+    instruments = db.query(UserInstrument).filter(UserInstrument.user_id == user_id).all()
+    
+    # Build capability query
+    cap_query = db.query(UserCapability, Capability).join(
         Capability, UserCapability.capability_id == Capability.id
-    ).filter(UserCapability.user_id == user_id, UserCapability.is_active == True).all()
+    ).filter(UserCapability.user_id == user_id, UserCapability.is_active == True)
+    
+    # If instrument_id specified, filter to global + that instrument's caps
+    if instrument_id is not None:
+        from sqlalchemy import or_
+        cap_query = cap_query.filter(
+            or_(
+                UserCapability.instrument_id == None,  # Global caps
+                UserCapability.instrument_id == instrument_id  # This instrument's caps
+            )
+        )
+    
+    user_caps = cap_query.all()
     
     mastered = []
     introduced = []
@@ -69,6 +93,8 @@ def admin_get_user_progression(user_id: int, db: Session = Depends(get_db)):
             "introduced_at": user_cap.introduced_at.isoformat() if user_cap.introduced_at else None,
             "mastered_at": user_cap.mastered_at.isoformat() if user_cap.mastered_at else None,
             "evidence_count": user_cap.evidence_count,
+            "is_global": cap.is_global if hasattr(cap, 'is_global') else True,
+            "instrument_id": user_cap.instrument_id,
         }
         if user_cap.mastered_at:
             mastered.append(cap_data)
@@ -91,12 +117,26 @@ def admin_get_user_progression(user_id: int, db: Session = Depends(get_db)):
     
     materials_completed = db.query(UserMaterialState).filter_by(user_id=user_id, status="MASTERED").count()
     
+    # Format instruments list
+    instruments_data = [{
+        "id": inst.id,
+        "instrument_name": inst.instrument_name,
+        "is_primary": inst.is_primary,
+        "clef": inst.clef,
+        "resonant_note": inst.resonant_note,
+        "range_low": inst.range_low,
+        "range_high": inst.range_high,
+        "day0_completed": inst.day0_completed,
+        "day0_stage": inst.day0_stage,
+    } for inst in instruments]
+    
     return {
         "user": {
             "id": user.id, "email": user.email, "instrument": user.instrument,
             "resonant_note": user.resonant_note, "range_low": user.range_low, "range_high": user.range_high,
             "day0_completed": getattr(user, "day0_completed", False), "day0_stage": getattr(user, "day0_stage", 0),
         },
+        "instruments": instruments_data,
         "capabilities": {"mastered": mastered, "introduced": introduced, "recent_promotions": recent_promotions},
         "soft_gates": soft_gate_data,
         "journey": {"stage": "learning", "capabilities_mastered": len(mastered), "materials_completed": materials_completed},
@@ -330,23 +370,44 @@ def admin_update_user_info(user_id: int, update: UserInfoUpdate, db: Session = D
 
 
 @router.get("/users/{user_id}/capabilities/available")
-def admin_get_available_capabilities(user_id: int, db: Session = Depends(get_db)):
-    """Get all capabilities, marking which the user has."""
+def admin_get_available_capabilities(user_id: int, instrument_id: Optional[int] = None, db: Session = Depends(get_db)):
+    """Get all capabilities, marking which the user has.
+    
+    Args:
+        user_id: User ID
+        instrument_id: If provided, shows whether user has instrument-specific caps for this instrument
+    """
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     all_caps = db.query(Capability).order_by(Capability.domain, Capability.name).all()
-    user_caps = {uc.capability_id: uc for uc in db.query(UserCapability).filter_by(user_id=user_id, is_active=True).all()}
+    
+    # Get user capabilities - for global caps check NULL instrument_id, for instrument-specific check the given instrument
+    user_caps_query = db.query(UserCapability).filter_by(user_id=user_id, is_active=True)
+    user_caps_list = user_caps_query.all()
+    
+    # Build lookup: for global caps key by (cap_id, None), for instrument-specific key by (cap_id, instrument_id)
+    user_caps = {}
+    for uc in user_caps_list:
+        user_caps[(uc.capability_id, uc.instrument_id)] = uc
     
     result = []
     for cap in all_caps:
-        user_cap = user_caps.get(cap.id)
+        is_global = cap.is_global if hasattr(cap, 'is_global') else True
+        
+        # For global caps, look for instrument_id=None; for instrument-specific, use provided instrument_id
+        if is_global:
+            user_cap = user_caps.get((cap.id, None))
+        else:
+            user_cap = user_caps.get((cap.id, instrument_id)) if instrument_id else None
+        
         result.append({
             "id": cap.id,
             "name": cap.name,
             "display_name": cap.display_name,
             "domain": cap.domain,
+            "is_global": is_global,
             "user_has": user_cap is not None,
             "mastered": user_cap.mastered_at is not None if user_cap else False,
             "evidence_count": user_cap.evidence_count if user_cap else 0,
@@ -357,7 +418,11 @@ def admin_get_available_capabilities(user_id: int, db: Session = Depends(get_db)
 
 @router.post("/users/{user_id}/capabilities")
 def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = Depends(get_db)):
-    """Add a capability to a user."""
+    """Add a capability to a user.
+    
+    For global capabilities (is_global=True), instrument_id should be None.
+    For instrument-specific capabilities, instrument_id should be set.
+    """
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -366,8 +431,27 @@ def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = D
     if not cap:
         raise HTTPException(status_code=404, detail="Capability not found")
     
-    # Check if already exists
-    existing = db.query(UserCapability).filter_by(user_id=user_id, capability_id=data.capability_id).first()
+    is_global = cap.is_global if hasattr(cap, 'is_global') else True
+    
+    # Determine the instrument_id to use
+    # For global caps, always use None
+    # For instrument-specific, use provided instrument_id (required)
+    if is_global:
+        target_instrument_id = None
+    else:
+        if data.instrument_id is None:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Capability '{cap.name}' is instrument-specific. Please provide instrument_id."
+            )
+        target_instrument_id = data.instrument_id
+    
+    # Check if already exists with same instrument_id
+    existing = db.query(UserCapability).filter_by(
+        user_id=user_id, 
+        capability_id=data.capability_id,
+        instrument_id=target_instrument_id
+    ).first()
     if existing:
         if not existing.is_active:
             existing.is_active = True
@@ -382,6 +466,7 @@ def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = D
     user_cap = UserCapability(
         user_id=user_id,
         capability_id=data.capability_id,
+        instrument_id=target_instrument_id,
         is_active=True,
         introduced_at=datetime.datetime.now(),
         mastered_at=datetime.datetime.now() if data.mastered else None,
@@ -394,9 +479,31 @@ def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = D
 
 
 @router.delete("/users/{user_id}/capabilities/{capability_id}")
-def admin_remove_user_capability(user_id: int, capability_id: int, db: Session = Depends(get_db)):
-    """Remove a capability from a user (soft delete)."""
-    user_cap = db.query(UserCapability).filter_by(user_id=user_id, capability_id=capability_id).first()
+def admin_remove_user_capability(
+    user_id: int, 
+    capability_id: int, 
+    instrument_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """Remove a capability from a user (soft delete).
+    
+    Args:
+        user_id: User ID
+        capability_id: Capability ID to remove
+        instrument_id: For instrument-specific caps, specify which instrument record to remove
+    """
+    # Check if capability is global or instrument-specific
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    is_global = cap.is_global if cap and hasattr(cap, 'is_global') else True
+    
+    # Build query based on whether it's global or instrument-specific
+    query = db.query(UserCapability).filter_by(user_id=user_id, capability_id=capability_id)
+    if is_global:
+        query = query.filter_by(instrument_id=None)
+    elif instrument_id is not None:
+        query = query.filter_by(instrument_id=instrument_id)
+    
+    user_cap = query.first()
     if not user_cap:
         raise HTTPException(status_code=404, detail="User capability not found")
     
@@ -407,9 +514,31 @@ def admin_remove_user_capability(user_id: int, capability_id: int, db: Session =
 
 
 @router.put("/users/{user_id}/capabilities/{capability_id}/toggle-mastery")
-def admin_toggle_capability_mastery(user_id: int, capability_id: int, db: Session = Depends(get_db)):
-    """Toggle mastery status of a capability."""
-    user_cap = db.query(UserCapability).filter_by(user_id=user_id, capability_id=capability_id, is_active=True).first()
+def admin_toggle_capability_mastery(
+    user_id: int, 
+    capability_id: int, 
+    instrument_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """Toggle mastery status of a capability.
+    
+    Args:
+        user_id: User ID
+        capability_id: Capability ID to toggle
+        instrument_id: For instrument-specific caps, specify which instrument record to toggle
+    """
+    # Check if capability is global or instrument-specific
+    cap = db.query(Capability).filter_by(id=capability_id).first()
+    is_global = cap.is_global if cap and hasattr(cap, 'is_global') else True
+    
+    # Build query based on whether it's global or instrument-specific
+    query = db.query(UserCapability).filter_by(user_id=user_id, capability_id=capability_id, is_active=True)
+    if is_global:
+        query = query.filter_by(instrument_id=None)
+    elif instrument_id is not None:
+        query = query.filter_by(instrument_id=instrument_id)
+    
+    user_cap = query.first()
     if not user_cap:
         raise HTTPException(status_code=404, detail="User capability not found")
     

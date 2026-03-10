@@ -66,6 +66,7 @@ class CapabilityCreateRequest(BaseModel):
     evidence_distinct_materials: bool = False
     evidence_acceptance_threshold: int = 4
     difficulty_weight: float = 1.0
+    is_global: bool = True  # True = same for all instruments, False = per-instrument
     prerequisite_ids: Optional[List[int]] = None
     soft_gate_requirements: Optional[Dict[str, float]] = None
     detection_rule: Optional[DetectionRuleConfig] = None
@@ -97,6 +98,7 @@ class CapabilityUpdateRequest(BaseModel):
     evidence_distinct_materials: bool = False
     evidence_acceptance_threshold: int = 4
     difficulty_weight: float = 1.0
+    is_global: bool = True  # True = same for all instruments, False = per-instrument
     prerequisite_ids: Optional[List[int]] = None
     soft_gate_requirements: Optional[Dict[str, float]] = None
     detection_rule: Optional[DetectionRuleConfig] = None

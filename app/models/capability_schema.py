@@ -99,6 +99,11 @@ class Capability(Base):
     # Archive/active status
     is_active = Column(Boolean, default=True)  # False = archived, not shown in normal views
     
+    # Multi-instrument support
+    # Global capabilities (staff_basics, note_basics, etc.) only need to be learned once
+    # Instrument-specific capabilities (first_note, range-dependent skills) must be relearned for each instrument
+    is_global = Column(Boolean, default=True)  # True = same for all instruments, False = per-instrument
+    
     __table_args__ = (
         Index('ix_capability_domain', 'domain'),
         Index('ix_capability_bit_index', 'bit_index'),
@@ -244,15 +249,58 @@ class MaterialAnalysis(Base):
     interaction_bonus = Column(Float, nullable=True)
 
 
+class UserInstrument(Base):
+    """
+    Tracks user's instruments with per-instrument state.
+    
+    Each instrument a user plays has its own Day 0 progress, range, resonant note, etc.
+    """
+    __tablename__ = 'user_instruments'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    instrument_name = Column(String, nullable=False)  # e.g., "Trombone", "Flute"
+    
+    # Is this the user's primary/active instrument?
+    is_primary = Column(Boolean, default=False)
+    
+    # Clef for this instrument
+    clef = Column(String, nullable=True)  # 'treble' or 'bass'
+    
+    # Per-instrument range and resonant note (Day 0 results)
+    resonant_note = Column(String, nullable=True)  # e.g., "F3"
+    range_low = Column(String, nullable=True)  # e.g., "Bb2"
+    range_high = Column(String, nullable=True)  # e.g., "F5"
+    
+    # Day 0 progress for this instrument
+    day0_completed = Column(Boolean, default=False)
+    day0_stage = Column(Integer, default=0)  # Current stage in Day 0 (0-6)
+    
+    # Timestamps
+    created_at = Column(DateTime, nullable=True)
+    last_practiced_at = Column(DateTime, nullable=True)
+    
+    __table_args__ = (
+        Index('ix_user_instrument_pair', 'user_id', 'instrument_name', unique=True),
+        Index('ix_user_instrument_primary', 'user_id', 'is_primary'),
+    )
+
+
 class UserCapability(Base):
     """
     Tracks which capabilities a user has mastered.
+    
+    For global capabilities (is_global=True on Capability), instrument_id is NULL.
+    For instrument-specific capabilities, instrument_id references user_instruments.
     """
     __tablename__ = 'user_capabilities'
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     capability_id = Column(Integer, ForeignKey('capabilities.id'), nullable=False)
+    
+    # Multi-instrument support: NULL for global capabilities, specific instrument for per-instrument caps
+    instrument_id = Column(Integer, ForeignKey('user_instruments.id'), nullable=True)
     
     # Learning status
     introduced_at = Column(DateTime, nullable=True)
@@ -270,8 +318,10 @@ class UserCapability(Base):
     evidence_count = Column(Integer, default=0)  # Cached count of qualifying evidence
     
     __table_args__ = (
-        Index('ix_user_capability_pair', 'user_id', 'capability_id', unique=True),
+        # Unique constraint: user + capability + instrument (instrument can be NULL for global)
+        Index('ix_user_capability_triple', 'user_id', 'capability_id', 'instrument_id', unique=True),
         Index('ix_user_capability_active', 'user_id', 'is_active'),
+        Index('ix_user_capability_instrument', 'user_id', 'instrument_id'),
     )
 
 

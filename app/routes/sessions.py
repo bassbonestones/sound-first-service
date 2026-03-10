@@ -37,20 +37,36 @@ from app.curriculum import generate_curriculum_steps, insert_recovery_steps
 router = APIRouter(tags=["sessions"])
 
 
-def _get_available_teaching_modules(db: DbSession, user_id: int) -> List[Tuple[TeachingModule, Lesson]]:
+def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: int = None) -> List[Tuple[TeachingModule, Lesson]]:
     """Get teaching modules available to user with their next available lesson.
     
     Returns list of (module, next_lesson) tuples for modules where:
-    - User has completed Day 0
+    - User has completed Day 0 (for the given instrument)
     - Module is active
     - User has completed prerequisite modules
     - Module is not yet completed
     - User does NOT already have the capability mastered
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        instrument_id: Optional instrument ID for checking instrument-specific capabilities
     """
-    # Check if Day 0 is complete
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user or not user.day0_completed:
-        return []  # Day 0 not complete, no modules available
+    from app.models.capability_schema import Capability, UserCapability, UserInstrument
+    
+    # Check if Day 0 is complete for this instrument
+    if instrument_id:
+        user_inst = db.query(UserInstrument).filter(
+            UserInstrument.id == instrument_id,
+            UserInstrument.user_id == user_id
+        ).first()
+        if not user_inst or not user_inst.day0_completed:
+            return []  # Day 0 not complete for this instrument
+    else:
+        # Fallback to user-level day0_completed for backwards compatibility
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user or not user.day0_completed:
+            return []
     
     # Get all active modules
     modules = db.query(TeachingModule).filter(
@@ -65,17 +81,29 @@ def _get_available_teaching_modules(db: DbSession, user_id: int) -> List[Tuple[T
         ).all()
     )
     
-    # Get user's mastered capabilities (by name)
-    from app.models.capability_schema import Capability, UserCapability
-    mastered_cap_names = set(
-        cap.name for cap, uc in db.query(Capability, UserCapability).join(
-            UserCapability, Capability.id == UserCapability.capability_id
-        ).filter(
-            UserCapability.user_id == user_id,
-            UserCapability.is_active == True,
-            UserCapability.mastered_at != None
-        ).all()
-    )
+    # Get user's mastered capabilities
+    # For global caps: look for UserCapability with instrument_id=NULL
+    # For instrument-specific caps: look for UserCapability with matching instrument_id
+    mastered_cap_names = set()
+    
+    cap_records = db.query(Capability, UserCapability).join(
+        UserCapability, Capability.id == UserCapability.capability_id
+    ).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.is_active == True,
+        UserCapability.mastered_at != None
+    ).all()
+    
+    for cap, uc in cap_records:
+        is_global = cap.is_global if cap.is_global is not None else True
+        if is_global:
+            # Global cap - check if instrument_id is NULL
+            if uc.instrument_id is None:
+                mastered_cap_names.add(cap.name)
+        else:
+            # Instrument-specific cap - check if matches current instrument
+            if uc.instrument_id == instrument_id:
+                mastered_cap_names.add(cap.name)
     
     available = []
     for module in modules:
@@ -173,6 +201,7 @@ def _mini_session_data_to_out(data: MiniSessionData) -> MiniSessionOut:
 @router.post("/generate-session", response_model=PracticeSessionResponse)
 def generate_session(
     user_id: int = 1,
+    instrument_id: int = None,
     planned_duration_minutes: int = 30,
     fatigue: int = 2,
     cooldown_mode: bool = False,
@@ -183,11 +212,18 @@ def generate_session(
     
     Session can include both material-based mini-sessions AND teaching module lessons.
     When no materials are available but teaching modules are, only modules are returned.
+    
+    Args:
+        user_id: User ID
+        instrument_id: Optional instrument ID. If provided, uses instrument-specific Day 0 status
+                       and capability progress for that instrument.
     """
+    from app.models.capability_schema import UserInstrument
+    
     # Load content from DB
     materials = db.query(Material).all()
     focus_cards = db.query(FocusCard).all()
-    available_modules = _get_available_teaching_modules(db, user_id)
+    available_modules = _get_available_teaching_modules(db, user_id, instrument_id)
     
     has_materials = bool(materials) and bool(focus_cards)
     has_modules = bool(available_modules)

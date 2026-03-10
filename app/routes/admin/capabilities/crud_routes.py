@@ -159,6 +159,7 @@ def admin_create_capability(create_data: CapabilityCreateRequest, db: Session = 
         evidence_distinct_materials=create_data.evidence_distinct_materials,
         evidence_acceptance_threshold=create_data.evidence_acceptance_threshold,
         difficulty_weight=create_data.difficulty_weight,
+        is_global=create_data.is_global,
         prerequisite_ids=json.dumps(create_data.prerequisite_ids) if create_data.prerequisite_ids else None,
         soft_gate_requirements=json.dumps(create_data.soft_gate_requirements) if create_data.soft_gate_requirements else None,
         music21_detection_json=detection_json,
@@ -255,6 +256,7 @@ def admin_update_capability(capability_id: int, update_data: CapabilityUpdateReq
         cap.evidence_distinct_materials = update_data.evidence_distinct_materials
         cap.evidence_acceptance_threshold = update_data.evidence_acceptance_threshold
         cap.difficulty_weight = update_data.difficulty_weight
+        cap.is_global = update_data.is_global
         
         if update_data.prerequisite_ids is not None:
             cap.prerequisite_ids = json.dumps(update_data.prerequisite_ids) if update_data.prerequisite_ids else None

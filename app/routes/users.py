@@ -7,7 +7,7 @@ import datetime
 
 from app.db import get_db
 from app.models.core import User, Material
-from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis
+from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis, UserInstrument
 from app.curriculum import get_next_capability_to_introduce
 from app.services import UserService
 
@@ -288,3 +288,350 @@ def revoke_capability(
     db.commit()
     
     return {"message": message, "capability": cap.name}
+
+
+# ============================================
+# User Instruments 
+# ============================================
+
+class InstrumentCreateIn(BaseModel):
+    instrument_name: str
+    clef: Optional[str] = None
+    resonant_note: Optional[str] = None
+    range_low: Optional[str] = None
+    range_high: Optional[str] = None
+    is_primary: Optional[bool] = False
+
+
+class InstrumentUpdateIn(BaseModel):
+    instrument_name: Optional[str] = None
+    clef: Optional[str] = None
+    resonant_note: Optional[str] = None
+    range_low: Optional[str] = None
+    range_high: Optional[str] = None
+    is_primary: Optional[bool] = None
+    day0_completed: Optional[bool] = None
+    day0_stage: Optional[int] = None
+
+
+@router.get("/users/{user_id}/instruments")
+def list_user_instruments(user_id: int, db: DbSession = Depends(get_db)):
+    """Get all instruments for a user, including last selected instrument ID."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    instruments = db.query(UserInstrument).filter(
+        UserInstrument.user_id == user_id
+    ).order_by(UserInstrument.is_primary.desc(), UserInstrument.created_at).all()
+    
+    return {
+        "user_id": user_id,
+        "last_instrument_id": user.last_instrument_id,
+        "instruments": [
+            {
+                "id": inst.id,
+                "instrument_name": inst.instrument_name,
+                "is_primary": inst.is_primary,
+                "clef": inst.clef,
+                "resonant_note": inst.resonant_note,
+                "range_low": inst.range_low,
+                "range_high": inst.range_high,
+                "day0_completed": inst.day0_completed,
+                "day0_stage": inst.day0_stage,
+                "created_at": inst.created_at.isoformat() if inst.created_at else None,
+                "last_practiced_at": inst.last_practiced_at.isoformat() if inst.last_practiced_at else None,
+            }
+            for inst in instruments
+        ]
+    }
+
+
+class SelectInstrumentIn(BaseModel):
+    instrument_id: int
+
+
+@router.post("/users/{user_id}/select-instrument")
+def select_instrument(
+    user_id: int,
+    data: SelectInstrumentIn = Body(...),
+    db: DbSession = Depends(get_db)
+):
+    """
+    Record the user's current instrument selection.
+    
+    This persists across sessions so the app can restore the last used instrument.
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify the instrument exists and belongs to this user
+    instrument = db.query(UserInstrument).filter(
+        UserInstrument.id == data.instrument_id,
+        UserInstrument.user_id == user_id
+    ).first()
+    if not instrument:
+        raise HTTPException(status_code=404, detail="Instrument not found")
+    
+    user.last_instrument_id = data.instrument_id
+    db.commit()
+    
+    return {
+        "status": "success",
+        "last_instrument_id": data.instrument_id
+    }
+
+
+@router.get("/users/{user_id}/day0-status")
+def get_day0_status(
+    user_id: int,
+    instrument_id: Optional[int] = None,
+    db: DbSession = Depends(get_db)
+):
+    """
+    Get Day 0 status for a user, including which stages can be skipped.
+    
+    For a new instrument, global capabilities that are already mastered
+    don't need to be re-taught. This returns which stages can be skipped.
+    
+    Stage-to-capability mapping:
+    - Stages 0-2: first_note (instrument-specific, always show)
+    - Stage 3: staff_basics, ledger_lines (global)
+    - Stage 4: note_basics (global)
+    - Stage 5: clef_bass/clef_treble (global, but instrument-dependent)
+    - Stage 6: accidental_raise_pitch, accidental_lower_pitch (global)
+    - Stage 7: summary (always show)
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get user's mastered global capabilities
+    mastered_global_caps = set()
+    user_caps = db.query(UserCapability, Capability).join(
+        Capability, UserCapability.capability_id == Capability.id
+    ).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.instrument_id == None,  # Global only
+        UserCapability.mastered_at != None,
+        Capability.is_global == True
+    ).all()
+    
+    for uc, cap in user_caps:
+        mastered_global_caps.add(cap.name)
+    
+    # Determine which clef the instrument needs
+    instrument_clef = None
+    if instrument_id:
+        instrument = db.query(UserInstrument).filter_by(id=instrument_id, user_id=user_id).first()
+        if instrument:
+            # Determine clef from instrument name
+            bass_instruments = {"bass trombone", "tenor trombone", "trombone", "euphonium", "tuba", "bassoon", "cello", "double bass"}
+            if instrument.instrument_name and instrument.instrument_name.lower() in bass_instruments:
+                instrument_clef = "clef_bass"
+            else:
+                instrument_clef = "clef_treble"
+    
+    # Determine skippable stages
+    skippable_stages = []
+    
+    # Stage 3: staff_basics AND ledger_lines
+    if "staff_basics" in mastered_global_caps and "ledger_lines" in mastered_global_caps:
+        skippable_stages.append(3)
+    
+    # Stage 4: note_basics
+    if "note_basics" in mastered_global_caps:
+        skippable_stages.append(4)
+    
+    # Stage 5: clef (check the specific clef needed for this instrument)
+    if instrument_clef and instrument_clef in mastered_global_caps:
+        skippable_stages.append(5)
+    
+    # Stage 6: accidentals (both must be mastered)
+    if "accidental_raise_pitch" in mastered_global_caps and "accidental_lower_pitch" in mastered_global_caps:
+        skippable_stages.append(6)
+    
+    return {
+        "user_id": user_id,
+        "instrument_id": instrument_id,
+        "mastered_global_caps": list(mastered_global_caps),
+        "skippable_stages": skippable_stages,
+        "total_stages": 8,  # 0-7
+        "effective_stages": 8 - len(skippable_stages)
+    }
+
+
+@router.post("/users/{user_id}/instruments")
+def create_user_instrument(
+    user_id: int, 
+    data: InstrumentCreateIn = Body(...), 
+    db: DbSession = Depends(get_db)
+):
+    """Add a new instrument for a user."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If this is being set as primary, unset any existing primary
+    if data.is_primary:
+        db.query(UserInstrument).filter(
+            UserInstrument.user_id == user_id,
+            UserInstrument.is_primary == True
+        ).update({"is_primary": False})
+    
+    instrument = UserInstrument(
+        user_id=user_id,
+        instrument_name=data.instrument_name,
+        clef=data.clef,
+        resonant_note=data.resonant_note,
+        range_low=data.range_low,
+        range_high=data.range_high,
+        is_primary=data.is_primary,
+        day0_completed=False,
+        day0_stage=0,
+    )
+    db.add(instrument)
+    db.commit()
+    db.refresh(instrument)
+    
+    # Auto-select newly created instrument
+    user.last_instrument_id = instrument.id
+    db.commit()
+    
+    return {
+        "status": "success",
+        "instrument": {
+            "id": instrument.id,
+            "instrument_name": instrument.instrument_name,
+            "is_primary": instrument.is_primary,
+            "clef": instrument.clef,
+            "resonant_note": instrument.resonant_note,
+            "range_low": instrument.range_low,
+            "range_high": instrument.range_high,
+            "day0_completed": instrument.day0_completed,
+            "day0_stage": instrument.day0_stage,
+        }
+    }
+
+
+@router.patch("/users/{user_id}/instruments/{instrument_id}")
+def update_user_instrument(
+    user_id: int,
+    instrument_id: int,
+    data: InstrumentUpdateIn = Body(...),
+    db: DbSession = Depends(get_db)
+):
+    """Update an instrument for a user."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    instrument = db.query(UserInstrument).filter(
+        UserInstrument.id == instrument_id,
+        UserInstrument.user_id == user_id
+    ).first()
+    if not instrument:
+        raise HTTPException(status_code=404, detail="Instrument not found")
+    
+    # Track if day0 is being completed
+    was_day0_completed = instrument.day0_completed
+    
+    # If this is being set as primary, unset any existing primary
+    if data.is_primary:
+        db.query(UserInstrument).filter(
+            UserInstrument.user_id == user_id,
+            UserInstrument.is_primary == True,
+            UserInstrument.id != instrument_id
+        ).update({"is_primary": False})
+    
+    if data.instrument_name is not None:
+        instrument.instrument_name = data.instrument_name
+    if data.clef is not None:
+        instrument.clef = data.clef
+    if data.resonant_note is not None:
+        instrument.resonant_note = data.resonant_note
+    if data.range_low is not None:
+        instrument.range_low = data.range_low
+    if data.range_high is not None:
+        instrument.range_high = data.range_high
+    if data.is_primary is not None:
+        instrument.is_primary = data.is_primary
+    if data.day0_completed is not None:
+        instrument.day0_completed = data.day0_completed
+    if data.day0_stage is not None:
+        instrument.day0_stage = data.day0_stage
+    
+    # Grant Day 0 capabilities if day0 is being completed for this instrument
+    granted_capabilities = []
+    if data.day0_completed and not was_day0_completed:
+        granted_capabilities = UserService.grant_day0_capabilities(
+            user, 
+            db, 
+            instrument_id=instrument_id,
+            instrument_name=instrument.instrument_name
+        )
+        
+        # Also update user-level day0_completed for backward compatibility
+        if not user.day0_completed:
+            user.day0_completed = True
+    
+    db.commit()
+    
+    return {
+        "status": "success",
+        "granted_capabilities": granted_capabilities,
+        "instrument": {
+            "id": instrument.id,
+            "instrument_name": instrument.instrument_name,
+            "is_primary": instrument.is_primary,
+            "clef": instrument.clef,
+            "resonant_note": instrument.resonant_note,
+            "range_low": instrument.range_low,
+            "range_high": instrument.range_high,
+            "day0_completed": instrument.day0_completed,
+            "day0_stage": instrument.day0_stage,
+        }
+    }
+
+
+@router.delete("/users/{user_id}/instruments/{instrument_id}")
+def delete_user_instrument(
+    user_id: int,
+    instrument_id: int,
+    db: DbSession = Depends(get_db)
+):
+    """Delete an instrument for a user."""
+    instrument = db.query(UserInstrument).filter(
+        UserInstrument.id == instrument_id,
+        UserInstrument.user_id == user_id
+    ).first()
+    if not instrument:
+        raise HTTPException(status_code=404, detail="Instrument not found")
+    
+    # Don't allow deleting the only instrument
+    count = db.query(UserInstrument).filter(
+        UserInstrument.user_id == user_id
+    ).count()
+    if count <= 1:
+        raise HTTPException(
+            status_code=400, 
+            detail="Cannot delete the only instrument. Add another instrument first."
+        )
+    
+    # If deleting primary, make another instrument primary
+    was_primary = instrument.is_primary
+    instrument_name = instrument.instrument_name
+    db.delete(instrument)
+    
+    if was_primary:
+        # Make the most recently created instrument primary
+        next_primary = db.query(UserInstrument).filter(
+            UserInstrument.user_id == user_id
+        ).order_by(UserInstrument.created_at.desc()).first()
+        if next_primary:
+            next_primary.is_primary = True
+    
+    db.commit()
+    
+    return {"status": "success", "message": f"Instrument '{instrument_name}' deleted"}

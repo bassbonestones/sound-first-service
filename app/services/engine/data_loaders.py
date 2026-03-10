@@ -109,18 +109,49 @@ def extract_hazard_data(analysis: MaterialAnalysis) -> Tuple[Dict, List]:
     return hazard_scores, hazard_flags
 
 
-def load_capability_progress(db: Session, user_id: int) -> List[CapabilityProgress]:
-    """Load capability progress for a user."""
+def load_capability_progress(db: Session, user_id: int, instrument_id: int = None) -> List[CapabilityProgress]:
+    """Load capability progress for a user, optionally filtered by instrument.
+    
+    For global capabilities (is_global=True), looks for UserCapability records where instrument_id IS NULL.
+    For instrument-specific capabilities (is_global=False), looks for records matching the given instrument_id.
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        instrument_id: Optional instrument ID. If provided, includes instrument-specific caps for that instrument.
+                       If None, only global capabilities are considered.
+    """
     capabilities = db.query(Capability).all()
+    
+    # Build map of capability_id -> UserCapability
+    # For global caps: look for UserCapability where instrument_id IS NULL
+    # For instrument-specific caps: look for UserCapability where instrument_id matches
     
     user_caps = db.query(UserCapability).filter(
         UserCapability.user_id == user_id
     ).all()
-    user_cap_map = {uc.capability_id: uc for uc in user_caps}
+    
+    # Build lookup: (capability_id, is_instrument_specific) -> UserCapability
+    user_cap_map = {}
+    for uc in user_caps:
+        if uc.instrument_id is None:
+            # Global capability record
+            user_cap_map[(uc.capability_id, None)] = uc
+        else:
+            # Instrument-specific capability record
+            user_cap_map[(uc.capability_id, uc.instrument_id)] = uc
     
     result = []
     for cap in capabilities:
-        uc = user_cap_map.get(cap.id)
+        # Determine which UserCapability to use based on whether cap is global
+        is_global = cap.is_global if cap.is_global is not None else True
+        
+        if is_global:
+            # Look for global record (instrument_id=None)
+            uc = user_cap_map.get((cap.id, None))
+        else:
+            # Look for instrument-specific record
+            uc = user_cap_map.get((cap.id, instrument_id)) if instrument_id else None
         
         result.append(CapabilityProgress(
             capability_id=cap.id,

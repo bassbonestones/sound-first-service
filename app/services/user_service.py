@@ -13,7 +13,7 @@ from app.models.core import (
     User, Material, PracticeSession, MiniSession, 
     PracticeAttempt, CurriculumStep
 )
-from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis
+from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis, UserInstrument
 from app.models.teaching_module import UserLessonProgress, UserModuleProgress
 from app.curriculum import JourneyMetrics, estimate_journey_stage
 from app.spaced_repetition import build_sr_item_from_db, estimate_mastery_level
@@ -61,13 +61,33 @@ class UserService:
         return "clef_bass" if user_instrument in BASS_CLEF_INSTRUMENTS else "clef_treble"
     
     @classmethod
-    def grant_day0_capabilities(cls, user: User, db: DbSession) -> List[str]:
+    def grant_day0_capabilities(
+        cls, 
+        user: User, 
+        db: DbSession, 
+        instrument_id: Optional[int] = None,
+        instrument_name: Optional[str] = None
+    ) -> List[str]:
         """
         Grant all Day 0 capabilities to a user when they complete the first-note flow.
         
+        For global capabilities (is_global=True): creates UserCapability with instrument_id=NULL
+        if not already mastered. Skips if user already has a mastered global cap.
+        
+        For instrument-specific capabilities (is_global=False): creates UserCapability with
+        the provided instrument_id.
+        
+        Args:
+            user: The user
+            db: Database session
+            instrument_id: The UserInstrument.id for instrument-specific capabilities
+            instrument_name: The instrument name (used to determine clef if not provided)
+        
         Returns list of granted capability names.
         """
-        clef_capability = cls.get_clef_capability(user.instrument)
+        # Determine clef capability based on instrument
+        inst_name = instrument_name or user.instrument
+        clef_capability = cls.get_clef_capability(inst_name)
         capabilities_to_grant = DAY0_BASE_CAPABILITIES + [clef_capability]
         
         caps = db.query(Capability).filter(Capability.name.in_(capabilities_to_grant)).all()
@@ -81,27 +101,63 @@ class UserService:
             if not cap:
                 continue
             
-            existing = db.query(UserCapability).filter_by(
-                user_id=user.id,
-                capability_id=cap.id
-            ).first()
+            # Determine if this capability is global or instrument-specific
+            is_global = cap.is_global if cap.is_global is not None else True
             
-            if existing:
-                if not existing.mastered_at:
-                    existing.mastered_at = now
-                    existing.is_active = True
+            if is_global:
+                # Global capability: look for existing record with instrument_id=NULL
+                existing = db.query(UserCapability).filter(
+                    UserCapability.user_id == user.id,
+                    UserCapability.capability_id == cap.id,
+                    UserCapability.instrument_id == None
+                ).first()
+                
+                if existing:
+                    # Already have this global cap - skip if mastered, otherwise master it
+                    if not existing.mastered_at:
+                        existing.mastered_at = now
+                        existing.is_active = True
+                        granted.append(cap_name)
+                    # If already mastered, skip silently
+                else:
+                    # Create new global capability record (instrument_id=NULL)
+                    user_cap = UserCapability(
+                        user_id=user.id,
+                        capability_id=cap.id,
+                        instrument_id=None,  # Global cap
+                        introduced_at=now,
+                        mastered_at=now,
+                        is_active=True,
+                        evidence_count=1,
+                    )
+                    db.add(user_cap)
                     granted.append(cap_name)
             else:
-                user_cap = UserCapability(
-                    user_id=user.id,
-                    capability_id=cap.id,
-                    introduced_at=now,
-                    mastered_at=now,
-                    is_active=True,
-                    evidence_count=1,
-                )
-                db.add(user_cap)
-                granted.append(cap_name)
+                # Instrument-specific capability: look for existing record with matching instrument_id
+                existing = db.query(UserCapability).filter(
+                    UserCapability.user_id == user.id,
+                    UserCapability.capability_id == cap.id,
+                    UserCapability.instrument_id == instrument_id
+                ).first()
+                
+                if existing:
+                    if not existing.mastered_at:
+                        existing.mastered_at = now
+                        existing.is_active = True
+                        granted.append(cap_name)
+                else:
+                    # Create new instrument-specific capability record
+                    user_cap = UserCapability(
+                        user_id=user.id,
+                        capability_id=cap.id,
+                        instrument_id=instrument_id,  # Tied to this instrument
+                        introduced_at=now,
+                        mastered_at=now,
+                        is_active=True,
+                        evidence_count=1,
+                    )
+                    db.add(user_cap)
+                    granted.append(cap_name)
         
         return granted
     
@@ -239,6 +295,9 @@ class UserService:
         
         # Delete user capabilities
         db.query(UserCapability).filter(UserCapability.user_id == user_id).delete()
+        
+        # Delete user instruments
+        db.query(UserInstrument).filter(UserInstrument.user_id == user_id).delete()
         
         # Delete teaching module progress
         db.query(UserLessonProgress).filter(UserLessonProgress.user_id == user_id).delete()

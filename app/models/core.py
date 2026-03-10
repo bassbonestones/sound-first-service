@@ -22,6 +22,9 @@ class User(Base):
     day0_completed = Column(Boolean, default=False)  # Whether user has completed Day 0 flow
     day0_stage = Column(Integer, default=0)  # Current stage in Day 0 (0-6)
     
+    # Last selected instrument (persists across sessions)
+    last_instrument_id = Column(Integer, ForeignKey('user_instruments.id'), nullable=True)
+    
     # Bitmask columns for fast capability eligibility checks (8 x 64-bit = 512 capabilities max)
     cap_mask_0 = Column(BigInteger, default=0)  # capabilities 0-63
     cap_mask_1 = Column(BigInteger, default=0)  # capabilities 64-127
