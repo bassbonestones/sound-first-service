@@ -196,10 +196,29 @@ def generate_session(
     mini_sessions_out: List[MiniSessionOut] = []
     
     # Decide content mix based on availability
+    # Each teaching module lesson takes approximately 5 minutes
+    MODULE_LESSON_DURATION = 5.0
+    
     if has_modules and not has_materials:
-        # Only teaching modules available - return the first available lesson
-        module, lesson = available_modules[0]
-        mini_sessions_out.append(_teaching_module_to_out(module, lesson))
+        # Only teaching modules available - interleave lessons from different modules
+        # Shuffle to randomize which module goes first
+        shuffled_modules = available_modules.copy()
+        random.shuffle(shuffled_modules)
+        
+        time_remaining = float(planned_duration_minutes)
+        module_index = 0
+        
+        # Round-robin through available modules until time is filled
+        while time_remaining > 0 and len(mini_sessions_out) < SessionService.MAX_MINI_SESSIONS:
+            if module_index >= len(shuffled_modules):
+                # Exhausted all available modules - can't add more
+                break
+            
+            module, lesson = shuffled_modules[module_index]
+            mini_sessions_out.append(_teaching_module_to_out(module, lesson))
+            time_remaining -= MODULE_LESSON_DURATION
+            module_index += 1
+            
     elif has_materials and not has_modules:
         # Only materials - use existing material-based generation
         state = SessionState(time_remaining=float(planned_duration_minutes))
@@ -216,22 +235,27 @@ def generate_session(
         
         mini_sessions_out = [_mini_session_data_to_out(ms) for ms in state.mini_sessions]
     else:
-        # Both available - weighted selection giving priority to teaching modules
-        # Teaching modules get priority if they exist (user should focus on learning)
-        # Weight: 70% teaching module, 30% materials (adjustable)
-        MODULE_WEIGHT = 0.7
+        # Both available - interleave teaching modules with materials
+        # Shuffle modules for random selection order
+        shuffled_modules = available_modules.copy()
+        random.shuffle(shuffled_modules)
         
-        # Start with a teaching module lesson (learning first approach)
-        if random.random() < MODULE_WEIGHT and available_modules:
-            module, lesson = available_modules[0]
+        time_remaining = float(planned_duration_minutes)
+        module_index = 0
+        
+        # Add teaching module lessons (interleaved from different modules)
+        # Use ~50% of time for modules if available
+        module_time_budget = time_remaining * 0.5
+        
+        while module_time_budget > 0 and module_index < len(shuffled_modules):
+            module, lesson = shuffled_modules[module_index]
             mini_sessions_out.append(_teaching_module_to_out(module, lesson))
+            module_time_budget -= MODULE_LESSON_DURATION
+            time_remaining -= MODULE_LESSON_DURATION
+            module_index += 1
         
         # Fill remaining time with materials
-        state = SessionState(time_remaining=float(planned_duration_minutes))
-        
-        # Reduce time budget if we added a module (modules take ~5 min)
-        if mini_sessions_out:
-            state.time_remaining -= 5.0
+        state = SessionState(time_remaining=max(0, time_remaining))
         
         while state.time_remaining > 0 and len(state.mini_sessions) < SessionService.MAX_MINI_SESSIONS:
             SessionService.generate_mini_session(
@@ -243,7 +267,7 @@ def generate_session(
                 fatigue=fatigue
             )
         
-        # Add material sessions after the module
+        # Add material sessions after the modules
         mini_sessions_out.extend([_mini_session_data_to_out(ms) for ms in state.mini_sessions])
 
     # Persist session to DB
