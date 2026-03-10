@@ -1,23 +1,53 @@
 """Admin user progression and diagnostics endpoints."""
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from typing import Optional, List
 from sqlalchemy.orm import Session
 import datetime
 import random
 
 from app.db import get_db
-from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession
+from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession, PracticeAttempt
 from app.models.capability_schema import (
     Capability, UserCapability, SoftGateRule, UserSoftGateState,
     MaterialCapability, MaterialAnalysis, UserMaterialState
 )
+from app.models.teaching_module import UserLessonProgress, UserModuleProgress
 from app.curriculum import (
     filter_materials_by_capabilities,
     filter_materials_by_range,
     select_key_for_mini_session,
 )
+from app.services.user_service import UserService, DAY0_BASE_CAPABILITIES
 
 
 router = APIRouter(tags=["admin-users"])
+
+
+# ============ Pydantic Models for Edits ============
+
+class UserInfoUpdate(BaseModel):
+    """Update user basic info."""
+    instrument: Optional[str] = None
+    resonant_note: Optional[str] = None
+    range_low: Optional[str] = None
+    range_high: Optional[str] = None
+    day0_completed: Optional[bool] = None
+    day0_stage: Optional[int] = None
+
+
+class SoftGateUpdate(BaseModel):
+    """Update a single soft gate state."""
+    comfortable_value: Optional[float] = None
+    max_demonstrated_value: Optional[float] = None
+    frontier_success_ema: Optional[float] = None
+    frontier_attempt_count_since_last_promo: Optional[int] = None
+
+
+class CapabilityAdd(BaseModel):
+    """Add a capability to user."""
+    capability_id: int
+    mastered: bool = False
 
 
 @router.get("/users/{user_id}/progression")
@@ -250,4 +280,311 @@ def admin_get_last_session_diagnostics(user_id: int, db: Session = Depends(get_d
             "practice_mode": last_session.practice_mode, "mini_sessions": mini_session_data,
         },
         "diagnostics": {"message": "Retrieved from database (live diagnostics not available for past sessions)", "mini_session_count": len(mini_session_data)},
+    }
+
+
+# ============ User Edit Endpoints ============
+
+@router.put("/users/{user_id}/info")
+def admin_update_user_info(user_id: int, update: UserInfoUpdate, db: Session = Depends(get_db)):
+    """Update user basic information (range, resonant note, day0 status)."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    changes = []
+    
+    if update.instrument is not None:
+        old = user.instrument
+        user.instrument = update.instrument
+        changes.append(f"instrument: {old} -> {update.instrument}")
+    
+    if update.resonant_note is not None:
+        old = user.resonant_note
+        user.resonant_note = update.resonant_note
+        changes.append(f"resonant_note: {old} -> {update.resonant_note}")
+    
+    if update.range_low is not None:
+        old = user.range_low
+        user.range_low = update.range_low
+        changes.append(f"range_low: {old} -> {update.range_low}")
+    
+    if update.range_high is not None:
+        old = user.range_high
+        user.range_high = update.range_high
+        changes.append(f"range_high: {old} -> {update.range_high}")
+    
+    if update.day0_completed is not None:
+        old = getattr(user, "day0_completed", None)
+        user.day0_completed = update.day0_completed
+        changes.append(f"day0_completed: {old} -> {update.day0_completed}")
+    
+    if update.day0_stage is not None:
+        old = getattr(user, "day0_stage", None)
+        user.day0_stage = update.day0_stage
+        changes.append(f"day0_stage: {old} -> {update.day0_stage}")
+    
+    db.commit()
+    
+    return {"success": True, "changes": changes}
+
+
+@router.get("/users/{user_id}/capabilities/available")
+def admin_get_available_capabilities(user_id: int, db: Session = Depends(get_db)):
+    """Get all capabilities, marking which the user has."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    all_caps = db.query(Capability).order_by(Capability.domain, Capability.name).all()
+    user_caps = {uc.capability_id: uc for uc in db.query(UserCapability).filter_by(user_id=user_id, is_active=True).all()}
+    
+    result = []
+    for cap in all_caps:
+        user_cap = user_caps.get(cap.id)
+        result.append({
+            "id": cap.id,
+            "name": cap.name,
+            "display_name": cap.display_name,
+            "domain": cap.domain,
+            "user_has": user_cap is not None,
+            "mastered": user_cap.mastered_at is not None if user_cap else False,
+            "evidence_count": user_cap.evidence_count if user_cap else 0,
+        })
+    
+    return {"capabilities": result}
+
+
+@router.post("/users/{user_id}/capabilities")
+def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = Depends(get_db)):
+    """Add a capability to a user."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    cap = db.query(Capability).filter_by(id=data.capability_id).first()
+    if not cap:
+        raise HTTPException(status_code=404, detail="Capability not found")
+    
+    # Check if already exists
+    existing = db.query(UserCapability).filter_by(user_id=user_id, capability_id=data.capability_id).first()
+    if existing:
+        if not existing.is_active:
+            existing.is_active = True
+            if data.mastered:
+                existing.mastered_at = datetime.datetime.now()
+            db.commit()
+            return {"success": True, "message": "Capability reactivated"}
+        else:
+            return {"success": False, "message": "User already has this capability"}
+    
+    # Create new
+    user_cap = UserCapability(
+        user_id=user_id,
+        capability_id=data.capability_id,
+        is_active=True,
+        introduced_at=datetime.datetime.now(),
+        mastered_at=datetime.datetime.now() if data.mastered else None,
+        evidence_count=1 if data.mastered else 0,
+    )
+    db.add(user_cap)
+    db.commit()
+    
+    return {"success": True, "message": f"Added capability: {cap.name}"}
+
+
+@router.delete("/users/{user_id}/capabilities/{capability_id}")
+def admin_remove_user_capability(user_id: int, capability_id: int, db: Session = Depends(get_db)):
+    """Remove a capability from a user (soft delete)."""
+    user_cap = db.query(UserCapability).filter_by(user_id=user_id, capability_id=capability_id).first()
+    if not user_cap:
+        raise HTTPException(status_code=404, detail="User capability not found")
+    
+    user_cap.is_active = False
+    db.commit()
+    
+    return {"success": True, "message": "Capability removed"}
+
+
+@router.put("/users/{user_id}/capabilities/{capability_id}/toggle-mastery")
+def admin_toggle_capability_mastery(user_id: int, capability_id: int, db: Session = Depends(get_db)):
+    """Toggle mastery status of a capability."""
+    user_cap = db.query(UserCapability).filter_by(user_id=user_id, capability_id=capability_id, is_active=True).first()
+    if not user_cap:
+        raise HTTPException(status_code=404, detail="User capability not found")
+    
+    if user_cap.mastered_at:
+        user_cap.mastered_at = None
+        action = "unmastered"
+    else:
+        user_cap.mastered_at = datetime.datetime.now()
+        action = "mastered"
+    
+    db.commit()
+    
+    return {"success": True, "action": action}
+
+
+@router.get("/users/{user_id}/soft-gates/all")
+def admin_get_all_soft_gates(user_id: int, db: Session = Depends(get_db)):
+    """Get all soft gate dimensions with user values."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    rules = db.query(SoftGateRule).all()
+    user_states = {s.dimension_name: s for s in db.query(UserSoftGateState).filter_by(user_id=user_id).all()}
+    
+    result = []
+    for rule in rules:
+        state = user_states.get(rule.dimension_name)
+        result.append({
+            "dimension_name": rule.dimension_name,
+            "frontier_buffer": rule.frontier_buffer,
+            "promotion_threshold": rule.promotion_threshold,
+            "comfortable_value": state.comfortable_value if state else 0,
+            "max_demonstrated_value": state.max_demonstrated_value if state else 0,
+            "frontier_success_ema": state.frontier_success_ema if state else 0,
+            "frontier_attempt_count_since_last_promo": state.frontier_attempt_count_since_last_promo if state else 0,
+            "has_state": state is not None,
+        })
+    
+    return {"soft_gates": result}
+
+
+@router.put("/users/{user_id}/soft-gates/{dimension_name}")
+def admin_update_soft_gate(user_id: int, dimension_name: str, update: SoftGateUpdate, db: Session = Depends(get_db)):
+    """Update a user's soft gate state."""
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    state = db.query(UserSoftGateState).filter_by(user_id=user_id, dimension_name=dimension_name).first()
+    
+    if not state:
+        # Create new state
+        state = UserSoftGateState(
+            user_id=user_id,
+            dimension_name=dimension_name,
+            comfortable_value=update.comfortable_value or 0,
+            max_demonstrated_value=update.max_demonstrated_value or 0,
+            frontier_success_ema=update.frontier_success_ema or 0,
+            frontier_attempt_count_since_last_promo=update.frontier_attempt_count_since_last_promo or 0,
+        )
+        db.add(state)
+        db.commit()
+        return {"success": True, "message": "Soft gate state created"}
+    
+    changes = []
+    
+    if update.comfortable_value is not None:
+        old = state.comfortable_value
+        state.comfortable_value = update.comfortable_value
+        changes.append(f"comfortable_value: {old} -> {update.comfortable_value}")
+    
+    if update.max_demonstrated_value is not None:
+        old = state.max_demonstrated_value
+        state.max_demonstrated_value = update.max_demonstrated_value
+        changes.append(f"max_demonstrated_value: {old} -> {update.max_demonstrated_value}")
+    
+    if update.frontier_success_ema is not None:
+        old = state.frontier_success_ema
+        state.frontier_success_ema = update.frontier_success_ema
+        changes.append(f"frontier_success_ema: {old} -> {update.frontier_success_ema}")
+    
+    if update.frontier_attempt_count_since_last_promo is not None:
+        old = state.frontier_attempt_count_since_last_promo
+        state.frontier_attempt_count_since_last_promo = update.frontier_attempt_count_since_last_promo
+        changes.append(f"frontier_attempt_count: {old} -> {update.frontier_attempt_count_since_last_promo}")
+    
+    db.commit()
+    
+    return {"success": True, "changes": changes}
+
+
+@router.post("/users/{user_id}/reset")
+def admin_reset_user(user_id: int, db: Session = Depends(get_db)):
+    """
+    Reset a user's progress completely.
+    Clears: capabilities, soft gates, material states, practice history, module progress.
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    deleted_counts = {}
+    
+    # Delete user capabilities
+    count = db.query(UserCapability).filter_by(user_id=user_id).delete()
+    deleted_counts["user_capabilities"] = count
+    
+    # Delete soft gate states
+    count = db.query(UserSoftGateState).filter_by(user_id=user_id).delete()
+    deleted_counts["soft_gate_states"] = count
+    
+    # Delete material states
+    count = db.query(UserMaterialState).filter_by(user_id=user_id).delete()
+    deleted_counts["material_states"] = count
+    
+    # Delete practice attempts
+    count = db.query(PracticeAttempt).filter_by(user_id=user_id).delete()
+    deleted_counts["practice_attempts"] = count
+    
+    # Delete mini sessions
+    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
+    session_ids = [s.id for s in sessions]
+    if session_ids:
+        count = db.query(MiniSession).filter(MiniSession.practice_session_id.in_(session_ids)).delete(synchronize_session=False)
+        deleted_counts["mini_sessions"] = count
+    
+    # Delete practice sessions
+    count = db.query(PracticeSession).filter_by(user_id=user_id).delete()
+    deleted_counts["practice_sessions"] = count
+    
+    # Delete module progress
+    count = db.query(UserModuleProgress).filter_by(user_id=user_id).delete()
+    deleted_counts["module_progress"] = count
+    
+    # Delete lesson progress
+    count = db.query(UserLessonProgress).filter_by(user_id=user_id).delete()
+    deleted_counts["lesson_progress"] = count
+    
+    # Reset user day0 status
+    user.day0_completed = False
+    user.day0_stage = 0
+    
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"User {user_id} has been reset",
+        "deleted_counts": deleted_counts,
+    }
+
+
+@router.post("/users/{user_id}/grant-day0-capabilities")
+def admin_grant_day0_capabilities(user_id: int, db: Session = Depends(get_db)):
+    """
+    Grant all Day 0 capabilities to a user.
+    This includes: staff_basics, ledger_lines, note_basics, first_note,
+    accidental_raise_pitch, accidental_lower_pitch, and the appropriate clef.
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Use the UserService to grant day 0 capabilities
+    granted = UserService.grant_day0_capabilities(user, db)
+    
+    db.commit()
+    
+    # Get full list of day 0 capability names for reference
+    clef = UserService.get_clef_capability(user.instrument)
+    all_day0 = DAY0_BASE_CAPABILITIES + [clef]
+    
+    return {
+        "success": True,
+        "granted": granted,
+        "all_day0_capabilities": all_day0,
+        "message": f"Granted {len(granted)} Day 0 capabilities"
     }

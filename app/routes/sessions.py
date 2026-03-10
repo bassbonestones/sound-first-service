@@ -45,6 +45,7 @@ def _get_available_teaching_modules(db: DbSession, user_id: int) -> List[Tuple[T
     - Module is active
     - User has completed prerequisite modules
     - Module is not yet completed
+    - User does NOT already have the capability mastered
     """
     # Check if Day 0 is complete
     user = db.query(User).filter(User.id == user_id).first()
@@ -64,10 +65,26 @@ def _get_available_teaching_modules(db: DbSession, user_id: int) -> List[Tuple[T
         ).all()
     )
     
+    # Get user's mastered capabilities (by name)
+    from app.models.capability_schema import Capability, UserCapability
+    mastered_cap_names = set(
+        cap.name for cap, uc in db.query(Capability, UserCapability).join(
+            UserCapability, Capability.id == UserCapability.capability_id
+        ).filter(
+            UserCapability.user_id == user_id,
+            UserCapability.is_active == True,
+            UserCapability.mastered_at != None
+        ).all()
+    )
+    
     available = []
     for module in modules:
         # Skip completed modules
         if module.id in completed_module_ids:
+            continue
+        
+        # Skip if user already has this capability mastered
+        if module.capability_name in mastered_cap_names:
             continue
         
         # Check prerequisites
