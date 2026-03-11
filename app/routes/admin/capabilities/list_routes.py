@@ -141,3 +141,16 @@ def admin_get_capability_graph(
         "depends_on": depends_on,
         "required_by": required_by,
     }
+
+
+@router.get("/day0-capabilities")
+def get_day0_capabilities():
+    """Get the list of capability names granted when Day 0 completes."""
+    from app.services.user_service import DAY0_BASE_CAPABILITIES
+    
+    # Include both clef options since we don't know user's instrument here
+    return {
+        "base_capabilities": DAY0_BASE_CAPABILITIES,
+        "clef_capabilities": ["clef_treble", "clef_bass"],
+        "all": DAY0_BASE_CAPABILITIES + ["clef_treble", "clef_bass"],
+    }
