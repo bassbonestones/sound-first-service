@@ -60,9 +60,23 @@ def list_modules(
     
     modules = query.order_by(TeachingModule.display_order).all()
     
+    # Build a lookup of capability name -> capability and id -> name for prerequisite resolution
+    all_capabilities = {cap.name: cap for cap in db.query(Capability).all()}
+    cap_id_to_name = {cap.id: cap.name for cap in all_capabilities.values()}
+    
     result = []
     for module in modules:
-        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+        # Derive prerequisites from the capability this module teaches
+        prereqs = []
+        if module.capability_name and module.capability_name in all_capabilities:
+            taught_cap = all_capabilities[module.capability_name]
+            if taught_cap.prerequisite_ids:
+                prereq_ids = json.loads(taught_cap.prerequisite_ids)
+                prereqs = [cap_id_to_name.get(pid) for pid in prereq_ids if pid in cap_id_to_name]
+        # For modules without a capability_name, fall back to module's prereqs
+        elif not module.capability_name:
+            prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+        
         lesson_count = db.query(Lesson).filter(
             Lesson.module_id == module.id,
             Lesson.is_active == True
@@ -90,7 +104,18 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)):
     if not module:
         raise HTTPException(status_code=404, detail="Module not found")
     
-    prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+    # Derive prerequisites from the capability this module teaches
+    prereqs = []
+    if module.capability_name:
+        taught_cap = db.query(Capability).filter(Capability.name == module.capability_name).first()
+        if taught_cap and taught_cap.prerequisite_ids:
+            prereq_ids = json.loads(taught_cap.prerequisite_ids)
+            # Convert IDs to names
+            prereq_caps = db.query(Capability).filter(Capability.id.in_(prereq_ids)).all()
+            prereqs = [cap.name for cap in prereq_caps]
+    # For modules without a capability_name, fall back to module's prereqs
+    elif not module.capability_name:
+        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
     
     lessons = db.query(Lesson).filter(
         Lesson.module_id == module_id,
@@ -151,15 +176,21 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
     )
     
     # Get user's mastered capabilities for prerequisite checking
-    mastered_cap_names = set(
-        cap.name for cap, uc in db.query(Capability, UserCapability).join(
+    mastered_caps = {
+        cap.name: cap.id for cap, uc in db.query(Capability, UserCapability).join(
             UserCapability, Capability.id == UserCapability.capability_id
         ).filter(
             UserCapability.user_id == user_id,
             UserCapability.is_active == True,
             UserCapability.mastered_at != None
         ).all()
-    )
+    }
+    mastered_cap_names = set(mastered_caps.keys())
+    mastered_cap_ids = set(mastered_caps.values())
+    
+    # Build a lookup of capability name -> capability for prerequisite checking
+    all_capabilities = {cap.name: cap for cap in db.query(Capability).all()}
+    cap_id_to_name = {cap.id: cap.name for cap in all_capabilities.values()}
     
     result = []
     for module in modules:
@@ -168,10 +199,21 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
         if module.capability_name and module.capability_name in mastered_cap_names:
             continue
         
-        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
-        
-        # Check if prerequisites are met (capabilities mastered)
-        prereqs_met = all(cap_name in mastered_cap_names for cap_name in prereqs)
+        # Get prerequisites from the capability this module teaches (NOT from the module itself)
+        prereqs_met = True
+        prereq_names = []
+        if module.capability_name and module.capability_name in all_capabilities:
+            taught_cap = all_capabilities[module.capability_name]
+            if taught_cap.prerequisite_ids:
+                prereq_ids = json.loads(taught_cap.prerequisite_ids)
+                prereqs_met = all(prereq_id in mastered_cap_ids for prereq_id in prereq_ids)
+                # Convert IDs to names for response
+                prereq_names = [cap_id_to_name.get(pid, "") for pid in prereq_ids if cap_id_to_name.get(pid)]
+        # For modules without a capability_name (like range_expansion), fall back to module's prereqs
+        elif not module.capability_name:
+            module_prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+            prereqs_met = all(cap_name in mastered_cap_names for cap_name in module_prereqs)
+            prereq_names = module_prereqs
         
         if not prereqs_met:
             continue  # Skip modules where prereqs not met
@@ -211,7 +253,7 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
             estimated_duration_minutes=module.estimated_duration_minutes,
             difficulty_tier=module.difficulty_tier,
             lesson_count=total_lessons,
-            prerequisite_capability_names=prereqs,
+            prerequisite_capability_names=prereq_names,
             status=status,
             lessons_completed=lessons_completed,
             started_at=progress.started_at if progress else None,

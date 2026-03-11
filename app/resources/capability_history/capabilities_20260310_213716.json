@@ -1,32 +1,7 @@
 {
- "version": "capabilities_20260310_213716",
+ "version": "capabilities_20260307_202409",
  "count": 225,
  "capabilities": [
-  {
-   "name": "accidental_flat_symbol",
-   "display_name": "Flat Symbol (♭)",
-   "domain": "accidental_system",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "note_basics"
-   ],
-   "difficulty_tier": 1,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "soft_gate_requirements": null,
-   "bit_index": 0,
-   "music21_detection": {
-    "type": "custom",
-    "melodic": true,
-    "function": "detect_flat_accidentals"
-   }
-  },
   {
    "name": "accidental_sharp_symbol",
    "display_name": "Sharp Symbol (♯)",
@@ -82,7 +57,7 @@
    "subdomain": null,
    "requirement_type": "learnable_in_context",
    "prerequisite_names": [
-    "accidental_flat_symbol"
+    "test"
    ],
    "difficulty_tier": 3,
    "mastery_type": "single",
@@ -2255,8 +2230,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "staff_basics",
-    "rhythm_whole_notes"
+    "staff_basics"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -2270,7 +2244,6 @@
    "bit_index": 94,
    "music21_detection": {
     "type": "custom",
-    "melodic": true,
     "function": "detect_any_time_signature"
    }
   },
@@ -4045,8 +4018,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "first_note",
-    "staff_basics"
+    "time_signature_basics"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -4961,6 +4933,31 @@
     "type": "text_match",
     "source": "tempo_markings",
     "contains": "vivace"
+   }
+  },
+  {
+   "name": "test",
+   "display_name": null,
+   "domain": "test",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "note_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 0,
+   "music21_detection": {
+    "type": "custom",
+    "melodic": true,
+    "function": "detect_flat_accidentals"
    }
   },
   {

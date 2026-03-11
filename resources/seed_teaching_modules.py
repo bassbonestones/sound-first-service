@@ -22,7 +22,7 @@ MODULES = [
         "display_name": "Pitch Direction",
         "description": "Learn to hear when melody moves up, down, or stays the same",
         "icon": "arrow-up-down",
-        "prerequisite_capability_names": [],  # Available after Day 0 (first_note learned)
+        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 15,
         "difficulty_tier": 1,
         "display_order": 10,
@@ -34,7 +34,7 @@ MODULES = [
         "display_name": "Feel the Pulse",
         "description": "Develop an internal sense of steady beat",
         "icon": "metronome",
-        "prerequisite_capability_names": [],  # Available after Day 0 (first_note learned)
+        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 12,
         "difficulty_tier": 1,
         "display_order": 11,
@@ -46,7 +46,7 @@ MODULES = [
         "display_name": "The Whole Note",
         "description": "Learn to sustain a note for 4 beats, ending right on the next ONE",
         "icon": "music-note",
-        "prerequisite_capability_names": ["pulse_tracking"],  # Must feel the pulse first
+        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 10,
         "difficulty_tier": 1,
         "display_order": 12,
@@ -58,7 +58,7 @@ MODULES = [
         "display_name": "Time Signature Basics",
         "description": "Learn what time signatures mean: top number = beats per measure, bottom number = note type",
         "icon": "time-signature",
-        "prerequisite_capability_names": ["staff_basics", "rhythm_whole_notes"],  # Must know the staff and whole notes
+        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 13,
@@ -70,7 +70,7 @@ MODULES = [
         "display_name": "4/4 Time",
         "description": "Learn 4/4 time: 4 beats per measure, quarter note gets the beat, and common time",
         "icon": "time-signature",
-        "prerequisite_capability_names": ["time_signature_basics"],  # Must know time signature basics first
+        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 6,
         "difficulty_tier": 1,
         "display_order": 14,
@@ -82,10 +82,58 @@ MODULES = [
         "display_name": "The Whole Rest",
         "description": "Learn the whole rest: 4 beats of silence that hangs below the line because it's heavy",
         "icon": "music-rest",
-        "prerequisite_capability_names": ["rhythm_whole_notes", "time_signature_4_4"],  # Must know whole notes and 4/4 time
+        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 15,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "half_note_module",
+        "capability_name": "rhythm_half_notes",
+        "display_name": "The Half Note",
+        "description": "Learn the half note: 2 beats, has a stem, hollow head",
+        "icon": "music-note",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 16,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "half_rest_module",
+        "capability_name": "rest_half",
+        "display_name": "The Half Rest",
+        "description": "Learn the half rest: 2 beats of silence that sits ON TOP of the line (like a hat)",
+        "icon": "music-rest",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 17,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "quarter_note_module",
+        "capability_name": "rhythm_quarter_notes",
+        "display_name": "The Quarter Note",
+        "description": "Learn the quarter note: 1 beat, has a stem, filled/solid head",
+        "icon": "music-note",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 18,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "quarter_rest_module",
+        "capability_name": "rest_quarter",
+        "display_name": "The Quarter Rest",
+        "description": "Learn the quarter rest: 1 beat of silence with a squiggly 'lightning bolt' shape",
+        "icon": "music-rest",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 19,
         "completion_type": "all_required",
     },
     {
@@ -97,7 +145,7 @@ MODULES = [
         "prerequisite_capability_names": ["first_note", "pitch_direction_awareness"],
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
-        "display_order": 16,
+        "display_order": 20,
         "completion_type": "all_required",
     },
 ]
@@ -441,6 +489,114 @@ LESSONS = [
             "A whole rest = 4 beats of SILENCE",
             "It hangs BELOW the line (it's heavy!)",
             "Play: note (4 beats), REST (silent!), note (4 beats)",
+        ],
+    },
+    
+    # ========== Half Note Module ==========
+    {
+        "id": "half_note_L1_lesson",
+        "module_id": "half_note_module",
+        "display_name": "The Half Note",
+        "description": "Learn the half note: 2 beats, has a stem, hollow head",
+        "exercise_template_id": "half_note_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Perfect timing!", "You got it!", "That's a half note!"],
+            "incorrect": ["Try again - hold for 2 beats, release on 3"],
+        },
+        "hints": [
+            "A half note = 2 beats",
+            "It has a stem and a hollow (white) head",
+            "Count: 1 - 2 - (3) stop!",
+        ],
+    },
+    
+    # ========== Half Rest Module ==========
+    {
+        "id": "half_rest_L1_lesson",
+        "module_id": "half_rest_module",
+        "display_name": "The Half Rest",
+        "description": "Learn the half rest: 2 beats of silence that sits ON TOP of the line",
+        "exercise_template_id": "half_rest_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Perfect timing!", "You got the rest!", "Silence for 2!"],
+            "incorrect": ["Try again - stay silent during the rest!"],
+        },
+        "hints": [
+            "A half rest = 2 beats of SILENCE",
+            "It sits ON TOP of the line (like a HAT!)",
+            "Play: half note, REST (silent 2 beats!), half note",
+        ],
+    },
+    
+    # ========== Quarter Note Module ==========
+    {
+        "id": "quarter_note_L1_lesson",
+        "module_id": "quarter_note_module",
+        "display_name": "The Quarter Note",
+        "description": "Learn the quarter note: 1 beat, has a stem, filled/solid head",
+        "exercise_template_id": "quarter_note_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Perfect timing!", "You got it!", "That's a quarter note!"],
+            "incorrect": ["Try again - play for 1 beat"],
+        },
+        "hints": [
+            "A quarter note = 1 beat",
+            "It has a stem and a filled (black) head",
+            "Count: 1 - (2) stop!",
+        ],
+    },
+    
+    # ========== Quarter Rest Module ==========
+    {
+        "id": "quarter_rest_L1_lesson",
+        "module_id": "quarter_rest_module",
+        "display_name": "The Quarter Rest",
+        "description": "Learn the quarter rest: 1 beat of silence with squiggly shape",
+        "exercise_template_id": "quarter_rest_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Perfect timing!", "You got the rest!", "Note-rest-note-rest!"],
+            "incorrect": ["Try again - be silent on the rests!"],
+        },
+        "hints": [
+            "A quarter rest = 1 beat of SILENCE",
+            "It looks like a squiggly lightning bolt",
+            "Play: note-rest-note-rest (alternating pattern)",
         ],
     },
     
