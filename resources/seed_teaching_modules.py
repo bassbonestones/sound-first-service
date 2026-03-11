@@ -184,6 +184,90 @@ MODULES = [
         "display_order": 22,
         "completion_type": "all_required",
     },
+    {
+        "id": "half_steps_theory_module",
+        "capability_name": "half_steps_theory",
+        "display_name": "Half Steps",
+        "description": "Learn the half step (semitone) - the smallest interval in Western music",
+        "icon": "piano",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 10,
+        "difficulty_tier": 1,
+        "display_order": 23,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "accidental_flat_module",
+        "capability_name": "accidental_flat",
+        "display_name": "The Flat Sign",
+        "description": "Learn the flat (♭) - lowers a note by one half step",
+        "icon": "flat",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 24,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "accidental_sharp_module",
+        "capability_name": "accidental_sharp",
+        "display_name": "The Sharp Sign",
+        "description": "Learn the sharp (♯) - raises a note by one half step",
+        "icon": "sharp",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 25,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "accidental_natural_module",
+        "capability_name": "accidental_natural",
+        "display_name": "The Natural Sign",
+        "description": "Learn the natural (♮) - cancels a sharp or flat",
+        "icon": "natural",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 26,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "whole_steps_theory_module",
+        "capability_name": "whole_steps_theory",
+        "display_name": "Whole Steps",
+        "description": "Learn the whole step - two half steps combined, skip one key",
+        "icon": "piano",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 10,
+        "difficulty_tier": 1,
+        "display_order": 27,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "diatonic_scale_pattern_module",
+        "capability_name": "diatonic_scale_pattern",
+        "display_name": "Major Scale Pattern",
+        "description": "Learn the WWHWWWH pattern that creates the major scale",
+        "icon": "scale",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 12,
+        "difficulty_tier": 2,
+        "display_order": 28,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "key_signature_basics_module",
+        "capability_name": "key_signature_basics",
+        "display_name": "Key Signatures",
+        "description": "Learn what key signatures are and how they work",
+        "icon": "key",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 10,
+        "difficulty_tier": 2,
+        "display_order": 29,
+        "completion_type": "all_required",
+    },
 ]
 
 # ============================================================
@@ -849,6 +933,200 @@ LESSONS = [
             "Your first note has an octave above and below",
             "Listen for how the notes blend",
             "They should sound like 'the same pitch' at different heights",
+        ],
+    },
+    
+    # ========== Half Steps Theory Module ==========
+    {
+        "id": "half_steps_L1_theory",
+        "module_id": "half_steps_theory_module",
+        "display_name": "The Half Step",
+        "description": "Learn that a half step is the smallest interval - adjacent piano keys",
+        "exercise_template_id": "half_steps_theory",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "show_keyboard": True,
+            "key_concept": "A half step is the distance between any two adjacent keys on the piano",
+            "natural_half_steps": ["E-F", "B-C"],
+        },
+        "mastery": {
+            "correct_streak": 4,  # Must get all 4 quiz questions right
+        },
+        "feedback": {
+            "correct": ["That's right!", "You understand half steps!", "Perfect!"],
+            "incorrect": ["Remember: adjacent keys (including black keys) make a half step"],
+        },
+        "hints": [
+            "A half step = smallest interval in Western music",
+            "E-F and B-C are natural half steps (white to white)",
+            "All other adjacent notes use a black key",
+            "12 half steps make one octave",
+        ],
+    },
+    
+    # ========== Accidental: Flat Module ==========
+    {
+        "id": "accidental_flat_L1_theory",
+        "module_id": "accidental_flat_module",
+        "display_name": "The Flat Sign",
+        "description": "Learn the flat (♭) lowers a note by one half step",
+        "exercise_template_id": "accidental_flat",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "show_keyboard": True,
+            "key_concept": "A flat (♭) lowers a note by one half step",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["That's right!", "You understand flats!", "Perfect!"],
+            "incorrect": ["Remember: flat = lower by one half step"],
+        },
+        "hints": [
+            "♭ = flat = lower by half step",
+            "B♭ is one half step below B",
+            "Most flats are black keys",
+        ],
+    },
+    
+    # ========== Accidental: Sharp Module ==========
+    {
+        "id": "accidental_sharp_L1_theory",
+        "module_id": "accidental_sharp_module",
+        "display_name": "The Sharp Sign",
+        "description": "Learn the sharp (♯) raises a note by one half step",
+        "exercise_template_id": "accidental_sharp",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "show_keyboard": True,
+            "key_concept": "A sharp (♯) raises a note by one half step",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["That's right!", "You understand sharps!", "Perfect!"],
+            "incorrect": ["Remember: sharp = raise by one half step"],
+        },
+        "hints": [
+            "♯ = sharp = raise by half step",
+            "F♯ is one half step above F",
+            "Most sharps are black keys",
+        ],
+    },
+    
+    # ========== Accidental: Natural Module ==========
+    {
+        "id": "accidental_natural_L1_theory",
+        "module_id": "accidental_natural_module",
+        "display_name": "The Natural Sign",
+        "description": "Learn the natural (♮) cancels sharps and flats",
+        "exercise_template_id": "accidental_natural",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "key_concept": "A natural (♮) cancels a sharp or flat",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["That's right!", "You understand naturals!", "Perfect!"],
+            "incorrect": ["Remember: natural = cancel sharp or flat"],
+        },
+        "hints": [
+            "♮ = natural = cancel accidental",
+            "Returns note to white key",
+            "Like an 'undo' for sharps/flats",
+        ],
+    },
+    
+    # ========== Whole Steps Theory Module ==========
+    {
+        "id": "whole_steps_theory_L1_theory",
+        "module_id": "whole_steps_theory_module",
+        "display_name": "Understanding Whole Steps",
+        "description": "Learn that a whole step = 2 half steps (skip one key)",
+        "exercise_template_id": "whole_steps_theory",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "key_concept": "A whole step = 2 half steps = skip one key",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["Correct!", "You got it!", "Great work!"],
+            "incorrect": ["Remember: whole step = skip one key"],
+        },
+        "hints": [
+            "W = 2H = skip one key",
+            "C to D is a whole step (skips C♯)",
+            "Like taking two small steps at once",
+        ],
+    },
+    
+    # ========== Diatonic Scale Pattern Module ==========
+    {
+        "id": "diatonic_scale_pattern_L1_theory",
+        "module_id": "diatonic_scale_pattern_module",
+        "display_name": "The Major Scale Pattern",
+        "description": "Learn the WWHWWWH pattern that creates major scales",
+        "exercise_template_id": "diatonic_scale_pattern",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "key_concept": "Major scale = WWHWWWH",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["That's right!", "You understand the pattern!", "Perfect!"],
+            "incorrect": ["Remember: WWHWWWH"],
+        },
+        "hints": [
+            "WWHWWWH = the major scale formula",
+            "W = whole step, H = half step",
+            "The half steps occur between 3-4 and 7-8",
+        ],
+    },
+    
+    # ========== Key Signature Basics Module ==========
+    {
+        "id": "key_signature_basics_L1_theory",
+        "module_id": "key_signature_basics_module",
+        "display_name": "Understanding Key Signatures",
+        "description": "Learn what key signatures are and how to read them",
+        "exercise_template_id": "key_signature_basics",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "key_concept": "Key signature = sharps/flats that apply throughout",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["Correct!", "You understand key signatures!", "Great!"],
+            "incorrect": ["Remember: key sig applies to ALL notes of that letter"],
+        },
+        "hints": [
+            "Key signatures appear at the start of each staff line",
+            "They tell you which notes are always sharp or flat",
+            "No sharps/flats = C major or A minor",
         ],
     },
 ]

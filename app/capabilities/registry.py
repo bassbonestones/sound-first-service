@@ -39,7 +39,7 @@ class CapabilityRegistry:
     
     def _default_path(self) -> str:
         """Get default path to capabilities.json."""
-        base = Path(__file__).parent.parent.parent
+        base = Path(__file__).parent.parent
         return str(base / "resources" / "capabilities.json")
     
     def load(self) -> Dict[str, List[str]]:

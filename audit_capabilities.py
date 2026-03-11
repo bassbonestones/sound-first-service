@@ -2,7 +2,7 @@
 """Audit capabilities.json for missing music21_detection rules."""
 import json
 
-with open('resources/capabilities.json', 'r') as f:
+with open('app/resources/capabilities.json', 'r') as f:
     data = json.load(f)
 
 # Group by domain

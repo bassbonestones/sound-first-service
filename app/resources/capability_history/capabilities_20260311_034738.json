@@ -1,6 +1,6 @@
 {
- "version": "capabilities_20260311_034738",
- "count": 228,
+ "version": "capabilities_20260311_031820",
+ "count": 227,
  "capabilities": [
   {
    "name": "accidental_flat_symbol",
@@ -2192,7 +2192,6 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "key_signature_basics",
     "note_name_recognition",
     "octave_equivalence"
    ],
@@ -4358,27 +4357,6 @@
    "bit_index": 181
   },
   {
-   "name": "diatonic_scale_pattern",
-   "display_name": "Diatonic Scale Pattern Theory",
-   "domain": "scales_diatonic",
-   "subdomain": null,
-   "requirement_type": "required",
-   "prerequisite_names": [
-    "whole_steps_theory",
-    "half_steps_theory"
-   ],
-   "difficulty_tier": 2,
-   "mastery_type": "single",
-   "mastery_count": 1,
-   "evidence_required_count": 1,
-   "evidence_distinct_materials": false,
-   "evidence_acceptance_threshold": 4,
-   "evidence_qualifier_json": {},
-   "difficulty_weight": 1.0,
-   "soft_gate_requirements": null,
-   "bit_index": 182
-  },
-  {
    "name": "scale_major",
    "display_name": "Major Scale (Ionian Mode)",
    "domain": "scales_diatonic",
@@ -4399,7 +4377,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 183
+   "bit_index": 182
   },
   {
    "name": "scale_natural_minor",
@@ -4419,7 +4397,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 184
+   "bit_index": 183
   },
   {
    "name": "mode_dorian",
@@ -4439,7 +4417,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 185
+   "bit_index": 184
   },
   {
    "name": "mode_locrian",
@@ -4459,7 +4437,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 186
+   "bit_index": 185
   },
   {
    "name": "mode_lydian",
@@ -4479,7 +4457,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 187
+   "bit_index": 186
   },
   {
    "name": "mode_mixolydian",
@@ -4499,7 +4477,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 188
+   "bit_index": 187
   },
   {
    "name": "mode_phrygian",
@@ -4519,7 +4497,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 189
+   "bit_index": 188
   },
   {
    "name": "scale_major_pentatonic",
@@ -4539,7 +4517,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 190
+   "bit_index": 189
   },
   {
    "name": "scale_minor_pentatonic",
@@ -4559,7 +4537,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 191
+   "bit_index": 190
   },
   {
    "name": "scale_chromatic",
@@ -4579,7 +4557,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 192
+   "bit_index": 191
   },
   {
    "name": "scale_harmonic_minor",
@@ -4599,7 +4577,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 193
+   "bit_index": 192
   },
   {
    "name": "scale_major_minor",
@@ -4619,7 +4597,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 194
+   "bit_index": 193
   },
   {
    "name": "scale_melodic_minor",
@@ -4639,7 +4617,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 195
+   "bit_index": 194
   },
   {
    "name": "scale_minor_major",
@@ -4659,7 +4637,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 196
+   "bit_index": 195
   },
   {
    "name": "tempo_skill_a_tempo",
@@ -4679,7 +4657,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 197,
+   "bit_index": 196,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4704,7 +4682,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 198,
+   "bit_index": 197,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4729,7 +4707,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 199,
+   "bit_index": 198,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4754,7 +4732,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 200,
+   "bit_index": 199,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4779,7 +4757,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 201,
+   "bit_index": 200,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4805,7 +4783,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 202,
+   "bit_index": 201,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4831,7 +4809,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 203,
+   "bit_index": 202,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4858,7 +4836,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 204,
+   "bit_index": 203,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4885,7 +4863,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 205,
+   "bit_index": 204,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4911,7 +4889,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 206,
+   "bit_index": 205,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4937,7 +4915,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 207,
+   "bit_index": 206,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4963,7 +4941,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 208,
+   "bit_index": 207,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -4989,7 +4967,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 209,
+   "bit_index": 208,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -5015,7 +4993,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 210,
+   "bit_index": 209,
    "music21_detection": {
     "type": "text_match",
     "source": "tempo_markings",
@@ -5040,7 +5018,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 211,
+   "bit_index": 210,
    "music21_detection": {
     "type": "custom",
     "function": "detect_four_voices"
@@ -5064,7 +5042,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 212,
+   "bit_index": 211,
    "music21_detection": {
     "type": "custom",
     "function": "detect_three_voices"
@@ -5088,7 +5066,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 213,
+   "bit_index": 212,
    "music21_detection": {
     "type": "custom",
     "function": "detect_two_voices"
@@ -5112,7 +5090,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 214,
+   "bit_index": 213,
    "music21_detection": {
     "type": "custom",
     "function": "detect_scale_fragment_2"
@@ -5137,7 +5115,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 215,
+   "bit_index": 214,
    "music21_detection": {
     "type": "custom",
     "function": "detect_scale_fragment_3"
@@ -5162,7 +5140,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 216,
+   "bit_index": 215,
    "music21_detection": {
     "type": "custom",
     "function": "detect_scale_fragment_4"
@@ -5187,7 +5165,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 217,
+   "bit_index": 216,
    "music21_detection": {
     "type": "custom",
     "function": "detect_scale_fragment_5"
@@ -5212,7 +5190,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 218,
+   "bit_index": 217,
    "music21_detection": {
     "type": "custom",
     "function": "detect_scale_fragment_6"
@@ -5237,7 +5215,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 219,
+   "bit_index": 218,
    "music21_detection": {
     "type": "custom",
     "function": "detect_scale_fragment_7"
@@ -5261,7 +5239,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 220,
+   "bit_index": 219,
    "music21_detection": {
     "type": "custom",
     "function": "detect_chromatic_approach_tones"
@@ -5285,7 +5263,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 221,
+   "bit_index": 220,
    "music21_detection": {
     "type": "custom",
     "function": "detect_modulation"
@@ -5309,7 +5287,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 222,
+   "bit_index": 221,
    "music21_detection": {
     "type": "custom",
     "function": "detect_duplet"
@@ -5333,7 +5311,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 223,
+   "bit_index": 222,
    "music21_detection": {
     "type": "custom",
     "function": "detect_quintuplet"
@@ -5357,7 +5335,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 224,
+   "bit_index": 223,
    "music21_detection": {
     "type": "custom",
     "function": "detect_septuplet"
@@ -5381,7 +5359,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 225,
+   "bit_index": 224,
    "music21_detection": {
     "type": "custom",
     "function": "detect_sextuplet"
@@ -5405,7 +5383,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 226,
+   "bit_index": 225,
    "music21_detection": {
     "type": "custom",
     "function": "detect_triplet_general"
@@ -5430,7 +5408,7 @@
    "evidence_qualifier_json": {},
    "difficulty_weight": 1.0,
    "soft_gate_requirements": null,
-   "bit_index": 227,
+   "bit_index": 226,
    "music21_detection": {
     "type": "custom",
     "function": "detect_quarter_triplets"

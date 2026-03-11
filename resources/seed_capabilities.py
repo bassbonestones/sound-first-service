@@ -17,7 +17,7 @@ def load_json(path: str) -> Dict[str, Any]:
 
 
 def main() -> None:
- data = load_json("capabilities.json")
+ data = load_json("../app/resources/capabilities.json")
  caps: List[Dict[str, Any]] = data["capabilities"]
 
  session = SessionLocal()

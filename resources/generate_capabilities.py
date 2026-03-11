@@ -454,10 +454,10 @@ def main() -> None:
   "capabilities": caps_sorted
  }
 
- with open("capabilities.json", "w") as f:
+ with open("../app/resources/capabilities.json", "w") as f:
   json.dump(payload, f, indent=1)
 
- print(f"Wrote capabilities.json with {len(caps_sorted)} capabilities.")
+ print(f"Wrote app/resources/capabilities.json with {len(caps_sorted)} capabilities.")
 
 
 if __name__ == "__main__":

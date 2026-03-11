@@ -11,7 +11,7 @@ This script adds detection rules for all detectable capabilities.
 import json
 
 # Load capabilities
-with open('resources/capabilities.json', 'r') as f:
+with open('app/resources/capabilities.json', 'r') as f:
     data = json.load(f)
 
 # Map capability names to detection rules
@@ -1035,7 +1035,7 @@ for cap in data['capabilities']:
         added_count += 1
 
 # Save updated capabilities
-with open('resources/capabilities.json', 'w') as f:
+with open('app/resources/capabilities.json', 'w') as f:
     json.dump(data, f, indent=2)
 
 print(f"\n✓ Added {added_count} detection rules")
