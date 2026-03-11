@@ -1,6 +1,6 @@
 {
   "version": "capabilities_20260307_092016",
-  "count": 225,
+  "count": 227,
   "capabilities": [
     {
       "name": "accidental_flat_symbol",
@@ -8,7 +8,9 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["note_basics"],
+      "prerequisite_names": [
+        "note_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -30,7 +32,9 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["note_basics"],
+      "prerequisite_names": [
+        "note_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -52,7 +56,9 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["note_basics"],
+      "prerequisite_names": [
+        "note_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -74,7 +80,9 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["accidental_flat_symbol"],
+      "prerequisite_names": [
+        "accidental_flat_symbol"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -96,7 +104,9 @@
       "domain": "accidental_system",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["accidental_sharp_symbol"],
+      "prerequisite_names": [
+        "accidental_sharp_symbol"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -118,7 +128,10 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["first_note", "rhythm_quarter_notes"],
+      "prerequisite_names": [
+        "first_note",
+        "rhythm_quarter_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -140,7 +153,9 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["articulation_staccato"],
+      "prerequisite_names": [
+        "articulation_staccato"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -162,7 +177,9 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["articulation_accent"],
+      "prerequisite_names": [
+        "articulation_accent"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -184,7 +201,9 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["articulation_marcato"],
+      "prerequisite_names": [
+        "articulation_marcato"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -206,7 +225,9 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["articulation_portato"],
+      "prerequisite_names": [
+        "articulation_portato"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -228,7 +249,10 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["articulation_tenuto", "rhythm_eighth_notes"],
+      "prerequisite_names": [
+        "articulation_tenuto",
+        "rhythm_eighth_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -250,7 +274,9 @@
       "domain": "articulations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["articulation_legato"],
+      "prerequisite_names": [
+        "articulation_legato"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -272,7 +298,9 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -294,7 +322,9 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -316,7 +346,9 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["clef_bass"],
+      "prerequisite_names": [
+        "clef_bass"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -338,7 +370,10 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["clef_alto", "clef_tenor"],
+      "prerequisite_names": [
+        "clef_alto",
+        "clef_tenor"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -356,7 +391,9 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -378,7 +415,9 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -400,7 +439,9 @@
       "domain": "clef_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["clef_treble"],
+      "prerequisite_names": [
+        "clef_treble"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -422,7 +463,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_pp"],
+      "prerequisite_names": [
+        "dynamic_pp"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -444,7 +487,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_crescendo"],
+      "prerequisite_names": [
+        "dynamic_crescendo"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -466,7 +511,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_decrescendo"],
+      "prerequisite_names": [
+        "dynamic_decrescendo"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -488,7 +535,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_mf"],
+      "prerequisite_names": [
+        "dynamic_mf"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -512,7 +561,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_mp"],
+      "prerequisite_names": [
+        "dynamic_mp"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -536,7 +587,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_rfz"],
+      "prerequisite_names": [
+        "dynamic_rfz"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -560,7 +613,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_sfp"],
+      "prerequisite_names": [
+        "dynamic_sfp"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -608,7 +663,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_p"],
+      "prerequisite_names": [
+        "dynamic_p"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -632,7 +689,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_f"],
+      "prerequisite_names": [
+        "dynamic_f"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -656,7 +715,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_ff"],
+      "prerequisite_names": [
+        "dynamic_ff"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -680,7 +741,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_fff"],
+      "prerequisite_names": [
+        "dynamic_fff"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -704,7 +767,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_fp"],
+      "prerequisite_names": [
+        "dynamic_fp"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -728,7 +793,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_rf"],
+      "prerequisite_names": [
+        "dynamic_rf"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -752,7 +819,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_subito"],
+      "prerequisite_names": [
+        "dynamic_subito"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -776,7 +845,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_sfz"],
+      "prerequisite_names": [
+        "dynamic_sfz"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -800,7 +871,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_sf"],
+      "prerequisite_names": [
+        "dynamic_sf"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -824,7 +897,9 @@
       "domain": "dynamics",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["dynamic_diminuendo"],
+      "prerequisite_names": [
+        "dynamic_diminuendo"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -846,7 +921,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -869,7 +946,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -892,7 +971,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -915,7 +996,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -938,7 +1021,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -961,7 +1046,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -984,7 +1071,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1007,7 +1096,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1030,7 +1121,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1053,7 +1146,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1076,7 +1171,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1099,7 +1196,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1122,7 +1221,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1145,7 +1246,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1168,7 +1271,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1191,7 +1296,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1214,7 +1321,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1237,7 +1346,9 @@
       "domain": "expression_terms",
       "subdomain": null,
       "requirement_type": "learnable_in_context",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1260,7 +1371,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_ds"],
+      "prerequisite_names": [
+        "form_ds"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1282,7 +1395,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_repeat_sign"],
+      "prerequisite_names": [
+        "form_repeat_sign"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1304,7 +1419,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_repeat_sign"],
+      "prerequisite_names": [
+        "form_repeat_sign"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1326,7 +1443,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_dc"],
+      "prerequisite_names": [
+        "form_dc"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1348,7 +1467,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_repeat_sign"],
+      "prerequisite_names": [
+        "form_repeat_sign"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1370,7 +1491,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1392,7 +1515,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_first_ending"],
+      "prerequisite_names": [
+        "form_first_ending"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1414,7 +1539,9 @@
       "domain": "form",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["form_ds"],
+      "prerequisite_names": [
+        "form_ds"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1436,7 +1563,9 @@
       "domain": "instrument_technique",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["first_note"],
+      "prerequisite_names": [
+        "first_note"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1458,7 +1587,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["first_note"],
+      "prerequisite_names": [
+        "first_note"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1481,7 +1612,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_2"],
+      "prerequisite_names": [
+        "interval_play_minor_2"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1504,7 +1637,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_2"],
+      "prerequisite_names": [
+        "interval_play_major_2"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1527,7 +1662,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_3"],
+      "prerequisite_names": [
+        "interval_play_minor_3"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1550,7 +1687,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_3"],
+      "prerequisite_names": [
+        "interval_play_major_3"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1573,7 +1712,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_perfect_4"],
+      "prerequisite_names": [
+        "interval_play_perfect_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1596,7 +1737,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_perfect_5"],
+      "prerequisite_names": [
+        "interval_play_perfect_5"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1619,7 +1762,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_augmented_4"],
+      "prerequisite_names": [
+        "interval_play_augmented_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1642,7 +1787,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_6"],
+      "prerequisite_names": [
+        "interval_play_minor_6"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1665,7 +1812,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_6"],
+      "prerequisite_names": [
+        "interval_play_major_6"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1688,7 +1837,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_7"],
+      "prerequisite_names": [
+        "interval_play_minor_7"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1711,7 +1862,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_7"],
+      "prerequisite_names": [
+        "interval_play_major_7"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1734,7 +1887,9 @@
       "domain": "intervals_play",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_octave"],
+      "prerequisite_names": [
+        "interval_play_octave"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1756,7 +1911,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_2"],
+      "prerequisite_names": [
+        "interval_play_minor_2"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1774,7 +1931,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_2"],
+      "prerequisite_names": [
+        "interval_play_major_2"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1792,7 +1951,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_3"],
+      "prerequisite_names": [
+        "interval_play_minor_3"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1810,7 +1971,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_3"],
+      "prerequisite_names": [
+        "interval_play_major_3"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1828,7 +1991,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_perfect_4"],
+      "prerequisite_names": [
+        "interval_play_perfect_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1846,7 +2011,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_perfect_5"],
+      "prerequisite_names": [
+        "interval_play_perfect_5"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1864,7 +2031,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_augmented_4"],
+      "prerequisite_names": [
+        "interval_play_augmented_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1882,7 +2051,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_6"],
+      "prerequisite_names": [
+        "interval_play_minor_6"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1900,7 +2071,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_6"],
+      "prerequisite_names": [
+        "interval_play_major_6"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1918,7 +2091,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_minor_7"],
+      "prerequisite_names": [
+        "interval_play_minor_7"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1936,7 +2111,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_7"],
+      "prerequisite_names": [
+        "interval_play_major_7"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1954,7 +2131,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_octave"],
+      "prerequisite_names": [
+        "interval_play_octave"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1972,7 +2151,9 @@
       "domain": "intervals_theory",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_compound_9_plus"],
+      "prerequisite_names": [
+        "interval_play_compound_9_plus"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -1990,7 +2171,9 @@
       "domain": "key_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["key_signature_basics"],
+      "prerequisite_names": [
+        "key_signature_basics"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2008,7 +2191,11 @@
       "domain": "key_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["key_signature_basics"],
+      "prerequisite_names": [
+        "key_signature_basics",
+        "note_name_recognition",
+        "octave_equivalence"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2048,7 +2235,9 @@
       "domain": "key_system",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["key_signature_basics"],
+      "prerequisite_names": [
+        "key_signature_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2066,7 +2255,9 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2088,7 +2279,9 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_basics"],
+      "prerequisite_names": [
+        "time_signature_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2192,7 +2385,9 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_2_4"],
+      "prerequisite_names": [
+        "time_signature_2_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2215,7 +2410,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_3_4", "time_signature_6_8"],
+      "prerequisite_names": [
+        "time_signature_3_4",
+        "time_signature_6_8"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2238,7 +2436,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_4_4", "time_signature_6_8"],
+      "prerequisite_names": [
+        "time_signature_4_4",
+        "time_signature_6_8"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2261,7 +2462,9 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_6_8"],
+      "prerequisite_names": [
+        "time_signature_6_8"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2284,7 +2487,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_3_4", "time_signature_2_4"],
+      "prerequisite_names": [
+        "time_signature_3_4",
+        "time_signature_2_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2307,7 +2513,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_3_8", "time_signature_5_4"],
+      "prerequisite_names": [
+        "time_signature_3_8",
+        "time_signature_5_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2330,7 +2539,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_3_8", "time_signature_5_4"],
+      "prerequisite_names": [
+        "time_signature_3_8",
+        "time_signature_5_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2353,7 +2565,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_2_2", "time_signature_3_4"],
+      "prerequisite_names": [
+        "time_signature_2_2",
+        "time_signature_3_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2376,7 +2591,9 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["time_signature_5_4"],
+      "prerequisite_names": [
+        "time_signature_5_4"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2399,7 +2616,10 @@
       "domain": "meter",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_sixteenth_notes", "time_signature_3_8"],
+      "prerequisite_names": [
+        "rhythm_sixteenth_notes",
+        "time_signature_3_8"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2422,7 +2642,9 @@
       "domain": "notation_fundamentals",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2440,7 +2662,9 @@
       "domain": "notation_fundamentals",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2476,7 +2700,9 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2498,7 +2724,9 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2520,7 +2748,9 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
+      "prerequisite_names": [
+        "staff_basics"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2542,7 +2772,9 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["key_signature_basics"],
+      "prerequisite_names": [
+        "key_signature_basics"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2564,7 +2796,9 @@
       "domain": "notation_symbols",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["notation_chord_symbols"],
+      "prerequisite_names": [
+        "notation_chord_symbols"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2586,7 +2820,9 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_sixteenth_notes"],
+      "prerequisite_names": [
+        "rhythm_sixteenth_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2608,7 +2844,9 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["ornament_trill"],
+      "prerequisite_names": [
+        "ornament_trill"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2630,7 +2868,9 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["ornament_mordent"],
+      "prerequisite_names": [
+        "ornament_mordent"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2652,7 +2892,10 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_32nd_notes", "ornament_turn"],
+      "prerequisite_names": [
+        "rhythm_32nd_notes",
+        "ornament_turn"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2702,7 +2945,9 @@
       "domain": "ornaments",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["ornament_inverted_mordent"],
+      "prerequisite_names": [
+        "ornament_inverted_mordent"
+      ],
       "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2739,6 +2984,46 @@
       "bit_index": 123
     },
     {
+      "name": "note_name_recognition",
+      "display_name": "Note Name Recognition (A-G)",
+      "domain": "pitch_foundation",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "first_note"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 124
+    },
+    {
+      "name": "octave_equivalence",
+      "display_name": "Octave Equivalence",
+      "domain": "pitch_foundation",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "note_name_recognition"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 125
+    },
+    {
       "name": "accidental_raise_pitch",
       "display_name": "Accidental Raise Pitch",
       "domain": "pitch_foundation",
@@ -2754,7 +3039,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 124
+      "bit_index": 126
     },
     {
       "name": "accidental_lower_pitch",
@@ -2772,7 +3057,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 125
+      "bit_index": 127
     },
     {
       "name": "pitch_direction_awareness",
@@ -2780,7 +3065,9 @@
       "domain": "pitch_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["first_note"],
+      "prerequisite_names": [
+        "first_note"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -2790,7 +3077,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 126
+      "bit_index": 128
     },
     {
       "name": "range_span_minor_second",
@@ -2808,7 +3095,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 127,
+      "bit_index": 129,
       "music21_detection": {
         "type": "range",
         "min_semitones": 1,
@@ -2831,7 +3118,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 128,
+      "bit_index": 130,
       "music21_detection": {
         "type": "range",
         "min_semitones": 2,
@@ -2854,7 +3141,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 129,
+      "bit_index": 131,
       "music21_detection": {
         "type": "range",
         "min_semitones": 3,
@@ -2877,7 +3164,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 130,
+      "bit_index": 132,
       "music21_detection": {
         "type": "range",
         "min_semitones": 4,
@@ -2900,7 +3187,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 131,
+      "bit_index": 133,
       "music21_detection": {
         "type": "range",
         "min_semitones": 5,
@@ -2923,7 +3210,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 132,
+      "bit_index": 134,
       "music21_detection": {
         "type": "range",
         "min_semitones": 6,
@@ -2946,7 +3233,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 133,
+      "bit_index": 135,
       "music21_detection": {
         "type": "range",
         "min_semitones": 7,
@@ -2969,7 +3256,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 134,
+      "bit_index": 136,
       "music21_detection": {
         "type": "range",
         "min_semitones": 8,
@@ -2992,7 +3279,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 135,
+      "bit_index": 137,
       "music21_detection": {
         "type": "range",
         "min_semitones": 9,
@@ -3015,7 +3302,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 136,
+      "bit_index": 138,
       "music21_detection": {
         "type": "range",
         "min_semitones": 10,
@@ -3038,7 +3325,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 137,
+      "bit_index": 139,
       "music21_detection": {
         "type": "range",
         "min_semitones": 11,
@@ -3061,7 +3348,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 138,
+      "bit_index": 140,
       "music21_detection": {
         "type": "range",
         "min_semitones": 12,
@@ -3074,55 +3361,9 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_whole_notes"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 139,
-      "music21_detection": {
-        "type": "value_match",
-        "source": "rests",
-        "field": "type",
-        "eq": "whole"
-      }
-    },
-    {
-      "name": "rest_half",
-      "display_name": "Half Rest",
-      "domain": "rests",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["rest_whole", "rhythm_half_notes"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 140,
-      "music21_detection": {
-        "type": "value_match",
-        "source": "rests",
-        "field": "type",
-        "eq": "half"
-      }
-    },
-    {
-      "name": "rest_quarter",
-      "display_name": "Quarter Rest",
-      "domain": "rests",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["rest_half", "rhythm_quarter_notes"],
+      "prerequisite_names": [
+        "rhythm_whole_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3137,16 +3378,19 @@
         "type": "value_match",
         "source": "rests",
         "field": "type",
-        "eq": "quarter"
+        "eq": "whole"
       }
     },
     {
-      "name": "rest_eighth",
-      "display_name": "Eighth Rest",
+      "name": "rest_half",
+      "display_name": "Half Rest",
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_quarter", "rhythm_eighth_notes"],
+      "prerequisite_names": [
+        "rest_whole",
+        "rhythm_half_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3161,16 +3405,19 @@
         "type": "value_match",
         "source": "rests",
         "field": "type",
-        "eq": "eighth"
+        "eq": "half"
       }
     },
     {
-      "name": "rest_triplet_eighth",
-      "display_name": "Triplet Eighth Rest",
+      "name": "rest_quarter",
+      "display_name": "Quarter Rest",
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_eighth", "rhythm_triplets_eighth"],
+      "prerequisite_names": [
+        "rest_half",
+        "rhythm_quarter_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3182,17 +3429,22 @@
       "soft_gate_requirements": null,
       "bit_index": 143,
       "music21_detection": {
-        "type": "custom",
-        "function": "detect_triplet_eighth_rest"
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "quarter"
       }
     },
     {
-      "name": "rest_sixteenth",
-      "display_name": "Sixteenth Rest",
+      "name": "rest_eighth",
+      "display_name": "Eighth Rest",
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_triplet_eighth", "rhythm_sixteenth_notes"],
+      "prerequisite_names": [
+        "rest_quarter",
+        "rhythm_eighth_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3207,16 +3459,19 @@
         "type": "value_match",
         "source": "rests",
         "field": "type",
-        "eq": "sixteenth"
+        "eq": "eighth"
       }
     },
     {
-      "name": "rest_multimeasure",
-      "display_name": "Multi-Measure Rest",
+      "name": "rest_triplet_eighth",
+      "display_name": "Triplet Eighth Rest",
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_sixteenth"],
+      "prerequisite_names": [
+        "rest_eighth",
+        "rhythm_triplets_eighth"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3229,16 +3484,19 @@
       "bit_index": 145,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_multimeasure_rest"
+        "function": "detect_triplet_eighth_rest"
       }
     },
     {
-      "name": "rest_tuplet_3_quarter",
-      "display_name": "Tuplet: 3 Quarter Rests",
+      "name": "rest_sixteenth",
+      "display_name": "Sixteenth Rest",
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_multimeasure", "rhythm_tuplet_3_quarters"],
+      "prerequisite_names": [
+        "rest_triplet_eighth",
+        "rhythm_sixteenth_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3250,17 +3508,21 @@
       "soft_gate_requirements": null,
       "bit_index": 146,
       "music21_detection": {
-        "type": "custom",
-        "function": "detect_tuplet_3_quarter_rest"
+        "type": "value_match",
+        "source": "rests",
+        "field": "type",
+        "eq": "sixteenth"
       }
     },
     {
-      "name": "rest_32nd",
-      "display_name": "Thirty-Second Rest",
+      "name": "rest_multimeasure",
+      "display_name": "Multi-Measure Rest",
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_tuplet_3_quarter", "rhythm_32nd_notes"],
+      "prerequisite_names": [
+        "rest_sixteenth"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3271,6 +3533,56 @@
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
       "bit_index": 147,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_multimeasure_rest"
+      }
+    },
+    {
+      "name": "rest_tuplet_3_quarter",
+      "display_name": "Tuplet: 3 Quarter Rests",
+      "domain": "rests",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "rest_multimeasure",
+        "rhythm_tuplet_3_quarters"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 148,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_tuplet_3_quarter_rest"
+      }
+    },
+    {
+      "name": "rest_32nd",
+      "display_name": "Thirty-Second Rest",
+      "domain": "rests",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "rest_tuplet_3_quarter",
+        "rhythm_32nd_notes"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 149,
       "music21_detection": {
         "type": "value_match",
         "source": "rests",
@@ -3284,7 +3596,10 @@
       "domain": "rests",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rest_32nd", "rhythm_64th_notes"],
+      "prerequisite_names": [
+        "rest_32nd",
+        "rhythm_64th_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3294,7 +3609,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 148,
+      "bit_index": 150,
       "music21_detection": {
         "type": "value_match",
         "source": "rests",
@@ -3308,55 +3623,9 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 149,
-      "music21_detection": {
-        "type": "value_match",
-        "source": "notes",
-        "field": "type",
-        "eq": "whole"
-      }
-    },
-    {
-      "name": "rhythm_half_notes",
-      "display_name": "Half Notes",
-      "domain": "rhythm_duration",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["rhythm_whole_notes"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 150,
-      "music21_detection": {
-        "type": "value_match",
-        "source": "notes",
-        "field": "type",
-        "eq": "half"
-      }
-    },
-    {
-      "name": "rhythm_quarter_notes",
-      "display_name": "Quarter Notes",
-      "domain": "rhythm_duration",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["rhythm_half_notes"],
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3371,16 +3640,18 @@
         "type": "value_match",
         "source": "notes",
         "field": "type",
-        "eq": "quarter"
+        "eq": "whole"
       }
     },
     {
-      "name": "rhythm_eighth_notes",
-      "display_name": "Eighth Notes",
+      "name": "rhythm_half_notes",
+      "display_name": "Half Notes",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_quarter_notes"],
+      "prerequisite_names": [
+        "rhythm_whole_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3395,16 +3666,18 @@
         "type": "value_match",
         "source": "notes",
         "field": "type",
-        "eq": "eighth"
+        "eq": "half"
       }
     },
     {
-      "name": "rhythm_dotted_half",
-      "display_name": "Dotted Half Note",
+      "name": "rhythm_quarter_notes",
+      "display_name": "Quarter Notes",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_eighth_notes"],
+      "prerequisite_names": [
+        "rhythm_half_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3419,16 +3692,18 @@
         "type": "value_match",
         "source": "notes",
         "field": "type",
-        "eq": "dotted_half"
+        "eq": "quarter"
       }
     },
     {
-      "name": "rhythm_dotted_quarter",
-      "display_name": "Dotted Quarter Note",
+      "name": "rhythm_eighth_notes",
+      "display_name": "Eighth Notes",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_dotted_half"],
+      "prerequisite_names": [
+        "rhythm_quarter_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3443,16 +3718,18 @@
         "type": "value_match",
         "source": "notes",
         "field": "type",
-        "eq": "dotted_quarter"
+        "eq": "eighth"
       }
     },
     {
-      "name": "rhythm_ties_across_beats",
-      "display_name": "Ties Across Beats",
+      "name": "rhythm_dotted_half",
+      "display_name": "Dotted Half Note",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_dotted_quarter"],
+      "prerequisite_names": [
+        "rhythm_eighth_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3464,17 +3741,21 @@
       "soft_gate_requirements": null,
       "bit_index": 155,
       "music21_detection": {
-        "type": "custom",
-        "function": "detect_ties"
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "dotted_half"
       }
     },
     {
-      "name": "rhythm_triplets_eighth",
-      "display_name": "Triplet (Eighth-Note Triplet)",
+      "name": "rhythm_dotted_quarter",
+      "display_name": "Dotted Quarter Note",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_ties_across_beats"],
+      "prerequisite_names": [
+        "rhythm_dotted_half"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3486,17 +3767,21 @@
       "soft_gate_requirements": null,
       "bit_index": 156,
       "music21_detection": {
-        "type": "custom",
-        "function": "detect_eighth_triplets"
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "dotted_quarter"
       }
     },
     {
-      "name": "rhythm_sixteenth_notes",
-      "display_name": "Sixteenth Notes",
+      "name": "rhythm_ties_across_beats",
+      "display_name": "Ties Across Beats",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_triplets_eighth"],
+      "prerequisite_names": [
+        "rhythm_dotted_quarter"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3508,19 +3793,19 @@
       "soft_gate_requirements": null,
       "bit_index": 157,
       "music21_detection": {
-        "type": "value_match",
-        "source": "notes",
-        "field": "type",
-        "eq": "sixteenth"
+        "type": "custom",
+        "function": "detect_ties"
       }
     },
     {
-      "name": "rhythm_syncopation",
-      "display_name": "Syncopation",
+      "name": "rhythm_triplets_eighth",
+      "display_name": "Triplet (Eighth-Note Triplet)",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_sixteenth_notes"],
+      "prerequisite_names": [
+        "rhythm_ties_across_beats"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3533,16 +3818,18 @@
       "bit_index": 158,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_syncopation"
+        "function": "detect_eighth_triplets"
       }
     },
     {
-      "name": "rhythm_dotted_eighth",
-      "display_name": "Dotted Eighth Note",
+      "name": "rhythm_sixteenth_notes",
+      "display_name": "Sixteenth Notes",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_syncopation"],
+      "prerequisite_names": [
+        "rhythm_triplets_eighth"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3557,16 +3844,18 @@
         "type": "value_match",
         "source": "notes",
         "field": "type",
-        "eq": "dotted_eighth"
+        "eq": "sixteenth"
       }
     },
     {
-      "name": "rhythm_tuplet_3_quarters",
-      "display_name": "Tuplet: 3 Quarter Notes",
+      "name": "rhythm_syncopation",
+      "display_name": "Syncopation",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_dotted_eighth"],
+      "prerequisite_names": [
+        "rhythm_sixteenth_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3579,16 +3868,18 @@
       "bit_index": 160,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_quarter_triplets"
+        "function": "detect_syncopation"
       }
     },
     {
-      "name": "rhythm_32nd_notes",
-      "display_name": "Thirty-Second Notes",
+      "name": "rhythm_dotted_eighth",
+      "display_name": "Dotted Eighth Note",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_tuplet_3_quarters"],
+      "prerequisite_names": [
+        "rhythm_syncopation"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3603,16 +3894,18 @@
         "type": "value_match",
         "source": "notes",
         "field": "type",
-        "eq": "32nd"
+        "eq": "dotted_eighth"
       }
     },
     {
-      "name": "rhythm_dotted_sixteenth",
-      "display_name": "Dotted Sixteenth Note",
+      "name": "rhythm_tuplet_3_quarters",
+      "display_name": "Tuplet: 3 Quarter Notes",
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_32nd_notes"],
+      "prerequisite_names": [
+        "rhythm_dotted_eighth"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3623,6 +3916,56 @@
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
       "bit_index": 162,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_quarter_triplets"
+      }
+    },
+    {
+      "name": "rhythm_32nd_notes",
+      "display_name": "Thirty-Second Notes",
+      "domain": "rhythm_duration",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "rhythm_tuplet_3_quarters"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 163,
+      "music21_detection": {
+        "type": "value_match",
+        "source": "notes",
+        "field": "type",
+        "eq": "32nd"
+      }
+    },
+    {
+      "name": "rhythm_dotted_sixteenth",
+      "display_name": "Dotted Sixteenth Note",
+      "domain": "rhythm_duration",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "rhythm_32nd_notes"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 164,
       "music21_detection": {
         "type": "compound",
         "source": "notes",
@@ -3644,7 +3987,9 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_dotted_sixteenth"],
+      "prerequisite_names": [
+        "rhythm_dotted_sixteenth"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3654,7 +3999,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 163,
+      "bit_index": 165,
       "music21_detection": {
         "type": "compound",
         "source": "notes",
@@ -3690,7 +4035,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 164,
+      "bit_index": 166,
       "music21_detection": {
         "type": "compound",
         "source": "notes",
@@ -3712,7 +4057,9 @@
       "domain": "rhythm_duration",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_32nd_notes"],
+      "prerequisite_names": [
+        "rhythm_32nd_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3722,7 +4069,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 165,
+      "bit_index": 167,
       "music21_detection": {
         "type": "value_match",
         "source": "notes",
@@ -3736,43 +4083,9 @@
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["first_note"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 166
-    },
-    {
-      "name": "pulse_tracking_accent_shifting",
-      "display_name": "Pulse Tracking: Accent Shifting",
-      "domain": "rhythm_foundation",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking_drum_loop"],
-      "difficulty_tier": 2,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 167
-    },
-    {
-      "name": "pulse_tracking_call_response",
-      "display_name": "Pulse Tracking: Call and Response",
-      "domain": "rhythm_foundation",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "first_note"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3785,13 +4098,15 @@
       "bit_index": 168
     },
     {
-      "name": "pulse_tracking_clapping",
-      "display_name": "Pulse Tracking: Clapping",
+      "name": "pulse_tracking_accent_shifting",
+      "display_name": "Pulse Tracking: Accent Shifting",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "pulse_tracking_drum_loop"
+      ],
+      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -3803,12 +4118,14 @@
       "bit_index": 169
     },
     {
-      "name": "pulse_tracking_drum_loop",
-      "display_name": "Pulse Tracking: Drum Loop",
+      "name": "pulse_tracking_call_response",
+      "display_name": "Pulse Tracking: Call and Response",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3821,12 +4138,14 @@
       "bit_index": 170
     },
     {
-      "name": "pulse_tracking_dynamic_rhythm_control",
-      "display_name": "Pulse Tracking: Dynamic Rhythm Control",
+      "name": "pulse_tracking_clapping",
+      "display_name": "Pulse Tracking: Clapping",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3839,12 +4158,14 @@
       "bit_index": 171
     },
     {
-      "name": "pulse_tracking_guided_improv",
-      "display_name": "Pulse Tracking: Guided Improvisation",
+      "name": "pulse_tracking_drum_loop",
+      "display_name": "Pulse Tracking: Drum Loop",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3857,12 +4178,14 @@
       "bit_index": 172
     },
     {
-      "name": "pulse_tracking_metronome_fade",
-      "display_name": "Pulse Tracking: Metronome Fade Out / In",
+      "name": "pulse_tracking_dynamic_rhythm_control",
+      "display_name": "Pulse Tracking: Dynamic Rhythm Control",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3875,13 +4198,15 @@
       "bit_index": 173
     },
     {
-      "name": "pulse_tracking_multi_layer_contrast",
-      "display_name": "Pulse Tracking: Multi-Layer Contrast",
+      "name": "pulse_tracking_guided_improv",
+      "display_name": "Pulse Tracking: Guided Improvisation",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking_polyrhythm_intro"],
-      "difficulty_tier": 3,
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
+      "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -3893,13 +4218,15 @@
       "bit_index": 174
     },
     {
-      "name": "pulse_tracking_polyrhythm_intro",
-      "display_name": "Pulse Tracking: Polyrhythm Introduction",
+      "name": "pulse_tracking_metronome_fade",
+      "display_name": "Pulse Tracking: Metronome Fade Out / In",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking_subdividing"],
-      "difficulty_tier": 2,
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
+      "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -3911,13 +4238,15 @@
       "bit_index": 175
     },
     {
-      "name": "pulse_tracking_rest_based",
-      "display_name": "Pulse Tracking: Rest-Based Rhythms",
+      "name": "pulse_tracking_multi_layer_contrast",
+      "display_name": "Pulse Tracking: Multi-Layer Contrast",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "pulse_tracking_polyrhythm_intro"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -3929,13 +4258,15 @@
       "bit_index": 176
     },
     {
-      "name": "pulse_tracking_rhythm_ear_training",
-      "display_name": "Pulse Tracking: Rhythm Ear Training",
+      "name": "pulse_tracking_polyrhythm_intro",
+      "display_name": "Pulse Tracking: Polyrhythm Introduction",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking_call_response"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "pulse_tracking_subdividing"
+      ],
+      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -3947,12 +4278,14 @@
       "bit_index": 177
     },
     {
-      "name": "pulse_tracking_subdividing",
-      "display_name": "Pulse Tracking: Subdividing Beats",
+      "name": "pulse_tracking_rest_based",
+      "display_name": "Pulse Tracking: Rest-Based Rhythms",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3965,12 +4298,14 @@
       "bit_index": 178
     },
     {
-      "name": "pulse_tracking_vocal_counting",
-      "display_name": "Pulse Tracking: Vocal Counting",
+      "name": "pulse_tracking_rhythm_ear_training",
+      "display_name": "Pulse Tracking: Rhythm Ear Training",
       "domain": "rhythm_foundation",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking"],
+      "prerequisite_names": [
+        "pulse_tracking_call_response"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -3981,6 +4316,46 @@
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
       "bit_index": 179
+    },
+    {
+      "name": "pulse_tracking_subdividing",
+      "display_name": "Pulse Tracking: Subdividing Beats",
+      "domain": "rhythm_foundation",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 180
+    },
+    {
+      "name": "pulse_tracking_vocal_counting",
+      "display_name": "Pulse Tracking: Vocal Counting",
+      "domain": "rhythm_foundation",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "pulse_tracking"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 181
     },
     {
       "name": "scale_major",
@@ -4003,7 +4378,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 180
+      "bit_index": 182
     },
     {
       "name": "scale_natural_minor",
@@ -4011,44 +4386,10 @@
       "domain": "scales_diatonic",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_major"],
+      "prerequisite_names": [
+        "scale_major"
+      ],
       "difficulty_tier": 2,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 181
-    },
-    {
-      "name": "mode_dorian",
-      "display_name": "Dorian Mode",
-      "domain": "scales_modes",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["scale_chromatic"],
-      "difficulty_tier": 3,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 182
-    },
-    {
-      "name": "mode_locrian",
-      "display_name": "Locrian Mode",
-      "domain": "scales_modes",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["mode_mixolydian"],
-      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4060,12 +4401,14 @@
       "bit_index": 183
     },
     {
-      "name": "mode_lydian",
-      "display_name": "Lydian Mode",
+      "name": "mode_dorian",
+      "display_name": "Dorian Mode",
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["mode_phrygian"],
+      "prerequisite_names": [
+        "scale_chromatic"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4078,12 +4421,14 @@
       "bit_index": 184
     },
     {
-      "name": "mode_mixolydian",
-      "display_name": "Mixolydian Mode",
+      "name": "mode_locrian",
+      "display_name": "Locrian Mode",
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["mode_lydian"],
+      "prerequisite_names": [
+        "mode_mixolydian"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4096,12 +4441,14 @@
       "bit_index": 185
     },
     {
-      "name": "mode_phrygian",
-      "display_name": "Phrygian Mode",
+      "name": "mode_lydian",
+      "display_name": "Lydian Mode",
       "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["mode_dorian"],
+      "prerequisite_names": [
+        "mode_phrygian"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4114,13 +4461,15 @@
       "bit_index": 186
     },
     {
-      "name": "scale_major_pentatonic",
-      "display_name": "Major Pentatonic Scale",
-      "domain": "scales_pentatonic",
+      "name": "mode_mixolydian",
+      "display_name": "Mixolydian Mode",
+      "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_major"],
-      "difficulty_tier": 2,
+      "prerequisite_names": [
+        "mode_lydian"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4132,13 +4481,15 @@
       "bit_index": 187
     },
     {
-      "name": "scale_minor_pentatonic",
-      "display_name": "Minor Pentatonic Scale",
-      "domain": "scales_pentatonic",
+      "name": "mode_phrygian",
+      "display_name": "Phrygian Mode",
+      "domain": "scales_modes",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_natural_minor"],
-      "difficulty_tier": 2,
+      "prerequisite_names": [
+        "mode_dorian"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4150,13 +4501,15 @@
       "bit_index": 188
     },
     {
-      "name": "scale_chromatic",
-      "display_name": "Chromatic Scale",
-      "domain": "scales_symmetric",
+      "name": "scale_major_pentatonic",
+      "display_name": "Major Pentatonic Scale",
+      "domain": "scales_pentatonic",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_minor_pentatonic"],
-      "difficulty_tier": 3,
+      "prerequisite_names": [
+        "scale_major"
+      ],
+      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4168,13 +4521,15 @@
       "bit_index": 189
     },
     {
-      "name": "scale_harmonic_minor",
-      "display_name": "Harmonic Minor Scale",
-      "domain": "scales_variations",
+      "name": "scale_minor_pentatonic",
+      "display_name": "Minor Pentatonic Scale",
+      "domain": "scales_pentatonic",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_natural_minor"],
-      "difficulty_tier": 3,
+      "prerequisite_names": [
+        "scale_natural_minor"
+      ],
+      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4186,12 +4541,14 @@
       "bit_index": 190
     },
     {
-      "name": "scale_major_minor",
-      "display_name": "Major-Minor Scale (Variant)",
-      "domain": "scales_variations",
+      "name": "scale_chromatic",
+      "display_name": "Chromatic Scale",
+      "domain": "scales_symmetric",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_minor_major"],
+      "prerequisite_names": [
+        "scale_minor_pentatonic"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4204,12 +4561,14 @@
       "bit_index": 191
     },
     {
-      "name": "scale_melodic_minor",
-      "display_name": "Melodic Minor Scale",
+      "name": "scale_harmonic_minor",
+      "display_name": "Harmonic Minor Scale",
       "domain": "scales_variations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_harmonic_minor"],
+      "prerequisite_names": [
+        "scale_natural_minor"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4222,12 +4581,14 @@
       "bit_index": 192
     },
     {
-      "name": "scale_minor_major",
-      "display_name": "Minor-Major Scale (Variant)",
+      "name": "scale_major_minor",
+      "display_name": "Major-Minor Scale (Variant)",
       "domain": "scales_variations",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["scale_melodic_minor"],
+      "prerequisite_names": [
+        "scale_minor_major"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4240,58 +4601,54 @@
       "bit_index": 193
     },
     {
+      "name": "scale_melodic_minor",
+      "display_name": "Melodic Minor Scale",
+      "domain": "scales_variations",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "scale_harmonic_minor"
+      ],
+      "difficulty_tier": 3,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 194
+    },
+    {
+      "name": "scale_minor_major",
+      "display_name": "Minor-Major Scale (Variant)",
+      "domain": "scales_variations",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "scale_melodic_minor"
+      ],
+      "difficulty_tier": 3,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 195
+    },
+    {
       "name": "tempo_skill_a_tempo",
       "display_name": "A Tempo",
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tempo_skill_ritardando"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 194,
-      "music21_detection": {
-        "type": "text_match",
-        "source": "tempo_markings",
-        "contains": "a tempo"
-      }
-    },
-    {
-      "name": "tempo_skill_accelerando",
-      "display_name": "Accelerando",
-      "domain": "tempo_skills",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["tempo_skill_a_tempo"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 195,
-      "music21_detection": {
-        "type": "text_match",
-        "source": "tempo_markings",
-        "contains": "accel"
-      }
-    },
-    {
-      "name": "tempo_skill_rallentando",
-      "display_name": "Rallentando (rall.)",
-      "domain": "tempo_skills",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["tempo_skill_ritardando"],
+      "prerequisite_names": [
+        "tempo_skill_ritardando"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4305,16 +4662,18 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "rall"
+        "contains": "a tempo"
       }
     },
     {
-      "name": "tempo_skill_ritardando",
-      "display_name": "Ritardando (rit.)",
+      "name": "tempo_skill_accelerando",
+      "display_name": "Accelerando",
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tempo_term_allegro"],
+      "prerequisite_names": [
+        "tempo_skill_a_tempo"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4328,17 +4687,19 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "rit"
+        "contains": "accel"
       }
     },
     {
-      "name": "tempo_skill_rubato",
-      "display_name": "Rubato (Elastic Time)",
+      "name": "tempo_skill_rallentando",
+      "display_name": "Rallentando (rall.)",
       "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tempo_skill_accelerando"],
-      "difficulty_tier": 2,
+      "prerequisite_names": [
+        "tempo_skill_ritardando"
+      ],
+      "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4351,16 +4712,18 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "rubato"
+        "contains": "rall"
       }
     },
     {
-      "name": "tempo_term_adagio",
-      "display_name": "Adagio (Slow, Expressive)",
-      "domain": "tempo_terms",
+      "name": "tempo_skill_ritardando",
+      "display_name": "Ritardando (rit.)",
+      "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "tempo_term_largo"],
+      "prerequisite_names": [
+        "tempo_term_allegro"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4374,17 +4737,19 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "adagio"
+        "contains": "rit"
       }
     },
     {
-      "name": "tempo_term_allegretto",
-      "display_name": "Allegretto (Lightly Fast)",
-      "domain": "tempo_terms",
+      "name": "tempo_skill_rubato",
+      "display_name": "Rubato (Elastic Time)",
+      "domain": "tempo_skills",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "tempo_term_moderato"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "tempo_skill_accelerando"
+      ],
+      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4394,6 +4759,58 @@
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
       "bit_index": 200,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "rubato"
+      }
+    },
+    {
+      "name": "tempo_term_adagio",
+      "display_name": "Adagio (Slow, Expressive)",
+      "domain": "tempo_terms",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "pulse_tracking",
+        "tempo_term_largo"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 201,
+      "music21_detection": {
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "adagio"
+      }
+    },
+    {
+      "name": "tempo_term_allegretto",
+      "display_name": "Allegretto (Lightly Fast)",
+      "domain": "tempo_terms",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "pulse_tracking",
+        "tempo_term_moderato"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 202,
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
@@ -4420,7 +4837,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 201,
+      "bit_index": 203,
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
@@ -4447,7 +4864,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 202,
+      "bit_index": 204,
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
@@ -4460,53 +4877,10 @@
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "rhythm_whole_notes"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 203,
-      "music21_detection": {
-        "type": "text_match",
-        "source": "tempo_markings",
-        "contains": "largo"
-      }
-    },
-    {
-      "name": "tempo_term_moderato",
-      "display_name": "Moderato (Moderate, Controlled)",
-      "domain": "tempo_terms",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "tempo_term_andante"],
-      "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 204,
-      "music21_detection": {
-        "type": "text_match",
-        "source": "tempo_markings",
-        "contains": "moderato"
-      }
-    },
-    {
-      "name": "tempo_term_prestissimo",
-      "display_name": "Prestissimo (Extremely Fast)",
-      "domain": "tempo_terms",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "tempo_term_presto"],
+      "prerequisite_names": [
+        "pulse_tracking",
+        "rhythm_whole_notes"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4520,16 +4894,19 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "prestissimo"
+        "contains": "largo"
       }
     },
     {
-      "name": "tempo_term_presto",
-      "display_name": "Presto (Very Fast)",
+      "name": "tempo_term_moderato",
+      "display_name": "Moderato (Moderate, Controlled)",
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "tempo_term_vivace"],
+      "prerequisite_names": [
+        "pulse_tracking",
+        "tempo_term_andante"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4543,16 +4920,19 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "presto"
+        "contains": "moderato"
       }
     },
     {
-      "name": "tempo_term_vivace",
-      "display_name": "Vivace (Lively)",
+      "name": "tempo_term_prestissimo",
+      "display_name": "Prestissimo (Extremely Fast)",
       "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["pulse_tracking", "tempo_term_allegro"],
+      "prerequisite_names": [
+        "pulse_tracking",
+        "tempo_term_presto"
+      ],
       "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4566,17 +4946,20 @@
       "music21_detection": {
         "type": "text_match",
         "source": "tempo_markings",
-        "contains": "vivace"
+        "contains": "prestissimo"
       }
     },
     {
-      "name": "texture_four_voices",
-      "display_name": "Four Voices",
-      "domain": "texture",
+      "name": "tempo_term_presto",
+      "display_name": "Presto (Very Fast)",
+      "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["texture_three_voices"],
-      "difficulty_tier": 3,
+      "prerequisite_names": [
+        "pulse_tracking",
+        "tempo_term_vivace"
+      ],
+      "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4587,18 +4970,22 @@
       "soft_gate_requirements": null,
       "bit_index": 208,
       "music21_detection": {
-        "type": "custom",
-        "function": "detect_four_voices"
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "presto"
       }
     },
     {
-      "name": "texture_three_voices",
-      "display_name": "Three Voices",
-      "domain": "texture",
+      "name": "tempo_term_vivace",
+      "display_name": "Vivace (Lively)",
+      "domain": "tempo_terms",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["texture_two_voices"],
-      "difficulty_tier": 3,
+      "prerequisite_names": [
+        "pulse_tracking",
+        "tempo_term_allegro"
+      ],
+      "difficulty_tier": 1,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4609,18 +4996,21 @@
       "soft_gate_requirements": null,
       "bit_index": 209,
       "music21_detection": {
-        "type": "custom",
-        "function": "detect_three_voices"
+        "type": "text_match",
+        "source": "tempo_markings",
+        "contains": "vivace"
       }
     },
     {
-      "name": "texture_two_voices",
-      "display_name": "Two Voices",
+      "name": "texture_four_voices",
+      "display_name": "Four Voices",
       "domain": "texture",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["staff_basics"],
-      "difficulty_tier": 2,
+      "prerequisite_names": [
+        "texture_three_voices"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4632,17 +5022,19 @@
       "bit_index": 210,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_two_voices"
+        "function": "detect_four_voices"
       }
     },
     {
-      "name": "diatonic_scale_fragment_2",
-      "display_name": "Diatonic Scale Fragment (2 Notes)",
-      "domain": "tonal_context",
+      "name": "texture_three_voices",
+      "display_name": "Three Voices",
+      "domain": "texture",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["interval_play_major_2"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "texture_two_voices"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4652,6 +5044,54 @@
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
       "bit_index": 211,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_three_voices"
+      }
+    },
+    {
+      "name": "texture_two_voices",
+      "display_name": "Two Voices",
+      "domain": "texture",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "staff_basics"
+      ],
+      "difficulty_tier": 2,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 212,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_two_voices"
+      }
+    },
+    {
+      "name": "diatonic_scale_fragment_2",
+      "display_name": "Diatonic Scale Fragment (2 Notes)",
+      "domain": "tonal_context",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "interval_play_major_2"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 213,
       "music21_detection": {
         "type": "custom",
         "function": "detect_scale_fragment_2"
@@ -4676,7 +5116,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 212,
+      "bit_index": 214,
       "music21_detection": {
         "type": "custom",
         "function": "detect_scale_fragment_3"
@@ -4701,7 +5141,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 213,
+      "bit_index": 215,
       "music21_detection": {
         "type": "custom",
         "function": "detect_scale_fragment_4"
@@ -4726,7 +5166,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 214,
+      "bit_index": 216,
       "music21_detection": {
         "type": "custom",
         "function": "detect_scale_fragment_5"
@@ -4751,7 +5191,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 215,
+      "bit_index": 217,
       "music21_detection": {
         "type": "custom",
         "function": "detect_scale_fragment_6"
@@ -4776,7 +5216,7 @@
       "evidence_qualifier_json": {},
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
-      "bit_index": 216,
+      "bit_index": 218,
       "music21_detection": {
         "type": "custom",
         "function": "detect_scale_fragment_7"
@@ -4788,52 +5228,10 @@
       "domain": "tonal_context",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["diatonic_scale_fragment_7"],
+      "prerequisite_names": [
+        "diatonic_scale_fragment_7"
+      ],
       "difficulty_tier": 1,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 217,
-      "music21_detection": {
-        "type": "custom",
-        "function": "detect_chromatic_approach_tones"
-      }
-    },
-    {
-      "name": "tonal_modulation_awareness",
-      "display_name": "Modulation Awareness",
-      "domain": "tonal_context",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["tonal_chromatic_approach_tones"],
-      "difficulty_tier": 3,
-      "mastery_type": "single",
-      "mastery_count": 1,
-      "evidence_required_count": 1,
-      "evidence_distinct_materials": false,
-      "evidence_acceptance_threshold": 4,
-      "evidence_qualifier_json": {},
-      "difficulty_weight": 1.0,
-      "soft_gate_requirements": null,
-      "bit_index": 218,
-      "music21_detection": {
-        "type": "custom",
-        "function": "detect_modulation"
-      }
-    },
-    {
-      "name": "tuplet_duplet",
-      "display_name": "Duplet",
-      "domain": "tuplets",
-      "subdomain": null,
-      "requirement_type": "required",
-      "prerequisite_names": ["tuplet_triplet_general"],
-      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4845,16 +5243,18 @@
       "bit_index": 219,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_duplet"
+        "function": "detect_chromatic_approach_tones"
       }
     },
     {
-      "name": "tuplet_quintuplet",
-      "display_name": "Quintuplet",
-      "domain": "tuplets",
+      "name": "tonal_modulation_awareness",
+      "display_name": "Modulation Awareness",
+      "domain": "tonal_context",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tuplet_triplet_general"],
+      "prerequisite_names": [
+        "tonal_chromatic_approach_tones"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4867,17 +5267,19 @@
       "bit_index": 220,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_quintuplet"
+        "function": "detect_modulation"
       }
     },
     {
-      "name": "tuplet_septuplet",
-      "display_name": "Septuplet",
+      "name": "tuplet_duplet",
+      "display_name": "Duplet",
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tuplet_sextuplet"],
-      "difficulty_tier": 3,
+      "prerequisite_names": [
+        "tuplet_triplet_general"
+      ],
+      "difficulty_tier": 2,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4889,16 +5291,18 @@
       "bit_index": 221,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_septuplet"
+        "function": "detect_duplet"
       }
     },
     {
-      "name": "tuplet_sextuplet",
-      "display_name": "Sextuplet",
+      "name": "tuplet_quintuplet",
+      "display_name": "Quintuplet",
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tuplet_quintuplet"],
+      "prerequisite_names": [
+        "tuplet_triplet_general"
+      ],
       "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
@@ -4911,17 +5315,19 @@
       "bit_index": 222,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_sextuplet"
+        "function": "detect_quintuplet"
       }
     },
     {
-      "name": "tuplet_triplet_general",
-      "display_name": "Triplet (General Concept)",
+      "name": "tuplet_septuplet",
+      "display_name": "Septuplet",
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["rhythm_triplets_eighth"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "tuplet_sextuplet"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4933,17 +5339,19 @@
       "bit_index": 223,
       "music21_detection": {
         "type": "custom",
-        "function": "detect_triplet_general"
+        "function": "detect_septuplet"
       }
     },
     {
-      "name": "tuplet_triplet_quarter",
-      "display_name": "Triplet Quarter Notes",
+      "name": "tuplet_sextuplet",
+      "display_name": "Sextuplet",
       "domain": "tuplets",
       "subdomain": null,
       "requirement_type": "required",
-      "prerequisite_names": ["tuplet_triplet_general", "rhythm_quarter_notes"],
-      "difficulty_tier": 1,
+      "prerequisite_names": [
+        "tuplet_quintuplet"
+      ],
+      "difficulty_tier": 3,
       "mastery_type": "single",
       "mastery_count": 1,
       "evidence_required_count": 1,
@@ -4953,6 +5361,55 @@
       "difficulty_weight": 1.0,
       "soft_gate_requirements": null,
       "bit_index": 224,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_sextuplet"
+      }
+    },
+    {
+      "name": "tuplet_triplet_general",
+      "display_name": "Triplet (General Concept)",
+      "domain": "tuplets",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "rhythm_triplets_eighth"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 225,
+      "music21_detection": {
+        "type": "custom",
+        "function": "detect_triplet_general"
+      }
+    },
+    {
+      "name": "tuplet_triplet_quarter",
+      "display_name": "Triplet Quarter Notes",
+      "domain": "tuplets",
+      "subdomain": null,
+      "requirement_type": "required",
+      "prerequisite_names": [
+        "tuplet_triplet_general",
+        "rhythm_quarter_notes"
+      ],
+      "difficulty_tier": 1,
+      "mastery_type": "single",
+      "mastery_count": 1,
+      "evidence_required_count": 1,
+      "evidence_distinct_materials": false,
+      "evidence_acceptance_threshold": 4,
+      "evidence_qualifier_json": {},
+      "difficulty_weight": 1.0,
+      "soft_gate_requirements": null,
+      "bit_index": 226,
       "music21_detection": {
         "type": "custom",
         "function": "detect_quarter_triplets"
