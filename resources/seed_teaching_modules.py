@@ -22,7 +22,6 @@ MODULES = [
         "display_name": "Pitch Direction",
         "description": "Learn to hear when melody moves up, down, or stays the same",
         "icon": "arrow-up-down",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 15,
         "difficulty_tier": 1,
         "display_order": 10,
@@ -34,7 +33,6 @@ MODULES = [
         "display_name": "Feel the Pulse",
         "description": "Develop an internal sense of steady beat",
         "icon": "metronome",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 12,
         "difficulty_tier": 1,
         "display_order": 11,
@@ -46,7 +44,6 @@ MODULES = [
         "display_name": "The Whole Note",
         "description": "Learn to sustain a note for 4 beats, ending right on the next ONE",
         "icon": "music-note",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 10,
         "difficulty_tier": 1,
         "display_order": 12,
@@ -58,7 +55,6 @@ MODULES = [
         "display_name": "Time Signature Basics",
         "description": "Learn what time signatures mean: top number = beats per measure, bottom number = note type",
         "icon": "time-signature",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 13,
@@ -70,7 +66,6 @@ MODULES = [
         "display_name": "4/4 Time",
         "description": "Learn 4/4 time: 4 beats per measure, quarter note gets the beat, and common time",
         "icon": "time-signature",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 6,
         "difficulty_tier": 1,
         "display_order": 14,
@@ -82,7 +77,6 @@ MODULES = [
         "display_name": "The Whole Rest",
         "description": "Learn the whole rest: 4 beats of silence that hangs below the line because it's heavy",
         "icon": "music-rest",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 15,
@@ -94,7 +88,6 @@ MODULES = [
         "display_name": "The Half Note",
         "description": "Learn the half note: 2 beats, has a stem, hollow head",
         "icon": "music-note",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 16,
@@ -106,7 +99,6 @@ MODULES = [
         "display_name": "The Half Rest",
         "description": "Learn the half rest: 2 beats of silence that sits ON TOP of the line (like a hat)",
         "icon": "music-rest",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 17,
@@ -118,7 +110,6 @@ MODULES = [
         "display_name": "The Quarter Note",
         "description": "Learn the quarter note: 1 beat, has a stem, filled/solid head",
         "icon": "music-note",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 18,
@@ -130,7 +121,6 @@ MODULES = [
         "display_name": "The Quarter Rest",
         "description": "Learn the quarter rest: 1 beat of silence with a squiggly 'lightning bolt' shape",
         "icon": "music-rest",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 19,
@@ -154,7 +144,6 @@ MODULES = [
         "display_name": "2-Note Scale Fragments",
         "description": "Play 2-note diatonic scale fragments with pitch and rhythm precision",
         "icon": "music-note-2",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 15,
         "difficulty_tier": 2,
         "display_order": 25,
@@ -166,7 +155,6 @@ MODULES = [
         "display_name": "Note Names: A to G",
         "description": "Learn the seven note names that repeat in a cycle: A B C D E F G",
         "icon": "abc",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 10,
         "difficulty_tier": 1,
         "display_order": 21,
@@ -178,7 +166,6 @@ MODULES = [
         "display_name": "The Octave",
         "description": "Learn that notes an octave apart share the same name - same note, higher or lower version",
         "icon": "layers",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 12,
         "difficulty_tier": 1,
         "display_order": 22,
@@ -190,7 +177,6 @@ MODULES = [
         "display_name": "Half Steps",
         "description": "Learn the half step (semitone) - the smallest interval in Western music",
         "icon": "piano",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 10,
         "difficulty_tier": 1,
         "display_order": 23,
@@ -198,11 +184,10 @@ MODULES = [
     },
     {
         "id": "accidental_flat_module",
-        "capability_name": "accidental_flat",
+        "capability_name": "accidental_flat_symbol",
         "display_name": "The Flat Sign",
         "description": "Learn the flat (♭) - lowers a note by one half step",
         "icon": "flat",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 24,
@@ -210,11 +195,10 @@ MODULES = [
     },
     {
         "id": "accidental_sharp_module",
-        "capability_name": "accidental_sharp",
+        "capability_name": "accidental_sharp_symbol",
         "display_name": "The Sharp Sign",
         "description": "Learn the sharp (♯) - raises a note by one half step",
         "icon": "sharp",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 25,
@@ -222,11 +206,10 @@ MODULES = [
     },
     {
         "id": "accidental_natural_module",
-        "capability_name": "accidental_natural",
+        "capability_name": "accidental_natural_symbol",
         "display_name": "The Natural Sign",
         "description": "Learn the natural (♮) - cancels a sharp or flat",
         "icon": "natural",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
         "display_order": 26,
@@ -238,7 +221,6 @@ MODULES = [
         "display_name": "Whole Steps",
         "description": "Learn the whole step - two half steps combined, skip one key",
         "icon": "piano",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 10,
         "difficulty_tier": 1,
         "display_order": 27,
@@ -250,7 +232,6 @@ MODULES = [
         "display_name": "Major Scale Pattern",
         "description": "Learn the WWHWWWH pattern that creates the major scale",
         "icon": "scale",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 12,
         "difficulty_tier": 2,
         "display_order": 28,
@@ -262,7 +243,6 @@ MODULES = [
         "display_name": "Key Signatures",
         "description": "Learn what key signatures are and how they work",
         "icon": "key",
-        "prerequisite_capability_names": [],  # Derived from capability
         "estimated_duration_minutes": 10,
         "difficulty_tier": 2,
         "display_order": 29,
