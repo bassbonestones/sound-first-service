@@ -65,6 +65,18 @@ MODULES = [
         "completion_type": "all_required",
     },
     {
+        "id": "time_signature_4_4_module",
+        "capability_name": "time_signature_4_4",
+        "display_name": "4/4 Time",
+        "description": "Learn 4/4 time: 4 beats per measure, quarter note gets the beat, and common time",
+        "icon": "time-signature",
+        "prerequisite_capability_names": ["time_signature_basics"],  # Must know time signature basics first
+        "estimated_duration_minutes": 6,
+        "difficulty_tier": 1,
+        "display_order": 14,
+        "completion_type": "all_required",
+    },
+    {
         "id": "range_expansion_module",
         "capability_name": None,  # No capability - just expands comfort range
         "display_name": "Expand Your Range",
@@ -363,6 +375,33 @@ LESSONS = [
             "Top number = how many beats per measure",
             "Bottom number = what note gets one beat",
             "4 = quarter note, 8 = eighth note, 2 = half note",
+        ],
+    },
+    
+    # ========== 4/4 Time Signature Module ==========
+    {
+        "id": "time_signature_4_4_L1_lesson",
+        "module_id": "time_signature_4_4_module",
+        "display_name": "4/4 Time",
+        "description": "Learn 4/4 time: 4 beats per measure, quarter note gets the beat, and common time",
+        "exercise_template_id": "time_signature_4_4",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "use_notation": True,
+        },
+        "mastery": {
+            "correct_streak": 4,  # Must get all 4 quiz questions right
+        },
+        "feedback": {
+            "correct": ["Perfect!", "You got it!", "That's right!"],
+            "incorrect": ["Try again - review the material"],
+        },
+        "hints": [
+            "4/4 = 4 beats per measure",
+            "The bottom 4 means quarter note gets the beat",
+            "C = Common Time = 4/4",
+            "A whole note fills one 4/4 measure perfectly",
         ],
     },
     
