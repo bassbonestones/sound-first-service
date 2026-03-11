@@ -22,7 +22,7 @@ MODULES = [
         "display_name": "Pitch Direction",
         "description": "Learn to hear when melody moves up, down, or stays the same",
         "icon": "arrow-up-down",
-        "prerequisite_module_ids": [],  # Available after Day 0
+        "prerequisite_capability_names": [],  # Available after Day 0 (first_note learned)
         "estimated_duration_minutes": 15,
         "difficulty_tier": 1,
         "display_order": 10,
@@ -34,10 +34,34 @@ MODULES = [
         "display_name": "Feel the Pulse",
         "description": "Develop an internal sense of steady beat",
         "icon": "metronome",
-        "prerequisite_module_ids": [],  # Available after Day 0
+        "prerequisite_capability_names": [],  # Available after Day 0 (first_note learned)
         "estimated_duration_minutes": 12,
         "difficulty_tier": 1,
         "display_order": 11,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "whole_note_module",
+        "capability_name": "rhythm_whole_notes",
+        "display_name": "The Whole Note",
+        "description": "Learn to sustain a note for 4 beats, ending right on the next ONE",
+        "icon": "music-note",
+        "prerequisite_capability_names": ["pulse_tracking"],  # Must feel the pulse first
+        "estimated_duration_minutes": 10,
+        "difficulty_tier": 1,
+        "display_order": 12,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "range_expansion_module",
+        "capability_name": None,  # No capability - just expands comfort range
+        "display_name": "Expand Your Range",
+        "description": "Gradually extend your comfortable playing range, one note at a time",
+        "icon": "expand",
+        "prerequisite_capability_names": ["first_note", "pitch_direction_awareness"],
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 15,
         "completion_type": "all_required",
     },
 ]
@@ -276,6 +300,61 @@ LESSONS = [
             "Keep breathing with the beat",
         ],
     },
+    
+    # ========== Whole Note Module ==========
+    {
+        "id": "whole_note_L1_lesson",
+        "module_id": "whole_note_module",
+        "display_name": "The Whole Note",
+        "description": "Learn that a whole note lasts 4 beats and ends on the next ONE",
+        "exercise_template_id": "whole_note_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Perfect timing!", "You got it!", "That's a whole note!"],
+            "incorrect": ["Try again - hold for 4 beats, release on ONE"],
+        },
+        "hints": [
+            "A whole note = 4 beats",
+            "The note ends right on the next ONE",
+            "Count: 1 - 2 - 3 - 4 - (1)",
+        ],
+    },
+    
+    # ========== Range Expansion Module ==========
+    {
+        "id": "range_expansion_L1_lesson",
+        "module_id": "range_expansion_module",
+        "display_name": "Expand Your Range",
+        "description": "Add one new note to your comfortable range",
+        "exercise_template_id": "range_expansion",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_drone": True,
+            "expansion_direction": "auto",  # System picks up or down based on user's range
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Range expanded!", "New note added!", "You're growing!"],
+            "incorrect": ["Try finding that note again", "Almost - listen carefully"],
+        },
+        "hints": [
+            "Listen to the target pitch",
+            "Adjust until you match",
+            "Take your time to find it",
+        ],
+    },
 ]
 
 
@@ -291,7 +370,7 @@ def seed_modules(db):
         if existing:
             # Update existing
             for key, value in module_data.items():
-                if key == "prerequisite_module_ids":
+                if key == "prerequisite_capability_names":
                     value = json.dumps(value)
                 setattr(existing, key, value)
             print(f"  Updated module: {module_data['id']}")
@@ -303,7 +382,7 @@ def seed_modules(db):
                 display_name=module_data["display_name"],
                 description=module_data.get("description"),
                 icon=module_data.get("icon"),
-                prerequisite_module_ids=json.dumps(module_data.get("prerequisite_module_ids", [])),
+                prerequisite_capability_names=json.dumps(module_data.get("prerequisite_capability_names", [])),
                 estimated_duration_minutes=module_data.get("estimated_duration_minutes"),
                 difficulty_tier=module_data.get("difficulty_tier", 1),
                 display_order=module_data.get("display_order", 0),

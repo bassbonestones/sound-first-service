@@ -28,14 +28,15 @@ class TeachingModule(Base):
     __tablename__ = 'teaching_modules'
     
     id = Column(String, primary_key=True)  # e.g., "pulse_tracking_module"
-    capability_name = Column(String, ForeignKey('capabilities.name'), nullable=False)
+    # capability_name is nullable for modules that don't unlock a capability (e.g., range expansion)
+    capability_name = Column(String, ForeignKey('capabilities.name'), nullable=True)
     
     display_name = Column(String, nullable=False)  # e.g., "Feel the Pulse"
     description = Column(String, nullable=True)  # User-facing explanation
     icon = Column(String, nullable=True)  # Icon identifier for UI
     
-    # Prerequisites (JSON array of module IDs)
-    prerequisite_module_ids = Column(String, default='[]')  # e.g., '["first_note_module"]'
+    # Prerequisites (JSON array of capability names that must be learned)
+    prerequisite_capability_names = Column(String, default='[]')  # e.g., '["pulse_tracking"]'
     
     # Completion requirements
     completion_type = Column(String, default='all_required')  # 'all_required' | 'any_n'

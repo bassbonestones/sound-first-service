@@ -93,7 +93,7 @@ class LessonWithProgress(LessonBase):
 class ModuleBase(BaseModel):
     """Base module information."""
     id: str
-    capability_name: str
+    capability_name: Optional[str] = None  # Optional for modules that don't unlock a capability
     display_name: str
     description: Optional[str] = None
     icon: Optional[str] = None
@@ -104,12 +104,12 @@ class ModuleBase(BaseModel):
 class ModuleSummary(ModuleBase):
     """Module summary for list views."""
     lesson_count: int
-    prerequisite_module_ids: List[str] = []
+    prerequisite_capability_names: List[str] = []
 
 
 class ModuleDetail(ModuleBase):
     """Full module details including lessons."""
-    prerequisite_module_ids: List[str] = []
+    prerequisite_capability_names: List[str] = []
     lessons: List[LessonDetail]
     completion_type: str = "all_required"
     completion_count: Optional[int] = None

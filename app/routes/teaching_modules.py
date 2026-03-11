@@ -62,7 +62,7 @@ def list_modules(
     
     result = []
     for module in modules:
-        prereqs = json.loads(module.prerequisite_module_ids) if module.prerequisite_module_ids else []
+        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
         lesson_count = db.query(Lesson).filter(
             Lesson.module_id == module.id,
             Lesson.is_active == True
@@ -77,7 +77,7 @@ def list_modules(
             estimated_duration_minutes=module.estimated_duration_minutes,
             difficulty_tier=module.difficulty_tier,
             lesson_count=lesson_count,
-            prerequisite_module_ids=prereqs,
+            prerequisite_capability_names=prereqs,
         ))
     
     return result
@@ -90,7 +90,7 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)):
     if not module:
         raise HTTPException(status_code=404, detail="Module not found")
     
-    prereqs = json.loads(module.prerequisite_module_ids) if module.prerequisite_module_ids else []
+    prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
     
     lessons = db.query(Lesson).filter(
         Lesson.module_id == module_id,
@@ -123,7 +123,7 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)):
         icon=module.icon,
         estimated_duration_minutes=module.estimated_duration_minutes,
         difficulty_tier=module.difficulty_tier,
-        prerequisite_module_ids=prereqs,
+        prerequisite_capability_names=prereqs,
         lessons=lesson_details,
         completion_type=module.completion_type,
         completion_count=module.completion_count,
@@ -150,12 +150,28 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
         ).all()
     )
     
+    # Get user's mastered capabilities for prerequisite checking
+    mastered_cap_names = set(
+        cap.name for cap, uc in db.query(Capability, UserCapability).join(
+            UserCapability, Capability.id == UserCapability.capability_id
+        ).filter(
+            UserCapability.user_id == user_id,
+            UserCapability.is_active == True,
+            UserCapability.mastered_at != None
+        ).all()
+    )
+    
     result = []
     for module in modules:
-        prereqs = json.loads(module.prerequisite_module_ids) if module.prerequisite_module_ids else []
+        # Skip modules where the user already mastered the capability it teaches
+        # (but allow modules with no capability_name - they're always eligible like range expansion)
+        if module.capability_name and module.capability_name in mastered_cap_names:
+            continue
         
-        # Check if prerequisites are met
-        prereqs_met = all(prereq_id in completed_module_ids for prereq_id in prereqs)
+        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+        
+        # Check if prerequisites are met (capabilities mastered)
+        prereqs_met = all(cap_name in mastered_cap_names for cap_name in prereqs)
         
         if not prereqs_met:
             continue  # Skip modules where prereqs not met
@@ -195,7 +211,7 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
             estimated_duration_minutes=module.estimated_duration_minutes,
             difficulty_tier=module.difficulty_tier,
             lesson_count=total_lessons,
-            prerequisite_module_ids=prereqs,
+            prerequisite_capability_names=prereqs,
             status=status,
             lessons_completed=lessons_completed,
             started_at=progress.started_at if progress else None,
@@ -218,18 +234,25 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)):
     if not module:
         raise HTTPException(status_code=404, detail="Module not found")
     
-    # Check prerequisites
-    prereqs = json.loads(module.prerequisite_module_ids) if module.prerequisite_module_ids else []
-    for prereq_id in prereqs:
-        prereq_progress = db.query(UserModuleProgress).filter(
-            UserModuleProgress.user_id == user_id,
-            UserModuleProgress.module_id == prereq_id,
-            UserModuleProgress.status == "completed"
-        ).first()
-        if not prereq_progress:
+    # Check prerequisites - must have mastered the required capabilities
+    prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+    
+    # Get user's mastered capabilities
+    mastered_cap_names = set(
+        cap.name for cap, uc in db.query(Capability, UserCapability).join(
+            UserCapability, Capability.id == UserCapability.capability_id
+        ).filter(
+            UserCapability.user_id == user_id,
+            UserCapability.is_active == True,
+            UserCapability.mastered_at != None
+        ).all()
+    )
+    
+    for prereq_cap in prereqs:
+        if prereq_cap not in mastered_cap_names:
             raise HTTPException(
                 status_code=400,
-                detail=f"Prerequisite module '{prereq_id}' not completed"
+                detail=f"Prerequisite capability '{prereq_cap}' not mastered"
             )
     
     # Get or create progress

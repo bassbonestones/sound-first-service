@@ -570,7 +570,8 @@ def admin_get_all_soft_gates(user_id: int, db: Session = Depends(get_db)):
         result.append({
             "dimension_name": rule.dimension_name,
             "frontier_buffer": rule.frontier_buffer,
-            "promotion_threshold": rule.promotion_threshold,
+            "min_attempts": rule.min_attempts,
+            "success_required_count": rule.success_required_count,
             "comfortable_value": state.comfortable_value if state else 0,
             "max_demonstrated_value": state.max_demonstrated_value if state else 0,
             "frontier_success_ema": state.frontier_success_ema if state else 0,

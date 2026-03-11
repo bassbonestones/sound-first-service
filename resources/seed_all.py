@@ -9,8 +9,9 @@ This script seeds all tables in the correct order:
 1. Capabilities (from capabilities.json)
 2. Focus Cards (from focus_cards.json)
 3. Materials (from materials/materials.json)
-4. Soft Gate Rules (from soft_gate_rules.json)
-5. Test User (user 1)
+4. Test User (user 1)
+5. Soft Gate Rules (from soft_gate_rules.json)
+6. Teaching Modules (from seed_teaching_modules.py)
 
 Each sub-script is idempotent (safe to re-run).
 """
@@ -104,6 +105,12 @@ def seed_soft_gates():
         session.close()
 
 
+def seed_teaching_modules():
+    """Seed teaching modules and lessons"""
+    print("\n=== Seeding Teaching Modules ===")
+    from resources.seed_teaching_modules import main as do_seed
+    do_seed()
+
 def main():
     """Run all seed scripts in order."""
     print("=" * 50)
@@ -115,6 +122,7 @@ def main():
     seed_materials()
     seed_test_user()
     seed_soft_gates()
+    seed_teaching_modules()
     
     print("\n" + "=" * 50)
     print("All seeding complete!")

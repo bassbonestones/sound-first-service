@@ -115,9 +115,9 @@ def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: 
         if module.capability_name in mastered_cap_names:
             continue
         
-        # Check prerequisites
-        prereqs = json.loads(module.prerequisite_module_ids) if module.prerequisite_module_ids else []
-        prereqs_met = all(prereq_id in completed_module_ids for prereq_id in prereqs)
+        # Check prerequisites - now based on mastered capabilities
+        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+        prereqs_met = all(cap_name in mastered_cap_names for cap_name in prereqs)
         
         if not prereqs_met:
             continue
