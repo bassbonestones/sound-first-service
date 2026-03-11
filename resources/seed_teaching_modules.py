@@ -53,6 +53,18 @@ MODULES = [
         "completion_type": "all_required",
     },
     {
+        "id": "time_signature_basics_module",
+        "capability_name": "time_signature_basics",
+        "display_name": "Time Signature Basics",
+        "description": "Learn what time signatures mean: top number = beats per measure, bottom number = note type",
+        "icon": "time-signature",
+        "prerequisite_capability_names": ["staff_basics", "rhythm_whole_notes"],  # Must know the staff and whole notes
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 13,
+        "completion_type": "all_required",
+    },
+    {
         "id": "range_expansion_module",
         "capability_name": None,  # No capability - just expands comfort range
         "display_name": "Expand Your Range",
@@ -325,6 +337,32 @@ LESSONS = [
             "A whole note = 4 beats",
             "The note ends right on the next ONE",
             "Count: 1 - 2 - 3 - 4 - (1)",
+        ],
+    },
+    
+    # ========== Time Signature Basics Module ==========
+    {
+        "id": "time_signature_basics_L1_lesson",
+        "module_id": "time_signature_basics_module",
+        "display_name": "Time Signature Basics",
+        "description": "Learn what time signatures mean: top number = beats, bottom number = note type",
+        "exercise_template_id": "time_signature_basics",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "use_notation": True,
+        },
+        "mastery": {
+            "correct_streak": 4,  # Must get all 4 quiz questions right
+        },
+        "feedback": {
+            "correct": ["Perfect!", "You got it!", "That's right!"],
+            "incorrect": ["Try again - review the material"],
+        },
+        "hints": [
+            "Top number = how many beats per measure",
+            "Bottom number = what note gets one beat",
+            "4 = quarter note, 8 = eighth note, 2 = half note",
         ],
     },
     
