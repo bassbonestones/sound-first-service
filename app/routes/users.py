@@ -9,9 +9,93 @@ from app.db import get_db
 from app.models.core import User, Material
 from app.models.capability_schema import Capability, UserCapability, MaterialAnalysis, UserInstrument
 from app.curriculum import get_next_capability_to_introduce
+from app.curriculum.utils import note_to_midi
 from app.services import UserService
 
 router = APIRouter(tags=["users"])
+
+# Mapping of semitones to range_span capability names
+RANGE_SPAN_CAPS = {
+    1: "range_span_minor_second",
+    2: "range_span_major_second",
+    3: "range_span_minor_third",
+    4: "range_span_major_third",
+    5: "range_span_perfect_fourth",
+    6: "range_span_augmented_fourth",
+    7: "range_span_perfect_fifth",
+    8: "range_span_minor_sixth",
+    9: "range_span_major_sixth",
+    10: "range_span_minor_seventh",
+    11: "range_span_major_seventh",
+    12: "range_span_octave",
+}
+
+
+def grant_range_span_capability(
+    db: DbSession, user_id: int, instrument_id: int, range_low: str, range_high: str
+) -> List[str]:
+    """Grant the range_span capability matching the user's current range span.
+    
+    Returns list with the newly granted capability name, or empty list.
+    """
+    if not range_low or not range_high:
+        return []
+    
+    try:
+        low_midi = note_to_midi(range_low)
+        high_midi = note_to_midi(range_high)
+        span_semitones = high_midi - low_midi
+    except (ValueError, KeyError):
+        return []
+    
+    # Get the capability for this exact span
+    cap_name = RANGE_SPAN_CAPS.get(span_semitones)
+    if not cap_name:
+        return []
+    
+    # Look up capability by name
+    cap = db.query(Capability).filter(Capability.name == cap_name).first()
+    if not cap:
+        return []
+    
+    # Check if user already has this mastered for this instrument
+    existing = db.query(UserCapability).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.instrument_id == instrument_id,
+        UserCapability.capability_id == cap.id,
+        UserCapability.mastered_at != None
+    ).first()
+    
+    if existing:
+        return []  # Already mastered
+    
+    now = datetime.datetime.utcnow()
+    
+    # Check if user has this cap but not mastered
+    user_cap = db.query(UserCapability).filter(
+        UserCapability.user_id == user_id,
+        UserCapability.instrument_id == instrument_id,
+        UserCapability.capability_id == cap.id
+    ).first()
+    
+    if user_cap:
+        # Update to mastered
+        user_cap.mastered_at = now
+        user_cap.evidence_count = cap.evidence_required_count or 1
+    else:
+        # Create new mastered capability
+        user_cap = UserCapability(
+            user_id=user_id,
+            capability_id=cap.id,
+            instrument_id=instrument_id,
+            is_active=True,
+            introduced_at=now,
+            mastered_at=now,
+            evidence_count=cap.evidence_required_count or 1
+        )
+        db.add(user_cap)
+    
+    return [cap_name]
 
 
 # --- Pydantic Models ---
@@ -575,6 +659,15 @@ def update_user_instrument(
         # Also update user-level day0_completed for backward compatibility
         if not user.day0_completed:
             user.day0_completed = True
+    
+    # Grant range_span capability based on new range
+    range_span_granted = []
+    if instrument.range_low and instrument.range_high:
+        range_span_granted = grant_range_span_capability(
+            db, user_id, instrument_id, instrument.range_low, instrument.range_high
+        )
+        if range_span_granted:
+            granted_capabilities.extend(range_span_granted)
     
     db.commit()
     
