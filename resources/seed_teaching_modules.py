@@ -160,6 +160,30 @@ MODULES = [
         "display_order": 25,
         "completion_type": "all_required",
     },
+    {
+        "id": "note_name_recognition_module",
+        "capability_name": "note_name_recognition",
+        "display_name": "Note Names: A to G",
+        "description": "Learn the seven note names that repeat in a cycle: A B C D E F G",
+        "icon": "abc",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 10,
+        "difficulty_tier": 1,
+        "display_order": 21,
+        "completion_type": "all_required",
+    },
+    {
+        "id": "octave_equivalence_module",
+        "capability_name": "octave_equivalence",
+        "display_name": "The Octave",
+        "description": "Learn that notes an octave apart share the same name - same note, higher or lower version",
+        "icon": "layers",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 12,
+        "difficulty_tier": 1,
+        "display_order": 22,
+        "completion_type": "all_required",
+    },
 ]
 
 # ============================================================
@@ -670,6 +694,161 @@ LESSONS = [
             "2→1 (Linear Down): Scale degrees 2 to 1",
             "1→2→1 (Arc Up): Start/end on 1",
             "2→1→2 (Arc Down): Start/end on 2",
+        ],
+    },
+    
+    # ========== Note Name Recognition Module ==========
+    {
+        "id": "note_name_L1_pattern",
+        "module_id": "note_name_recognition_module",
+        "display_name": "The Seven Letter Names",
+        "description": "Learn that music uses seven letters that repeat: A B C D E F G A B C...",
+        "exercise_template_id": "note_name_pattern",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "show_pattern": "A B C D E F G A B C",
+            "key_concept": "The names repeat in a cycle of seven",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["That's right!", "You got it!", "Perfect!"],
+            "incorrect": ["Remember: A B C D E F G, then it repeats"],
+        },
+        "hints": [
+            "There are only 7 letter names in music",
+            "After G comes A again",
+            "The pattern repeats forever: ...E F G A B C D E F G A...",
+        ],
+    },
+    {
+        "id": "note_name_L2_after_g",
+        "module_id": "note_name_recognition_module",
+        "display_name": "What Comes After G?",
+        "description": "Practice the wrap-around: G goes back to A",
+        "exercise_template_id": "note_name_quiz",
+        "sequence_order": 2,
+        "is_required": True,
+        "config": {
+            "question_type": "next_note",
+            "focus_on": ["G", "F", "E"],
+        },
+        "mastery": {
+            "correct_streak": 6,
+        },
+        "feedback": {
+            "correct": ["Yes!", "That's right!", "You've got the pattern!"],
+            "incorrect": ["Remember: after G comes A again"],
+        },
+        "hints": [
+            "The alphabet wraps around",
+            "After G, start over at A",
+        ],
+    },
+    {
+        "id": "note_name_L3_before_a",
+        "module_id": "note_name_recognition_module",
+        "display_name": "What Comes Before A?",
+        "description": "Practice going backwards: A is preceded by G",
+        "exercise_template_id": "note_name_quiz",
+        "sequence_order": 3,
+        "is_required": True,
+        "config": {
+            "question_type": "previous_note",
+            "focus_on": ["A", "B", "C"],
+        },
+        "mastery": {
+            "correct_streak": 6,
+        },
+        "feedback": {
+            "correct": ["Yes!", "That's right!", "You've got it!"],
+            "incorrect": ["Remember: before A comes G"],
+        },
+        "hints": [
+            "Going backwards: A is preceded by G",
+            "The cycle works both directions",
+        ],
+    },
+    
+    # ========== Octave Equivalence Module ==========
+    {
+        "id": "octave_L1_same_name",
+        "module_id": "octave_equivalence_module",
+        "display_name": "Same Note, Different Height",
+        "description": "Learn that an octave is the same note played higher or lower",
+        "exercise_template_id": "octave_concept",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "show_visual": True,
+            "key_concept": "An octave is the same note, just higher or lower",
+            "example_notes": ["C3", "C4", "C5"],
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Yes! Same name, different octave!", "That's right!"],
+            "incorrect": ["Listen for how similar they sound - same note, different height"],
+        },
+        "hints": [
+            "An octave sounds like the same note",
+            "C and a higher C are both 'C'",
+            "Your ear can hear they're related",
+        ],
+    },
+    {
+        "id": "octave_L2_hear_sameness",
+        "module_id": "octave_equivalence_module",
+        "display_name": "Hear the Sameness",
+        "description": "Match notes by ear across different octaves",
+        "exercise_template_id": "octave_matching",
+        "sequence_order": 2,
+        "is_required": True,
+        "config": {
+            "play_pairs": True,
+            "interval": "P8",
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 6,
+        },
+        "feedback": {
+            "correct": ["Yes! You heard the octave!", "They're the same note!"],
+            "incorrect": ["Listen again - do they sound like the same note?"],
+        },
+        "hints": [
+            "Octaves sound 'the same but different'",
+            "One is just higher/lower than the other",
+            "They blend together perfectly",
+        ],
+    },
+    {
+        "id": "octave_L3_low_high",
+        "module_id": "octave_equivalence_module",
+        "display_name": "Low C, High C",
+        "description": "Play and hear octaves on your instrument",
+        "exercise_template_id": "octave_play",
+        "sequence_order": 3,
+        "is_required": True,
+        "config": {
+            "use_first_note": True,
+            "octave_direction": "both",
+        },
+        "mastery": {
+            "correct_streak": 4,
+        },
+        "feedback": {
+            "correct": ["Perfect octave!", "Same note, different register!"],
+            "incorrect": ["Try to match the pitch exactly - same note, different octave"],
+        },
+        "hints": [
+            "Your first note has an octave above and below",
+            "Listen for how the notes blend",
+            "They should sound like 'the same pitch' at different heights",
         ],
     },
 ]
