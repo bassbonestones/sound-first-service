@@ -77,6 +77,18 @@ MODULES = [
         "completion_type": "all_required",
     },
     {
+        "id": "whole_rest_module",
+        "capability_name": "rest_whole",
+        "display_name": "The Whole Rest",
+        "description": "Learn the whole rest: 4 beats of silence that hangs below the line because it's heavy",
+        "icon": "music-rest",
+        "prerequisite_capability_names": ["rhythm_whole_notes", "time_signature_4_4"],  # Must know whole notes and 4/4 time
+        "estimated_duration_minutes": 8,
+        "difficulty_tier": 1,
+        "display_order": 15,
+        "completion_type": "all_required",
+    },
+    {
         "id": "range_expansion_module",
         "capability_name": None,  # No capability - just expands comfort range
         "display_name": "Expand Your Range",
@@ -85,7 +97,7 @@ MODULES = [
         "prerequisite_capability_names": ["first_note", "pitch_direction_awareness"],
         "estimated_duration_minutes": 8,
         "difficulty_tier": 1,
-        "display_order": 15,
+        "display_order": 16,
         "completion_type": "all_required",
     },
 ]
@@ -402,6 +414,33 @@ LESSONS = [
             "The bottom 4 means quarter note gets the beat",
             "C = Common Time = 4/4",
             "A whole note fills one 4/4 measure perfectly",
+        ],
+    },
+    
+    # ========== Whole Rest Module ==========
+    {
+        "id": "whole_rest_L1_lesson",
+        "module_id": "whole_rest_module",
+        "display_name": "The Whole Rest",
+        "description": "Learn the whole rest: 4 beats of silence that hangs below the line",
+        "exercise_template_id": "whole_rest_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 60,
+            "use_first_note": True,
+        },
+        "mastery": {
+            "correct_streak": 3,
+        },
+        "feedback": {
+            "correct": ["Perfect timing!", "You got the rest!", "Silence is golden!"],
+            "incorrect": ["Try again - stay silent during the rest!"],
+        },
+        "hints": [
+            "A whole rest = 4 beats of SILENCE",
+            "It hangs BELOW the line (it's heavy!)",
+            "Play: note (4 beats), REST (silent!), note (4 beats)",
         ],
     },
     
