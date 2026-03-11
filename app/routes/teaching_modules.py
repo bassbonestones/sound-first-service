@@ -644,13 +644,20 @@ def mark_lesson_complete(
     streak: int = Query(8, description="Final streak achieved"),
     total_attempts: int = Query(8, description="Total attempts made"),
     correct_count: int = Query(8, description="Number correct"),
+    key: str = Query(None, description="Starting note/key completed (e.g., 'F3' for fragment exercises)"),
     db: DbSession = Depends(get_db)
 ):
     """Mark a lesson as mastered (called when client-side mastery is achieved).
     
     This is a simpler endpoint than /attempt for when the client tracks
     mastery locally and just needs to report the final result.
+    
+    For multi-key exercises (like fragments), pass the `key` parameter to track
+    which starting notes have been completed. Mastery requires completing the
+    lesson in `keys_required` different keys (default 1).
     """
+    import json
+    
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -658,6 +665,14 @@ def mark_lesson_complete(
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
+    
+    # Parse mastery config to get keys_required
+    mastery_config = {}
+    try:
+        mastery_config = json.loads(lesson.mastery_json or '{}')
+    except:
+        pass
+    keys_required = mastery_config.get('keys_required', 1)
     
     # Get or create lesson progress
     progress = db.query(UserLessonProgress).filter(
@@ -673,15 +688,30 @@ def mark_lesson_complete(
         )
         db.add(progress)
     
-    # Update progress with final stats
-    progress.status = "mastered"
-    progress.mastered_at = datetime.utcnow()
+    # Track completed keys
+    keys_completed = progress.keys_completed  # Uses property getter
+    if key and key not in keys_completed:
+        keys_completed.append(key)
+        progress.keys_completed = keys_completed  # Uses property setter
+    
+    # Update progress with stats
     progress.attempts = total_attempts
     progress.correct_count = correct_count
     progress.current_streak = streak
     progress.best_streak = max(progress.best_streak or 0, streak)
     if total_attempts > 0:
         progress.best_accuracy = correct_count / total_attempts
+    progress.last_attempt_at = datetime.utcnow()
+    
+    # Only mark as mastered if enough keys are completed
+    is_now_mastered = len(keys_completed) >= keys_required
+    was_already_mastered = progress.status == "mastered"
+    
+    if is_now_mastered and not was_already_mastered:
+        progress.status = "mastered"
+        progress.mastered_at = datetime.utcnow()
+    elif not is_now_mastered:
+        progress.status = "in_progress"
     
     # Check if module is complete
     module = db.query(TeachingModule).filter(TeachingModule.id == lesson.module_id).first()
@@ -751,7 +781,9 @@ def mark_lesson_complete(
     return {
         "status": "success",
         "lesson_id": lesson_id,
-        "lesson_mastered": True,
+        "lesson_mastered": is_now_mastered,
+        "keys_completed": keys_completed,
+        "keys_required": keys_required,
         "module_completed": module_completed,
         "capability_unlocked": capability_unlocked,
     }

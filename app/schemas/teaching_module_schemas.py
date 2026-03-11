@@ -60,6 +60,7 @@ class LessonMastery(BaseModel):
     correct_streak: int = 8
     min_accuracy: Optional[float] = None  # 0.0 to 1.0
     max_attempts: Optional[int] = None
+    keys_required: int = 1  # Number of different starting keys/notes required for mastery
 
 
 class LessonBase(BaseModel):
@@ -144,6 +145,8 @@ class UserLessonProgressOut(BaseModel):
     current_streak: int
     best_streak: int
     best_accuracy: Optional[float] = None
+    keys_completed: List[str] = []  # List of completed starting notes/keys
+    keys_required: int = 1  # Number of keys required for full mastery
     mastered_at: Optional[datetime] = None
 
 

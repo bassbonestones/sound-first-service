@@ -148,6 +148,10 @@ class UserLessonProgress(Base):
     best_streak = Column(Integer, default=0)  # Best ever streak
     best_accuracy = Column(Float, nullable=True)  # Best accuracy achieved
     
+    # Multi-key tracking: JSON array of completed starting notes/keys
+    # e.g., '["F3", "G3"]' for fragment exercises completed in different keys
+    keys_completed_json = Column(String, default='[]')
+    
     # Timestamps
     started_at = Column(DateTime, nullable=True)
     mastered_at = Column(DateTime, nullable=True)
@@ -158,6 +162,21 @@ class UserLessonProgress(Base):
         Index('ix_user_lesson_progress_user_lesson', 'user_id', 'lesson_id', unique=True),
         Index('ix_user_lesson_progress_user_status', 'user_id', 'status'),
     )
+    
+    @property
+    def keys_completed(self):
+        """Get list of completed keys."""
+        import json
+        try:
+            return json.loads(self.keys_completed_json or '[]')
+        except:
+            return []
+    
+    @keys_completed.setter
+    def keys_completed(self, value):
+        """Set list of completed keys."""
+        import json
+        self.keys_completed_json = json.dumps(value)
 
 
 class LessonAttempt(Base):

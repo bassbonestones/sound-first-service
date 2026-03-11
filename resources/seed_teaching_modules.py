@@ -148,6 +148,18 @@ MODULES = [
         "display_order": 20,
         "completion_type": "all_required",
     },
+    {
+        "id": "diatonic_scale_fragment_2_module",
+        "capability_name": "diatonic_scale_fragment_2",
+        "display_name": "2-Note Scale Fragments",
+        "description": "Play 2-note diatonic scale fragments with pitch and rhythm precision",
+        "icon": "music-note-2",
+        "prerequisite_capability_names": [],  # Derived from capability
+        "estimated_duration_minutes": 15,
+        "difficulty_tier": 2,
+        "display_order": 25,
+        "completion_type": "all_required",
+    },
 ]
 
 # ============================================================
@@ -625,6 +637,39 @@ LESSONS = [
             "Listen to the target pitch",
             "Adjust until you match",
             "Take your time to find it",
+        ],
+    },
+    
+    # ========== Diatonic Scale Fragment-2 Module ==========
+    {
+        "id": "fragment_2_L1_lesson",
+        "module_id": "diatonic_scale_fragment_2_module",
+        "display_name": "2-Note Fragments",
+        "description": "Play 2-note diatonic scale patterns: linear up/down, arc up/down",
+        "exercise_template_id": "fragment_2_lesson",
+        "sequence_order": 1,
+        "is_required": True,
+        "config": {
+            "bpm": 66,
+            "tempo_range": [50, 80],
+            "use_first_note": True,
+            "use_focus_cards": True,
+            "use_drone_phase": True,
+            "show_notation": True,
+        },
+        "mastery": {
+            "patterns_complete": ["linear_up", "linear_down", "arc_up", "arc_down"],
+            "success_per_pattern": 1,
+        },
+        "feedback": {
+            "correct": ["Great pitch!", "Solid rhythm!", "Now that's musical!"],
+            "incorrect": ["Listen again", "Focus on pitch center", "Lock in the beat"],
+        },
+        "hints": [
+            "1→2 (Linear Up): Scale degrees 1 to 2",
+            "2→1 (Linear Down): Scale degrees 2 to 1",
+            "1→2→1 (Arc Up): Start/end on 1",
+            "2→1→2 (Arc Down): Start/end on 2",
         ],
     },
 ]
