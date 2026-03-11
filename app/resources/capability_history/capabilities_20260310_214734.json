@@ -1,5 +1,5 @@
 {
- "version": "capabilities_20260310_214734",
+ "version": "capabilities_20260310_213716",
  "count": 225,
  "capabilities": [
   {
@@ -23,6 +23,7 @@
    "bit_index": 0,
    "music21_detection": {
     "type": "custom",
+    "melodic": true,
     "function": "detect_flat_accidentals"
    }
   },
@@ -2254,7 +2255,8 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "pulse_tracking"
+    "staff_basics",
+    "rhythm_whole_notes"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -3609,8 +3611,7 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "rhythm_whole_notes",
-    "time_signature_4_4"
+    "rhythm_whole_notes"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
@@ -3626,8 +3627,7 @@
     "type": "value_match",
     "source": "notes",
     "field": "type",
-    "eq": "half",
-    "melodic": true
+    "eq": "half"
    }
   },
   {
@@ -4045,7 +4045,8 @@
    "subdomain": null,
    "requirement_type": "required",
    "prerequisite_names": [
-    "first_note"
+    "first_note",
+    "staff_basics"
    ],
    "difficulty_tier": 1,
    "mastery_type": "single",
