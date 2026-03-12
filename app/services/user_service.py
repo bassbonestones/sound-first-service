@@ -36,6 +36,22 @@ BASS_CLEF_INSTRUMENTS = {
     "bassoon", "cello", "double_bass", "bass_voice",
 }
 
+# Mapping of semitones to range_span capability names
+RANGE_SPAN_CAPS = {
+    1: "range_span_minor_second",
+    2: "range_span_major_second",
+    3: "range_span_minor_third",
+    4: "range_span_major_third",
+    5: "range_span_perfect_fourth",
+    6: "range_span_augmented_fourth",
+    7: "range_span_perfect_fifth",
+    8: "range_span_minor_sixth",
+    9: "range_span_major_sixth",
+    10: "range_span_minor_seventh",
+    11: "range_span_major_seventh",
+    12: "range_span_octave",
+}
+
 MASK_ATTRS = [
     'cap_mask_0', 'cap_mask_1', 'cap_mask_2', 'cap_mask_3',
     'cap_mask_4', 'cap_mask_5', 'cap_mask_6', 'cap_mask_7'
@@ -403,6 +419,92 @@ class UserService:
     def get_user_masks(cls, user: User) -> List[int]:
         """Get user's capability bitmasks."""
         return [getattr(user, attr) or 0 for attr in MASK_ATTRS]
+    
+    @classmethod
+    def grant_range_span_capability(
+        cls,
+        db: DbSession,
+        user_id: int,
+        instrument_id: int,
+        range_low: str,
+        range_high: str
+    ) -> List[str]:
+        """
+        Grant the range_span capability matching the user's current range span.
+        
+        Calculates the semitone span between range_low and range_high, and grants
+        the corresponding range_span capability if not already mastered.
+        
+        Args:
+            db: Database session
+            user_id: User's ID
+            instrument_id: UserInstrument's ID
+            range_low: Low end of range (e.g., "C4")
+            range_high: High end of range (e.g., "G4")
+        
+        Returns:
+            List with the newly granted capability name, or empty list
+        """
+        from app.curriculum.utils import note_to_midi
+        
+        if not range_low or not range_high:
+            return []
+        
+        try:
+            low_midi = note_to_midi(range_low)
+            high_midi = note_to_midi(range_high)
+            span_semitones = high_midi - low_midi
+        except (ValueError, KeyError):
+            return []
+        
+        # Get the capability for this exact span
+        cap_name = RANGE_SPAN_CAPS.get(span_semitones)
+        if not cap_name:
+            return []
+        
+        # Look up capability by name
+        cap = db.query(Capability).filter(Capability.name == cap_name).first()
+        if not cap:
+            return []
+        
+        # Check if user already has this mastered for this instrument
+        existing = db.query(UserCapability).filter(
+            UserCapability.user_id == user_id,
+            UserCapability.instrument_id == instrument_id,
+            UserCapability.capability_id == cap.id,
+            UserCapability.mastered_at != None
+        ).first()
+        
+        if existing:
+            return []  # Already mastered
+        
+        now = datetime.datetime.utcnow()
+        
+        # Check if user has this cap but not mastered
+        user_cap = db.query(UserCapability).filter(
+            UserCapability.user_id == user_id,
+            UserCapability.instrument_id == instrument_id,
+            UserCapability.capability_id == cap.id
+        ).first()
+        
+        if user_cap:
+            # Update to mastered
+            user_cap.mastered_at = now
+            user_cap.evidence_count = cap.evidence_required_count or 1
+        else:
+            # Create new mastered capability
+            user_cap = UserCapability(
+                user_id=user_id,
+                capability_id=cap.id,
+                instrument_id=instrument_id,
+                is_active=True,
+                introduced_at=now,
+                mastered_at=now,
+                evidence_count=cap.evidence_required_count or 1
+            )
+            db.add(user_cap)
+        
+        return [cap_name]
 
 
 # Module-level singleton

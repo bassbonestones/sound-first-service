@@ -10,22 +10,17 @@ from app.models.core import Material, FocusCard
 from app.models.capability_schema import Capability
 from app.curriculum import get_help_menu_capabilities
 from app.schemas import FocusCardOut
+from app.schemas.capability_schemas import (
+    CapabilityBasicOut, CapabilityDetailOut, CapabilityHelpOut,
+    MaterialHelpCapabilitiesOut, DomainCountOut
+)
+from app.utils.json_helpers import parse_focus_card_json_field
 
 router = APIRouter(tags=["capabilities"])
 
 
-def parse_focus_card_json_field(value):
-    """Parse a JSON string field, returning empty structure if invalid."""
-    if not value:
-        return []
-    try:
-        return json.loads(value)
-    except Exception:
-        return []
-
-
 @router.get("/focus-cards", response_model=List[FocusCardOut])
-def get_focus_cards(db: Session = Depends(get_db)):
+def get_focus_cards(db: Session = Depends(get_db)) -> List[FocusCardOut]:
     """Get all focus cards with their prompts and cues."""
     focus_cards = db.query(FocusCard).all()
     result = []
@@ -43,8 +38,8 @@ def get_focus_cards(db: Session = Depends(get_db)):
     return result
 
 
-@router.get("/capabilities")
-def get_capabilities(db: Session = Depends(get_db)):
+@router.get("/capabilities", response_model=List[CapabilityBasicOut])
+def get_capabilities(db: Session = Depends(get_db)) -> List[CapabilityBasicOut]:
     """List all capabilities (legacy endpoint)."""
     capabilities = db.query(Capability).all()
     return [{"id": c.id, "name": c.name, "domain": c.domain} for c in capabilities]
@@ -88,8 +83,8 @@ def record_quiz_result(
     )
 
 
-@router.get("/materials/{material_id}/help-capabilities")
-def get_material_help_capabilities(material_id: int, db: Session = Depends(get_db)):
+@router.get("/materials/{material_id}/help-capabilities", response_model=MaterialHelpCapabilitiesOut)
+def get_material_help_capabilities(material_id: int, db: Session = Depends(get_db)) -> MaterialHelpCapabilitiesOut:
     """
     Get all capabilities referenced in a material for the help menu.
     
@@ -125,11 +120,11 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
     }
 
 
-@router.get("/capabilities/v2")
+@router.get("/capabilities/v2", response_model=List[CapabilityDetailOut])
 def list_capabilities_v2(
     domain: Optional[str] = None,
     db: Session = Depends(get_db)
-):
+) -> List[CapabilityDetailOut]:
     """List all capabilities in the v2 system, optionally filtered by domain."""
     query = db.query(Capability)
     if domain:
@@ -152,8 +147,8 @@ def list_capabilities_v2(
     ]
 
 
-@router.get("/capabilities/v2/domains")
-def list_capability_domains(db: Session = Depends(get_db)):
+@router.get("/capabilities/v2/domains", response_model=List[DomainCountOut])
+def list_capability_domains(db: Session = Depends(get_db)) -> List[DomainCountOut]:
     """List all capability domains with counts."""
     from sqlalchemy import func
     

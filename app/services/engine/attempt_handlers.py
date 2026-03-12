@@ -349,7 +349,7 @@ def pitch_name_to_midi(pitch_name: str) -> int:
     
     try:
         octave = int(pitch_name[idx:])
-    except:
+    except ValueError:
         octave = 4
     
     base = note_map.get(note, 0)

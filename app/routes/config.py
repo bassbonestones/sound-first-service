@@ -4,7 +4,11 @@ import datetime
 import json
 import logging
 
+from app.db import check_db_health
 from app.schemas import ClientLogIn, ConfigUpdateIn
+from app.schemas.user_schemas import (
+    HealthCheckOut, LoggedOut, SessionConfigOut, ConfigUpdateOut
+)
 from app.session_config import (
     CAPABILITY_WEIGHTS,
     DIFFICULTY_WEIGHTS,
@@ -17,13 +21,33 @@ from app.session_config import (
 router = APIRouter(tags=["config"])
 
 
-@router.get("/health")
-def health_check():
-    return {"status": "healthy"}
+@router.get("/health", response_model=HealthCheckOut)
+def health_check() -> HealthCheckOut:
+    """
+    Health check endpoint with database connection pool status.
+    
+    Returns overall health status and database pool metrics:
+    - pool_size: Base number of connections maintained
+    - checked_in: Available connections in pool
+    - checked_out: Connections currently in use
+    - overflow: Additional connections beyond pool_size
+    """
+    db_status = check_db_health()
+    overall_status = "healthy" if db_status["status"] == "healthy" else "unhealthy"
+    return {
+        "status": overall_status,
+        "database": {
+            "pool_size": db_status["pool_size"],
+            "checked_in": db_status["checked_in"],
+            "checked_out": db_status["checked_out"],
+            "overflow": db_status["overflow"],
+            "error": db_status.get("error"),
+        },
+    }
 
 
-@router.post("/log/client")
-def log_client_event(log: ClientLogIn = Body(...)):
+@router.post("/log/client", response_model=LoggedOut)
+def log_client_event(log: ClientLogIn = Body(...)) -> LoggedOut:
     """
     Receive log events from client apps (web/mobile) for server-side logging.
     Useful for tracking startup timing, errors, and performance metrics.
@@ -39,8 +63,8 @@ def log_client_event(log: ClientLogIn = Body(...)):
     return {"status": "logged"}
 
 
-@router.get("/config")
-def get_session_config():
+@router.get("/config", response_model=SessionConfigOut)
+def get_session_config() -> SessionConfigOut:
     """Get current session generation configuration."""
     return {
         "capability_weights": CAPABILITY_WEIGHTS,
@@ -52,8 +76,8 @@ def get_session_config():
     }
 
 
-@router.patch("/config")
-def update_session_config(data: ConfigUpdateIn = Body(...)):
+@router.patch("/config", response_model=ConfigUpdateOut)
+def update_session_config(data: ConfigUpdateIn = Body(...)) -> ConfigUpdateOut:
     """
     Update session generation configuration at runtime.
     Changes are applied immediately but not persisted across restarts.

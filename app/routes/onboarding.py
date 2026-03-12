@@ -1,16 +1,38 @@
-"""Onboarding endpoints."""
+"""
+Onboarding endpoints.
+
+Handles user onboarding flow including instrument selection,
+range configuration, and initial capability setup.
+"""
 from fastapi import APIRouter, Depends, Body, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.core import User
 from app.schemas import OnboardingIn
+from app.schemas.user_schemas import OnboardingOut, OnboardingSaveOut
 
 router = APIRouter(tags=["onboarding"])
 
 
-@router.get("/onboarding/{user_id}")
-def get_onboarding(user_id: int, db: Session = Depends(get_db)):
+@router.get("/onboarding/{user_id}", response_model=OnboardingOut)
+def get_onboarding(user_id: int, db: Session = Depends(get_db)) -> OnboardingOut:
+    """
+    Get onboarding status for a user.
+    
+    Returns the user's instrument, range, and comfort level settings
+    configured during onboarding.
+    
+    Args:
+        user_id: The user's ID
+        db: Database session
+    
+    Returns:
+        OnboardingOut with instrument, range, and capability settings
+    
+    Raises:
+        HTTPException: 404 if user not found
+    """
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -26,8 +48,21 @@ def get_onboarding(user_id: int, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/onboarding")
-def save_onboarding(data: OnboardingIn = Body(...), db: Session = Depends(get_db)):
+@router.post("/onboarding", response_model=OnboardingSaveOut)
+def save_onboarding(data: OnboardingIn = Body(...), db: Session = Depends(get_db)) -> OnboardingSaveOut:
+    """
+    Save or update user onboarding data.
+    
+    Creates a new user if not exists, then updates instrument,
+    range, and comfortable capabilities from onboarding flow.
+    
+    Args:
+        data: OnboardingIn schema with user settings
+        db: Database session
+    
+    Returns:
+        OnboardingSaveOut with status and user_id
+    """
     user = db.query(User).filter_by(id=data.user_id).first()
     if not user:
         # Create user if not exists

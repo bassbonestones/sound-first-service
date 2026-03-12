@@ -1,8 +1,15 @@
+"""Core database models.
+
+Defines the primary database tables: User, Material, FocusCard, PracticeSession,
+MiniSession, PracticeAttempt, and CurriculumStep.
+"""
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Boolean, BigInteger
 from sqlalchemy.orm import relationship
 from . import Base
 
+
 class User(Base):
+    """User account with instrument, range, and capability tracking."""
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, nullable=False)
@@ -38,14 +45,18 @@ class User(Base):
 # Note: V1 Capability models have been retired.
 # Use Capability and UserCapability from capability_schema.py instead.
 
+
 class UserRange(Base):
+    """Historical user range records (legacy, prefer User.range_low/high)."""
     __tablename__ = 'user_ranges'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     range_low = Column(String)
     range_high = Column(String)
 
+
 class Material(Base):
+    """Practice material with MusicXML content and capability requirements."""
     __tablename__ = 'materials'
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
@@ -68,7 +79,9 @@ class Material(Base):
     req_cap_mask_6 = Column(BigInteger, default=0)  # required capabilities 384-447
     req_cap_mask_7 = Column(BigInteger, default=0)  # required capabilities 448-511
 
+
 class FocusCard(Base):
+    """Practice focus card with attention cues and prompts."""
     __tablename__ = 'focus_cards'
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
@@ -78,7 +91,9 @@ class FocusCard(Base):
     micro_cues = Column(String, nullable=True)  # JSON array as string
     prompts = Column(String, nullable=True)  # JSON object as string
 
+
 class PracticeSession(Base):
+    """A guided or self-directed practice session."""
     __tablename__ = 'practice_sessions'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
@@ -86,7 +101,9 @@ class PracticeSession(Base):
     ended_at = Column(DateTime)
     practice_mode = Column(String, default="guided")  # "guided" or "self_directed"
 
+
 class MiniSession(Base):
+    """A focused practice segment on one material in one key."""
     __tablename__ = 'mini_sessions'
     id = Column(Integer, primary_key=True)
     practice_session_id = Column(Integer, ForeignKey('practice_sessions.id'), nullable=False)
@@ -113,7 +130,9 @@ class CurriculumStep(Base):
     rating = Column(Integer, nullable=True)  # User's rating for REFLECT steps
     notes = Column(String, nullable=True)  # Optional user notes
 
+
 class PracticeAttempt(Base):
+    """Record of a user practicing a material with quality rating."""
     __tablename__ = 'practice_attempts'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)

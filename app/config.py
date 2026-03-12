@@ -1,3 +1,15 @@
+"""
+Application configuration settings.
+
+Configures environment variables, database connections, and audio rendering
+options. All settings can be overridden via environment variables.
+
+Environment Variables:
+    DATABASE_URL: PostgreSQL connection string (async driver)
+    USE_DIRECT_FLUIDSYNTH: Use subprocess FluidSynth (default: true)
+    USE_MUSESCORE: Use MuseScore 4 for rendering (default: false)
+    MUSESCORE_PATH: Path to MuseScore executable
+"""
 import os
 from dotenv import load_dotenv
 

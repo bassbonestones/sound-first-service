@@ -169,7 +169,7 @@ class UserLessonProgress(Base):
         import json
         try:
             return json.loads(self.keys_completed_json or '[]')
-        except:
+        except json.JSONDecodeError:
             return []
     
     @keys_completed.setter

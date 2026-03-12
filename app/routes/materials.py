@@ -1,6 +1,7 @@
 """Materials endpoints for upload, analysis, and ingestion."""
 from fastapi import APIRouter, Depends, Body, HTTPException
 from sqlalchemy.orm import Session
+from typing import List
 
 from app.db import get_db
 from app.models.core import Material
@@ -14,13 +15,16 @@ from app.schemas import (
     BatchReanalyzeRequest,
     BatchReanalyzeResponse,
 )
+from app.schemas.material_schemas import (
+    MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut
+)
 from app.services import MaterialService, get_material_service
 
 router = APIRouter(prefix="/materials", tags=["materials"])
 
 
-@router.get("")
-def get_materials(db: Session = Depends(get_db)):
+@router.get("", response_model=List[MaterialBasicOut])
+def get_materials(db: Session = Depends(get_db)) -> List[MaterialBasicOut]:
     """List all materials with basic info."""
     materials = db.query(Material).all()
     return [
@@ -39,7 +43,7 @@ def get_materials(db: Session = Depends(get_db)):
 def upload_material(
     data: MaterialUpload = Body(...),
     db: Session = Depends(get_db)
-):
+) -> MaterialAnalysisResponse:
     """
     Upload a new material from MusicXML content.
     
@@ -84,8 +88,8 @@ def upload_material(
     )
 
 
-@router.get("/{material_id}/analysis")
-def get_material_analysis(material_id: int, db: Session = Depends(get_db)):
+@router.get("/{material_id}/analysis", response_model=MaterialFullAnalysisOut)
+def get_material_analysis(material_id: int, db: Session = Depends(get_db)) -> MaterialFullAnalysisOut:
     """Get the analysis data for a material."""
     from app.models.capability_schema import MaterialAnalysis, MaterialCapability, Capability
     
@@ -141,7 +145,7 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
 
 
 @router.post("/ingest-batch", response_model=BatchIngestionResponse)
-def ingest_materials_batch(data: BatchIngestionRequest = Body(...)):
+def ingest_materials_batch(data: BatchIngestionRequest = Body(...)) -> BatchIngestionResponse:
     """
     Batch analyze MusicXML files and update materials.json.
     
@@ -177,8 +181,8 @@ def ingest_materials_batch(data: BatchIngestionRequest = Body(...)):
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
-@router.post("/export-json")
-def export_materials_to_json():
+@router.post("/export-json", response_model=ExportMessageOut)
+def export_materials_to_json() -> ExportMessageOut:
     """Export current materials data to materials.json."""
     from app.material_ingestion_service import MaterialIngestionService
     
@@ -195,7 +199,7 @@ def reanalyze_single_material(
     material_id: int,
     data: ReanalyzeRequest = Body(default=ReanalyzeRequest()),
     db: Session = Depends(get_db)
-):
+) -> ReanalyzeResponse:
     """
     Re-analyze a single material and update its analysis data.
     
@@ -234,7 +238,7 @@ def reanalyze_single_material(
 def reanalyze_all_materials(
     data: BatchReanalyzeRequest = Body(default=BatchReanalyzeRequest()),
     db: Session = Depends(get_db)
-):
+) -> BatchReanalyzeResponse:
     """
     Re-analyze multiple materials in batch.
     

@@ -93,6 +93,22 @@ from .interactions import (
     analyze_hazards,
 )
 
+# Stage derivation
+from .stage_derivation import (
+    DEFAULT_STAGE_THRESHOLDS,
+    STAGE_LABELS,
+    STAGE_LABELS_SHORT,
+    DomainStages,
+    AllDomainStages,
+    score_to_stage as derivation_score_to_stage,
+    stage_to_score_range,
+    get_stage_label,
+    derive_domain_stages,
+    derive_all_stages,
+    analyze_score_distribution,
+    suggest_thresholds_from_distribution,
+)
+
 __all__ = [
     # Models
     'DomainScores',
@@ -134,4 +150,17 @@ __all__ = [
     'DEFAULT_DOMAIN_WEIGHTS',
     'calculate_composite_difficulty',
     'analyze_hazards',
+    # Stage derivation
+    'DEFAULT_STAGE_THRESHOLDS',
+    'STAGE_LABELS',
+    'STAGE_LABELS_SHORT',
+    'DomainStages',
+    'AllDomainStages',
+    'derivation_score_to_stage',
+    'stage_to_score_range',
+    'get_stage_label',
+    'derive_domain_stages',
+    'derive_all_stages',
+    'analyze_score_distribution',
+    'suggest_thresholds_from_distribution',
 ]

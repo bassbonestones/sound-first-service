@@ -102,7 +102,7 @@ def detect_chromatic_approach_tones(extraction_result, score) -> bool:
     if key_obj is None:
         try:
             key_obj = score.analyze('key')
-        except:
+        except (AttributeError, ValueError, TypeError) as e:
             return False
     
     if key_obj is None:
@@ -111,7 +111,7 @@ def detect_chromatic_approach_tones(extraction_result, score) -> bool:
     try:
         scale = key_obj.getScale()
         scale_pitch_classes = set(p.pitchClass for p in scale.getPitches())
-    except:
+    except (AttributeError, ValueError, TypeError) as e:
         return False
     
     for i in range(len(notes) - 1):

@@ -46,11 +46,39 @@ from .user_service import (
     get_user_service,
     DAY0_BASE_CAPABILITIES,
     BASS_CLEF_INSTRUMENTS,
+    RANGE_SPAN_CAPS,
+)
+
+# History and analytics (from services/)
+from .history_service import (
+    HistorySummary,
+    MaterialHistoryData,
+    TimelineDayData,
+    FocusCardHistoryData,
+    HistoryService,
+    get_history_service,
 )
 
 # Practice engine (from services/engine/)
 from .engine import (
     PracticeEngineService,
+)
+
+# Spaced repetition (from services/)
+from .spaced_repetition import (
+    DEFAULT_EASE_FACTOR,
+    MIN_EASE_FACTOR,
+    DEFAULT_INTERVAL,
+    SpacedRepetitionItem,
+    rating_to_quality,
+    calculate_new_interval,
+    update_item_after_review,
+    prioritize_materials,
+    get_review_stats,
+    estimate_mastery_level,
+    get_capability_weight_adjustment,
+    build_sr_item_from_db,
+    select_materials_with_sr,
 )
 
 __all__ = [
@@ -82,6 +110,28 @@ __all__ = [
     "get_user_service",
     "DAY0_BASE_CAPABILITIES",
     "BASS_CLEF_INSTRUMENTS",
+    "RANGE_SPAN_CAPS",
+    # History and analytics
+    "HistorySummary",
+    "MaterialHistoryData",
+    "TimelineDayData",
+    "FocusCardHistoryData",
+    "HistoryService",
+    "get_history_service",
     # Practice engine
     "PracticeEngineService",
+    # Spaced repetition
+    "DEFAULT_EASE_FACTOR",
+    "MIN_EASE_FACTOR",
+    "DEFAULT_INTERVAL",
+    "SpacedRepetitionItem",
+    "rating_to_quality",
+    "calculate_new_interval",
+    "update_item_after_review",
+    "prioritize_materials",
+    "get_review_stats",
+    "estimate_mastery_level",
+    "get_capability_weight_adjustment",
+    "build_sr_item_from_db",
+    "select_materials_with_sr",
 ]

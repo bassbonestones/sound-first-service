@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session as DbSession
 import datetime
 import json
 import random
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from app.db import get_db
 from app.models.core import (
@@ -26,6 +26,11 @@ from app.schemas import (
     MiniSessionWithStepsOut,
     StepCompleteIn,
 )
+from app.schemas.session_schemas import (
+    PracticeAttemptOut, PracticeAttemptDetailOut, SessionCompleteOut, 
+    StepCompleteOut, SessionCompleteStatusOut
+)
+from app.utils.json_helpers import parse_focus_card_json_field
 from app.services import (
     SessionService, 
     SessionState, 
@@ -207,7 +212,7 @@ def generate_session(
     cooldown_mode: bool = False,
     ear_only_mode: bool = False,
     db: DbSession = Depends(get_db)
-):
+) -> PracticeSessionResponse:
     """Generate a practice session using probabilistic selection with time budgeting.
     
     Session can include both material-based mini-sessions AND teaching module lessons.
@@ -350,7 +355,7 @@ def generate_session(
 
 
 @router.post("/generate-self-directed-session", response_model=PracticeSessionResponse)
-def generate_self_directed_session(data: SelfDirectedSessionIn = Body(...), db: DbSession = Depends(get_db)):
+def generate_self_directed_session(data: SelfDirectedSessionIn = Body(...), db: DbSession = Depends(get_db)) -> PracticeSessionResponse:
     """Generate a session with user-selected material and focus card."""
     material = db.query(Material).filter(Material.id == data.material_id).first()
     focus_card = db.query(FocusCard).filter(FocusCard.id == data.focus_card_id).first()
@@ -390,8 +395,8 @@ def generate_self_directed_session(data: SelfDirectedSessionIn = Body(...), db: 
 
 
 # --- Practice Attempts ---
-@router.post("/practice-attempt")
-def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(get_db)):
+@router.post("/practice-attempt", response_model=PracticeAttemptOut)
+def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(get_db)) -> PracticeAttemptOut:
     """Record a practice attempt."""
     attempt_obj = PracticeAttempt(
         user_id=attempt.user_id,
@@ -407,8 +412,8 @@ def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(
     return {"status": "success", "attempt_id": attempt_obj.id}
 
 
-@router.get("/practice-attempts")
-def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get_db)):
+@router.get("/practice-attempts", response_model=List[PracticeAttemptDetailOut])
+def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[PracticeAttemptDetailOut]:
     """Get all practice attempts for a user."""
     attempts = db.query(PracticeAttempt).filter(PracticeAttempt.user_id == user_id).all()
     return [
@@ -426,8 +431,8 @@ def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get
 
 
 # --- Session Completion ---
-@router.post("/sessions/{session_id}/complete")
-def complete_session(session_id: int, db: DbSession = Depends(get_db)):
+@router.post("/sessions/{session_id}/complete", response_model=SessionCompleteOut)
+def complete_session(session_id: int, db: DbSession = Depends(get_db)) -> SessionCompleteOut:
     """Mark a session as complete."""
     session = db.query(PracticeSession).filter_by(id=session_id).first()
     if not session:
@@ -438,8 +443,8 @@ def complete_session(session_id: int, db: DbSession = Depends(get_db)):
 
 
 # --- Mini-Session Curriculum ---
-@router.get("/mini-sessions/{mini_session_id}/curriculum")
-def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(get_db)):
+@router.get("/mini-sessions/{mini_session_id}/curriculum", response_model=MiniSessionWithStepsOut)
+def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(get_db)) -> MiniSessionWithStepsOut:
     """Get the full curriculum for a mini-session with all steps."""
     mini = db.query(MiniSession).filter_by(id=mini_session_id).first()
     if not mini:
@@ -452,7 +457,7 @@ def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(ge
     steps = db.query(CurriculumStep).filter_by(mini_session_id=mini_session_id).order_by(CurriculumStep.step_index).all()
 
     if not steps:
-        prompts = SessionService.parse_focus_card_json_field(focus_card.prompts) if focus_card else {}
+        prompts = parse_focus_card_json_field(focus_card.prompts) if focus_card else {}
         step_data = generate_curriculum_steps(
             goal_type=mini.goal_type or "repertoire_fluency",
             focus_card_prompts=prompts if isinstance(prompts, dict) else {},
@@ -499,13 +504,13 @@ def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(ge
     )
 
 
-@router.post("/mini-sessions/{mini_session_id}/steps/{step_index}/complete")
+@router.post("/mini-sessions/{mini_session_id}/steps/{step_index}/complete", response_model=StepCompleteOut)
 def complete_step(
     mini_session_id: int, 
     step_index: int, 
     data: StepCompleteIn = Body(...), 
     db: DbSession = Depends(get_db)
-):
+) -> StepCompleteOut:
     """Mark a curriculum step as complete and advance to next step."""
     mini = db.query(MiniSession).filter_by(id=mini_session_id).first()
     if not mini:
@@ -568,8 +573,8 @@ def complete_step(
         return {"status": "completed", "message": "Mini-session complete!"}
 
 
-@router.get("/sessions/{session_id}/next-mini-session")
-def get_next_mini_session(session_id: int, db: DbSession = Depends(get_db)):
+@router.get("/sessions/{session_id}/next-mini-session", response_model=Union[MiniSessionWithStepsOut, SessionCompleteStatusOut])
+def get_next_mini_session(session_id: int, db: DbSession = Depends(get_db)) -> Union[MiniSessionWithStepsOut, SessionCompleteStatusOut]:
     """Get the next incomplete mini-session in a practice session."""
     session = db.query(PracticeSession).filter_by(id=session_id).first()
     if not session:

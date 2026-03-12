@@ -1,8 +1,15 @@
 """Teaching Module Pydantic schemas."""
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
+
+
+# Validation constants
+MIN_BPM = 20
+MAX_BPM = 300
+MIN_DIFFICULTY_TIER = 1
+MAX_DIFFICULTY_TIER = 10
 
 
 class ModuleStatus(str, Enum):
@@ -54,6 +61,30 @@ class LessonConfig(BaseModel):
     # Additional params stored as dict
     extra: Optional[Dict[str, Any]] = None
 
+    @field_validator("bpm")
+    @classmethod
+    def validate_bpm(cls, v: Optional[int]) -> Optional[int]:
+        """Validate BPM is within reasonable bounds."""
+        if v is not None and (v < MIN_BPM or v > MAX_BPM):
+            raise ValueError(f"bpm must be between {MIN_BPM} and {MAX_BPM}")
+        return v
+
+    @field_validator("count_in_beats")
+    @classmethod
+    def validate_count_in(cls, v: Optional[int]) -> Optional[int]:
+        """Validate count_in_beats is positive."""
+        if v is not None and v < 1:
+            raise ValueError("count_in_beats must be at least 1")
+        return v
+
+    @field_validator("sequence_length", "beats_per_measure", "exercise_measures", "target_beat")
+    @classmethod
+    def validate_positive_ints(cls, v: Optional[int]) -> Optional[int]:
+        """Validate integers are positive if provided."""
+        if v is not None and v < 1:
+            raise ValueError("Value must be at least 1")
+        return v
+
 
 class LessonMastery(BaseModel):
     """Mastery criteria for a lesson."""
@@ -61,6 +92,30 @@ class LessonMastery(BaseModel):
     min_accuracy: Optional[float] = None  # 0.0 to 1.0
     max_attempts: Optional[int] = None
     keys_required: int = 1  # Number of different starting keys/notes required for mastery
+
+    @field_validator("correct_streak")
+    @classmethod
+    def validate_streak(cls, v: int) -> int:
+        """Validate correct_streak is positive."""
+        if v < 1:
+            raise ValueError("correct_streak must be at least 1")
+        return v
+
+    @field_validator("min_accuracy")
+    @classmethod
+    def validate_accuracy(cls, v: Optional[float]) -> Optional[float]:
+        """Validate accuracy is between 0 and 1."""
+        if v is not None and (v < 0.0 or v > 1.0):
+            raise ValueError("min_accuracy must be between 0.0 and 1.0")
+        return v
+
+    @field_validator("max_attempts", "keys_required")
+    @classmethod
+    def validate_positive_ints(cls, v: Optional[int]) -> Optional[int]:
+        """Validate integers are positive if provided."""
+        if v is not None and v < 1:
+            raise ValueError("Value must be at least 1")
+        return v
 
 
 class LessonBase(BaseModel):
@@ -100,6 +155,22 @@ class ModuleBase(BaseModel):
     icon: Optional[str] = None
     estimated_duration_minutes: Optional[int] = None
     difficulty_tier: int = 1
+
+    @field_validator("difficulty_tier")
+    @classmethod
+    def validate_difficulty_tier(cls, v: int) -> int:
+        """Validate difficulty_tier is within bounds."""
+        if v < MIN_DIFFICULTY_TIER or v > MAX_DIFFICULTY_TIER:
+            raise ValueError(f"difficulty_tier must be between {MIN_DIFFICULTY_TIER} and {MAX_DIFFICULTY_TIER}")
+        return v
+
+    @field_validator("estimated_duration_minutes")
+    @classmethod
+    def validate_duration(cls, v: Optional[int]) -> Optional[int]:
+        """Validate duration is positive if provided."""
+        if v is not None and v < 1:
+            raise ValueError("estimated_duration_minutes must be at least 1")
+        return v
 
 
 class ModuleSummary(ModuleBase):
@@ -231,3 +302,14 @@ class ExerciseResultSubmit(BaseModel):
     timing_error_ms: Optional[int] = None
     duration_error_ms: Optional[int] = None
     given_answer: Optional[str] = None
+
+
+class LessonCompleteOut(BaseModel):
+    """Response from marking a lesson complete."""
+    status: str
+    lesson_id: str
+    lesson_mastered: bool
+    keys_completed: List[str] = []
+    keys_required: int
+    module_completed: bool
+    capability_unlocked: Optional[str] = None

@@ -137,7 +137,7 @@ def estimate_material_pitch_range(
                     base_low, base_high = default_low, default_high
             else:
                 base_low, base_high = default_low, default_high
-        except:
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
             base_low, base_high = default_low, default_high
     
     # Calculate transposition offset

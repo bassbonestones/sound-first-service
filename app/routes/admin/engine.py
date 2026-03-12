@@ -1,7 +1,7 @@
 """Admin engine settings endpoints - configure session generation weights."""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Any
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -36,8 +36,21 @@ class EngineConfigUpdate(BaseModel):
     wrap_up_threshold_minutes: Optional[float] = None
 
 
+class EngineUpdateResponse(BaseModel):
+    """Response for engine config update."""
+    success: bool
+    changes_applied: List[str]
+    note: str
+
+
+class EngineResetResponse(BaseModel):
+    """Response for engine config reset."""
+    success: bool
+    message: str
+
+
 @router.get("/engine/config", response_model=EngineConfigResponse)
-def get_engine_config():
+def get_engine_config() -> EngineConfigResponse:
     """Get current session engine configuration."""
     return EngineConfigResponse(
         capability_weights=session_config.CAPABILITY_WEIGHTS,
@@ -57,8 +70,8 @@ def get_engine_config():
     )
 
 
-@router.put("/engine/config")
-def update_engine_config(update: EngineConfigUpdate):
+@router.put("/engine/config", response_model=EngineUpdateResponse)
+def update_engine_config(update: EngineConfigUpdate) -> Dict[str, Any]:
     """
     Update engine configuration.
     
@@ -119,8 +132,8 @@ def update_engine_config(update: EngineConfigUpdate):
     }
 
 
-@router.post("/engine/reset")
-def reset_engine_config():
+@router.post("/engine/reset", response_model=EngineResetResponse)
+def reset_engine_config() -> Dict[str, Any]:
     """Reset engine configuration to default values."""
     # Reset to original defaults
     session_config.CAPABILITY_WEIGHTS.update({

@@ -1,4 +1,8 @@
-# Schema exports for easy imports
+"""Pydantic schema exports.
+
+Provides all request/response schemas for API endpoints including
+sessions, users, materials, capabilities, and teaching modules.
+"""
 from .session_schemas import (
     OnboardingIn,
     SelfDirectedSessionIn,

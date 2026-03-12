@@ -86,13 +86,13 @@ def detect_figured_bass(extraction_result, score) -> bool:
         from music21 import figuredBass
         for fb in score.recurse().getElementsByClass(figuredBass.notation.Notation):
             return True
-    except:
+    except (ImportError, AttributeError, TypeError) as e:
         pass
     
     try:
         for fb in score.recurse().getElementsByClass('FiguredBass'):
             return True
-    except:
+    except (AttributeError, TypeError) as e:
         pass
     
     try:
@@ -100,7 +100,7 @@ def detect_figured_bass(extraction_result, score) -> bool:
         for elem in score.recurse():
             if 'FiguredBass' in type(elem).__name__:
                 return True
-    except:
+    except (ImportError, AttributeError, TypeError) as e:
         pass
     
     try:
@@ -116,7 +116,7 @@ def detect_figured_bass(extraction_result, score) -> bool:
                     content = f.read()
                     if '<figured-bass>' in content or '<figure-number>' in content:
                         return True
-    except:
+    except (OSError, IOError, AttributeError) as e:
         pass
     return False
 

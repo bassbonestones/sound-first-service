@@ -1,4 +1,8 @@
-# Route exports
+"""API route exports.
+
+Exports all FastAPI routers for the application including onboarding, sessions,
+history, audio, materials, capabilities, users, teaching modules, and admin.
+"""
 from .onboarding import router as onboarding_router
 from .config import router as config_router
 from .sessions import router as sessions_router

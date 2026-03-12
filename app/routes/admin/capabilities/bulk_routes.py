@@ -1,6 +1,7 @@
 """Bulk operation endpoints for capabilities (export, reorder, rename)."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import Dict, Any
 import datetime
 import json
 import os
@@ -9,15 +10,18 @@ import shutil
 from app.db import get_db
 from app.models.capability_schema import Capability
 
-from .schemas import ReorderCapabilitiesRequest, RenameDomainRequest
+from .schemas import (
+    ReorderCapabilitiesRequest, RenameDomainRequest,
+    ExportResponse, ReorderResponse, RenameDomainResponse,
+)
 from .helpers import parse_json_field
 
 
 router = APIRouter()
 
 
-@router.post("/capabilities/export")
-def admin_export_capabilities(db: Session = Depends(get_db)):
+@router.post("/capabilities/export", response_model=ExportResponse)
+def admin_export_capabilities(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Export all capabilities to capabilities.json.
     
     Preserves existing music21_detection rules from the current file.
@@ -116,8 +120,8 @@ def admin_export_capabilities(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail={"message": "Failed to export capabilities", "error": str(e)})
 
 
-@router.post("/capabilities/reorder")
-def admin_reorder_capabilities(reorder_data: ReorderCapabilitiesRequest, db: Session = Depends(get_db)):
+@router.post("/capabilities/reorder", response_model=ReorderResponse)
+def admin_reorder_capabilities(reorder_data: ReorderCapabilitiesRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Reorder capabilities within a domain."""
     domain = reorder_data.domain
     capability_ids = reorder_data.capability_ids
@@ -155,8 +159,8 @@ def admin_reorder_capabilities(reorder_data: ReorderCapabilitiesRequest, db: Ses
     }
 
 
-@router.post("/domains/rename")
-def admin_rename_domain(rename_data: RenameDomainRequest, db: Session = Depends(get_db)):
+@router.post("/domains/rename", response_model=RenameDomainResponse)
+def admin_rename_domain(rename_data: RenameDomainRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Rename a domain and re-sort capabilities."""
     old_name = rename_data.old_name.strip()
     new_name = rename_data.new_name.strip()

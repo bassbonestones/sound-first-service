@@ -2,11 +2,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import json
 
 from app.db import get_db
 from app.models.core import FocusCard, MiniSession
+from app.utils.json_helpers import parse_focus_card_json_field
 
 
 router = APIRouter(tags=["admin-focus-cards"])
@@ -31,27 +32,31 @@ class FocusCardUpdate(BaseModel):
     prompts: Optional[dict] = None
 
 
-# --- Helper Functions ---
-def parse_focus_card_json_field(value):
-    """Parse a JSON string field, returning empty structure if invalid."""
-    if not value:
-        return []
-    try:
-        return json.loads(value)
-    except Exception:
-        return []
+# --- Response Models ---
+class FocusCardResponse(BaseModel):
+    id: int
+    name: str
+    category: str
+    description: str
+    attention_cue: str
+    micro_cues: List[str]
+    prompts: Dict[str, Any]
+
+
+class MessageResponse(BaseModel):
+    message: str
 
 
 # --- Endpoints ---
-@router.get("/focus-cards/categories")
-def admin_get_focus_card_categories(db: Session = Depends(get_db)):
+@router.get("/focus-cards/categories", response_model=List[str])
+def admin_get_focus_card_categories(db: Session = Depends(get_db)) -> List[str]:
     """Get distinct focus card categories."""
     categories = db.query(FocusCard.category).distinct().all()
     return sorted([c[0] for c in categories if c[0]])
 
 
-@router.post("/focus-cards")
-def admin_create_focus_card(data: FocusCardCreate, db: Session = Depends(get_db)):
+@router.post("/focus-cards", response_model=FocusCardResponse)
+def admin_create_focus_card(data: FocusCardCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Create a new focus card."""
     existing = db.query(FocusCard).filter_by(name=data.name).first()
     if existing:
@@ -68,8 +73,8 @@ def admin_create_focus_card(data: FocusCardCreate, db: Session = Depends(get_db)
     return {"id": fc.id, "name": fc.name, "category": fc.category, "description": fc.description, "attention_cue": fc.attention_cue, "micro_cues": data.micro_cues, "prompts": data.prompts}
 
 
-@router.put("/focus-cards/{focus_card_id}")
-def admin_update_focus_card(focus_card_id: int, data: FocusCardUpdate, db: Session = Depends(get_db)):
+@router.put("/focus-cards/{focus_card_id}", response_model=FocusCardResponse)
+def admin_update_focus_card(focus_card_id: int, data: FocusCardUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Update a focus card."""
     fc = db.query(FocusCard).filter_by(id=focus_card_id).first()
     if not fc:
@@ -104,8 +109,8 @@ def admin_update_focus_card(focus_card_id: int, data: FocusCardUpdate, db: Sessi
     }
 
 
-@router.delete("/focus-cards/{focus_card_id}")
-def admin_delete_focus_card(focus_card_id: int, db: Session = Depends(get_db)):
+@router.delete("/focus-cards/{focus_card_id}", response_model=MessageResponse)
+def admin_delete_focus_card(focus_card_id: int, db: Session = Depends(get_db)) -> Dict[str, str]:
     """Delete a focus card."""
     fc = db.query(FocusCard).filter_by(id=focus_card_id).first()
     if not fc:

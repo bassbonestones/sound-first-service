@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pathlib import Path
 import datetime
 import json
@@ -10,6 +10,9 @@ import json
 from app.db import get_db
 from app.models.core import User
 from app.models.capability_schema import SoftGateRule, UserSoftGateState
+from app.schemas.admin_schemas import (
+    SoftGateRuleResponse, SoftGateStateDetailResponse, UserListItem, MessageResponse,
+)
 
 
 router = APIRouter(tags=["admin-soft-gates"])
@@ -51,8 +54,8 @@ class UserSoftGateStateReset(BaseModel):
 
 
 # --- Soft Gate Rules Endpoints ---
-@router.get("/soft-gate-rules")
-def admin_get_soft_gate_rules(db: Session = Depends(get_db)):
+@router.get("/soft-gate-rules", response_model=List[SoftGateRuleResponse])
+def admin_get_soft_gate_rules(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get all soft gate rules."""
     rules = db.query(SoftGateRule).all()
     return [{
@@ -62,8 +65,8 @@ def admin_get_soft_gate_rules(db: Session = Depends(get_db)):
     } for r in rules]
 
 
-@router.post("/soft-gate-rules")
-def admin_create_soft_gate_rule(data: SoftGateRuleCreate, db: Session = Depends(get_db)):
+@router.post("/soft-gate-rules", response_model=SoftGateRuleResponse)
+def admin_create_soft_gate_rule(data: SoftGateRuleCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Create a new soft gate rule."""
     existing = db.query(SoftGateRule).filter_by(dimension_name=data.dimension_name).first()
     if existing:
@@ -85,8 +88,8 @@ def admin_create_soft_gate_rule(data: SoftGateRuleCreate, db: Session = Depends(
     }
 
 
-@router.put("/soft-gate-rules/{rule_id}")
-def admin_update_soft_gate_rule(rule_id: int, data: SoftGateRuleUpdate, db: Session = Depends(get_db)):
+@router.put("/soft-gate-rules/{rule_id}", response_model=SoftGateRuleResponse)
+def admin_update_soft_gate_rule(rule_id: int, data: SoftGateRuleUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Update a soft gate rule."""
     rule = db.query(SoftGateRule).filter_by(id=rule_id).first()
     if not rule:
@@ -122,8 +125,8 @@ def admin_update_soft_gate_rule(rule_id: int, data: SoftGateRuleUpdate, db: Sess
     }
 
 
-@router.delete("/soft-gate-rules/{rule_id}")
-def admin_delete_soft_gate_rule(rule_id: int, db: Session = Depends(get_db)):
+@router.delete("/soft-gate-rules/{rule_id}", response_model=MessageResponse)
+def admin_delete_soft_gate_rule(rule_id: int, db: Session = Depends(get_db)) -> Dict[str, str]:
     """Delete a soft gate rule."""
     rule = db.query(SoftGateRule).filter_by(id=rule_id).first()
     if not rule:
@@ -136,16 +139,16 @@ def admin_delete_soft_gate_rule(rule_id: int, db: Session = Depends(get_db)):
 
 
 # --- User List Endpoint (for dropdowns) ---
-@router.get("/users")
-def admin_get_users(db: Session = Depends(get_db)):
+@router.get("/users", response_model=List[UserListItem])
+def admin_get_users(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get all users for dropdown selection."""
     users = db.query(User).all()
     return [{"id": u.id, "email": u.email, "name": u.name if hasattr(u, 'name') else None, "instrument": u.instrument} for u in users]
 
 
 # --- User Soft Gate State Endpoints ---
-@router.get("/user-soft-gate-state")
-def admin_get_user_soft_gate_state(user_id: int = Query(...), db: Session = Depends(get_db)):
+@router.get("/user-soft-gate-state", response_model=List[SoftGateStateDetailResponse])
+def admin_get_user_soft_gate_state(user_id: int = Query(...), db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get soft gate state for a user."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -160,8 +163,8 @@ def admin_get_user_soft_gate_state(user_id: int = Query(...), db: Session = Depe
     } for s in states]
 
 
-@router.put("/user-soft-gate-state/{state_id}")
-def admin_update_user_soft_gate_state(state_id: int, data: UserSoftGateStateUpdate, db: Session = Depends(get_db)):
+@router.put("/user-soft-gate-state/{state_id}", response_model=SoftGateStateDetailResponse)
+def admin_update_user_soft_gate_state(state_id: int, data: UserSoftGateStateUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Update a user's soft gate state for a dimension."""
     state = db.query(UserSoftGateState).filter_by(id=state_id).first()
     if not state:
@@ -187,8 +190,8 @@ def admin_update_user_soft_gate_state(state_id: int, data: UserSoftGateStateUpda
     }
 
 
-@router.post("/user-soft-gate-state/reset")
-def admin_reset_user_soft_gate_state(data: UserSoftGateStateReset, db: Session = Depends(get_db)):
+@router.post("/user-soft-gate-state/reset", response_model=MessageResponse)
+def admin_reset_user_soft_gate_state(data: UserSoftGateStateReset, db: Session = Depends(get_db)) -> Dict[str, str]:
     """Reset user's soft gate state to defaults."""
     user = db.query(User).filter_by(id=data.user_id).first()
     if not user:

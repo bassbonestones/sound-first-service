@@ -1,7 +1,19 @@
 """Session-related Pydantic models."""
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional
 import datetime
+import re
+
+
+# Validation constants
+MIN_RATING = 1
+MAX_RATING = 5
+MIN_FATIGUE = 0
+MAX_FATIGUE = 10
+MIN_DURATION_MINUTES = 1
+MAX_DURATION_MINUTES = 180
+# Note format: letter + optional accidental + octave (e.g., "C4", "F#3", "Bb5")
+NOTE_PATTERN = re.compile(r"^[A-Ga-g][#b]?[0-9]$")
 
 
 class OnboardingIn(BaseModel):
@@ -12,6 +24,22 @@ class OnboardingIn(BaseModel):
     range_high: Optional[str] = None  # e.g., "C6" - comfortable high note
     comfortable_capabilities: List[str] = []
 
+    @field_validator("resonant_note")
+    @classmethod
+    def validate_resonant_note(cls, v: str) -> str:
+        """Validate resonant_note is a valid note format."""
+        if not NOTE_PATTERN.match(v):
+            raise ValueError(f"resonant_note must be a valid note (e.g., 'C4', 'F#3', 'Bb5'), got '{v}'")
+        return v
+
+    @field_validator("range_low", "range_high")
+    @classmethod
+    def validate_range_notes(cls, v: Optional[str]) -> Optional[str]:
+        """Validate range notes are valid note format."""
+        if v is not None and not NOTE_PATTERN.match(v):
+            raise ValueError(f"Range note must be a valid note (e.g., 'E3', 'C6'), got '{v}'")
+        return v
+
 
 class SelfDirectedSessionIn(BaseModel):
     user_id: int = 1
@@ -19,6 +47,14 @@ class SelfDirectedSessionIn(BaseModel):
     material_id: int
     focus_card_id: int
     goal_type: str
+
+    @field_validator("planned_duration_minutes")
+    @classmethod
+    def validate_duration(cls, v: int) -> int:
+        """Validate duration is within reasonable bounds."""
+        if v < MIN_DURATION_MINUTES or v > MAX_DURATION_MINUTES:
+            raise ValueError(f"planned_duration_minutes must be between {MIN_DURATION_MINUTES} and {MAX_DURATION_MINUTES}")
+        return v
 
 
 class PracticeAttemptIn(BaseModel):
@@ -29,6 +65,22 @@ class PracticeAttemptIn(BaseModel):
     rating: int
     fatigue: int
     timestamp: datetime.datetime
+
+    @field_validator("rating")
+    @classmethod
+    def validate_rating(cls, v: int) -> int:
+        """Validate rating is within bounds (1-5)."""
+        if v < MIN_RATING or v > MAX_RATING:
+            raise ValueError(f"rating must be between {MIN_RATING} and {MAX_RATING}")
+        return v
+
+    @field_validator("fatigue")
+    @classmethod
+    def validate_fatigue(cls, v: int) -> int:
+        """Validate fatigue is within bounds (0-10)."""
+        if v < MIN_FATIGUE or v > MAX_FATIGUE:
+            raise ValueError(f"fatigue must be between {MIN_FATIGUE} and {MAX_FATIGUE}")
+        return v
 
 
 class MiniSessionOut(BaseModel):
@@ -117,3 +169,46 @@ class StepCompleteIn(BaseModel):
     rating: Optional[int] = None
     notes: Optional[str] = None
     strain_detected: bool = False
+
+
+# --- Response Models ---
+
+
+class PracticeAttemptOut(BaseModel):
+    """Practice attempt response."""
+    status: str
+    attempt_id: int
+
+
+class PracticeAttemptDetailOut(BaseModel):
+    """Practice attempt detail."""
+    id: int
+    material_id: int
+    key: Optional[str] = None
+    focus_card_id: Optional[int] = None
+    rating: Optional[int] = None
+    fatigue: Optional[int] = None
+    timestamp: Optional[str] = None
+
+
+class SessionCompleteOut(BaseModel):
+    """Session completion response."""
+    status: str
+    session_id: int
+
+
+class StepCompleteOut(BaseModel):
+    """Step completion response with varying status."""
+    status: str
+    message: Optional[str] = None
+    next_step_index: Optional[int] = None
+    next_step_type: Optional[str] = None
+    next_instruction: Optional[str] = None
+    attempt_count: Optional[int] = None
+    is_range_work: Optional[bool] = None
+
+
+class SessionCompleteStatusOut(BaseModel):
+    """Session complete status response."""
+    status: str
+    message: str

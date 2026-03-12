@@ -102,3 +102,161 @@ class CapabilityUpdateRequest(BaseModel):
     prerequisite_ids: Optional[List[int]] = None
     soft_gate_requirements: Optional[Dict[str, float]] = None
     detection_rule: Optional[DetectionRuleConfig] = None
+
+
+# --- Response Models ---
+
+class CapabilityArchiveResponse(BaseModel):
+    """Response for archive/restore capability operation."""
+    success: bool
+    message: str
+    capability_id: int
+    is_active: bool
+
+
+class CapabilityDeleteResponse(BaseModel):
+    """Response for delete capability operation."""
+    success: bool
+    message: str
+    capability_id: int
+    shifted_count: int
+    prereqs_cleaned: int
+    domain_removed: bool
+    domain: str
+
+
+class CapabilityBasicInfo(BaseModel):
+    """Basic capability info for response."""
+    id: int
+    name: str
+    display_name: Optional[str]
+    domain: str
+    bit_index: int
+
+
+class CapabilityCreateResponse(BaseModel):
+    """Response for create capability operation."""
+    success: bool
+    message: str
+    capability: CapabilityBasicInfo
+    shifted_count: int
+
+
+class PrerequisiteInfo(BaseModel):
+    """Prerequisite name info."""
+    id: int
+    name: str
+    domain: str
+
+
+class CapabilityDetailResponse(BaseModel):
+    """Detailed capability info for update response."""
+    id: int
+    name: str
+    display_name: Optional[str]
+    domain: str
+    subdomain: Optional[str]
+    bit_index: int
+    requirement_type: str
+    difficulty_tier: int
+    difficulty_weight: float
+    mastery_type: str
+    mastery_count: int
+    evidence_required_count: int
+    evidence_distinct_materials: bool
+    evidence_acceptance_threshold: int
+    soft_gate_requirements: Optional[Dict[str, float]]
+    prerequisite_names: List[PrerequisiteInfo]
+
+
+class CapabilityUpdateResponse(BaseModel):
+    """Response for update capability operation."""
+    success: bool
+    message: str
+    capability: CapabilityDetailResponse
+
+
+class DetectionRuleOptionsResponse(BaseModel):
+    """Response for detection rule options."""
+    types: List[str]
+    sources: List[str]
+    custom_functions: List[str]
+    rule_schema: Dict[str, Dict]
+
+
+class CapabilityListItem(BaseModel):
+    """Capability item in list response."""
+    id: int
+    name: str
+    display_name: Optional[str]
+    domain: str
+    subdomain: Optional[str]
+    bit_index: Optional[int]
+    requirement_type: Optional[str]
+    difficulty_tier: Optional[int]
+    difficulty_weight: Optional[float]
+    mastery_type: Optional[str]
+    mastery_count: Optional[int]
+    evidence_required_count: Optional[int]
+    evidence_distinct_materials: Optional[bool]
+    evidence_acceptance_threshold: Optional[int]
+    soft_gate_requirements: Optional[Dict[str, float]]
+    detection_rule: Optional[Dict]
+    is_active: bool
+    is_global: bool
+    prerequisite_ids: List[int]
+    prerequisite_names: List[str]
+    materials_requiring: int
+    materials_teaching: int
+
+
+class CapabilitiesListResponse(BaseModel):
+    """Response for capabilities list."""
+    capabilities: List[CapabilityListItem]
+    count: int
+
+
+class CapabilityGraphResponse(BaseModel):
+    """Response for capability dependency graph."""
+    capability: str
+    depends_on: List[str]
+    required_by: List[str]
+
+
+class Day0CapabilitiesResponse(BaseModel):
+    """Response for day0 capabilities list."""
+    base_capabilities: List[str]
+    clef_capabilities: List[str]
+    all: List[str]
+
+
+class ExportResponse(BaseModel):
+    """Response for export operation."""
+    success: bool
+    message: str
+    filename: str
+    archived: Optional[str]
+    detection_rules_preserved: int
+
+
+class ReorderItem(BaseModel):
+    """Item in reorder response."""
+    id: int
+    bit_index: int
+
+
+class ReorderResponse(BaseModel):
+    """Response for reorder operation."""
+    success: bool
+    message: str
+    domain: str
+    new_order: List[ReorderItem]
+
+
+class RenameDomainResponse(BaseModel):
+    """Response for rename domain operation."""
+    success: bool
+    message: str
+    old_name: str
+    new_name: str
+    capabilities_updated: int

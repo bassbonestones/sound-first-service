@@ -1,6 +1,8 @@
 """Admin materials endpoints."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
 
 from app.db import get_db
 from app.models.core import User, Material
@@ -13,8 +15,56 @@ from app.models.capability_schema import (
 router = APIRouter(tags=["admin-materials"])
 
 
-@router.get("/materials")
-def admin_get_materials(db: Session = Depends(get_db)):
+# --- Response Models ---
+
+class MaterialItem(BaseModel):
+    id: int
+    title: str
+    original_key_center: Optional[str]
+    allowed_keys: Optional[str]
+    required_capabilities: List[str]
+    teaches_capabilities: List[str]
+    lowest_pitch: Optional[str] = None
+    highest_pitch: Optional[str] = None
+    range_semitones: Optional[int] = None
+    chromatic_complexity: Optional[float] = None
+    rhythmic_complexity: Optional[float] = None
+    reading_complexity: Optional[float] = None
+    measure_count: Optional[int] = None
+    estimated_duration_seconds: Optional[float] = None
+    tonal_complexity_stage: Optional[int] = None
+    interval_size_stage: Optional[int] = None
+    interval_sustained_stage: Optional[int] = None
+    interval_hazard_stage: Optional[int] = None
+    legacy_interval_size_stage: Optional[int] = None
+    rhythm_complexity_stage: Optional[int] = None
+    range_usage_stage: Optional[int] = None
+    difficulty_index: Optional[float] = None
+
+
+class MaterialsListResponse(BaseModel):
+    materials: List[MaterialItem]
+    count: int
+
+
+class GateCheckResponse(BaseModel):
+    material_id: int
+    material_title: str
+    user_id: int
+    passes_hard_gates: bool
+    hard_gate_failures: List[str]
+    passes_soft_envelope: bool
+    soft_envelope_failures: List[str]
+    overall_eligible: bool
+
+
+class AnalysisResponse(BaseModel):
+    message: str
+    analysis: Dict[str, Any]
+
+
+@router.get("/materials", response_model=MaterialsListResponse)
+def admin_get_materials(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get all materials with analysis data."""
     materials = db.query(Material).all()
     
@@ -56,8 +106,8 @@ def admin_get_materials(db: Session = Depends(get_db)):
     return {"materials": result, "count": len(result)}
 
 
-@router.get("/materials/{material_id}/gate-check")
-def admin_check_material_gates(material_id: int, user_id: int = Query(...), db: Session = Depends(get_db)):
+@router.get("/materials/{material_id}/gate-check", response_model=GateCheckResponse)
+def admin_check_material_gates(material_id: int, user_id: int = Query(...), db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Check if a material passes hard gates and soft envelope for a user."""
     material = db.query(Material).filter_by(id=material_id).first()
     if not material:
@@ -115,8 +165,8 @@ def admin_check_material_gates(material_id: int, user_id: int = Query(...), db: 
     }
 
 
-@router.post("/materials/{material_id}/analyze")
-def admin_trigger_analysis(material_id: int, db: Session = Depends(get_db)):
+@router.post("/materials/{material_id}/analyze", response_model=AnalysisResponse)
+def admin_trigger_analysis(material_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Trigger re-analysis of a material's MusicXML."""
     from app.musicxml_analyzer import analyze_musicxml
     

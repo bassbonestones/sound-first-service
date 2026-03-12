@@ -19,7 +19,7 @@ def check_circular_dependency(capability_id: int, new_prereq_ids: List[int], db)
     for c in all_caps:
         try:
             prereq_map[c.id] = json.loads(c.prerequisite_ids) if c.prerequisite_ids else []
-        except:
+        except json.JSONDecodeError:
             prereq_map[c.id] = []
     
     prereq_map[capability_id] = new_prereq_ids
@@ -61,7 +61,7 @@ def parse_json_field(value, default=None):
         return default
     try:
         return json.loads(value) if isinstance(value, str) else value
-    except:
+    except json.JSONDecodeError:
         return default
 
 

@@ -1,6 +1,7 @@
 """History and analytics endpoints."""
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session as DbSession
+from typing import Dict, List, Any
 import datetime
 
 from app.db import get_db
@@ -12,58 +13,32 @@ from app.spaced_repetition import (
     estimate_mastery_level,
     prioritize_materials,
 )
-from app.services import UserService
+from app.services import UserService, HistoryService
+from app.schemas.history_schemas import (
+    HistorySummaryResponse,
+    MaterialHistoryItem,
+    TimelineDay,
+    FocusCardHistoryItem,
+    DueItem,
+)
 
 router = APIRouter(prefix="/history", tags=["history"])
 
 
-def _build_attempt_history(attempts):
-    """Build attempt history dict from list of attempts."""
-    history = {}
-    for a in attempts:
-        if a.material_id not in history:
-            history[a.material_id] = []
-        history[a.material_id].append({
-            "id": getattr(a, 'id', None),
-            "rating": a.rating,
-            "timestamp": a.timestamp,
-            "fatigue": a.fatigue,
-            "key": getattr(a, 'key', None),
-        })
-    return history
-
-
-@router.get("/summary")
-def get_history_summary(user_id: int = Query(...), db: DbSession = Depends(get_db)):
+@router.get("/summary", response_model=HistorySummaryResponse)
+def get_history_summary(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get practice history summary with spaced repetition stats."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
     materials = db.query(Material).all()
+    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
     
-    attempt_history = _build_attempt_history(attempts)
-    
-    # Build SR items and calculate mastery stats
-    sr_items = []
-    mastery_counts = {"mastered": 0, "familiar": 0, "stabilizing": 0, "learning": 0}
-    
-    for m in materials:
-        mat_attempts = attempt_history.get(m.id, [])
-        sr_data = [{"rating": a["rating"], "timestamp": a["timestamp"]} for a in mat_attempts]
-        sr_item = build_sr_item_from_db(m.id, sr_data)
-        sr_items.append(sr_item)
-        
-        if mat_attempts:
-            mastery = estimate_mastery_level(sr_item)
-            if mastery in mastery_counts:
-                mastery_counts[mastery] += 1
-            elif mastery == "new":
-                mastery_counts["learning"] += 1
+    # Use HistoryService for business logic
+    attempt_history = HistoryService.build_attempt_history(attempts)
+    sr_items, mastery_counts = HistoryService.build_sr_items_with_mastery(materials, attempt_history)
+    current_streak = HistoryService.calculate_streak(sessions)
     
     # Use UserService for journey metrics
     journey_result = UserService.estimate_journey_stage(user_id, db)
-    
-    # Calculate current streak
-    sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
-    current_streak = _calculate_streak(sessions)
     
     ratings = [a.rating for a in attempts if a.rating is not None]
     avg_rating = sum(ratings) / len(ratings) if ratings else 0
@@ -81,64 +56,40 @@ def get_history_summary(user_id: int = Query(...), db: DbSession = Depends(get_d
     }
 
 
-def _calculate_streak(sessions):
-    """Calculate current practice streak."""
-    if not sessions:
-        return 0
-    
-    today = datetime.datetime.now().date()
-    session_dates = {s.started_at.date() for s in sessions if s.started_at}
-    
-    streak = 0
-    check_date = today
-    while check_date in session_dates:
-        streak += 1
-        check_date -= datetime.timedelta(days=1)
-    
-    return streak
-
-
-@router.get("/materials")
-def get_material_history(user_id: int = Query(...), db: DbSession = Depends(get_db)):
+@router.get("/materials", response_model=List[MaterialHistoryItem])
+def get_material_history(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get practice history for each material with mastery level."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
     materials = db.query(Material).all()
     
-    attempt_history = _build_attempt_history(attempts)
+    # Use HistoryService for business logic
+    attempt_history = HistoryService.build_attempt_history(attempts)
+    history_data = HistoryService.get_material_history(materials, attempt_history)
     
-    result = []
-    for m in materials:
-        mat_attempts = attempt_history.get(m.id, [])
-        sr_data = [{"rating": a["rating"], "timestamp": a["timestamp"]} for a in mat_attempts]
-        sr_item = build_sr_item_from_db(m.id, sr_data)
-        
-        ratings = [a["rating"] for a in mat_attempts if a["rating"] is not None]
-        avg_rating = sum(ratings) / len(ratings) if ratings else None
-        last_practiced = max((a["timestamp"] for a in mat_attempts if a["timestamp"]), default=None)
-        
-        result.append({
-            "material_id": m.id,
-            "material_title": m.title,
-            "attempt_count": len(mat_attempts),
-            "average_rating": round(avg_rating, 2) if avg_rating else None,
-            "last_practiced": last_practiced.isoformat() if last_practiced else None,
-            "mastery_level": estimate_mastery_level(sr_item),
-            "ease_factor": round(sr_item.ease_factor, 2),
-            "interval_days": sr_item.interval,
-            "next_review": sr_item.next_review.isoformat() if sr_item.next_review else None,
-            "is_due": sr_item.is_due(),
-        })
-    
-    result.sort(key=lambda x: (not x["is_due"], x.get("next_review") or "9999"))
-    return result
+    # Convert dataclass to dict for response
+    return [
+        {
+            "material_id": item.material_id,
+            "material_title": item.material_title,
+            "attempt_count": item.attempt_count,
+            "average_rating": item.average_rating,
+            "last_practiced": item.last_practiced,
+            "mastery_level": item.mastery_level,
+            "ease_factor": item.ease_factor,
+            "interval_days": item.interval_days,
+            "next_review": item.next_review,
+            "is_due": item.is_due,
+        }
+        for item in history_data
+    ]
 
 
-@router.get("/timeline")
+@router.get("/timeline", response_model=List[TimelineDay])
 def get_practice_timeline(
     user_id: int = Query(...),
     days: int = Query(default=30),
     db: DbSession = Depends(get_db)
-):
+) -> List[Dict[str, Any]]:
     """Get practice activity over time for visualization."""
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days)
     
@@ -147,66 +98,55 @@ def get_practice_timeline(
         PracticeAttempt.timestamp >= cutoff
     ).order_by(PracticeAttempt.timestamp).all()
     
-    daily_stats = {}
-    for a in attempts:
-        if not a.timestamp:
-            continue
-        date_str = a.timestamp.date().isoformat()
-        if date_str not in daily_stats:
-            daily_stats[date_str] = {"attempts": 0, "total_rating": 0, "fatigue_sum": 0}
-        daily_stats[date_str]["attempts"] += 1
-        daily_stats[date_str]["total_rating"] += a.rating or 0
-        daily_stats[date_str]["fatigue_sum"] += a.fatigue or 0
+    # Use HistoryService for business logic
+    timeline_data = HistoryService.get_practice_timeline(attempts, days)
     
+    # Convert dataclass to dict for response
     return [
         {
-            "date": date_str,
-            "attempts": stats["attempts"],
-            "avg_rating": round(stats["total_rating"] / stats["attempts"], 2) if stats["attempts"] else 0,
-            "avg_fatigue": round(stats["fatigue_sum"] / stats["attempts"], 2) if stats["attempts"] else 0,
+            "date": item.date,
+            "attempts": item.attempts,
+            "avg_rating": item.avg_rating,
+            "avg_fatigue": item.avg_fatigue,
         }
-        for date_str, stats in sorted(daily_stats.items())
+        for item in timeline_data
     ]
 
 
-@router.get("/focus-cards")
-def get_focus_card_history(user_id: int = Query(...), db: DbSession = Depends(get_db)):
+@router.get("/focus-cards", response_model=List[FocusCardHistoryItem])
+def get_focus_card_history(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get practice history grouped by focus card."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
     focus_cards = db.query(FocusCard).all()
-    fc_map = {fc.id: fc for fc in focus_cards}
     
-    fc_stats = {}
+    # Use HistoryService for business logic
+    history_data = HistoryService.get_focus_card_history(attempts, focus_cards)
+    
+    # Build ratings list for trend calculation
+    fc_ratings = {}
     for a in attempts:
-        fc_id = a.focus_card_id
-        if fc_id not in fc_stats:
-            fc = fc_map.get(fc_id)
-            fc_stats[fc_id] = {
-                "focus_card_id": fc_id,
-                "focus_card_name": fc.name if fc else "Unknown",
-                "category": fc.category if fc else "",
-                "ratings": [],
-            }
-        fc_stats[fc_id]["ratings"].append(a.rating)
+        if a.focus_card_id not in fc_ratings:
+            fc_ratings[a.focus_card_id] = []
+        fc_ratings[a.focus_card_id].append(a.rating)
     
+    # Convert dataclass to dict and add extra fields
     result = []
-    for fc_id, stats in fc_stats.items():
-        ratings = [r for r in stats["ratings"] if r is not None]
+    for item in history_data:
+        ratings = [r for r in fc_ratings.get(item.focus_card_id, []) if r is not None]
         result.append({
-            "focus_card_id": fc_id,
-            "focus_card_name": stats["focus_card_name"],
-            "category": stats["category"],
-            "attempt_count": len(stats["ratings"]),
-            "average_rating": round(sum(ratings) / len(ratings), 2) if ratings else None,
+            "focus_card_id": item.focus_card_id,
+            "focus_card_name": item.focus_card_name,
+            "category": item.category,
+            "attempt_count": item.attempt_count,
+            "average_rating": item.average_rating,
             "best_rating": max(ratings) if ratings else None,
             "recent_trend": _calculate_trend(ratings),
         })
     
-    result.sort(key=lambda x: x["attempt_count"], reverse=True)
     return result
 
 
-def _calculate_trend(values):
+def _calculate_trend(values) -> str:
     """Calculate trend from list of values."""
     if len(values) < 3:
         return "stable"
@@ -217,8 +157,8 @@ def _calculate_trend(values):
     return "stable"
 
 
-@router.get("/due-items")
-def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db: DbSession = Depends(get_db)):
+@router.get("/due-items", response_model=List[DueItem])
+def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get materials due for review based on spaced repetition."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
     materials = db.query(Material).all()

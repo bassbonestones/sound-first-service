@@ -41,6 +41,7 @@ from app.schemas.teaching_module_schemas import (
     LessonAttemptResult,
     GeneratedExercise,
     ExerciseResultSubmit,
+    LessonCompleteOut,
 )
 
 router = APIRouter(prefix="/modules", tags=["teaching-modules"])
@@ -52,7 +53,7 @@ router = APIRouter(prefix="/modules", tags=["teaching-modules"])
 def list_modules(
     db: DbSession = Depends(get_db),
     active_only: bool = Query(True, description="Only return active modules"),
-):
+) -> List[ModuleSummary]:
     """List all available teaching modules."""
     query = db.query(TeachingModule)
     if active_only:
@@ -98,7 +99,7 @@ def list_modules(
 
 
 @router.get("/{module_id}", response_model=ModuleDetail)
-def get_module(module_id: str, db: DbSession = Depends(get_db)):
+def get_module(module_id: str, db: DbSession = Depends(get_db)) -> ModuleDetail:
     """Get detailed information about a specific module."""
     module = db.query(TeachingModule).filter(TeachingModule.id == module_id).first()
     if not module:
@@ -156,7 +157,7 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)):
 
 
 @router.get("/user/{user_id}/available", response_model=List[ModuleWithProgress])
-def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
+def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List[ModuleWithProgress]:
     """Get modules available to a user (prerequisites met)."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -266,7 +267,7 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)):
 # ==================== Progress Endpoints ====================
 
 @router.post("/user/{user_id}/start/{module_id}", response_model=UserModuleProgressOut)
-def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)):
+def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) -> UserModuleProgressOut:
     """Start a module for a user."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -358,7 +359,7 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)):
 
 
 @router.get("/user/{user_id}/progress/{module_id}", response_model=UserModuleProgressOut)
-def get_module_progress(user_id: int, module_id: str, db: DbSession = Depends(get_db)):
+def get_module_progress(user_id: int, module_id: str, db: DbSession = Depends(get_db)) -> UserModuleProgressOut:
     """Get user's progress through a specific module."""
     progress = db.query(UserModuleProgress).filter(
         UserModuleProgress.user_id == user_id,
@@ -403,7 +404,7 @@ def get_module_progress(user_id: int, module_id: str, db: DbSession = Depends(ge
 
 
 @router.get("/user/{user_id}/lessons/{module_id}", response_model=List[LessonWithProgress])
-def get_lessons_with_progress(user_id: int, module_id: str, db: DbSession = Depends(get_db)):
+def get_lessons_with_progress(user_id: int, module_id: str, db: DbSession = Depends(get_db)) -> List[LessonWithProgress]:
     """Get all lessons in a module with user's progress."""
     lessons = db.query(Lesson).filter(
         Lesson.module_id == module_id,
@@ -454,7 +455,7 @@ def record_lesson_attempt(
     user_id: int,
     attempt_data: LessonAttemptCreate,
     db: DbSession = Depends(get_db)
-):
+) -> LessonAttemptResult:
     """Record a lesson attempt and update progress."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -637,7 +638,7 @@ def record_lesson_attempt(
     )
 
 
-@router.post("/user/{user_id}/lesson/{lesson_id}/complete")
+@router.post("/user/{user_id}/lesson/{lesson_id}/complete", response_model=LessonCompleteOut)
 def mark_lesson_complete(
     user_id: int,
     lesson_id: str,
@@ -646,7 +647,7 @@ def mark_lesson_complete(
     correct_count: int = Query(8, description="Number correct"),
     key: str = Query(None, description="Starting note/key completed (e.g., 'F3' for fragment exercises)"),
     db: DbSession = Depends(get_db)
-):
+) -> LessonCompleteOut:
     """Mark a lesson as mastered (called when client-side mastery is achieved).
     
     This is a simpler endpoint than /attempt for when the client tracks
@@ -670,7 +671,7 @@ def mark_lesson_complete(
     mastery_config = {}
     try:
         mastery_config = json.loads(lesson.mastery_json or '{}')
-    except:
+    except json.JSONDecodeError:
         pass
     keys_required = mastery_config.get('keys_required', 1)
     
@@ -792,7 +793,7 @@ def mark_lesson_complete(
 # ==================== Exercise Generation ====================
 
 @router.get("/user/{user_id}/exercise/{lesson_id}", response_model=GeneratedExercise)
-def generate_exercise(user_id: int, lesson_id: str, db: DbSession = Depends(get_db)):
+def generate_exercise(user_id: int, lesson_id: str, db: DbSession = Depends(get_db)) -> GeneratedExercise:
     """Generate an exercise for a specific lesson.
     
     This endpoint generates the exercise parameters that the mobile app

@@ -29,6 +29,7 @@ from app.spaced_repetition import (
     build_sr_item_from_db,
     get_capability_weight_adjustment,
 )
+from app.utils.json_helpers import parse_focus_card_json_field
 
 
 # --- Constants ---
@@ -120,16 +121,6 @@ class SessionService:
             return "C4"
         return "C4"
     
-    @staticmethod
-    def parse_focus_card_json_field(value) -> Any:
-        """Parse a JSON string field, returning empty structure if invalid."""
-        if not value:
-            return []
-        try:
-            return json.loads(value)
-        except Exception:
-            return []
-    
     @classmethod
     def build_mini_session_data(
         cls,
@@ -142,7 +133,7 @@ class SessionService:
         if not target_key:
             target_key = material.original_key_center or "C major"
         
-        prompts_data = cls.parse_focus_card_json_field(focus_card.prompts)
+        prompts_data = parse_focus_card_json_field(focus_card.prompts)
         
         return MiniSessionData(
             material_id=material.id,
@@ -152,7 +143,7 @@ class SessionService:
             focus_card_description=focus_card.description or "",
             focus_card_category=focus_card.category or "",
             focus_card_attention_cue=focus_card.attention_cue or "",
-            focus_card_micro_cues=cls.parse_focus_card_json_field(focus_card.micro_cues),
+            focus_card_micro_cues=parse_focus_card_json_field(focus_card.micro_cues),
             focus_card_prompts=prompts_data if isinstance(prompts_data, dict) else {},
             goal_type=goal_type,
             goal_label=GOAL_LABEL_MAP.get(goal_type, goal_type.replace("_", " ").title()),

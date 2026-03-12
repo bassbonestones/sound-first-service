@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.core import Material
+from app.schemas.user_schemas import AudioStatusOut
 
 router = APIRouter(prefix="/audio", tags=["audio"])
 
@@ -190,8 +191,8 @@ def get_single_note_audio(
     )
 
 
-@router.get("/status")
-def get_audio_status():
+@router.get("/status", response_model=AudioStatusOut)
+def get_audio_status() -> AudioStatusOut:
     """Check audio generation capability."""
     from app.audio import (
         MUSIC21_AVAILABLE, 

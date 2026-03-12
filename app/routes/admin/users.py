@@ -1,12 +1,18 @@
 """Admin user progression and diagnostics endpoints."""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 import datetime
 import random
 
 from app.db import get_db
+from app.schemas.admin_users_schemas import (
+    UserProgressionResponse, SessionCandidatesResponse, DiagnosticSessionResponse,
+    LastSessionDiagnosticsResponse, UserInfoUpdateResponse, AvailableCapabilitiesResponse,
+    CapabilityAddResponse, CapabilityRemoveResponse, CapabilityToggleMasteryResponse,
+    AllSoftGatesResponse, SoftGateUpdateResponse, UserResetResponse, GrantDay0Response,
+)
 from app.models.core import User, Material, FocusCard, PracticeSession, MiniSession, PracticeAttempt
 from app.models.capability_schema import (
     Capability, UserCapability, SoftGateRule, UserSoftGateState,
@@ -51,8 +57,8 @@ class CapabilityAdd(BaseModel):
     instrument_id: Optional[int] = None  # None for global caps, set for instrument-specific
 
 
-@router.get("/users/{user_id}/progression")
-def admin_get_user_progression(user_id: int, instrument_id: Optional[int] = None, db: Session = Depends(get_db)):
+@router.get("/users/{user_id}/progression", response_model=UserProgressionResponse)
+def admin_get_user_progression(user_id: int, instrument_id: Optional[int] = None, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get comprehensive user progression data.
     
     Args:
@@ -143,8 +149,8 @@ def admin_get_user_progression(user_id: int, instrument_id: Optional[int] = None
     }
 
 
-@router.get("/users/{user_id}/session-candidates")
-def admin_get_session_candidates(user_id: int, db: Session = Depends(get_db)):
+@router.get("/users/{user_id}/session-candidates", response_model=SessionCandidatesResponse)
+def admin_get_session_candidates(user_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get the candidate pool of materials for the next session."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -211,8 +217,8 @@ def admin_get_session_candidates(user_id: int, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/users/{user_id}/generate-diagnostic-session")
-def admin_generate_diagnostic_session(user_id: int, duration_minutes: int = 30, db: Session = Depends(get_db)):
+@router.post("/users/{user_id}/generate-diagnostic-session", response_model=DiagnosticSessionResponse)
+def admin_generate_diagnostic_session(user_id: int, duration_minutes: int = 30, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Generate a practice session with detailed diagnostics."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -287,8 +293,8 @@ def admin_generate_diagnostic_session(user_id: int, duration_minutes: int = 30, 
         return {"session": None, "diagnostics": diagnostics, "error": str(e)}
 
 
-@router.get("/users/{user_id}/last-session-diagnostics")
-def admin_get_last_session_diagnostics(user_id: int, db: Session = Depends(get_db)):
+@router.get("/users/{user_id}/last-session-diagnostics", response_model=LastSessionDiagnosticsResponse)
+def admin_get_last_session_diagnostics(user_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get diagnostics for the user's last practice session."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -325,8 +331,8 @@ def admin_get_last_session_diagnostics(user_id: int, db: Session = Depends(get_d
 
 # ============ User Edit Endpoints ============
 
-@router.put("/users/{user_id}/info")
-def admin_update_user_info(user_id: int, update: UserInfoUpdate, db: Session = Depends(get_db)):
+@router.put("/users/{user_id}/info", response_model=UserInfoUpdateResponse)
+def admin_update_user_info(user_id: int, update: UserInfoUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Update user basic information (range, resonant note, day0 status)."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -369,8 +375,8 @@ def admin_update_user_info(user_id: int, update: UserInfoUpdate, db: Session = D
     return {"success": True, "changes": changes}
 
 
-@router.get("/users/{user_id}/capabilities/available")
-def admin_get_available_capabilities(user_id: int, instrument_id: Optional[int] = None, db: Session = Depends(get_db)):
+@router.get("/users/{user_id}/capabilities/available", response_model=AvailableCapabilitiesResponse)
+def admin_get_available_capabilities(user_id: int, instrument_id: Optional[int] = None, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get all capabilities, marking which the user has.
     
     Args:
@@ -416,8 +422,8 @@ def admin_get_available_capabilities(user_id: int, instrument_id: Optional[int] 
     return {"capabilities": result}
 
 
-@router.post("/users/{user_id}/capabilities")
-def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = Depends(get_db)):
+@router.post("/users/{user_id}/capabilities", response_model=CapabilityAddResponse)
+def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Add a capability to a user.
     
     For global capabilities (is_global=True), instrument_id should be None.
@@ -478,13 +484,13 @@ def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = D
     return {"success": True, "message": f"Added capability: {cap.name}"}
 
 
-@router.delete("/users/{user_id}/capabilities/{capability_id}")
+@router.delete("/users/{user_id}/capabilities/{capability_id}", response_model=CapabilityRemoveResponse)
 def admin_remove_user_capability(
     user_id: int, 
     capability_id: int, 
     instrument_id: Optional[int] = None,
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     """Remove a capability from a user (soft delete).
     
     Args:
@@ -513,13 +519,13 @@ def admin_remove_user_capability(
     return {"success": True, "message": "Capability removed"}
 
 
-@router.put("/users/{user_id}/capabilities/{capability_id}/toggle-mastery")
+@router.put("/users/{user_id}/capabilities/{capability_id}/toggle-mastery", response_model=CapabilityToggleMasteryResponse)
 def admin_toggle_capability_mastery(
     user_id: int, 
     capability_id: int, 
     instrument_id: Optional[int] = None,
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     """Toggle mastery status of a capability.
     
     Args:
@@ -554,8 +560,8 @@ def admin_toggle_capability_mastery(
     return {"success": True, "action": action}
 
 
-@router.get("/users/{user_id}/soft-gates/all")
-def admin_get_all_soft_gates(user_id: int, db: Session = Depends(get_db)):
+@router.get("/users/{user_id}/soft-gates/all", response_model=AllSoftGatesResponse)
+def admin_get_all_soft_gates(user_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get all soft gate dimensions with user values."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -582,8 +588,8 @@ def admin_get_all_soft_gates(user_id: int, db: Session = Depends(get_db)):
     return {"soft_gates": result}
 
 
-@router.put("/users/{user_id}/soft-gates/{dimension_name}")
-def admin_update_soft_gate(user_id: int, dimension_name: str, update: SoftGateUpdate, db: Session = Depends(get_db)):
+@router.put("/users/{user_id}/soft-gates/{dimension_name}", response_model=SoftGateUpdateResponse)
+def admin_update_soft_gate(user_id: int, dimension_name: str, update: SoftGateUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Update a user's soft gate state."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -632,8 +638,8 @@ def admin_update_soft_gate(user_id: int, dimension_name: str, update: SoftGateUp
     return {"success": True, "changes": changes}
 
 
-@router.post("/users/{user_id}/reset")
-def admin_reset_user(user_id: int, db: Session = Depends(get_db)):
+@router.post("/users/{user_id}/reset", response_model=UserResetResponse)
+def admin_reset_user(user_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Reset a user's progress completely.
     Clears: capabilities, soft gates, material states, practice history, module progress.
@@ -692,8 +698,8 @@ def admin_reset_user(user_id: int, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/users/{user_id}/grant-day0-capabilities")
-def admin_grant_day0_capabilities(user_id: int, db: Session = Depends(get_db)):
+@router.post("/users/{user_id}/grant-day0-capabilities", response_model=GrantDay0Response)
+def admin_grant_day0_capabilities(user_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Grant all Day 0 capabilities to a user.
     This includes: staff_basics, ledger_lines, note_basics, first_note,

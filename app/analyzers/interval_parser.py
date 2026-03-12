@@ -34,7 +34,7 @@ def extract_intervals(score: "stream.Score", result: "ExtractionResult"):
                     result.melodic_intervals[key_name].count += 1
                 else:
                     result.melodic_intervals[key_name] = info
-            except:
+            except (ValueError, AttributeError, TypeError) as e:
                 pass  # Skip problematic intervals
         
         # Harmonic intervals (within chords)
@@ -51,7 +51,7 @@ def extract_intervals(score: "stream.Score", result: "ExtractionResult"):
                             result.harmonic_intervals[key_name].count += 1
                         else:
                             result.harmonic_intervals[key_name] = info
-                    except:
+                    except (ValueError, AttributeError, TypeError) as e:
                         pass
 
 

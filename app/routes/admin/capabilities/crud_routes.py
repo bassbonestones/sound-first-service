@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from typing import Dict, Any
 import json
 
 from app.db import get_db
@@ -16,6 +17,10 @@ from .schemas import (
     MAX_RATING,
     MIN_DIFFICULTY_WEIGHT,
     MAX_DIFFICULTY_WEIGHT,
+    CapabilityArchiveResponse,
+    CapabilityDeleteResponse,
+    CapabilityCreateResponse,
+    CapabilityUpdateResponse,
 )
 from .helpers import check_circular_dependency, parse_prerequisite_ids, parse_soft_gate_requirements
 
@@ -23,8 +28,8 @@ from .helpers import check_circular_dependency, parse_prerequisite_ids, parse_so
 router = APIRouter()
 
 
-@router.post("/capabilities/{capability_id}/archive")
-def admin_archive_capability(capability_id: int, db: Session = Depends(get_db)):
+@router.post("/capabilities/{capability_id}/archive", response_model=CapabilityArchiveResponse)
+def admin_archive_capability(capability_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Archive a capability by setting is_active=False."""
     cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:
@@ -39,8 +44,8 @@ def admin_archive_capability(capability_id: int, db: Session = Depends(get_db)):
     return {"success": True, "message": f"Archived capability '{cap.name}'", "capability_id": capability_id, "is_active": False}
 
 
-@router.post("/capabilities/{capability_id}/restore")
-def admin_restore_capability(capability_id: int, db: Session = Depends(get_db)):
+@router.post("/capabilities/{capability_id}/restore", response_model=CapabilityArchiveResponse)
+def admin_restore_capability(capability_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Restore an archived capability by setting is_active=True."""
     cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:
@@ -55,8 +60,8 @@ def admin_restore_capability(capability_id: int, db: Session = Depends(get_db)):
     return {"success": True, "message": f"Restored capability '{cap.name}'", "capability_id": capability_id, "is_active": True}
 
 
-@router.delete("/capabilities/{capability_id}")
-def admin_delete_capability(capability_id: int, db: Session = Depends(get_db)):
+@router.delete("/capabilities/{capability_id}", response_model=CapabilityDeleteResponse)
+def admin_delete_capability(capability_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Permanently delete a capability and shift bit_indexes."""
     cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:
@@ -101,8 +106,8 @@ def admin_delete_capability(capability_id: int, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/capabilities")
-def admin_create_capability(create_data: CapabilityCreateRequest, db: Session = Depends(get_db)):
+@router.post("/capabilities", response_model=CapabilityCreateResponse)
+def admin_create_capability(create_data: CapabilityCreateRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Create a new capability at the correct position."""
     existing = db.query(Capability).filter_by(name=create_data.name).first()
     if existing:
@@ -178,8 +183,8 @@ def admin_create_capability(create_data: CapabilityCreateRequest, db: Session = 
     }
 
 
-@router.put("/capabilities/{capability_id}")
-def admin_update_capability(capability_id: int, update_data: CapabilityUpdateRequest, db: Session = Depends(get_db)):
+@router.put("/capabilities/{capability_id}", response_model=CapabilityUpdateResponse)
+def admin_update_capability(capability_id: int, update_data: CapabilityUpdateRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Update an existing capability with validation."""
     cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:

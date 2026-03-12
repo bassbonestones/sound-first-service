@@ -1,28 +1,32 @@
 """GET endpoints for capability listing and queries."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, Dict, Any, List
 
 from app.db import get_db
 from app.models.capability_schema import (
     Capability, MaterialCapability, MaterialTeachesCapability
 )
 
-from .schemas import DETECTION_TYPES, DETECTION_SOURCES, CUSTOM_DETECTION_FUNCTIONS
+from .schemas import (
+    DETECTION_TYPES, DETECTION_SOURCES, CUSTOM_DETECTION_FUNCTIONS,
+    DetectionRuleOptionsResponse, CapabilitiesListResponse, 
+    CapabilityGraphResponse, Day0CapabilitiesResponse,
+)
 from .helpers import parse_prerequisite_ids, parse_soft_gate_requirements, parse_detection_rule
 
 
 router = APIRouter()
 
 
-@router.get("/detection-rule-options")
-def get_detection_rule_options():
+@router.get("/detection-rule-options", response_model=DetectionRuleOptionsResponse)
+def get_detection_rule_options() -> Dict[str, Any]:
     """Get available options for configuring detection rules."""
     return {
         "types": DETECTION_TYPES,
         "sources": DETECTION_SOURCES,
         "custom_functions": CUSTOM_DETECTION_FUNCTIONS,
-        "schema": {
+        "rule_schema": {
             "element": {
                 "required": ["source"],
                 "optional": ["element_type", "threshold"]
@@ -59,11 +63,11 @@ def get_detection_rule_options():
     }
 
 
-@router.get("/capabilities")
+@router.get("/capabilities", response_model=CapabilitiesListResponse)
 def admin_get_capabilities(
     domain: Optional[str] = None,
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     """Get all capabilities with extended admin info."""
     query = db.query(Capability)
     if domain:
@@ -113,11 +117,11 @@ def admin_get_capabilities(
     return {"capabilities": result, "count": len(result)}
 
 
-@router.get("/capabilities/{capability_id}/graph")
+@router.get("/capabilities/{capability_id}/graph", response_model=CapabilityGraphResponse)
 def admin_get_capability_graph(
     capability_id: int,
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     """Get dependency graph for a capability."""
     cap = db.query(Capability).filter_by(id=capability_id).first()
     if not cap:
@@ -143,8 +147,8 @@ def admin_get_capability_graph(
     }
 
 
-@router.get("/day0-capabilities")
-def get_day0_capabilities():
+@router.get("/day0-capabilities", response_model=Day0CapabilitiesResponse)
+def get_day0_capabilities() -> Dict[str, Any]:
     """Get the list of capability names granted when Day 0 completes."""
     from app.services.user_service import DAY0_BASE_CAPABILITIES
     

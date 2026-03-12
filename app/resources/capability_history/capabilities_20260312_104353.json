@@ -1,0 +1,5440 @@
+{
+ "version": "capabilities_20260312_104252",
+ "count": 228,
+ "capabilities": [
+  {
+   "name": "accidental_flat_symbol",
+   "display_name": "Flat Symbol (♭)",
+   "domain": "accidental_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "note_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 0,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_flat_accidentals"
+   }
+  },
+  {
+   "name": "accidental_sharp_symbol",
+   "display_name": "Sharp Symbol (♯)",
+   "domain": "accidental_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "note_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 1,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_sharp_accidentals"
+   }
+  },
+  {
+   "name": "accidental_natural_symbol",
+   "display_name": "Natural Symbol (♮)",
+   "domain": "accidental_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "note_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 2,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_natural_accidentals"
+   }
+  },
+  {
+   "name": "double_flat_symbol",
+   "display_name": "Double Flat Symbol (𝄫)",
+   "domain": "accidental_system",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "accidental_flat_symbol"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 3,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_double_flat_accidentals"
+   }
+  },
+  {
+   "name": "double_sharp_symbol",
+   "display_name": "Double Sharp Symbol (𝄪)",
+   "domain": "accidental_system",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "accidental_sharp_symbol"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 4,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_double_sharp_accidentals"
+   }
+  },
+  {
+   "name": "articulation_legato",
+   "display_name": "Legato",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note",
+    "rhythm_quarter_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 5,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.spanner.Slur"
+   }
+  },
+  {
+   "name": "articulation_accent",
+   "display_name": "Accent (>)",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "articulation_staccato"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 6,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.Accent"
+   }
+  },
+  {
+   "name": "articulation_marcato",
+   "display_name": "Marcato (^)",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "articulation_accent"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 7,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.StrongAccent"
+   }
+  },
+  {
+   "name": "articulation_portato",
+   "display_name": "Portato",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "articulation_marcato"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 8,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.DetachedLegato"
+   }
+  },
+  {
+   "name": "articulation_staccatissimo",
+   "display_name": "Staccatissimo",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "articulation_portato"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 9,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.Staccatissimo"
+   }
+  },
+  {
+   "name": "articulation_staccato",
+   "display_name": "Staccato",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "articulation_tenuto",
+    "rhythm_eighth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 10,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.Staccato"
+   }
+  },
+  {
+   "name": "articulation_tenuto",
+   "display_name": "Tenuto (-)",
+   "domain": "articulations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "articulation_legato"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 11,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.Tenuto"
+   }
+  },
+  {
+   "name": "clef_alto",
+   "display_name": "Alto Clef",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 12,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.clef.AltoClef"
+   }
+  },
+  {
+   "name": "clef_bass",
+   "display_name": "Bass Clef",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 13,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.clef.BassClef"
+   }
+  },
+  {
+   "name": "clef_bass_8va",
+   "display_name": "Bass Clef (8va)",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "clef_bass"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 14,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_clef_bass_8va"
+   }
+  },
+  {
+   "name": "clef_movable_c_f_g",
+   "display_name": "Movable C, F, and G Clefs",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "clef_alto",
+    "clef_tenor"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 15
+  },
+  {
+   "name": "clef_tenor",
+   "display_name": "Tenor Clef",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 16,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.clef.TenorClef"
+   }
+  },
+  {
+   "name": "clef_treble",
+   "display_name": "Treble Clef",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 17,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.clef.TrebleClef"
+   }
+  },
+  {
+   "name": "clef_treble_8vb",
+   "display_name": "Treble Clef (8vb)",
+   "domain": "clef_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "clef_treble"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 18,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_clef_treble_8vb"
+   }
+  },
+  {
+   "name": "dynamic_crescendo",
+   "display_name": "Crescendo (cresc.)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_pp"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 19,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.dynamics.Crescendo"
+   }
+  },
+  {
+   "name": "dynamic_decrescendo",
+   "display_name": "Decrescendo (decresc.)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_crescendo"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 20,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_decrescendo"
+   }
+  },
+  {
+   "name": "dynamic_diminuendo",
+   "display_name": "Diminuendo",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_decrescendo"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 21,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.dynamics.Diminuendo"
+   }
+  },
+  {
+   "name": "dynamic_f",
+   "display_name": "Forte (f)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_mf"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 22,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "f"
+   }
+  },
+  {
+   "name": "dynamic_ff",
+   "display_name": "Fortissimo (ff)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_mp"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 23,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "ff"
+   }
+  },
+  {
+   "name": "dynamic_fff",
+   "display_name": "Fortississimo (fff)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_rfz"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 24,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "fff"
+   }
+  },
+  {
+   "name": "dynamic_fp",
+   "display_name": "Forte-Piano (fp)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_sfp"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 25,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "fp"
+   }
+  },
+  {
+   "name": "dynamic_mf",
+   "display_name": "Mezzo-Forte (mf)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 26,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "mf"
+   }
+  },
+  {
+   "name": "dynamic_mp",
+   "display_name": "Mezzo-Piano (mp)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_p"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 27,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "mp"
+   }
+  },
+  {
+   "name": "dynamic_p",
+   "display_name": "Piano (p)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_f"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 28,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "p"
+   }
+  },
+  {
+   "name": "dynamic_pp",
+   "display_name": "Pianissimo (pp)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_ff"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 29,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "pp"
+   }
+  },
+  {
+   "name": "dynamic_ppp",
+   "display_name": "Pianississimo (ppp)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_fff"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 30,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "ppp"
+   }
+  },
+  {
+   "name": "dynamic_rf",
+   "display_name": "Rinforzando (rf)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_fp"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 31,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "rf"
+   }
+  },
+  {
+   "name": "dynamic_rfz",
+   "display_name": "Rinforzato (rfz)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_rf"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 32,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "rfz"
+   }
+  },
+  {
+   "name": "dynamic_sf",
+   "display_name": "Sforzando (sf)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_subito"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 33,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "sf"
+   }
+  },
+  {
+   "name": "dynamic_sfp",
+   "display_name": "Sforzando-Piano (sfp)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_sfz"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 34,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "sfp"
+   }
+  },
+  {
+   "name": "dynamic_sfz",
+   "display_name": "Sforzato (sfz)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_sf"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 35,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "dynamics",
+    "field": "value",
+    "eq": "sfz"
+   }
+  },
+  {
+   "name": "dynamic_subito",
+   "display_name": "Subito (Sudden Dynamic Change)",
+   "domain": "dynamics",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "dynamic_diminuendo"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 36,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_subito"
+   }
+  },
+  {
+   "name": "expression_agitato",
+   "display_name": "Agitato",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 37,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "agitato"
+   }
+  },
+  {
+   "name": "expression_animato",
+   "display_name": "Animato",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 38,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "animato"
+   }
+  },
+  {
+   "name": "expression_appassionato",
+   "display_name": "Appassionato",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 39,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "appassionato"
+   }
+  },
+  {
+   "name": "expression_brillante",
+   "display_name": "Brillante",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 40,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "brillante"
+   }
+  },
+  {
+   "name": "expression_cantabile",
+   "display_name": "Cantabile",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 41,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "cantabile"
+   }
+  },
+  {
+   "name": "expression_con_brio",
+   "display_name": "Con brio",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 42,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "con brio"
+   }
+  },
+  {
+   "name": "expression_con_fuoco",
+   "display_name": "Con fuoco",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 43,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "con fuoco"
+   }
+  },
+  {
+   "name": "expression_con_moto",
+   "display_name": "Con moto",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 44,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "con moto"
+   }
+  },
+  {
+   "name": "expression_dolce",
+   "display_name": "Dolce",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 45,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "dolce"
+   }
+  },
+  {
+   "name": "expression_espressivo",
+   "display_name": "Espressivo",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 46,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "espressivo"
+   }
+  },
+  {
+   "name": "expression_grazioso",
+   "display_name": "Grazioso",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 47,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "grazioso"
+   }
+  },
+  {
+   "name": "expression_leggiero",
+   "display_name": "Leggiero",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 48,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "leggiero"
+   }
+  },
+  {
+   "name": "expression_maestoso",
+   "display_name": "Maestoso",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 49,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "maestoso"
+   }
+  },
+  {
+   "name": "expression_morendo",
+   "display_name": "Morendo",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 50,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "morendo"
+   }
+  },
+  {
+   "name": "expression_perdendosi",
+   "display_name": "Perdendosi",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 51,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "perdendosi"
+   }
+  },
+  {
+   "name": "expression_pesante",
+   "display_name": "Pesante",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 52,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "pesante"
+   }
+  },
+  {
+   "name": "expression_sostenuto",
+   "display_name": "Sostenuto (expressive term)",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 53,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "sostenuto"
+   }
+  },
+  {
+   "name": "expression_tranquillo",
+   "display_name": "Tranquillo",
+   "domain": "expression_terms",
+   "subdomain": null,
+   "requirement_type": "learnable_in_context",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 54,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "expressions",
+    "contains": "tranquillo"
+   }
+  },
+  {
+   "name": "form_coda",
+   "display_name": "Coda",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_ds"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 55,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_coda"
+   }
+  },
+  {
+   "name": "form_dc",
+   "display_name": "Da Capo (D.C.)",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_repeat_sign"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 56,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_da_capo"
+   }
+  },
+  {
+   "name": "form_ds",
+   "display_name": "Dal Segno (D.S.)",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_repeat_sign"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 57,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_dal_segno"
+   }
+  },
+  {
+   "name": "form_fine",
+   "display_name": "Fine",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_dc"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 58,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_fine"
+   }
+  },
+  {
+   "name": "form_first_ending",
+   "display_name": "First Ending",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_repeat_sign"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 59,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_first_ending"
+   }
+  },
+  {
+   "name": "form_repeat_sign",
+   "display_name": "Repeat Sign",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 60,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_repeat_sign"
+   }
+  },
+  {
+   "name": "form_second_ending",
+   "display_name": "Second Ending",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_first_ending"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 61,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_second_ending"
+   }
+  },
+  {
+   "name": "form_segno",
+   "display_name": "Segno",
+   "domain": "form",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "form_ds"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 62,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_segno"
+   }
+  },
+  {
+   "name": "technique_glissando",
+   "display_name": "Glissando",
+   "domain": "instrument_technique",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 63,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.spanner.Glissando"
+   }
+  },
+  {
+   "name": "interval_play_minor_2",
+   "display_name": "Play Minor 2nd",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 64,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "m2",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_major_2",
+   "display_name": "Play Major 2nd",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_2"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 65,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "M2",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_minor_3",
+   "display_name": "Play Minor 3rd",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_2"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 66,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "m3",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_major_3",
+   "display_name": "Play Major 3rd",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_3"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 67,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "M3",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_perfect_4",
+   "display_name": "Play Perfect 4th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_3"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 68,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "P4",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_perfect_5",
+   "display_name": "Play Perfect 5th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_perfect_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 69,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "P5",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_augmented_4",
+   "display_name": "Play Augmented 4th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_perfect_5"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 70,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "A4",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_minor_6",
+   "display_name": "Play Minor 6th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_augmented_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 71,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "m6",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_major_6",
+   "display_name": "Play Major 6th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_6"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 72,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "M6",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_minor_7",
+   "display_name": "Play Minor 7th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_6"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 73,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "m7",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_major_7",
+   "display_name": "Play Major 7th",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_7"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 74,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "M7",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_octave",
+   "display_name": "Play Octave",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_7"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 75,
+   "music21_detection": {
+    "type": "interval",
+    "quality": "P8",
+    "melodic": true
+   }
+  },
+  {
+   "name": "interval_play_compound_9_plus",
+   "display_name": "Play Compound Intervals (9+)",
+   "domain": "intervals_play",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_octave"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 76,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_compound_intervals"
+   }
+  },
+  {
+   "name": "interval_theory_minor_2",
+   "display_name": "Minor 2nd Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_2"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 77
+  },
+  {
+   "name": "interval_theory_major_2",
+   "display_name": "Major 2nd Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_2"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 78
+  },
+  {
+   "name": "interval_theory_minor_3",
+   "display_name": "Minor 3rd Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_3"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 79
+  },
+  {
+   "name": "interval_theory_major_3",
+   "display_name": "Major 3rd Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_3"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 80
+  },
+  {
+   "name": "interval_theory_perfect_4",
+   "display_name": "Perfect 4th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_perfect_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 81
+  },
+  {
+   "name": "interval_theory_perfect_5",
+   "display_name": "Perfect 5th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_perfect_5"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 82
+  },
+  {
+   "name": "interval_theory_augmented_4",
+   "display_name": "Augmented 4th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_augmented_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 83
+  },
+  {
+   "name": "interval_theory_minor_6",
+   "display_name": "Minor 6th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_6"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 84
+  },
+  {
+   "name": "interval_theory_major_6",
+   "display_name": "Major 6th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_6"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 85
+  },
+  {
+   "name": "interval_theory_minor_7",
+   "display_name": "Minor 7th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_minor_7"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 86
+  },
+  {
+   "name": "interval_theory_major_7",
+   "display_name": "Major 7th Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_7"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 87
+  },
+  {
+   "name": "interval_theory_octave",
+   "display_name": "Octave Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_octave"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 88
+  },
+  {
+   "name": "interval_theory_compound_9_plus",
+   "display_name": "Compound Intervals (9+) Theory",
+   "domain": "intervals_theory",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_compound_9_plus"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 89
+  },
+  {
+   "name": "circle_of_fifths_fourths",
+   "display_name": "Circle of Fifths / Fourths",
+   "domain": "key_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "key_signature_basics"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 90
+  },
+  {
+   "name": "half_steps_theory",
+   "display_name": "Half Steps Theory",
+   "domain": "key_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "key_signature_basics",
+    "note_name_recognition",
+    "octave_equivalence"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 91
+  },
+  {
+   "name": "key_signature_basics",
+   "display_name": "Key Signature Basics",
+   "domain": "key_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 92,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_any_key_signature"
+   }
+  },
+  {
+   "name": "whole_steps_theory",
+   "display_name": "Whole Steps Theory",
+   "domain": "key_system",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "key_signature_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 93
+  },
+  {
+   "name": "time_signature_basics",
+   "display_name": "Time Signature Basics",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 94,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_any_time_signature"
+   }
+  },
+  {
+   "name": "time_signature_4_4",
+   "display_name": "Time Signature: 4/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 95,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 4,
+    "denominator": 4
+   }
+  },
+  {
+   "name": "time_signature_3_4",
+   "display_name": "Time Signature: 3/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_4_4",
+    "rhythm_quarter_notes",
+    "rhythm_half_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 96,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 3,
+    "denominator": 4
+   }
+  },
+  {
+   "name": "time_signature_2_4",
+   "display_name": "Time Signature: 2/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_4_4",
+    "rhythm_quarter_notes",
+    "rhythm_half_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 97,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 2,
+    "denominator": 4
+   }
+  },
+  {
+   "name": "time_signature_6_8",
+   "display_name": "Time Signature: 6/8 (Compound Meter)",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_2_4",
+    "rhythm_eighth_notes",
+    "rhythm_triplets_eighth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 98,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 6,
+    "denominator": 8
+   }
+  },
+  {
+   "name": "time_signature_2_2",
+   "display_name": "Time Signature: 2/2 (Cut Time)",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_2_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 99,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 2,
+    "denominator": 2
+   }
+  },
+  {
+   "name": "time_signature_9_8",
+   "display_name": "Time Signature: 9/8",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_3_4",
+    "time_signature_6_8"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 100,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 9,
+    "denominator": 8
+   }
+  },
+  {
+   "name": "time_signature_12_8",
+   "display_name": "Time Signature: 12/8",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_4_4",
+    "time_signature_6_8"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 101,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 12,
+    "denominator": 8
+   }
+  },
+  {
+   "name": "time_signature_3_8",
+   "display_name": "Time Signature: 3/8",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_6_8"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 102,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 3,
+    "denominator": 8
+   }
+  },
+  {
+   "name": "time_signature_5_4",
+   "display_name": "Time Signature: 5/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_3_4",
+    "time_signature_2_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 103,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 5,
+    "denominator": 4
+   }
+  },
+  {
+   "name": "time_signature_7_8",
+   "display_name": "Time Signature: 7/8",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_3_8",
+    "time_signature_5_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 104,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 7,
+    "denominator": 8
+   }
+  },
+  {
+   "name": "time_signature_5_8",
+   "display_name": "Time Signature: 5/8",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_3_8",
+    "time_signature_5_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 105,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 5,
+    "denominator": 8
+   }
+  },
+  {
+   "name": "time_signature_3_2",
+   "display_name": "Time Signature: 3/2",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_2_2",
+    "time_signature_3_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 106,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 3,
+    "denominator": 2
+   }
+  },
+  {
+   "name": "time_signature_6_4",
+   "display_name": "Time Signature: 6/4",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "time_signature_5_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 107,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 6,
+    "denominator": 4
+   }
+  },
+  {
+   "name": "time_signature_3_16",
+   "display_name": "Time Signature: 3/16",
+   "domain": "meter",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_sixteenth_notes",
+    "time_signature_3_8"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 108,
+   "music21_detection": {
+    "type": "time_signature",
+    "numerator": 3,
+    "denominator": 16
+   }
+  },
+  {
+   "name": "ledger_lines",
+   "display_name": "Ledger Lines",
+   "domain": "notation_fundamentals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 109
+  },
+  {
+   "name": "note_basics",
+   "display_name": "Note Basics",
+   "domain": "notation_fundamentals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 110
+  },
+  {
+   "name": "staff_basics",
+   "display_name": "Staff Basics",
+   "domain": "notation_fundamentals",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 111
+  },
+  {
+   "name": "notation_breath_mark",
+   "display_name": "Breath Mark",
+   "domain": "notation_symbols",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 112,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.articulations.BreathMark"
+   }
+  },
+  {
+   "name": "notation_fermata",
+   "display_name": "Fermata",
+   "domain": "notation_symbols",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 113,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.expressions.Fermata"
+   }
+  },
+  {
+   "name": "notation_ties",
+   "display_name": "Tied Notes",
+   "domain": "notation_symbols",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 114,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_ties"
+   }
+  },
+  {
+   "name": "notation_chord_symbols",
+   "display_name": "Chord Symbols",
+   "domain": "notation_symbols",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "key_signature_basics"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 115,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_chord_symbols"
+   }
+  },
+  {
+   "name": "notation_figured_bass",
+   "display_name": "Figured Bass",
+   "domain": "notation_symbols",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "notation_chord_symbols"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 116,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_figured_bass"
+   }
+  },
+  {
+   "name": "ornament_grace_note",
+   "display_name": "Grace Note",
+   "domain": "ornaments",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_sixteenth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 117,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_grace_note"
+   }
+  },
+  {
+   "name": "ornament_mordent",
+   "display_name": "Mordent",
+   "domain": "ornaments",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "ornament_trill"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 118,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.expressions.Mordent"
+   }
+  },
+  {
+   "name": "ornament_inverted_mordent",
+   "display_name": "Inverted Mordent",
+   "domain": "ornaments",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "ornament_mordent"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 119,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.expressions.InvertedMordent"
+   }
+  },
+  {
+   "name": "ornament_tremolo",
+   "display_name": "Tremolo",
+   "domain": "ornaments",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_32nd_notes",
+    "ornament_turn"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 120,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.expressions.Tremolo"
+   }
+  },
+  {
+   "name": "ornament_trill",
+   "display_name": "Trill",
+   "domain": "ornaments",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_2",
+    "rhythm_sixteenth_notes",
+    "diatonic_scale_fragment_3"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": {
+    "interval_velocity_score": 0.5
+   },
+   "bit_index": 121,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.expressions.Trill"
+   }
+  },
+  {
+   "name": "ornament_turn",
+   "display_name": "Turn",
+   "domain": "ornaments",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "ornament_inverted_mordent"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": {
+    "interval_velocity_score": 0.5
+   },
+   "bit_index": 122,
+   "music21_detection": {
+    "type": "element",
+    "class": "music21.expressions.Turn"
+   }
+  },
+  {
+   "name": "first_note",
+   "display_name": "First Note",
+   "domain": "pitch_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 123
+  },
+  {
+   "name": "note_name_recognition",
+   "display_name": "Note Name Recognition (A-G)",
+   "domain": "pitch_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 124
+  },
+  {
+   "name": "octave_equivalence",
+   "display_name": "Octave Equivalence",
+   "domain": "pitch_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "note_name_recognition"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 125
+  },
+  {
+   "name": "accidental_raise_pitch",
+   "display_name": "Accidental Raise Pitch",
+   "domain": "pitch_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 126
+  },
+  {
+   "name": "accidental_lower_pitch",
+   "display_name": "Accidental Lower Pitch",
+   "domain": "pitch_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 127
+  },
+  {
+   "name": "pitch_direction_awareness",
+   "display_name": "Pitch Direction Awareness",
+   "domain": "pitch_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 128
+  },
+  {
+   "name": "range_span_minor_second",
+   "display_name": "Minor Second (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 129,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 1,
+    "max_semitones": 1
+   }
+  },
+  {
+   "name": "range_span_major_second",
+   "display_name": "Major Second (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 130,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 2,
+    "max_semitones": 2
+   }
+  },
+  {
+   "name": "range_span_minor_third",
+   "display_name": "Minor Third (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 131,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 3,
+    "max_semitones": 3
+   }
+  },
+  {
+   "name": "range_span_major_third",
+   "display_name": "Major Third (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 132,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 4,
+    "max_semitones": 4
+   }
+  },
+  {
+   "name": "range_span_perfect_fourth",
+   "display_name": "Perfect Fourth (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 133,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 5,
+    "max_semitones": 5
+   }
+  },
+  {
+   "name": "range_span_augmented_fourth",
+   "display_name": "Augmented Fourth (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 134,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 6,
+    "max_semitones": 6
+   }
+  },
+  {
+   "name": "range_span_perfect_fifth",
+   "display_name": "Perfect Fifth (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 135,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 7,
+    "max_semitones": 7
+   }
+  },
+  {
+   "name": "range_span_minor_sixth",
+   "display_name": "Minor Sixth (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 136,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 8,
+    "max_semitones": 8
+   }
+  },
+  {
+   "name": "range_span_major_sixth",
+   "display_name": "Major Sixth (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 137,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 9,
+    "max_semitones": 9
+   }
+  },
+  {
+   "name": "range_span_minor_seventh",
+   "display_name": "Minor Seventh (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 138,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 10,
+    "max_semitones": 10
+   }
+  },
+  {
+   "name": "range_span_major_seventh",
+   "display_name": "Major Seventh (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 4,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 139,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 11,
+    "max_semitones": 11
+   }
+  },
+  {
+   "name": "range_span_octave",
+   "display_name": "Octave (Range Span)",
+   "domain": "range_span",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [],
+   "difficulty_tier": 4,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 140,
+   "music21_detection": {
+    "type": "range",
+    "min_semitones": 12,
+    "max_semitones": 12
+   }
+  },
+  {
+   "name": "rest_whole",
+   "display_name": "Whole Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_whole_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 141,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "whole"
+   }
+  },
+  {
+   "name": "rest_half",
+   "display_name": "Half Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_whole",
+    "rhythm_half_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 142,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "half"
+   }
+  },
+  {
+   "name": "rest_quarter",
+   "display_name": "Quarter Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_half",
+    "rhythm_quarter_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 143,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "quarter"
+   }
+  },
+  {
+   "name": "rest_eighth",
+   "display_name": "Eighth Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_quarter",
+    "rhythm_eighth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 144,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "eighth"
+   }
+  },
+  {
+   "name": "rest_triplet_eighth",
+   "display_name": "Triplet Eighth Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_eighth",
+    "rhythm_triplets_eighth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 145,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_triplet_eighth_rest"
+   }
+  },
+  {
+   "name": "rest_sixteenth",
+   "display_name": "Sixteenth Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_triplet_eighth",
+    "rhythm_sixteenth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 146,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "sixteenth"
+   }
+  },
+  {
+   "name": "rest_multimeasure",
+   "display_name": "Multi-Measure Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_sixteenth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 147,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_multimeasure_rest"
+   }
+  },
+  {
+   "name": "rest_tuplet_3_quarter",
+   "display_name": "Tuplet: 3 Quarter Rests",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_multimeasure",
+    "rhythm_tuplet_3_quarters"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 148,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_tuplet_3_quarter_rest"
+   }
+  },
+  {
+   "name": "rest_32nd",
+   "display_name": "Thirty-Second Rest",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_tuplet_3_quarter",
+    "rhythm_32nd_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 149,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "32nd"
+   }
+  },
+  {
+   "name": "rest_64th",
+   "display_name": "Sixty-Fourth Rest and Beyond",
+   "domain": "rests",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rest_32nd",
+    "rhythm_64th_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 150,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "rests",
+    "field": "type",
+    "eq": "64th"
+   }
+  },
+  {
+   "name": "rhythm_whole_notes",
+   "display_name": "Whole Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 151,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "whole"
+   }
+  },
+  {
+   "name": "rhythm_half_notes",
+   "display_name": "Half Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_whole_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 152,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "half"
+   }
+  },
+  {
+   "name": "rhythm_quarter_notes",
+   "display_name": "Quarter Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_half_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 153,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "quarter"
+   }
+  },
+  {
+   "name": "rhythm_eighth_notes",
+   "display_name": "Eighth Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_quarter_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 154,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "eighth"
+   }
+  },
+  {
+   "name": "rhythm_dotted_half",
+   "display_name": "Dotted Half Note",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_eighth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 155,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "dotted_half"
+   }
+  },
+  {
+   "name": "rhythm_dotted_quarter",
+   "display_name": "Dotted Quarter Note",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_dotted_half"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 156,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "dotted_quarter"
+   }
+  },
+  {
+   "name": "rhythm_ties_across_beats",
+   "display_name": "Ties Across Beats",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_dotted_quarter"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 157,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_ties"
+   }
+  },
+  {
+   "name": "rhythm_triplets_eighth",
+   "display_name": "Triplet (Eighth-Note Triplet)",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_ties_across_beats"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 158,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_eighth_triplets"
+   }
+  },
+  {
+   "name": "rhythm_sixteenth_notes",
+   "display_name": "Sixteenth Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_triplets_eighth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 159,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "sixteenth"
+   }
+  },
+  {
+   "name": "rhythm_syncopation",
+   "display_name": "Syncopation",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_sixteenth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 160,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_syncopation"
+   }
+  },
+  {
+   "name": "rhythm_dotted_eighth",
+   "display_name": "Dotted Eighth Note",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_syncopation"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 161,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "dotted_eighth"
+   }
+  },
+  {
+   "name": "rhythm_tuplet_3_quarters",
+   "display_name": "Tuplet: 3 Quarter Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_dotted_eighth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 162,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_quarter_triplets"
+   }
+  },
+  {
+   "name": "rhythm_32nd_notes",
+   "display_name": "Thirty-Second Notes",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_tuplet_3_quarters"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 163,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "32nd"
+   }
+  },
+  {
+   "name": "rhythm_dotted_sixteenth",
+   "display_name": "Dotted Sixteenth Note",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_32nd_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 164,
+   "music21_detection": {
+    "type": "compound",
+    "source": "notes",
+    "conditions": [
+     {
+      "field": "type",
+      "eq": "sixteenth"
+     },
+     {
+      "field": "dots",
+      "gte": 1
+     }
+    ]
+   }
+  },
+  {
+   "name": "rhythm_double_dotted_half",
+   "display_name": "Double-Dotted Half Note",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_dotted_sixteenth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 165,
+   "music21_detection": {
+    "type": "compound",
+    "source": "notes",
+    "conditions": [
+     {
+      "field": "type",
+      "eq": "half"
+     },
+     {
+      "field": "dots",
+      "gte": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "rhythm_dotted_whole",
+   "display_name": "Dotted Whole Note",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_double_dotted_half",
+    "time_signature_3_2",
+    "time_signature_6_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 166,
+   "music21_detection": {
+    "type": "compound",
+    "source": "notes",
+    "conditions": [
+     {
+      "field": "type",
+      "eq": "whole"
+     },
+     {
+      "field": "dots",
+      "gte": 1
+     }
+    ]
+   }
+  },
+  {
+   "name": "rhythm_64th_notes",
+   "display_name": "Sixty-Fourth Notes and Beyond",
+   "domain": "rhythm_duration",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_32nd_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 167,
+   "music21_detection": {
+    "type": "value_match",
+    "source": "notes",
+    "field": "type",
+    "eq": "64th"
+   }
+  },
+  {
+   "name": "pulse_tracking",
+   "display_name": "Pulse Tracking",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "first_note"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 168
+  },
+  {
+   "name": "pulse_tracking_accent_shifting",
+   "display_name": "Pulse Tracking: Accent Shifting",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking_drum_loop"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 169
+  },
+  {
+   "name": "pulse_tracking_call_response",
+   "display_name": "Pulse Tracking: Call and Response",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 170
+  },
+  {
+   "name": "pulse_tracking_clapping",
+   "display_name": "Pulse Tracking: Clapping",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 171
+  },
+  {
+   "name": "pulse_tracking_drum_loop",
+   "display_name": "Pulse Tracking: Drum Loop",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 172
+  },
+  {
+   "name": "pulse_tracking_dynamic_rhythm_control",
+   "display_name": "Pulse Tracking: Dynamic Rhythm Control",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 173
+  },
+  {
+   "name": "pulse_tracking_guided_improv",
+   "display_name": "Pulse Tracking: Guided Improvisation",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 174
+  },
+  {
+   "name": "pulse_tracking_metronome_fade",
+   "display_name": "Pulse Tracking: Metronome Fade Out / In",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 175
+  },
+  {
+   "name": "pulse_tracking_multi_layer_contrast",
+   "display_name": "Pulse Tracking: Multi-Layer Contrast",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking_polyrhythm_intro"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 176
+  },
+  {
+   "name": "pulse_tracking_polyrhythm_intro",
+   "display_name": "Pulse Tracking: Polyrhythm Introduction",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking_subdividing"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 177
+  },
+  {
+   "name": "pulse_tracking_rest_based",
+   "display_name": "Pulse Tracking: Rest-Based Rhythms",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 178
+  },
+  {
+   "name": "pulse_tracking_rhythm_ear_training",
+   "display_name": "Pulse Tracking: Rhythm Ear Training",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking_call_response"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 179
+  },
+  {
+   "name": "pulse_tracking_subdividing",
+   "display_name": "Pulse Tracking: Subdividing Beats",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 180
+  },
+  {
+   "name": "pulse_tracking_vocal_counting",
+   "display_name": "Pulse Tracking: Vocal Counting",
+   "domain": "rhythm_foundation",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 181
+  },
+  {
+   "name": "diatonic_scale_pattern",
+   "display_name": "Diatonic Scale Pattern Theory",
+   "domain": "scales_diatonic",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "whole_steps_theory",
+    "half_steps_theory"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 182
+  },
+  {
+   "name": "scale_major",
+   "display_name": "Major Scale (Ionian Mode)",
+   "domain": "scales_diatonic",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "whole_steps_theory",
+    "half_steps_theory",
+    "range_span_octave",
+    "diatonic_scale_fragment_7"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 183
+  },
+  {
+   "name": "scale_natural_minor",
+   "display_name": "Natural Minor Scale (Aeolian Mode)",
+   "domain": "scales_diatonic",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_major"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 184
+  },
+  {
+   "name": "mode_dorian",
+   "display_name": "Dorian Mode",
+   "domain": "scales_modes",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_chromatic"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 185
+  },
+  {
+   "name": "mode_locrian",
+   "display_name": "Locrian Mode",
+   "domain": "scales_modes",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "mode_mixolydian"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 186
+  },
+  {
+   "name": "mode_lydian",
+   "display_name": "Lydian Mode",
+   "domain": "scales_modes",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "mode_phrygian"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 187
+  },
+  {
+   "name": "mode_mixolydian",
+   "display_name": "Mixolydian Mode",
+   "domain": "scales_modes",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "mode_lydian"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 188
+  },
+  {
+   "name": "mode_phrygian",
+   "display_name": "Phrygian Mode",
+   "domain": "scales_modes",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "mode_dorian"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 189
+  },
+  {
+   "name": "scale_major_pentatonic",
+   "display_name": "Major Pentatonic Scale",
+   "domain": "scales_pentatonic",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_major"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 190
+  },
+  {
+   "name": "scale_minor_pentatonic",
+   "display_name": "Minor Pentatonic Scale",
+   "domain": "scales_pentatonic",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_natural_minor"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 191
+  },
+  {
+   "name": "scale_chromatic",
+   "display_name": "Chromatic Scale",
+   "domain": "scales_symmetric",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_minor_pentatonic"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 192
+  },
+  {
+   "name": "scale_harmonic_minor",
+   "display_name": "Harmonic Minor Scale",
+   "domain": "scales_variations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_natural_minor"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 193
+  },
+  {
+   "name": "scale_major_minor",
+   "display_name": "Major-Minor Scale (Variant)",
+   "domain": "scales_variations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_minor_major"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 194
+  },
+  {
+   "name": "scale_melodic_minor",
+   "display_name": "Melodic Minor Scale",
+   "domain": "scales_variations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_harmonic_minor"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 195
+  },
+  {
+   "name": "scale_minor_major",
+   "display_name": "Minor-Major Scale (Variant)",
+   "domain": "scales_variations",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "scale_melodic_minor"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 196
+  },
+  {
+   "name": "tempo_skill_a_tempo",
+   "display_name": "A Tempo",
+   "domain": "tempo_skills",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tempo_skill_ritardando"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 197,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "a tempo"
+   }
+  },
+  {
+   "name": "tempo_skill_accelerando",
+   "display_name": "Accelerando",
+   "domain": "tempo_skills",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tempo_skill_a_tempo"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 198,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "accel"
+   }
+  },
+  {
+   "name": "tempo_skill_rallentando",
+   "display_name": "Rallentando (rall.)",
+   "domain": "tempo_skills",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tempo_skill_ritardando"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 199,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "rall"
+   }
+  },
+  {
+   "name": "tempo_skill_ritardando",
+   "display_name": "Ritardando (rit.)",
+   "domain": "tempo_skills",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tempo_term_allegro"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 200,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "rit"
+   }
+  },
+  {
+   "name": "tempo_skill_rubato",
+   "display_name": "Rubato (Elastic Time)",
+   "domain": "tempo_skills",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tempo_skill_accelerando"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 201,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "rubato"
+   }
+  },
+  {
+   "name": "tempo_term_adagio",
+   "display_name": "Adagio (Slow, Expressive)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_largo"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 202,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "adagio"
+   }
+  },
+  {
+   "name": "tempo_term_allegretto",
+   "display_name": "Allegretto (Lightly Fast)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_moderato"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 203,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "allegretto"
+   }
+  },
+  {
+   "name": "tempo_term_allegro",
+   "display_name": "Allegro (Bright, Fast)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_allegretto",
+    "rhythm_eighth_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 204,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "allegro"
+   }
+  },
+  {
+   "name": "tempo_term_andante",
+   "display_name": "Andante (Walking Pace)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_adagio",
+    "rhythm_quarter_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 205,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "andante"
+   }
+  },
+  {
+   "name": "tempo_term_largo",
+   "display_name": "Largo (Broad, Spacious)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "rhythm_whole_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 206,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "largo"
+   }
+  },
+  {
+   "name": "tempo_term_moderato",
+   "display_name": "Moderato (Moderate, Controlled)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_andante"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 207,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "moderato"
+   }
+  },
+  {
+   "name": "tempo_term_prestissimo",
+   "display_name": "Prestissimo (Extremely Fast)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_presto"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 208,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "prestissimo"
+   }
+  },
+  {
+   "name": "tempo_term_presto",
+   "display_name": "Presto (Very Fast)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_vivace"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 209,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "presto"
+   }
+  },
+  {
+   "name": "tempo_term_vivace",
+   "display_name": "Vivace (Lively)",
+   "domain": "tempo_terms",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "pulse_tracking",
+    "tempo_term_allegro"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 210,
+   "music21_detection": {
+    "type": "text_match",
+    "source": "tempo_markings",
+    "contains": "vivace"
+   }
+  },
+  {
+   "name": "texture_four_voices",
+   "display_name": "Four Voices",
+   "domain": "texture",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "texture_three_voices"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 211,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_four_voices"
+   }
+  },
+  {
+   "name": "texture_three_voices",
+   "display_name": "Three Voices",
+   "domain": "texture",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "texture_two_voices"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 212,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_three_voices"
+   }
+  },
+  {
+   "name": "texture_two_voices",
+   "display_name": "Two Voices",
+   "domain": "texture",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "staff_basics"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 213,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_two_voices"
+   }
+  },
+  {
+   "name": "diatonic_scale_fragment_2",
+   "display_name": "Diatonic Scale Fragment (2 Notes)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "interval_play_major_2"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 214,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_scale_fragment_2"
+   }
+  },
+  {
+   "name": "diatonic_scale_fragment_3",
+   "display_name": "Diatonic Scale Fragment (3 Notes)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "diatonic_scale_fragment_2",
+    "range_span_major_third"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 215,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_scale_fragment_3"
+   }
+  },
+  {
+   "name": "diatonic_scale_fragment_4",
+   "display_name": "Diatonic Scale Fragment (4 Notes)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "diatonic_scale_fragment_3",
+    "range_span_perfect_fourth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 216,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_scale_fragment_4"
+   }
+  },
+  {
+   "name": "diatonic_scale_fragment_5",
+   "display_name": "Diatonic Scale Fragment (5 Notes)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "range_span_perfect_fifth",
+    "diatonic_scale_fragment_4"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 217,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_scale_fragment_5"
+   }
+  },
+  {
+   "name": "diatonic_scale_fragment_6",
+   "display_name": "Diatonic Scale Fragment (6 Notes)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "range_span_major_sixth",
+    "diatonic_scale_fragment_5"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 218,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_scale_fragment_6"
+   }
+  },
+  {
+   "name": "diatonic_scale_fragment_7",
+   "display_name": "Diatonic Scale Fragment (7 Notes)",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "diatonic_scale_fragment_6",
+    "range_span_major_seventh"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 219,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_scale_fragment_7"
+   }
+  },
+  {
+   "name": "tonal_chromatic_approach_tones",
+   "display_name": "Chromatic Approach Tones",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "diatonic_scale_fragment_7"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 220,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_chromatic_approach_tones"
+   }
+  },
+  {
+   "name": "tonal_modulation_awareness",
+   "display_name": "Modulation Awareness",
+   "domain": "tonal_context",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tonal_chromatic_approach_tones"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 221,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_modulation"
+   }
+  },
+  {
+   "name": "tuplet_duplet",
+   "display_name": "Duplet",
+   "domain": "tuplets",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tuplet_triplet_general"
+   ],
+   "difficulty_tier": 2,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 222,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_duplet"
+   }
+  },
+  {
+   "name": "tuplet_quintuplet",
+   "display_name": "Quintuplet",
+   "domain": "tuplets",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tuplet_triplet_general"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 223,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_quintuplet"
+   }
+  },
+  {
+   "name": "tuplet_septuplet",
+   "display_name": "Septuplet",
+   "domain": "tuplets",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tuplet_sextuplet"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 224,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_septuplet"
+   }
+  },
+  {
+   "name": "tuplet_sextuplet",
+   "display_name": "Sextuplet",
+   "domain": "tuplets",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tuplet_quintuplet"
+   ],
+   "difficulty_tier": 3,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 225,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_sextuplet"
+   }
+  },
+  {
+   "name": "tuplet_triplet_general",
+   "display_name": "Triplet (General Concept)",
+   "domain": "tuplets",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "rhythm_triplets_eighth"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 226,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_triplet_general"
+   }
+  },
+  {
+   "name": "tuplet_triplet_quarter",
+   "display_name": "Triplet Quarter Notes",
+   "domain": "tuplets",
+   "subdomain": null,
+   "requirement_type": "required",
+   "prerequisite_names": [
+    "tuplet_triplet_general",
+    "rhythm_quarter_notes"
+   ],
+   "difficulty_tier": 1,
+   "mastery_type": "single",
+   "mastery_count": 1,
+   "evidence_required_count": 1,
+   "evidence_distinct_materials": false,
+   "evidence_acceptance_threshold": 4,
+   "evidence_qualifier_json": {},
+   "difficulty_weight": 1.0,
+   "soft_gate_requirements": null,
+   "bit_index": 227,
+   "music21_detection": {
+    "type": "custom",
+    "function": "detect_quarter_triplets"
+   }
+  }
+ ]
+}

@@ -74,7 +74,7 @@ def extract_note_data(score: stream.Score) -> Dict:
             # Get measure number for this note
             try:
                 measure_num = n.measureNumber if hasattr(n, 'measureNumber') and n.measureNumber else 1
-            except:
+            except (AttributeError, TypeError):
                 measure_num = 1
             note_measure_numbers.append(measure_num)
             
@@ -115,7 +115,7 @@ def extract_note_data(score: stream.Score) -> Dict:
             # Get measure number for this chord
             try:
                 measure_num = n.measureNumber if hasattr(n, 'measureNumber') and n.measureNumber else 1
-            except:
+            except (AttributeError, TypeError):
                 measure_num = 1
             # Count all pitches in chord for density (matches total_notes counting)
             for _ in n.pitches:
