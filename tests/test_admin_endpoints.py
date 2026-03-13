@@ -289,7 +289,7 @@ class TestAdminCapabilityEndpoints:
         response = client.get("/admin/detection-rule-options")
         assert response.status_code == 200
     
-    def test_export_capabilities(self, client):
+    def test_export_capabilities(self, client, protect_capabilities_json):
         """POST /admin/capabilities/export exports capabilities."""
         response = client.post("/admin/capabilities/export", json={"capability_ids": []})
         assert response.status_code in [200, 422]

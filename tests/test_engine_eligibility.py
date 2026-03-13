@@ -9,7 +9,11 @@ from app.engine.eligibility import (
     check_bitmask_eligibility,
     check_content_dimension_eligibility,
     is_material_eligible,
+    check_unified_score_eligibility,
+    get_hazard_warnings,
 )
+from app.engine.models import Bucket, MaterialCandidate
+from app.engine.config import EngineConfig
 
 
 class TestCheckBitmaskEligibility:
@@ -163,3 +167,258 @@ class TestIsMaterialEligible:
             user_max_stages=None,
             has_license=True
         ) is True
+
+
+class TestCheckUnifiedScoreEligibility:
+    """Tests for check_unified_score_eligibility function."""
+
+    def test_returns_eligible_when_unified_scoring_disabled(self):
+        """Returns (True, []) when use_unified_score_eligibility is False."""
+        config = EngineConfig(use_unified_score_eligibility=False)
+        candidate = MaterialCandidate(material_id=1)
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            config=config
+        )
+        
+        assert is_eligible is True
+        assert reasons == []
+
+    def test_uses_default_config_when_none(self):
+        """Uses DEFAULT_CONFIG when config is None."""
+        candidate = MaterialCandidate(material_id=1)
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            config=None
+        )
+        
+        assert isinstance(is_eligible, bool)
+        assert isinstance(reasons, list)
+
+    def test_blocks_when_primary_score_delta_exceeded(self):
+        """Returns ineligible when material score exceeds user by too much."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            primary_scores={'rhythm': 0.9}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_primary_score_delta=0.2
+        )
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={'rhythm': 0.5},
+            config=config
+        )
+        
+        assert is_eligible is False
+        assert len(reasons) == 1
+        assert 'rhythm_too_hard' in reasons[0]
+
+    def test_eligible_when_primary_score_within_delta(self):
+        """Returns eligible when primary score delta is acceptable."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            primary_scores={'rhythm': 0.6}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_primary_score_delta=0.3
+        )
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={'rhythm': 0.5},
+            config=config
+        )
+        
+        assert is_eligible is True
+        assert reasons == []
+
+    def test_blocks_when_hazard_score_exceeds_cap(self):
+        """Returns ineligible when hazard score exceeds max."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_scores={'tempo': 0.9}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_hazard_score=0.7
+        )
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            config=config
+        )
+        
+        assert is_eligible is False
+        assert len(reasons) == 1
+        assert 'tempo_hazard_too_high' in reasons[0]
+
+    def test_relaxed_hazard_tolerance_for_maintenance_bucket(self):
+        """Uses higher hazard tolerance for maintenance bucket."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_scores={'tempo': 0.85}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_hazard_score=0.7,
+            hazard_tolerance_maintenance=0.9
+        )
+        
+        is_eligible_normal, _ = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            bucket=Bucket.NEW,
+            config=config
+        )
+        
+        is_eligible_maintenance, _ = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            bucket=Bucket.MAINTENANCE,
+            config=config
+        )
+        
+        assert is_eligible_normal is False
+        assert is_eligible_maintenance is True
+
+    def test_skips_none_primary_scores(self):
+        """Skips domains with None primary score."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            primary_scores={'rhythm': None, 'melody': 0.5}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_primary_score_delta=0.2
+        )
+        
+        is_eligible, _ = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={'rhythm': 0.1, 'melody': 0.4},
+            config=config
+        )
+        
+        assert is_eligible is True
+
+    def test_skips_none_hazard_scores(self):
+        """Skips domains with None hazard score."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_scores={'tempo': None}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_hazard_score=0.1
+        )
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            config=config
+        )
+        
+        assert is_eligible is True
+        assert reasons == []
+
+    def test_uses_zero_for_missing_user_ability(self):
+        """Uses 0.0 for user ability score when domain not in dict."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            primary_scores={'new_domain': 0.5}
+        )
+        config = EngineConfig(
+            use_unified_score_eligibility=True,
+            max_primary_score_delta=0.3
+        )
+        
+        is_eligible, reasons = check_unified_score_eligibility(
+            material_candidate=candidate,
+            user_ability_scores={},
+            config=config
+        )
+        
+        assert is_eligible is False
+
+
+class TestGetHazardWarnings:
+    """Tests for get_hazard_warnings function."""
+
+    def test_returns_copy_of_hazard_flags(self):
+        """Returns existing hazard flags."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_flags=['long_since_seen', 'unusual_key']
+        )
+        
+        warnings = get_hazard_warnings(candidate)
+        
+        assert 'long_since_seen' in warnings
+        assert 'unusual_key' in warnings
+
+    def test_adds_elevated_hazard_warnings(self):
+        """Adds warning for hazard scores above 80% of threshold."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_scores={'tempo': 0.65}
+        )
+        config = EngineConfig(max_hazard_score=0.7)
+        
+        warnings = get_hazard_warnings(candidate, config)
+        
+        assert any('tempo_elevated_hazard' in w for w in warnings)
+
+    def test_no_warning_for_low_hazard_scores(self):
+        """No warning for hazard scores below 80% of threshold."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_scores={'tempo': 0.4}
+        )
+        config = EngineConfig(max_hazard_score=0.7)
+        
+        warnings = get_hazard_warnings(candidate, config)
+        
+        assert not any('tempo_elevated_hazard' in w for w in warnings)
+
+    def test_skips_none_hazard_scores(self):
+        """Skips domains with None hazard score."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_scores={'tempo': None, 'rhythm': 0.65}
+        )
+        config = EngineConfig(max_hazard_score=0.7)
+        
+        warnings = get_hazard_warnings(candidate, config)
+        
+        assert any('rhythm_elevated_hazard' in w for w in warnings)
+        assert not any('tempo' in w for w in warnings)
+
+    def test_uses_default_config_when_none(self):
+        """Uses DEFAULT_CONFIG when config is None."""
+        candidate = MaterialCandidate(material_id=1)
+        
+        warnings = get_hazard_warnings(candidate, config=None)
+        
+        assert isinstance(warnings, list)
+
+    def test_combines_flags_and_score_warnings(self):
+        """Returns both existing flags and score-based warnings."""
+        candidate = MaterialCandidate(
+            material_id=1,
+            hazard_flags=['existing_flag'],
+            hazard_scores={'tempo': 0.9}
+        )
+        config = EngineConfig(max_hazard_score=0.7)
+        
+        warnings = get_hazard_warnings(candidate, config)
+        
+        assert 'existing_flag' in warnings
+        assert any('tempo_elevated_hazard' in w for w in warnings)

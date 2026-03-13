@@ -5,6 +5,8 @@ Shared pytest fixtures and configuration for Sound First Service tests.
 import pytest
 import os
 import sys
+import shutil
+import glob
 from datetime import datetime
 
 # Add the app directory to path
@@ -185,3 +187,43 @@ def db_session():
     
     # Cleanup
     db.close()
+
+
+@pytest.fixture
+def protect_capabilities_json():
+    """
+    Fixture that backs up capabilities.json before tests that export,
+    then restores it and cleans up any archive files created.
+    
+    Use this fixture for any test that calls the export capabilities endpoint.
+    """
+    resources_dir = os.path.join(os.path.dirname(__file__), "..", "app", "resources")
+    capabilities_file = os.path.join(resources_dir, "capabilities.json")
+    backup_file = os.path.join(resources_dir, "capabilities.json.test_backup")
+    history_dir = os.path.join(resources_dir, "capability_history")
+    
+    # Record existing archive files before test
+    existing_archives = set()
+    if os.path.exists(history_dir):
+        existing_archives = set(glob.glob(os.path.join(history_dir, "capabilities_*.json")))
+    
+    # Create backup of capabilities.json
+    if os.path.exists(capabilities_file):
+        shutil.copy2(capabilities_file, backup_file)
+    
+    yield  # Run the test
+    
+    # Cleanup: delete any new archive files created during test
+    if os.path.exists(history_dir):
+        current_archives = set(glob.glob(os.path.join(history_dir, "capabilities_*.json")))
+        new_archives = current_archives - existing_archives
+        for archive in new_archives:
+            try:
+                os.remove(archive)
+            except OSError:
+                pass
+    
+    # Restore original capabilities.json from backup
+    if os.path.exists(backup_file):
+        shutil.copy2(backup_file, capabilities_file)
+        os.remove(backup_file)

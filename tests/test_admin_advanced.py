@@ -76,7 +76,7 @@ class TestAdminCapabilityListRoutes:
 class TestAdminCapabilityBulkRoutes:
     """Tests for admin capability bulk operations."""
     
-    def test_export_capabilities(self, client):
+    def test_export_capabilities(self, client, protect_capabilities_json):
         """POST /admin/capabilities/export."""
         response = client.post("/admin/capabilities/export", json={})
         assert response.status_code in [200, 422]

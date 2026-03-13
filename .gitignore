@@ -27,3 +27,8 @@ test_audio.py
 *.mid
 node_modules
 .DS_Store
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
