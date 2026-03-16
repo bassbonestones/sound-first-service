@@ -18,8 +18,8 @@ def select_material(
     materials_by_teaches: Dict[int, List[int]],
     material_states: Dict[int, MaterialCandidate],
     get_material_masks: Callable[[int], List[int]],
-    maturity: float = None,
-    config: EngineConfig = None
+    maturity: Optional[float] = None,
+    config: Optional[EngineConfig] = None
 ) -> Optional[SessionMaterial]:
     """
     End-to-end material selection for a session.

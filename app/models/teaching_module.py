@@ -164,19 +164,20 @@ class UserLessonProgress(Base):
     )
     
     @property
-    def keys_completed(self):
+    def keys_completed(self) -> list:  # type: ignore[type-arg]
         """Get list of completed keys."""
         import json
+        from typing import cast
         try:
-            return json.loads(self.keys_completed_json or '[]')
+            return json.loads(cast(str, self.keys_completed_json) or '[]')  # type: ignore[no-any-return]
         except json.JSONDecodeError:
             return []
     
     @keys_completed.setter
-    def keys_completed(self, value):
+    def keys_completed(self, value: list) -> None:  # type: ignore[type-arg]
         """Set list of completed keys."""
         import json
-        self.keys_completed_json = json.dumps(value)
+        self.keys_completed_json = json.dumps(value)  # type: ignore[assignment]
 
 
 class LessonAttempt(Base):

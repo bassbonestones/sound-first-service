@@ -21,6 +21,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 import os
 from dotenv import load_dotenv
+from typing import Any, Dict, Generator
 from app.models import Base
 
 # Load environment variables from .env file
@@ -48,7 +49,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def get_db() -> Session:
+def get_db() -> Generator[Session, None, None]:
     """
     Dependency that provides a database session.
     
@@ -70,7 +71,7 @@ def get_db() -> Session:
         db.close()
 
 
-def check_db_health() -> dict:
+def check_db_health() -> Dict[str, Any]:
     """
     Check database connectivity and return pool status.
     
@@ -89,19 +90,39 @@ def check_db_health() -> dict:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         
-        return {
-            "status": "healthy",
-            "pool_size": pool.size(),
-            "checked_in": pool.checkedin(),
-            "checked_out": pool.checkedout(),
-            "overflow": pool.overflow(),
-        }
+        # Cast pool to QueuePool to access its methods
+        if isinstance(pool, QueuePool):
+            return {
+                "status": "healthy",
+                "pool_size": pool.size(),
+                "checked_in": pool.checkedin(),
+                "checked_out": pool.checkedout(),
+                "overflow": pool.overflow(),
+            }
+        else:
+            return {
+                "status": "healthy",
+                "pool_size": POOL_SIZE,
+                "checked_in": 0,
+                "checked_out": 0,
+                "overflow": 0,
+            }
     except Exception as e:
-        return {
-            "status": "unhealthy",
-            "pool_size": pool.size(),
-            "checked_in": pool.checkedin(),
-            "checked_out": pool.checkedout(),
-            "overflow": pool.overflow(),
-            "error": str(e),
-        }
+        if isinstance(pool, QueuePool):
+            return {
+                "status": "unhealthy",
+                "pool_size": pool.size(),
+                "checked_in": pool.checkedin(),
+                "checked_out": pool.checkedout(),
+                "overflow": pool.overflow(),
+                "error": str(e),
+            }
+        else:
+            return {
+                "status": "unhealthy",
+                "pool_size": POOL_SIZE,
+                "checked_in": 0,
+                "checked_out": 0,
+                "overflow": 0,
+                "error": str(e),
+            }

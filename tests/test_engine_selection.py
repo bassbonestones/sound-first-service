@@ -160,8 +160,7 @@ class TestSelectMaterial:
                 maturity=0.5,
             )
             
-            assert result is not None
-            assert isinstance(result, SessionMaterial)
+            # Verify result contains expected material with selection metadata
             assert result.material_id == 100
             assert result.bucket == Bucket.IN_PROGRESS
             assert result.overall_score == 0.8
@@ -203,7 +202,6 @@ class TestSelectMaterial:
             # Should have tried 3 times
             assert mock_sample.call_count == 3
             # Should fall back to pool[0]
-            assert result is not None
             assert result.material_id == 100
             assert result.bucket == Bucket.IN_PROGRESS  # Fallback bucket
 
@@ -244,7 +242,6 @@ class TestSelectMaterial:
             )
             
             # Should fall back
-            assert result is not None
             assert result.material_id == 100
 
     def test_bucket_weights_passed_to_sample_bucket(self):
@@ -322,7 +319,7 @@ class TestSelectMaterial:
             
             # Verify maturity passed to rank_candidates
             call_args = mock_rank.call_args
-            assert call_args is not None
+            # Ensure mock was called and check the maturity argument
             assert call_args[0][-1] == 0.75  # Last positional arg is maturity
 
     def test_hazard_warnings_included_in_result(self):

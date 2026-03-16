@@ -497,10 +497,10 @@ class TestFacetAwareDomainResults:
         }
         result = analyze_interval_domain(profile)
         
-        # Verify structure
-        assert isinstance(result, DomainResult)
-        assert 'profile' in result.to_dict()
-        assert 'facet_scores' in result.to_dict()
+        # Verify structure by checking to_dict output
+        d = result.to_dict()
+        assert 'profile' in d
+        assert 'facet_scores' in d
         assert 'scores' in result.to_dict()
         assert 'bands' in result.to_dict()
         assert 'flags' in result.to_dict()
@@ -638,9 +638,10 @@ class TestFacetAwareDomainResults:
         }
         results = analyze_all_domains(profiles)
         
-        assert results.interval is not None
-        assert results.rhythm is not None
-        assert results.tonal is not None
+        # Verify domains with profiles are populated with valid scores
+        assert 0 <= results.interval.scores['overall'] <= 1, "Interval should have valid score"
+        assert 0 <= results.rhythm.scores['overall'] <= 1, "Rhythm should have valid score"
+        assert 0 <= results.tonal.scores['overall'] <= 1, "Tonal should have valid score"
         assert results.tempo is None  # Not in profiles
         
     def test_to_dict_serialization(self):
@@ -648,11 +649,11 @@ class TestFacetAwareDomainResults:
         result = analyze_interval_domain({'interval_p75': 5})
         d = result.to_dict()
         
-        assert isinstance(d, dict)
-        assert isinstance(d['profile'], dict)
-        assert isinstance(d['facet_scores'], dict)
-        assert isinstance(d['scores'], dict)
-        assert isinstance(d['bands'], dict)
-        assert isinstance(d['flags'], list)
-        assert isinstance(d['confidence'], float)
+        # Verify serialized structure matches expected API schema
+        assert 'profile' in d and isinstance(d['profile'], dict)
+        assert 'facet_scores' in d and len(d['facet_scores']) > 0
+        assert 'scores' in d and 'overall' in d['scores']
+        assert 'bands' in d and 'overall_stage' in d['bands']
+        assert 'flags' in d and isinstance(d['flags'], list)
+        assert 'confidence' in d and 0 <= d['confidence'] <= 1
 

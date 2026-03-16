@@ -15,7 +15,7 @@ NOTE_TYPE_MAP = {
 }
 
 
-def get_source_data(source: str, result) -> List[Any]:
+def get_source_data(source: str, result: Any) -> List[Any]:
     """Get source data from ExtractionResult as a list of items."""
     if source == "notes":
         return _extract_notes(result)
@@ -38,7 +38,7 @@ def get_source_data(source: str, result) -> List[Any]:
     return []
 
 
-def _extract_notes(result) -> List[Dict]:
+def _extract_notes(result: Any) -> List[Dict[str, Any]]:
     """Extract note value info as pseudo-objects."""
     items = []
     
@@ -70,7 +70,7 @@ def _extract_notes(result) -> List[Dict]:
     return items
 
 
-def _extract_rests(result) -> List[Dict]:
+def _extract_rests(result: Any) -> List[Dict[str, Any]]:
     """Extract rest value info."""
     items = []
     for rest_type, count in result.rest_values.items():
@@ -80,7 +80,7 @@ def _extract_rests(result) -> List[Dict]:
     return items
 
 
-def _extract_time_signatures(result) -> List[Dict]:
+def _extract_time_signatures(result: Any) -> List[Dict[str, Any]]:
     """Extract time signature info."""
     items = []
     for ts in result.time_signatures:
@@ -91,7 +91,7 @@ def _extract_time_signatures(result) -> List[Dict]:
     return items
 
 
-def _extract_intervals(result) -> List[Dict]:
+def _extract_intervals(result: Any) -> List[Dict[str, Any]]:
     """Extract interval info from melodic and harmonic intervals."""
     items = []
     

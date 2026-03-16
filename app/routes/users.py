@@ -1,9 +1,12 @@
 """User endpoints for Sound First API."""
-from fastapi import APIRouter, Depends, Body, HTTPException
-from sqlalchemy.orm import Session as DbSession
-from pydantic import BaseModel
-from typing import List, Optional
 import datetime
+import logging
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, Depends, Body, HTTPException
+from pydantic import BaseModel
+from sqlalchemy import func
+from sqlalchemy.orm import Session as DbSession
 
 from app.db import get_db
 from app.models.core import User, Material
@@ -17,6 +20,8 @@ from app.schemas.user_schemas import (
     Day0StatusOut, InstrumentCreateOut, InstrumentUpdateOut, InstrumentDeleteOut,
     UserUpdateOut
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["users"])
 
@@ -36,7 +41,7 @@ class UserRangeIn(BaseModel):
 
 # --- Endpoints ---
 @router.get("/users/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: DbSession = Depends(get_db)) -> UserOut:
+def get_user(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get user details."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -51,7 +56,7 @@ def get_user(user_id: int, db: DbSession = Depends(get_db)) -> UserOut:
 
 
 @router.get("/users/{user_id}/journey-stage", response_model=JourneyStageOut)
-def get_user_journey_stage(user_id: int, db: DbSession = Depends(get_db)) -> JourneyStageOut:
+def get_user_journey_stage(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Estimate user's journey stage based on practice history."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -69,7 +74,7 @@ def get_user_journey_stage(user_id: int, db: DbSession = Depends(get_db)) -> Jou
 
 
 @router.post("/users/{user_id}/reset", response_model=StatusMessageResponse)
-def reset_user_data(user_id: int, db: DbSession = Depends(get_db)) -> StatusMessageResponse:
+def reset_user_data(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Reset all user data to start fresh."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -82,7 +87,7 @@ def reset_user_data(user_id: int, db: DbSession = Depends(get_db)) -> StatusMess
 
 
 @router.patch("/users/{user_id}", response_model=UserUpdateOut)
-def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = Depends(get_db)) -> UserUpdateOut:
+def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Update user fields (day0 progress, range, etc.)."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -91,16 +96,16 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = De
     was_day0_completed = user.day0_completed
     
     if data.day0_completed is not None:
-        user.day0_completed = data.day0_completed
+        user.day0_completed = data.day0_completed  # type: ignore[assignment]
     if data.day0_stage is not None:
-        user.day0_stage = data.day0_stage
+        user.day0_stage = data.day0_stage  # type: ignore[assignment]
     if data.range_low is not None:
-        user.range_low = data.range_low
+        user.range_low = data.range_low  # type: ignore[assignment]
     if data.range_high is not None:
-        user.range_high = data.range_high
+        user.range_high = data.range_high  # type: ignore[assignment]
     
     # Grant Day 0 capabilities if being completed for the first time
-    granted_capabilities = []
+    granted_capabilities: List[str] = []
     if data.day0_completed:
         mastered_count = db.query(UserCapability).filter(
             UserCapability.user_id == user.id,
@@ -119,20 +124,20 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = De
 
 
 @router.patch("/users/{user_id}/range", response_model=RangeUpdateOut)
-def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: DbSession = Depends(get_db)) -> RangeUpdateOut:
+def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Update user's comfortable playing range."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    user.range_low = data.range_low
-    user.range_high = data.range_high
+    user.range_low = data.range_low  # type: ignore[assignment]
+    user.range_high = data.range_high  # type: ignore[assignment]
     db.commit()
     return {"status": "success", "range_low": user.range_low, "range_high": user.range_high}
 
 
 @router.get("/users/{user_id}/capability-progress", response_model=CapabilityProgressOut)
-def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)) -> CapabilityProgressOut:
+def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get user's progress on capability learning."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -148,7 +153,7 @@ def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)) 
     if mastered_caps:
         mastery_dates = [c.mastered_at for c in mastered_caps if c.mastered_at]
         if mastery_dates:
-            last_mastery = max(mastery_dates)
+            last_mastery = max(mastery_dates)  # type: ignore[type-var]
     
     return {
         "user_id": user_id,
@@ -161,7 +166,7 @@ def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)) 
 
 
 @router.get("/users/{user_id}/next-capability", response_model=NextCapabilityOut)
-def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)) -> NextCapabilityOut:
+def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get the next capability that should be introduced to the user."""
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -173,7 +178,7 @@ def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)) 
         UserCapability.mastered_at.isnot(None)
     ).all()
     
-    mastered_cap_names = []
+    mastered_cap_names: List[Any] = []
     for m in mastered:
         cap = db.query(Capability).filter_by(id=m.capability_id).first()
         if cap:
@@ -181,7 +186,7 @@ def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)) 
     
     # Get all capabilities ordered
     all_caps = db.query(Capability).order_by(Capability.domain, Capability.bit_index).all()
-    caps_list = [
+    caps_list: List[Dict[str, Any]] = [
         {
             "id": cap.id,
             "name": cap.name,
@@ -219,14 +224,14 @@ def get_eligible_materials(user_id: int, db: DbSession = Depends(get_db)) -> Eli
     
     # Query materials using bitmask check
     materials = db.query(Material).filter(
-        ((Material.req_cap_mask_0 or 0).op('&')(~user_masks[0])) == 0,
-        ((Material.req_cap_mask_1 or 0).op('&')(~user_masks[1])) == 0,
-        ((Material.req_cap_mask_2 or 0).op('&')(~user_masks[2])) == 0,
-        ((Material.req_cap_mask_3 or 0).op('&')(~user_masks[3])) == 0,
-        ((Material.req_cap_mask_4 or 0).op('&')(~user_masks[4])) == 0,
-        ((Material.req_cap_mask_5 or 0).op('&')(~user_masks[5])) == 0,
-        ((Material.req_cap_mask_6 or 0).op('&')(~user_masks[6])) == 0,
-        ((Material.req_cap_mask_7 or 0).op('&')(~user_masks[7])) == 0,
+        (func.coalesce(Material.req_cap_mask_0, 0).op('&')(~user_masks[0])) == 0,
+        (func.coalesce(Material.req_cap_mask_1, 0).op('&')(~user_masks[1])) == 0,
+        (func.coalesce(Material.req_cap_mask_2, 0).op('&')(~user_masks[2])) == 0,
+        (func.coalesce(Material.req_cap_mask_3, 0).op('&')(~user_masks[3])) == 0,
+        (func.coalesce(Material.req_cap_mask_4, 0).op('&')(~user_masks[4])) == 0,
+        (func.coalesce(Material.req_cap_mask_5, 0).op('&')(~user_masks[5])) == 0,
+        (func.coalesce(Material.req_cap_mask_6, 0).op('&')(~user_masks[6])) == 0,
+        (func.coalesce(Material.req_cap_mask_7, 0).op('&')(~user_masks[7])) == 0,
     ).all()
     
     material_ids = [m.id for m in materials]
@@ -235,10 +240,10 @@ def get_eligible_materials(user_id: int, db: DbSession = Depends(get_db)) -> Eli
     ).all() if material_ids else []
     analysis_map = {a.material_id: a for a in analyses}
     
-    return {
+    return {  # type: ignore[return-value]
         "user_id": user_id,
-        "eligible_count": len(materials),
-        "materials": [
+        "total_eligible": len(materials),
+        "eligible_materials": [
             {
                 "id": m.id,
                 "title": m.title,
@@ -273,7 +278,7 @@ def grant_capability(
     was_granted, message = UserService.grant_capability(user, cap, db)
     db.commit()
     
-    return {"message": message, "capability": cap.name}
+    return {"message": message, "capability": cap.name}  # type: ignore[return-value]
 
 
 @router.post("/users/{user_id}/capabilities/revoke", response_model=MessageResponse)
@@ -294,7 +299,7 @@ def revoke_capability(
     was_revoked, message = UserService.revoke_capability(user, cap, db)
     db.commit()
     
-    return {"message": message, "capability": cap.name}
+    return {"message": message, "capability": cap.name}  # type: ignore[return-value]
 
 
 # ============================================
@@ -332,7 +337,7 @@ def list_user_instruments(user_id: int, db: DbSession = Depends(get_db)) -> User
         UserInstrument.user_id == user_id
     ).order_by(UserInstrument.is_primary.desc(), UserInstrument.created_at).all()
     
-    return {
+    return {  # type: ignore[return-value]
         "user_id": user_id,
         "last_instrument_id": user.last_instrument_id,
         "instruments": [
@@ -381,10 +386,10 @@ def select_instrument(
     if not instrument:
         raise HTTPException(status_code=404, detail="Instrument not found")
     
-    user.last_instrument_id = data.instrument_id
+    user.last_instrument_id = data.instrument_id  # type: ignore[assignment]
     db.commit()
     
-    return {
+    return {  # type: ignore[return-value]
         "status": "success",
         "last_instrument_id": data.instrument_id
     }
@@ -459,7 +464,7 @@ def get_day0_status(
     if "accidental_raise_pitch" in mastered_global_caps and "accidental_lower_pitch" in mastered_global_caps:
         skippable_stages.append(6)
     
-    return {
+    return {  # type: ignore[return-value]
         "user_id": user_id,
         "instrument_id": instrument_id,
         "mastered_global_caps": list(mastered_global_caps),
@@ -506,7 +511,7 @@ def create_user_instrument(
     user.last_instrument_id = instrument.id
     db.commit()
     
-    return {
+    return {  # type: ignore[return-value]
         "status": "success",
         "instrument": {
             "id": instrument.id,
@@ -553,48 +558,48 @@ def update_user_instrument(
         ).update({"is_primary": False})
     
     if data.instrument_name is not None:
-        instrument.instrument_name = data.instrument_name
+        instrument.instrument_name = data.instrument_name  # type: ignore[assignment]
     if data.clef is not None:
-        instrument.clef = data.clef
+        instrument.clef = data.clef  # type: ignore[assignment]
     if data.resonant_note is not None:
-        instrument.resonant_note = data.resonant_note
+        instrument.resonant_note = data.resonant_note  # type: ignore[assignment]
     if data.range_low is not None:
-        instrument.range_low = data.range_low
+        instrument.range_low = data.range_low  # type: ignore[assignment]
     if data.range_high is not None:
-        instrument.range_high = data.range_high
+        instrument.range_high = data.range_high  # type: ignore[assignment]
     if data.is_primary is not None:
-        instrument.is_primary = data.is_primary
+        instrument.is_primary = data.is_primary  # type: ignore[assignment]
     if data.day0_completed is not None:
-        instrument.day0_completed = data.day0_completed
+        instrument.day0_completed = data.day0_completed  # type: ignore[assignment]
     if data.day0_stage is not None:
-        instrument.day0_stage = data.day0_stage
+        instrument.day0_stage = data.day0_stage  # type: ignore[assignment]
     
     # Grant Day 0 capabilities if day0 is being completed for this instrument
-    granted_capabilities = []
+    granted_capabilities: List[str] = []
     if data.day0_completed and not was_day0_completed:
         granted_capabilities = UserService.grant_day0_capabilities(
             user, 
             db, 
             instrument_id=instrument_id,
-            instrument_name=instrument.instrument_name
+            instrument_name=str(instrument.instrument_name)
         )
         
         # Also update user-level day0_completed for backward compatibility
         if not user.day0_completed:
-            user.day0_completed = True
+            user.day0_completed = True  # type: ignore[assignment]
     
     # Grant range_span capability based on new range (use UserService)
-    range_span_granted = []
+    range_span_granted: List[str] = []
     if instrument.range_low and instrument.range_high:
         range_span_granted = UserService.grant_range_span_capability(
-            db, user_id, instrument_id, instrument.range_low, instrument.range_high
+            db, user_id, instrument_id, str(instrument.range_low), str(instrument.range_high)
         )
         if range_span_granted:
             granted_capabilities.extend(range_span_granted)
     
     db.commit()
     
-    return {
+    return {  # type: ignore[return-value]
         "status": "success",
         "granted_capabilities": granted_capabilities,
         "instrument": {
@@ -646,8 +651,8 @@ def delete_user_instrument(
             UserInstrument.user_id == user_id
         ).order_by(UserInstrument.created_at.desc()).first()
         if next_primary:
-            next_primary.is_primary = True
+            next_primary.is_primary = True  # type: ignore[assignment]
     
     db.commit()
     
-    return {"status": "success", "message": f"Instrument '{instrument_name}' deleted"}
+    return {"status": "success", "message": f"Instrument '{instrument_name}' deleted"}  # type: ignore[return-value]

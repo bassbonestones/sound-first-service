@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from app.exceptions import SoundFirstException
 from app.routes import (
     onboarding_router,
     config_router,
@@ -143,7 +144,7 @@ All errors return a consistent JSON structure:
 
 # Global exception handlers
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """Handle Pydantic validation errors with detailed field information."""
     errors = exc.errors()
     logger.warning(
@@ -169,7 +170,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(IntegrityError)
-async def integrity_error_handler(request: Request, exc: IntegrityError):
+async def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
     """Handle database integrity constraint violations."""
     logger.warning(
         f"Database integrity error at {request.method} {request.url.path}: {str(exc.orig)}"
@@ -186,7 +187,7 @@ async def integrity_error_handler(request: Request, exc: IntegrityError):
 
 
 @app.exception_handler(SQLAlchemyError)
-async def database_exception_handler(request: Request, exc: SQLAlchemyError):
+async def database_exception_handler(request: Request, exc: SQLAlchemyError) -> JSONResponse:
     """Handle database connection and query errors."""
     logger.error(
         f"Database error at {request.method} {request.url.path}:\n"
@@ -203,8 +204,30 @@ async def database_exception_handler(request: Request, exc: SQLAlchemyError):
     )
 
 
+@app.exception_handler(SoundFirstException)
+async def soundfirst_exception_handler(request: Request, exc: SoundFirstException) -> JSONResponse:
+    """Handle custom Sound First application exceptions.
+
+    Provides structured error responses with:
+    - Machine-readable error codes
+    - Contextual information for debugging
+    - Appropriate HTTP status codes
+    """
+    log_level = logger.warning if exc.status_code < 500 else logger.error
+    log_level(
+        f"{exc.__class__.__name__} at {request.method} {request.url.path}: "
+        f"{exc.message} (code={exc.code}, context={exc.context})"
+    )
+    response_data = exc.to_dict()
+    response_data["path"] = str(request.url.path)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=response_data,
+    )
+
+
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """Handle HTTP exceptions with consistent JSON response."""
     logger.warning(
         f"HTTP {exc.status_code} at {request.method} {request.url.path}: {exc.detail}"
@@ -221,7 +244,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 
 @app.exception_handler(ValueError)
-async def value_error_handler(request: Request, exc: ValueError):
+async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
     """Handle ValueError with 400 Bad Request."""
     logger.warning(f"ValueError at {request.method} {request.url.path}: {str(exc)}")
     return JSONResponse(
@@ -236,7 +259,7 @@ async def value_error_handler(request: Request, exc: ValueError):
 
 
 @app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Catch-all handler for unhandled exceptions."""
     # Log the full traceback for debugging
     logger.error(

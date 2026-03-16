@@ -5,7 +5,7 @@ Functions for introducing new capabilities to users through
 structured micro-teaching blocks.
 """
 
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 
 
 def should_introduce_capability(
@@ -49,8 +49,8 @@ def should_introduce_capability(
 
 def get_next_capability_to_introduce(
     user_known_caps: List[str],
-    all_caps_ordered: List[dict]
-) -> Optional[dict]:
+    all_caps_ordered: List[Dict[str, Any]]
+) -> Optional[Dict[str, Any]]:
     """
     Get the next capability to introduce based on sequence order.
     
@@ -70,8 +70,8 @@ def get_next_capability_to_introduce(
 
 
 def generate_capability_lesson_steps(
-    capability: dict
-) -> List[Dict]:
+    capability: Dict[str, Any]
+) -> List[Dict[str, Any]]:
     """
     Generate curriculum steps for a capability introduction mini-lesson.
     

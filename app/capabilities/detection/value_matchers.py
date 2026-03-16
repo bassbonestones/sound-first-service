@@ -7,7 +7,7 @@ Utility functions for checking value conditions in detection rules.
 from typing import Any, Dict
 
 
-def check_value_condition(item: Any, field_path: str, config: Dict) -> bool:
+def check_value_condition(item: Any, field_path: str, config: Dict[str, Any]) -> bool:
     """Check a single value condition against an item."""
     value = get_nested_value(item, field_path)
     
@@ -16,13 +16,13 @@ def check_value_condition(item: Any, field_path: str, config: Dict) -> bool:
     
     # Check conditions
     if "eq" in config:
-        return value == config["eq"]
+        return bool(value == config["eq"])
     if "contains" in config:
         return config["contains"].lower() in str(value).lower()
     if "gte" in config:
-        return value >= config["gte"]
+        return bool(value >= config["gte"])
     if "lte" in config:
-        return value <= config["lte"]
+        return bool(value <= config["lte"])
     
     return False
 

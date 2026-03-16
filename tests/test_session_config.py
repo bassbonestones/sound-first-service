@@ -289,7 +289,7 @@ class TestShouldShowNotation:
     def test_returns_boolean(self):
         """Returns True or False."""
         result = should_show_notation()
-        assert isinstance(result, bool)
+        assert result in (True, False)
     
     def test_distribution_matches_config(self):
         """Shows notation ~20% of the time."""

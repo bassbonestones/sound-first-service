@@ -1,10 +1,10 @@
 """JSON parsing utilities for the application."""
 
 import json
-from typing import Any, List, Union
+from typing import Any, Dict, List, Union
 
 
-def parse_focus_card_json_field(value: Any) -> Union[List, dict]:
+def parse_focus_card_json_field(value: Any) -> Any:
     """Parse a JSON string field, returning empty structure if invalid.
     
     Args:

@@ -11,8 +11,8 @@ from .models import Bucket, CapabilityProgress, MaterialCandidate, MaterialStatu
 
 def compute_fatigue_penalty(
     last_attempt_at: Optional[datetime],
-    now: datetime = None,
-    config: EngineConfig = None
+    now: Optional[datetime] = None,
+    config: Optional[EngineConfig] = None
 ) -> float:
     """
     Compute soft fatigue penalty based on recency.
@@ -76,7 +76,7 @@ def compute_novelty_value(candidate: MaterialCandidate) -> float:
 def compute_difficulty_match_value(
     candidate: MaterialCandidate,
     user_maturity: float,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> float:
     """
     Compute difficulty match value using unified scoring (Phase 6).
@@ -107,8 +107,8 @@ def score_candidate(
     candidate: MaterialCandidate,
     bucket: Bucket,
     capability_progress: Dict[int, CapabilityProgress],
-    now: datetime = None,
-    config: EngineConfig = None,
+    now: Optional[datetime] = None,
+    config: Optional[EngineConfig] = None,
     user_maturity: float = 0.5
 ) -> float:
     """
@@ -153,8 +153,8 @@ def rank_candidates(
     candidates: List[MaterialCandidate],
     bucket: Bucket,
     capability_progress: Dict[int, CapabilityProgress],
-    now: datetime = None,
-    config: EngineConfig = None,
+    now: Optional[datetime] = None,
+    config: Optional[EngineConfig] = None,
     user_maturity: float = 0.5
 ) -> List[MaterialCandidate]:
     """Rank candidates by score within a bucket."""

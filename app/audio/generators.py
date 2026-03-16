@@ -4,6 +4,7 @@ High-level audio generation functions.
 Main API for generating audio from MusicXML or single notes.
 """
 
+import logging
 from typing import Optional, Tuple
 
 from .types import AudioResult, AudioError, AudioErrorCode
@@ -21,6 +22,8 @@ from .config import (
 from .transposition import get_transposition_interval, transpose_musicxml
 from .converters import musicxml_to_midi, midi_to_audio, get_soundfont_path
 from .renderers import render_note_with_sfizz, get_sfz_path
+
+logger = logging.getLogger(__name__)
 
 
 def generate_audio_with_result(
@@ -230,7 +233,7 @@ def generate_single_note_audio(
         # Try SFZ rendering first (higher quality)
         sfz_path = get_sfz_path(instrument)
         if sfz_path and SFIZZ_RENDER_AVAILABLE:
-            print(f"Using sfizz_render for {instrument}: {sfz_path}")
+            logger.debug(f"Using sfizz_render for {instrument}: {sfz_path}")
             wav_bytes = render_note_with_sfizz(
                 note_name=parsed_note,
                 duration_seconds=float(duration_beats),
@@ -253,23 +256,23 @@ def generate_single_note_audio(
         # Fall back to standard MIDI rendering
         # Create a simple score with one whole note
         s = stream.Score()
-        p = stream.Part()
+        p = stream.Part()  # type: ignore[no-untyped-call]
         m = stream.Measure()
         
         # Set tempo (60 BPM = 1 beat per second)
-        m.insert(0, tempo.MetronomeMark(number=60))
-        m.insert(0, meter.TimeSignature('4/4'))
+        m.insert(0, tempo.MetronomeMark(number=60))  # type: ignore[no-untyped-call]
+        m.insert(0, meter.TimeSignature('4/4'))  # type: ignore[no-untyped-call, attr-defined]
         
         # Create the note
         n = note.Note(parsed_note)
         n.quarterLength = duration_beats
-        m.append(n)
+        m.append(n)  # type: ignore[no-untyped-call]
         
-        p.append(m)
-        s.append(p)
+        p.append(m)  # type: ignore[no-untyped-call]
+        s.append(p)  # type: ignore[no-untyped-call]
         
         # Write to MIDI
-        midi_file = s.write('midi')
+        midi_file = s.write('midi')  # type: ignore[no-untyped-call]
         with open(midi_file, 'rb') as f:
             midi_bytes = f.read()
         

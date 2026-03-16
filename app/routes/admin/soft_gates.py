@@ -99,22 +99,22 @@ def admin_update_soft_gate_rule(rule_id: int, data: SoftGateRuleUpdate, db: Sess
         existing = db.query(SoftGateRule).filter_by(dimension_name=data.dimension_name).first()
         if existing:
             raise HTTPException(status_code=400, detail=f"Rule for dimension '{data.dimension_name}' already exists")
-        rule.dimension_name = data.dimension_name
+        rule.dimension_name = data.dimension_name  # type: ignore[assignment]
     
     if data.frontier_buffer is not None:
-        rule.frontier_buffer = data.frontier_buffer
+        rule.frontier_buffer = data.frontier_buffer  # type: ignore[assignment]
     if data.promotion_step is not None:
-        rule.promotion_step = data.promotion_step
+        rule.promotion_step = data.promotion_step  # type: ignore[assignment]
     if data.min_attempts is not None:
-        rule.min_attempts = data.min_attempts
+        rule.min_attempts = data.min_attempts  # type: ignore[assignment]
     if data.success_rating_threshold is not None:
-        rule.success_rating_threshold = data.success_rating_threshold
+        rule.success_rating_threshold = data.success_rating_threshold  # type: ignore[assignment]
     if data.success_required_count is not None:
-        rule.success_required_count = data.success_required_count
+        rule.success_required_count = data.success_required_count  # type: ignore[assignment]
     if data.success_window_count is not None:
-        rule.success_window_count = data.success_window_count
+        rule.success_window_count = data.success_window_count  # type: ignore[assignment]
     if data.decay_halflife_days is not None:
-        rule.decay_halflife_days = data.decay_halflife_days
+        rule.decay_halflife_days = data.decay_halflife_days  # type: ignore[assignment]
     
     db.commit()
     
@@ -171,15 +171,15 @@ def admin_update_user_soft_gate_state(state_id: int, data: UserSoftGateStateUpda
         raise HTTPException(status_code=404, detail="Soft gate state not found")
     
     if data.comfortable_value is not None:
-        state.comfortable_value = data.comfortable_value
+        state.comfortable_value = data.comfortable_value  # type: ignore[assignment]
     if data.max_demonstrated_value is not None:
-        state.max_demonstrated_value = data.max_demonstrated_value
+        state.max_demonstrated_value = data.max_demonstrated_value  # type: ignore[assignment]
     if data.frontier_success_ema is not None:
-        state.frontier_success_ema = data.frontier_success_ema
+        state.frontier_success_ema = data.frontier_success_ema  # type: ignore[assignment]
     if data.frontier_attempt_count_since_last_promo is not None:
-        state.frontier_attempt_count_since_last_promo = data.frontier_attempt_count_since_last_promo
+        state.frontier_attempt_count_since_last_promo = data.frontier_attempt_count_since_last_promo  # type: ignore[assignment]
     
-    state.updated_at = datetime.datetime.utcnow()
+    state.updated_at = datetime.datetime.utcnow()  # type: ignore[assignment]
     db.commit()
     
     return {
@@ -220,7 +220,7 @@ def admin_reset_user_soft_gate_state(data: UserSoftGateStateReset, db: Session =
         state.max_demonstrated_value = dim_defaults.get("max_demonstrated_value", 0.0)
         state.frontier_success_ema = dim_defaults.get("frontier_success_ema", 0.0)
         state.frontier_attempt_count_since_last_promo = dim_defaults.get("frontier_attempt_count_since_last_promo", 0)
-        state.updated_at = datetime.datetime.utcnow()
+        state.updated_at = datetime.datetime.utcnow()  # type: ignore[assignment]
         reset_count += 1
     
     db.commit()

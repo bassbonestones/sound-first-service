@@ -1,11 +1,13 @@
 """Helper functions for capability admin endpoints."""
 import json
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Set
+
+from sqlalchemy.orm import Session
 
 from app.models.capability_schema import Capability
 
 
-def check_circular_dependency(capability_id: int, new_prereq_ids: List[int], db) -> Optional[List[str]]:
+def check_circular_dependency(capability_id: int, new_prereq_ids: List[int], db: Session) -> Optional[List[str]]:
     """
     Check if setting new_prereq_ids on capability_id would create a circular dependency.
     Returns None if no cycle, or a list of capability names forming the cycle path.
@@ -14,29 +16,29 @@ def check_circular_dependency(capability_id: int, new_prereq_ids: List[int], db)
         return None
     
     all_caps = db.query(Capability).all()
-    cap_map = {c.id: c for c in all_caps}
-    prereq_map = {}
+    cap_map: Dict[int, Capability] = {int(c.id): c for c in all_caps}
+    prereq_map: Dict[int, List[int]] = {}
     for c in all_caps:
         try:
-            prereq_map[c.id] = json.loads(c.prerequisite_ids) if c.prerequisite_ids else []
+            prereq_map[int(c.id)] = json.loads(str(c.prerequisite_ids)) if c.prerequisite_ids else []
         except json.JSONDecodeError:
-            prereq_map[c.id] = []
+            prereq_map[int(c.id)] = []
     
     prereq_map[capability_id] = new_prereq_ids
-    visited = set()
+    visited: Set[int] = set()
     
-    def dfs(current_id, path_so_far):
+    def dfs(current_id: int, path_so_far: List[str]) -> Optional[List[str]]:
         if current_id in visited:
             return None
         if current_id == capability_id and len(path_so_far) > 0:
-            return path_so_far + [cap_map[current_id].name if current_id in cap_map else f"id:{current_id}"]
+            return path_so_far + [str(cap_map[current_id].name) if current_id in cap_map else f"id:{current_id}"]
         
         visited.add(current_id)
-        path_so_far = path_so_far + [cap_map[current_id].name if current_id in cap_map else f"id:{current_id}"]
+        path_so_far = path_so_far + [str(cap_map[current_id].name) if current_id in cap_map else f"id:{current_id}"]
         
         for prereq_id in prereq_map.get(current_id, []):
             if prereq_id == capability_id:
-                prereq_name = cap_map[prereq_id].name if prereq_id in cap_map else f"id:{prereq_id}"
+                prereq_name = str(cap_map[prereq_id].name) if prereq_id in cap_map else f"id:{prereq_id}"
                 return path_so_far + [prereq_name]
             result = dfs(prereq_id, path_so_far)
             if result:
@@ -45,17 +47,17 @@ def check_circular_dependency(capability_id: int, new_prereq_ids: List[int], db)
     
     for prereq_id in new_prereq_ids:
         if prereq_id == capability_id:
-            return [cap_map[capability_id].name, cap_map[capability_id].name]
+            return [str(cap_map[capability_id].name), str(cap_map[capability_id].name)]
         
         visited.clear()
-        result = dfs(prereq_id, [cap_map[capability_id].name])
+        result = dfs(prereq_id, [str(cap_map[capability_id].name)])
         if result:
             return result
     
     return None
 
 
-def parse_json_field(value, default=None):
+def parse_json_field(value: Any, default: Any = None) -> Any:
     """Parse a JSON field that might be string or already parsed."""
     if value is None:
         return default
@@ -65,16 +67,19 @@ def parse_json_field(value, default=None):
         return default
 
 
-def parse_prerequisite_ids(cap) -> List[int]:
+def parse_prerequisite_ids(cap: Capability) -> List[int]:
     """Parse prerequisite_ids from a Capability."""
-    return parse_json_field(cap.prerequisite_ids, [])
+    result: List[int] = parse_json_field(cap.prerequisite_ids, [])
+    return result
 
 
-def parse_soft_gate_requirements(cap):
+def parse_soft_gate_requirements(cap: Capability) -> Optional[Dict[str, Any]]:
     """Parse soft_gate_requirements from a Capability."""
-    return parse_json_field(cap.soft_gate_requirements)
+    result: Optional[Dict[str, Any]] = parse_json_field(cap.soft_gate_requirements)
+    return result
 
 
-def parse_detection_rule(cap):
+def parse_detection_rule(cap: Capability) -> Optional[Dict[str, Any]]:
     """Parse music21_detection_json from a Capability."""
-    return parse_json_field(cap.music21_detection_json)
+    result: Optional[Dict[str, Any]] = parse_json_field(cap.music21_detection_json)
+    return result

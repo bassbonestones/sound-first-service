@@ -20,7 +20,7 @@ class FocusCardCreate(BaseModel):
     description: str = ""
     attention_cue: str = ""
     micro_cues: List[str] = []
-    prompts: dict = {}
+    prompts: Dict[str, Any] = {}
 
 
 class FocusCardUpdate(BaseModel):
@@ -29,7 +29,7 @@ class FocusCardUpdate(BaseModel):
     description: Optional[str] = None
     attention_cue: Optional[str] = None
     micro_cues: Optional[List[str]] = None
-    prompts: Optional[dict] = None
+    prompts: Optional[Dict[str, Any]] = None
 
 
 # --- Response Models ---
@@ -84,18 +84,18 @@ def admin_update_focus_card(focus_card_id: int, data: FocusCardUpdate, db: Sessi
         existing = db.query(FocusCard).filter_by(name=data.name).first()
         if existing:
             raise HTTPException(status_code=400, detail=f"Focus card with name '{data.name}' already exists")
-        fc.name = data.name
+        fc.name = data.name  # type: ignore[assignment]
     
     if data.category is not None:
-        fc.category = data.category
+        fc.category = data.category  # type: ignore[assignment]
     if data.description is not None:
-        fc.description = data.description
+        fc.description = data.description  # type: ignore[assignment]
     if data.attention_cue is not None:
-        fc.attention_cue = data.attention_cue
+        fc.attention_cue = data.attention_cue  # type: ignore[assignment]
     if data.micro_cues is not None:
-        fc.micro_cues = json.dumps(data.micro_cues)
+        fc.micro_cues = json.dumps(data.micro_cues)  # type: ignore[assignment]
     if data.prompts is not None:
-        fc.prompts = json.dumps(data.prompts)
+        fc.prompts = json.dumps(data.prompts)  # type: ignore[assignment]
     
     db.commit()
     

@@ -19,14 +19,14 @@ from .capability_maps import (
 )
 
 
-def extract_metadata(score: "stream.Score", result: "ExtractionResult"):
+def extract_metadata(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract title, composer, etc."""
     if score.metadata:
         result.title = score.metadata.title
         result.composer = score.metadata.composer
 
 
-def extract_clefs(score: "stream.Score", result: "ExtractionResult"):
+def extract_clefs(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract all clefs used in the score."""
     from music21 import clef
     
@@ -36,20 +36,20 @@ def extract_clefs(score: "stream.Score", result: "ExtractionResult"):
             result.clefs.add(CLEF_CAPABILITY_MAP[clef_type])
         else:
             # Generic clef handling
-            if hasattr(c, 'sign'):
+            if hasattr(c, 'sign') and c.sign:
                 result.clefs.add(f"clef_{c.sign.lower()}")
 
 
-def extract_time_signatures(score: "stream.Score", result: "ExtractionResult"):
+def extract_time_signatures(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract all time signatures."""
     from music21 import meter
     
-    for ts in score.recurse().getElementsByClass(meter.TimeSignature):
+    for ts in score.recurse().getElementsByClass(meter.TimeSignature):  # type: ignore[attr-defined]
         ts_str = f"{ts.numerator}_{ts.denominator}"
         result.time_signatures.add(f"time_sig_{ts_str}")
 
 
-def extract_key_signatures(score: "stream.Score", result: "ExtractionResult"):
+def extract_key_signatures(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract all key signatures."""
     from music21 import key
     
@@ -66,7 +66,7 @@ def extract_key_signatures(score: "stream.Score", result: "ExtractionResult"):
             result.key_signatures.add(f"key_sig_{sharps}_sharps" if sharps >= 0 else f"key_sig_{abs(sharps)}_flats")
 
 
-def extract_dynamics(score: "stream.Score", result: "ExtractionResult"):
+def extract_dynamics(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract dynamics and dynamic changes."""
     from music21 import dynamics, expressions
     
@@ -95,7 +95,7 @@ def extract_dynamics(score: "stream.Score", result: "ExtractionResult"):
             result.dynamic_changes.add('dynamic_change_subito')
 
 
-def extract_articulations(score: "stream.Score", result: "ExtractionResult"):
+def extract_articulations(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract articulations."""
     for n in score.recurse().notes:
         for art in n.articulations:
@@ -106,7 +106,7 @@ def extract_articulations(score: "stream.Score", result: "ExtractionResult"):
                 result.articulations.add(f"articulation_{art_type.lower()}")
 
 
-def extract_ornaments(score: "stream.Score", result: "ExtractionResult"):
+def extract_ornaments(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract ornaments."""
     from music21 import expressions
     
@@ -124,7 +124,7 @@ def extract_ornaments(score: "stream.Score", result: "ExtractionResult"):
                 result.ornaments.add('ornament_appoggiatura')
 
 
-def extract_tempo_expression(score: "stream.Score", result: "ExtractionResult"):
+def extract_tempo_expression(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract tempo markings, expression terms, and build tempo profile."""
     from music21 import tempo, expressions
     
@@ -144,9 +144,9 @@ def extract_tempo_expression(score: "stream.Score", result: "ExtractionResult"):
                 if term in text_lower:
                     result.tempo_markings.add(f"tempo_{term.replace(' ', '_')}")
     
-    for t in score.recurse().getElementsByClass(tempo.TempoText):
-        if t.text:
-            text_lower = t.text.lower()
+    for tt in score.recurse().getElementsByClass(tempo.TempoText):
+        if tt.text:
+            text_lower = tt.text.lower()
             for term in TEMPO_TERMS:
                 if term in text_lower:
                     result.tempo_markings.add(f"tempo_{term.replace(' ', '_')}")
@@ -165,12 +165,12 @@ def extract_tempo_expression(score: "stream.Score", result: "ExtractionResult"):
                     result.expression_terms.add(f"expression_{term.replace(' ', '_')}")
 
 
-def extract_repeats(score: "stream.Score", result: "ExtractionResult"):
+def extract_repeats(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract repeat structures."""
     from music21 import repeat, expressions, spanner
     
     # Repeat signs
-    for r in score.recurse().getElementsByClass(repeat.RepeatMark):
+    for r in score.recurse().getElementsByClass(repeat.RepeatMark):  # type: ignore[type-var]
         result.repeat_structures.add('repeat_sign')
     
     # Barlines with repeats
@@ -200,7 +200,7 @@ def extract_repeats(score: "stream.Score", result: "ExtractionResult"):
         result.repeat_structures.add('repeat_second_ending')
 
 
-def extract_other_notation(score: "stream.Score", result: "ExtractionResult"):
+def extract_other_notation(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract fermatas, breath marks, chord symbols, etc."""
     from music21 import expressions
     

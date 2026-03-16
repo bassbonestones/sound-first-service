@@ -6,7 +6,7 @@ Includes error codes, error responses, and result types.
 
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Dict, Optional
 
 
 class AudioErrorCode(str, Enum):
@@ -30,7 +30,7 @@ class AudioError:
     detail: Optional[str] = None
     can_fallback: bool = False  # True if MIDI fallback is possible
     
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "error": True,
             "code": self.code.value,

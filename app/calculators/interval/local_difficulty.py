@@ -46,8 +46,8 @@ def calculate_interval_local_difficulty(
     total_duration = max(offsets) if offsets else 0
     if total_duration < INTERVAL_WINDOW_MIN_PIECE_QL:
         # For short pieces, still report measure-level stats
-        large_by_measure = Counter()
-        extreme_by_measure = Counter()
+        large_by_measure: Counter[int] = Counter()
+        extreme_by_measure: Counter[int] = Counter()
         
         for i, intv in enumerate(interval_semitones):
             meas = measure_numbers[i] if i < len(measure_numbers) else 1
@@ -57,7 +57,7 @@ def calculate_interval_local_difficulty(
                 extreme_by_measure[meas] += 1
         
         # Find hardest measures (by total large+extreme)
-        combined = Counter()
+        combined: Counter[int] = Counter()
         for m, c in large_by_measure.items():
             combined[m] += c
         for m, c in extreme_by_measure.items():

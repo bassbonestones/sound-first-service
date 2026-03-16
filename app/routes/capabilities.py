@@ -1,9 +1,11 @@
 """Capabilities and Focus Cards endpoints."""
+import json
+import logging
+from typing import Any, Dict, List, Optional, Union
+
 from fastapi import APIRouter, Depends, Body, HTTPException, Query
 from pydantic import BaseModel
-from typing import List, Optional
 from sqlalchemy.orm import Session
-import json
 
 from app.db import get_db
 from app.models.core import Material, FocusCard
@@ -15,6 +17,8 @@ from app.schemas.capability_schemas import (
     MaterialHelpCapabilitiesOut, DomainCountOut
 )
 from app.utils.json_helpers import parse_focus_card_json_field
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["capabilities"])
 
@@ -42,11 +46,17 @@ def get_focus_cards(db: Session = Depends(get_db)) -> List[FocusCardOut]:
 def get_capabilities(db: Session = Depends(get_db)) -> List[CapabilityBasicOut]:
     """List all capabilities (legacy endpoint)."""
     capabilities = db.query(Capability).all()
-    return [{"id": c.id, "name": c.name, "domain": c.domain} for c in capabilities]
+    return [{"id": c.id, "name": c.name, "domain": c.domain} for c in capabilities]  # type: ignore[misc]
 
 
-@router.get("/capabilities/{capability_id}/lesson", deprecated=True)
-def get_capability_lesson(capability_id: int, db: Session = Depends(get_db)):
+# Response documentation for deprecated endpoints
+DEPRECATED_RESPONSES: Dict[Union[int, str], Dict[str, Any]] = {
+    410: {"description": "This endpoint is gone/deprecated"}
+}
+
+
+@router.get("/capabilities/{capability_id}/lesson", deprecated=True, status_code=410, responses=DEPRECATED_RESPONSES)
+def get_capability_lesson(capability_id: int, db: Session = Depends(get_db)) -> None:
     """
     [DEPRECATED] Get a mini-lesson for a specific capability.
     
@@ -65,12 +75,12 @@ class QuizResultIn(BaseModel):
     answer_given: Optional[str] = None
 
 
-@router.post("/capabilities/{capability_id}/quiz-result", deprecated=True)
+@router.post("/capabilities/{capability_id}/quiz-result", deprecated=True, status_code=410, responses=DEPRECATED_RESPONSES)
 def record_quiz_result(
     capability_id: int, 
     data: QuizResultIn = Body(...), 
     db: Session = Depends(get_db)
-):
+) -> None:
     """
     [DEPRECATED] Record the result of a capability quiz.
     
@@ -96,8 +106,8 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
     
     # Get all referenced capabilities
     cap_names = get_help_menu_capabilities(
-        material.required_capability_ids,
-        material.scaffolding_capability_ids
+        str(material.required_capability_ids) if material.required_capability_ids else "",
+        str(material.scaffolding_capability_ids) if material.scaffolding_capability_ids else ""
     )
     
     # Fetch full capability info from V2
@@ -113,7 +123,7 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
                 "has_lesson": bool(cap.display_name)  # V2 doesn't have explanation field
             })
     
-    return {
+    return {  # type: ignore[return-value]
         "material_id": material_id,
         "material_title": material.title,
         "capabilities": capabilities
@@ -132,8 +142,8 @@ def list_capabilities_v2(
     
     caps = query.order_by(Capability.domain, Capability.bit_index, Capability.name).all()
     
-    return [
-        {
+    result: List[CapabilityDetailOut] = [
+        {  # type: ignore[misc]
             "id": c.id,
             "name": c.name,
             "display_name": c.display_name,
@@ -145,6 +155,7 @@ def list_capabilities_v2(
         }
         for c in caps
     ]
+    return result
 
 
 @router.get("/capabilities/v2/domains", response_model=List[DomainCountOut])
@@ -157,4 +168,4 @@ def list_capability_domains(db: Session = Depends(get_db)) -> List[DomainCountOu
         func.count(Capability.id).label('count')
     ).group_by(Capability.domain).all()
     
-    return [{"domain": r[0], "count": r[1]} for r in result]
+    return [{"domain": r[0], "count": r[1]} for r in result]  # type: ignore[misc]

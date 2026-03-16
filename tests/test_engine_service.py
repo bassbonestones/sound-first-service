@@ -374,8 +374,7 @@ class TestSelectNextMaterial:
         service = PracticeEngineService(mock_db, config)
         result = service.select_next_material(user_id=42)
         
-        assert result is not None
-        assert isinstance(result, SessionMaterial)
+        # Verify result has expected structure
         assert result.material_id == 100
         assert result.bucket == Bucket.NEW
     
@@ -447,7 +446,6 @@ class TestSelectNextMaterial:
         result = service.select_next_material(user_id=42)
         
         # Should fallback to first in pool
-        assert result is not None
         assert result.material_id == 100
         assert result.bucket == Bucket.IN_PROGRESS
 

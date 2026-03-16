@@ -10,7 +10,7 @@ Provides endpoints for:
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session as DbSession
 from sqlalchemy import and_
-from typing import List, Optional
+from typing import Any, cast, Dict, List, Optional
 from datetime import datetime
 import json
 
@@ -62,21 +62,21 @@ def list_modules(
     modules = query.order_by(TeachingModule.display_order).all()
     
     # Build a lookup of capability name -> capability and id -> name for prerequisite resolution
-    all_capabilities = {cap.name: cap for cap in db.query(Capability).all()}
-    cap_id_to_name = {cap.id: cap.name for cap in all_capabilities.values()}
+    all_capabilities: Dict[Any, Any] = {cap.name: cap for cap in db.query(Capability).all()}
+    cap_id_to_name: Dict[int, str] = {cap.id: cap.name for cap in all_capabilities.values()}
     
     result = []
     for module in modules:
         # Derive prerequisites from the capability this module teaches
-        prereqs = []
+        prereqs: List[Optional[str]] = []
         if module.capability_name and module.capability_name in all_capabilities:
             taught_cap = all_capabilities[module.capability_name]
             if taught_cap.prerequisite_ids:
-                prereq_ids = json.loads(taught_cap.prerequisite_ids)
+                prereq_ids = json.loads(cast(str, taught_cap.prerequisite_ids))
                 prereqs = [cap_id_to_name.get(pid) for pid in prereq_ids if pid in cap_id_to_name]
         # For modules without a capability_name, fall back to module's prereqs
         elif not module.capability_name:
-            prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+            prereqs = json.loads(cast(str, module.prerequisite_capability_names)) if module.prerequisite_capability_names else []
         
         lesson_count = db.query(Lesson).filter(
             Lesson.module_id == module.id,
@@ -106,17 +106,17 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)) -> ModuleDetail:
         raise HTTPException(status_code=404, detail="Module not found")
     
     # Derive prerequisites from the capability this module teaches
-    prereqs = []
+    prereqs: List[str] = []
     if module.capability_name:
         taught_cap = db.query(Capability).filter(Capability.name == module.capability_name).first()
         if taught_cap and taught_cap.prerequisite_ids:
-            prereq_ids = json.loads(taught_cap.prerequisite_ids)
+            prereq_ids = json.loads(cast(str, taught_cap.prerequisite_ids))
             # Convert IDs to names
             prereq_caps = db.query(Capability).filter(Capability.id.in_(prereq_ids)).all()
-            prereqs = [cap.name for cap in prereq_caps]
+            prereqs = [cap.name for cap in prereq_caps]  # type: ignore[misc]
     # For modules without a capability_name, fall back to module's prereqs
     elif not module.capability_name:
-        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+        prereqs = json.loads(cast(str, module.prerequisite_capability_names)) if module.prerequisite_capability_names else []
     
     lessons = db.query(Lesson).filter(
         Lesson.module_id == module_id,
@@ -125,9 +125,9 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)) -> ModuleDetail:
     
     lesson_details = []
     for lesson in lessons:
-        config = json.loads(lesson.config_json) if lesson.config_json else {}
-        mastery = json.loads(lesson.mastery_json) if lesson.mastery_json else {}
-        hints = json.loads(lesson.hints_json) if lesson.hints_json else None
+        config: Dict[str, Any] = json.loads(cast(str, lesson.config_json)) if lesson.config_json else {}
+        mastery: Dict[str, Any] = json.loads(cast(str, lesson.mastery_json)) if lesson.mastery_json else {}
+        hints: Optional[List[str]] = json.loads(cast(str, lesson.hints_json)) if lesson.hints_json else None
         
         lesson_details.append(LessonDetail(
             id=lesson.id,
@@ -202,17 +202,17 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List
         
         # Get prerequisites from the capability this module teaches (NOT from the module itself)
         prereqs_met = True
-        prereq_names = []
+        prereq_names: List[str] = []
         if module.capability_name and module.capability_name in all_capabilities:
             taught_cap = all_capabilities[module.capability_name]
             if taught_cap.prerequisite_ids:
-                prereq_ids = json.loads(taught_cap.prerequisite_ids)
+                prereq_ids = json.loads(cast(str, taught_cap.prerequisite_ids))
                 prereqs_met = all(prereq_id in mastered_cap_ids for prereq_id in prereq_ids)
                 # Convert IDs to names for response
-                prereq_names = [cap_id_to_name.get(pid, "") for pid in prereq_ids if cap_id_to_name.get(pid)]
+                prereq_names = [cap_id_to_name.get(pid, "") for pid in prereq_ids if cap_id_to_name.get(pid)]  # type: ignore[misc]
         # For modules without a capability_name (like range_expansion), fall back to module's prereqs
         elif not module.capability_name:
-            module_prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+            module_prereqs: List[str] = json.loads(cast(str, module.prerequisite_capability_names)) if module.prerequisite_capability_names else []
             prereqs_met = all(cap_name in mastered_cap_names for cap_name in module_prereqs)
             prereq_names = module_prereqs
         
@@ -278,7 +278,7 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) 
         raise HTTPException(status_code=404, detail="Module not found")
     
     # Check prerequisites - must have mastered the required capabilities
-    prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+    prereqs: List[str] = json.loads(cast(str, module.prerequisite_capability_names)) if module.prerequisite_capability_names else []
     
     # Get user's mastered capabilities
     mastered_cap_names = set(
@@ -314,9 +314,9 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) 
         )
         db.add(progress)
     elif progress.status == "not_started":
-        progress.status = "in_progress"
-        progress.started_at = datetime.utcnow()
-        progress.last_activity_at = datetime.utcnow()
+        progress.status = "in_progress"  # type: ignore[assignment]
+        progress.started_at = datetime.utcnow()  # type: ignore[assignment]
+        progress.last_activity_at = datetime.utcnow()  # type: ignore[assignment]
     
     # Unlock first lesson
     first_lesson = db.query(Lesson).filter(
@@ -338,7 +338,7 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) 
             )
             db.add(lesson_progress)
         elif lesson_progress.status == "locked":
-            lesson_progress.status = "available"
+            lesson_progress.status = "available"  # type: ignore[assignment]
     
     db.commit()
     
@@ -422,14 +422,14 @@ def get_lessons_with_progress(user_id: int, module_id: str, db: DbSession = Depe
         attempts = 0
         current_streak = 0
         best_streak = 0
-        best_accuracy = None
+        best_accuracy: Optional[float] = None
         
         if progress:
             status = LessonStatus(progress.status)
-            attempts = progress.attempts
-            current_streak = progress.current_streak
-            best_streak = progress.best_streak
-            best_accuracy = progress.best_accuracy
+            attempts = progress.attempts  # type: ignore[assignment]
+            current_streak = progress.current_streak  # type: ignore[assignment]
+            best_streak = progress.best_streak  # type: ignore[assignment]
+            best_accuracy = progress.best_accuracy  # type: ignore[assignment]
         
         result.append(LessonWithProgress(
             id=lesson.id,
@@ -494,25 +494,25 @@ def record_lesson_attempt(
         db.add(progress)
     
     # Update progress
-    progress.attempts += 1
-    progress.last_attempt_at = datetime.utcnow()
+    progress.attempts += 1  # type: ignore[assignment]
+    progress.last_attempt_at = datetime.utcnow()  # type: ignore[assignment]
     
     if attempt_data.is_correct:
-        progress.correct_count += 1
-        progress.current_streak += 1
+        progress.correct_count += 1  # type: ignore[assignment]
+        progress.current_streak += 1  # type: ignore[assignment]
         if progress.current_streak > progress.best_streak:
             progress.best_streak = progress.current_streak
     else:
-        progress.current_streak = 0
+        progress.current_streak = 0  # type: ignore[assignment]
     
     # Calculate accuracy
     if progress.attempts > 0:
         accuracy = progress.correct_count / progress.attempts
         if progress.best_accuracy is None or accuracy > progress.best_accuracy:
-            progress.best_accuracy = accuracy
+            progress.best_accuracy = accuracy  # type: ignore[assignment]
     
     # Check mastery
-    mastery_config = json.loads(lesson.mastery_json) if lesson.mastery_json else {}
+    mastery_config: Dict[str, Any] = json.loads(cast(str, lesson.mastery_json)) if lesson.mastery_json else {}
     required_streak = mastery_config.get("correct_streak", 8)
     min_accuracy = mastery_config.get("min_accuracy")
     
@@ -522,8 +522,8 @@ def record_lesson_attempt(
     
     if progress.current_streak >= required_streak:
         if min_accuracy is None or (progress.best_accuracy and progress.best_accuracy >= min_accuracy):
-            progress.status = "mastered"
-            progress.mastered_at = datetime.utcnow()
+            progress.status = "mastered"  # type: ignore[assignment]
+            progress.mastered_at = datetime.utcnow()  # type: ignore[assignment]
             lesson_mastered = True
             
             # Unlock next lesson
@@ -547,7 +547,7 @@ def record_lesson_attempt(
                     )
                     db.add(next_progress)
                 elif next_progress.status == "locked":
-                    next_progress.status = "available"
+                    next_progress.status = "available"  # type: ignore[assignment]
             
             # Check if module is complete
             module = db.query(TeachingModule).filter(TeachingModule.id == lesson.module_id).first()
@@ -575,14 +575,15 @@ def record_lesson_attempt(
                 ).first()
                 
                 if module_progress:
-                    module_progress.status = "completed"
-                    module_progress.completed_at = datetime.utcnow()
+                    module_progress.status = "completed"  # type: ignore[assignment]
+                    module_progress.completed_at = datetime.utcnow()  # type: ignore[assignment]
                     module_completed = True
                 
                 # Mark capability as mastered
-                capability = db.query(Capability).filter(
-                    Capability.name == module.capability_name
-                ).first()
+                if module:
+                    capability = db.query(Capability).filter(
+                        Capability.name == module.capability_name
+                    ).first()
                 
                 if capability:
                     user_cap = db.query(UserCapability).filter(
@@ -594,19 +595,15 @@ def record_lesson_attempt(
                         user_cap = UserCapability(
                             user_id=user_id,
                             capability_id=capability.id,
-                            maturity=1.0,
-                            is_mastered=True,
                             mastered_at=datetime.utcnow(),
                         )
                         db.add(user_cap)
-                        capability_unlocked = capability.name
-                    elif not user_cap.is_mastered:
-                        user_cap.is_mastered = True
-                        user_cap.maturity = 1.0
+                        capability_unlocked = str(capability.name)
+                    elif user_cap.mastered_at is None:
                         user_cap.mastered_at = datetime.utcnow()
-                        capability_unlocked = capability.name
+                        capability_unlocked = str(capability.name)
     elif progress.status == "available":
-        progress.status = "in_progress"
+        progress.status = "in_progress"  # type: ignore[assignment]
     
     db.commit()
     db.refresh(attempt)
@@ -668,9 +665,9 @@ def mark_lesson_complete(
         raise HTTPException(status_code=404, detail="Lesson not found")
     
     # Parse mastery config to get keys_required
-    mastery_config = {}
+    mastery_config: Dict[str, Any] = {}
     try:
-        mastery_config = json.loads(lesson.mastery_json or '{}')
+        mastery_config = json.loads(cast(str, lesson.mastery_json) or '{}')
     except json.JSONDecodeError:
         pass
     keys_required = mastery_config.get('keys_required', 1)
@@ -696,28 +693,28 @@ def mark_lesson_complete(
         progress.keys_completed = keys_completed  # Uses property setter
     
     # Update progress with stats
-    progress.attempts = total_attempts
-    progress.correct_count = correct_count
-    progress.current_streak = streak
-    progress.best_streak = max(progress.best_streak or 0, streak)
+    progress.attempts = total_attempts  # type: ignore[assignment]
+    progress.correct_count = correct_count  # type: ignore[assignment]
+    progress.current_streak = streak  # type: ignore[assignment]
+    progress.best_streak = max(int(progress.best_streak or 0), streak)  # type: ignore[assignment]
     if total_attempts > 0:
-        progress.best_accuracy = correct_count / total_attempts
-    progress.last_attempt_at = datetime.utcnow()
+        progress.best_accuracy = correct_count / total_attempts  # type: ignore[assignment]
+    progress.last_attempt_at = datetime.utcnow()  # type: ignore[assignment]
     
     # Only mark as mastered if enough keys are completed
     is_now_mastered = len(keys_completed) >= keys_required
     was_already_mastered = progress.status == "mastered"
     
     if is_now_mastered and not was_already_mastered:
-        progress.status = "mastered"
-        progress.mastered_at = datetime.utcnow()
+        progress.status = "mastered"  # type: ignore[assignment]
+        progress.mastered_at = datetime.utcnow()  # type: ignore[assignment]
     elif not is_now_mastered:
-        progress.status = "in_progress"
+        progress.status = "in_progress"  # type: ignore[assignment]
     
     # Check if module is complete
     module = db.query(TeachingModule).filter(TeachingModule.id == lesson.module_id).first()
     module_completed = False
-    capability_unlocked = None
+    capability_unlocked: Optional[str] = None
     
     if module:
         # Get all required lessons for this module
@@ -746,8 +743,8 @@ def mark_lesson_complete(
             ).first()
             
             if module_progress:
-                module_progress.status = "completed"
-                module_progress.completed_at = datetime.utcnow()
+                module_progress.status = "completed"  # type: ignore[assignment]
+                module_progress.completed_at = datetime.utcnow()  # type: ignore[assignment]
                 module_completed = True
             
             # Mark capability as mastered
@@ -765,29 +762,25 @@ def mark_lesson_complete(
                     user_cap = UserCapability(
                         user_id=user_id,
                         capability_id=capability.id,
-                        maturity=1.0,
-                        is_mastered=True,
                         mastered_at=datetime.utcnow(),
                     )
                     db.add(user_cap)
-                    capability_unlocked = capability.name
-                elif not user_cap.is_mastered:
-                    user_cap.is_mastered = True
-                    user_cap.maturity = 1.0
+                    capability_unlocked = str(capability.name)
+                elif user_cap.mastered_at is None:
                     user_cap.mastered_at = datetime.utcnow()
-                    capability_unlocked = capability.name
+                    capability_unlocked = str(capability.name)
     
     db.commit()
     
-    return {
-        "status": "success",
-        "lesson_id": lesson_id,
-        "lesson_mastered": is_now_mastered,
-        "keys_completed": keys_completed,
-        "keys_required": keys_required,
-        "module_completed": module_completed,
-        "capability_unlocked": capability_unlocked,
-    }
+    return LessonCompleteOut(
+        status="success",
+        lesson_id=lesson_id,
+        lesson_mastered=is_now_mastered,
+        keys_completed=keys_completed,
+        keys_required=keys_required,
+        module_completed=module_completed,
+        capability_unlocked=capability_unlocked,
+    )
 
 
 # ==================== Exercise Generation ====================
@@ -808,14 +801,14 @@ def generate_exercise(user_id: int, lesson_id: str, db: DbSession = Depends(get_
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
     
-    config = json.loads(lesson.config_json) if lesson.config_json else {}
-    feedback_config = json.loads(lesson.feedback_json) if lesson.feedback_json else {}
+    config: Dict[str, Any] = json.loads(cast(str, lesson.config_json)) if lesson.config_json else {}
+    feedback_config: Dict[str, Any] = json.loads(cast(str, lesson.feedback_json)) if lesson.feedback_json else {}
     
     # Get user's first note for pitch exercises
-    first_note = user.resonant_note or "C4"
+    first_note = str(user.resonant_note) if user.resonant_note else "C4"
     
     # Build exercise based on template type
-    template_id = lesson.exercise_template_id
+    template_id = str(lesson.exercise_template_id) if lesson.exercise_template_id else ""
     
     exercise = GeneratedExercise(
         exercise_template_id=template_id,
@@ -838,8 +831,9 @@ def generate_exercise(user_id: int, lesson_id: str, db: DbSession = Depends(get_
         exercise.model_notes = _generate_pitch_sequence(template_id, config, first_note)
         # Randomly select correct answer
         import random
-        exercise.correct_answer = random.choice(exercise.choices)
-        exercise.model_notes = _adjust_for_answer(exercise.model_notes, exercise.correct_answer, config)
+        if exercise.choices:
+            exercise.correct_answer = random.choice(exercise.choices)
+            exercise.model_notes = _adjust_for_answer(exercise.model_notes, exercise.correct_answer, config)
     
     elif template_id in ["call_response_pitch", "call_response_rhythm", "contour_copy"]:
         # Response exercises
@@ -848,7 +842,7 @@ def generate_exercise(user_id: int, lesson_id: str, db: DbSession = Depends(get_
     return exercise
 
 
-def _get_instruction_text(template_id: str, config: dict) -> str:
+def _get_instruction_text(template_id: str, config: Dict[str, Any]) -> str:
     """Get instruction text for a template."""
     instructions = {
         "tap_with_beat": "Tap along with the beat",
@@ -865,12 +859,12 @@ def _get_instruction_text(template_id: str, config: dict) -> str:
     return instructions.get(template_id, "Complete the exercise")
 
 
-def _generate_pulse_pattern(template_id: str, config: dict) -> List[dict]:
+def _generate_pulse_pattern(template_id: str, config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Generate a pulse/rhythm pattern."""
     beats_per_measure = config.get("beats_per_measure", 4)
     measures = config.get("exercise_measures", 2)
     
-    pattern = []
+    pattern: List[Dict[str, Any]] = []
     for i in range(beats_per_measure * measures):
         pattern.append({
             "type": "beat",
@@ -880,12 +874,12 @@ def _generate_pulse_pattern(template_id: str, config: dict) -> List[dict]:
     return pattern
 
 
-def _generate_pitch_sequence(template_id: str, config: dict, first_note: str) -> List[dict]:
+def _generate_pitch_sequence(template_id: str, config: Dict[str, Any], first_note: str) -> List[Dict[str, Any]]:
     """Generate a pitch sequence starting from user's first note."""
     sequence_length = config.get("sequence_length", 2)
     
     # Simple implementation - start with first_note
-    sequence = [{"pitch": first_note, "duration_beats": 1}]
+    sequence: List[Dict[str, Any]] = [{"pitch": first_note, "duration_beats": 1}]
     
     for i in range(1, sequence_length):
         sequence.append({"pitch": first_note, "duration_beats": 1})
@@ -893,7 +887,7 @@ def _generate_pitch_sequence(template_id: str, config: dict, first_note: str) ->
     return sequence
 
 
-def _adjust_for_answer(notes: List[dict], answer: str, config: dict) -> List[dict]:
+def _adjust_for_answer(notes: List[Dict[str, Any]], answer: str, config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Adjust note sequence to produce the correct answer."""
     import random
     

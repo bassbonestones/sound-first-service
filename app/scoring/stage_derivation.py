@@ -14,7 +14,7 @@ Design principles:
 - All domains use consistent 0-6 range
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 
 
@@ -105,7 +105,7 @@ def score_to_stage(
 def stage_to_score_range(
     stage: int, 
     thresholds: Optional[List[float]] = None
-) -> tuple:
+) -> Tuple[float, float]:
     """
     Get the score range for a given stage.
     

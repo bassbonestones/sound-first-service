@@ -24,6 +24,7 @@ from .material_schemas import (
     ReanalyzeResponse,
     BatchReanalyzeRequest,
     BatchReanalyzeResponse,
+    AnalysisPreviewOut,
 )
 
 from .user_schemas import (

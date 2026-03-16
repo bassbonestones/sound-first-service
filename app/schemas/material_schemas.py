@@ -1,6 +1,6 @@
 """Material-related Pydantic models."""
 from pydantic import BaseModel, field_validator
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 import re
 
 
@@ -49,7 +49,7 @@ class MaterialAnalysisResponse(BaseModel):
     material_id: int
     title: str
     extracted_capabilities: List[str]
-    range_analysis: Optional[dict]
+    range_analysis: Optional[Dict[str, Any]]
     chromatic_complexity: float
     measure_count: int
     warnings: List[str] = []
@@ -105,8 +105,8 @@ class ReanalyzeResponse(BaseModel):
     title: str
     metrics_updated: List[str]
     capabilities_count: Optional[int] = None
-    soft_gates: Optional[dict] = None
-    range_analysis: Optional[dict] = None
+    soft_gates: Optional[Dict[str, Any]] = None
+    range_analysis: Optional[Dict[str, Any]] = None
 
 
 class BatchReanalyzeRequest(BaseModel):
@@ -184,3 +184,28 @@ class ExportMessageOut(BaseModel):
     """Export message response."""
     message: str
     path: str
+
+
+class RangeAnalysisOut(BaseModel):
+    """Range analysis details."""
+    lowest_pitch: Optional[str] = None
+    highest_pitch: Optional[str] = None
+    range_semitones: Optional[int] = None
+    pitch_density: Optional[PitchDensityOut] = None
+
+
+class AnalysisPreviewOut(BaseModel):
+    """Response model for material analysis preview (without saving)."""
+    title: str
+    capabilities: List[str]
+    capabilities_by_domain: Dict[str, Any]
+    capability_count: int
+    range_analysis: Optional[Dict[str, Any]] = None
+    chromatic_complexity: Optional[float] = None
+    measure_count: int
+    tempo_bpm: Optional[int] = None
+    tempo_marking: Optional[str] = None
+    tempo_profile: Optional[Dict[str, Any]] = None
+    soft_gates: Dict[str, Any]
+    unified_scores: Dict[str, Any]
+    detailed_extraction: Dict[str, Any]

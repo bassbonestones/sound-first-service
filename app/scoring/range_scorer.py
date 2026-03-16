@@ -53,7 +53,7 @@ def analyze_range_domain(profile: Dict[str, Any]) -> DomainResult:
     }
     
     # No scoring - requires instrument context
-    scores = DomainScores(primary=None, hazard=None, overall=None)
+    scores = DomainScores(primary=None, hazard=None, overall=None)  # type: ignore[typeddict-item]
     
     # Generate flags based on raw values
     flags = ['requires_instrument_context']
@@ -64,9 +64,9 @@ def analyze_range_domain(profile: Dict[str, Any]) -> DomainResult:
     
     return DomainResult(
         profile=profile,
-        facet_scores=facet_scores,
+        facet_scores=facet_scores,  # type: ignore[arg-type]
         scores=scores,
-        bands={'primary_stage': None, 'hazard_stage': None, 'overall_stage': None},
+        bands={'primary_stage': None, 'hazard_stage': None, 'overall_stage': None},  # type: ignore[typeddict-item]
         flags=flags,
         confidence=0.0,  # Cannot score without instrument
     )

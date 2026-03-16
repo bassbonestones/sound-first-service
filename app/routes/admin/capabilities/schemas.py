@@ -1,6 +1,6 @@
 """Pydantic schemas and constants for capability admin endpoints."""
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from app.capability_registry import CUSTOM_DETECTORS
 
@@ -181,7 +181,7 @@ class DetectionRuleOptionsResponse(BaseModel):
     types: List[str]
     sources: List[str]
     custom_functions: List[str]
-    rule_schema: Dict[str, Dict]
+    rule_schema: Dict[str, Dict[str, Any]]
 
 
 class CapabilityListItem(BaseModel):
@@ -201,7 +201,7 @@ class CapabilityListItem(BaseModel):
     evidence_distinct_materials: Optional[bool]
     evidence_acceptance_threshold: Optional[int]
     soft_gate_requirements: Optional[Dict[str, float]]
-    detection_rule: Optional[Dict]
+    detection_rule: Optional[Dict[str, Any]]
     is_active: bool
     is_global: bool
     prerequisite_ids: List[int]

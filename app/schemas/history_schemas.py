@@ -1,6 +1,6 @@
 """History and analytics response schemas."""
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 
@@ -74,3 +74,77 @@ class DueItem(BaseModel):
     is_due: bool
     interval_days: int
     ease_factor: float
+
+
+# Analytics schemas
+
+class TimeStats(BaseModel):
+    """Time-related statistics."""
+    total_minutes: float
+    total_sessions: int
+    avg_session_minutes: float
+
+
+class DomainStats(BaseModel):
+    """Domain-specific capability stats."""
+    introduced: int
+    mastered: int
+    refreshed: int
+
+
+class CapabilityProgressStats(BaseModel):
+    """Capability progress statistics."""
+    total_introduced: int
+    total_available: int
+    total_mastered: int
+    mastery_rate: float
+    by_domain: Dict[str, Any]  # Dynamic domain keys
+
+
+class RatingDistribution(BaseModel):
+    """Rating distribution counts."""
+    one: int = 0
+    two: int = 0
+    three: int = 0
+    four: int = 0
+    five: int = 0
+
+    class Config:
+        # Allow using int keys in serialization
+        populate_by_name = True
+
+
+class QualityMetrics(BaseModel):
+    """Quality-related metrics."""
+    overall_avg_rating: float
+    recent_avg_rating: float
+    rating_trend: str
+    overall_avg_fatigue: float
+    recent_avg_fatigue: float
+    fatigue_trend: str
+    strain_count: int
+    strain_rate: float
+    rating_distribution: Dict[Any, Any]  # Keys are 1-5
+
+
+class CompletionStats(BaseModel):
+    """Completion statistics."""
+    completed_mini_sessions: int
+    total_mini_sessions: int
+    completion_rate: float
+
+
+class PracticeByDayItem(BaseModel):
+    """Practice stats for a day of week."""
+    day: str
+    sessions: int
+    minutes: float
+
+
+class SessionAnalyticsOut(BaseModel):
+    """Comprehensive session history analytics."""
+    time_stats: TimeStats
+    capability_progress: CapabilityProgressStats
+    quality_metrics: QualityMetrics
+    completion_stats: CompletionStats
+    practice_by_day: List[PracticeByDayItem]

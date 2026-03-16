@@ -89,7 +89,7 @@ def build_tempo_regions(events: List[TempoEvent], total_measures: int) -> List[T
         regions.append(region)
     
     # Merge adjacent stable regions with same tempo
-    merged = []
+    merged: List[TempoRegion] = []
     for region in regions:
         if merged and (
             merged[-1].bpm == region.bpm and

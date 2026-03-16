@@ -7,6 +7,7 @@ Provides multiple rendering methods for generating audio:
 - MuseScore rendering (professional quality)
 """
 
+import logging
 import os
 import shutil
 import subprocess
@@ -22,6 +23,8 @@ from .config import (
     SOUNDFONT_DIR,
     SFZ_INSTRUMENTS,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -59,7 +62,7 @@ def render_pure_tone(
         import io
         
         if not MUSIC21_AVAILABLE:
-            print("music21 required for note parsing")
+            logger.warning("music21 required for note parsing")
             return None
         
         from music21 import pitch as m21pitch
@@ -100,11 +103,11 @@ def render_pure_tone(
             wav_file.writeframes(pcm.tobytes())
         
         wav_bytes = wav_buffer.getvalue()
-        print(f"Pure tone rendered {len(wav_bytes)} bytes for {note_name} ({frequency:.2f} Hz)")
+        logger.debug(f"Pure tone rendered {len(wav_bytes)} bytes for {note_name} ({frequency:.2f} Hz)")
         return wav_bytes
         
     except Exception as e:
-        print(f"Error rendering pure tone: {e}")
+        logger.error(f"Error rendering pure tone: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -150,18 +153,18 @@ def render_note_with_sfizz(
         WAV audio bytes, or None on error
     """
     if not SFIZZ_RENDER_AVAILABLE:
-        print("sfizz_render CLI not available")
+        logger.warning("sfizz_render CLI not available")
         return None
     
     # Get SFZ path
     if sfz_path is None:
         sfz_path = get_sfz_path(instrument)
     if sfz_path is None:
-        print(f"No SFZ file found for {instrument}")
+        logger.warning(f"No SFZ file found for {instrument}")
         return None
     
     if not MUSIC21_AVAILABLE:
-        print("music21 required for MIDI generation")
+        logger.warning("music21 required for MIDI generation")
         return None
     
     try:
@@ -169,30 +172,30 @@ def render_note_with_sfizz(
         
         # Create a simple MIDI file with one sustained note
         s = stream.Score()
-        p = stream.Part()
+        p = stream.Part()  # type: ignore[no-untyped-call]
         m = stream.Measure()
         
         # Set tempo (60 BPM = 1 beat per second)
-        m.insert(0, tempo.MetronomeMark(number=60))
-        m.insert(0, meter.TimeSignature('4/4'))
+        m.insert(0, tempo.MetronomeMark(number=60))  # type: ignore[no-untyped-call]
+        m.insert(0, meter.TimeSignature('4/4'))  # type: ignore[no-untyped-call, attr-defined]
         
         # Create the note
         n = note.Note(note_name)
         n.quarterLength = duration_seconds  # Duration in beats (at 60BPM = seconds)
         n.volume.velocity = velocity
-        m.append(n)
+        m.append(n)  # type: ignore[no-untyped-call]
         
         # Add silence at end for release
         from music21 import note as m21note
         rest = m21note.Rest()
         rest.quarterLength = 1.0  # 1 second of silence for release
-        m.append(rest)
+        m.append(rest)  # type: ignore[no-untyped-call]
         
-        p.append(m)
-        s.append(p)
+        p.append(m)  # type: ignore[no-untyped-call]
+        s.append(p)  # type: ignore[no-untyped-call]
         
         # Write MIDI to temp file
-        midi_path = s.write('midi')
+        midi_path = s.write('midi')  # type: ignore[no-untyped-call]
         
         # Create output WAV path
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_tmp:
@@ -207,11 +210,11 @@ def render_note_with_sfizz(
             '-s', str(sample_rate),
         ]
         
-        print(f"Running sfizz_render: {' '.join(cmd)}")
+        logger.debug(f"Running sfizz_render: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         
         if result.returncode != 0:
-            print(f"sfizz_render error: {result.stderr}")
+            logger.error(f"sfizz_render error: {result.stderr}")
             os.unlink(midi_path)
             if os.path.exists(wav_path):
                 os.unlink(wav_path)
@@ -219,7 +222,7 @@ def render_note_with_sfizz(
         
         # Check if output file was created
         if not os.path.exists(wav_path) or os.path.getsize(wav_path) == 0:
-            print("sfizz_render did not create output file")
+            logger.error("sfizz_render did not create output file")
             os.unlink(midi_path)
             return None
         
@@ -231,14 +234,14 @@ def render_note_with_sfizz(
         os.unlink(midi_path)
         os.unlink(wav_path)
         
-        print(f"sfizz_render produced {len(wav_bytes)} bytes for {note_name}")
+        logger.debug(f"sfizz_render produced {len(wav_bytes)} bytes for {note_name}")
         return wav_bytes
         
     except subprocess.TimeoutExpired:
-        print("sfizz_render timed out")
+        logger.error("sfizz_render timed out")
         return None
     except Exception as e:
-        print(f"Error rendering with sfizz: {e}")
+        logger.error(f"Error rendering with sfizz: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -281,7 +284,7 @@ def musicxml_to_wav_musescore(musicxml_content: str, timeout: int = 60) -> Optio
     """
     mscore_path = get_musescore_path()
     if not mscore_path:
-        print("MuseScore not found")
+        logger.warning("MuseScore not found")
         return None
     
     try:
@@ -301,21 +304,21 @@ def musicxml_to_wav_musescore(musicxml_content: str, timeout: int = 60) -> Optio
             xml_path
         ]
         
-        print(f"Running MuseScore: {' '.join(cmd)}")
+        logger.debug(f"Running MuseScore: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         
         # Cleanup input
         os.unlink(xml_path)
         
         if result.returncode != 0:
-            print(f"MuseScore error: {result.stderr}")
+            logger.error(f"MuseScore error: {result.stderr}")
             if os.path.exists(wav_path):
                 os.unlink(wav_path)
             return None
         
         # Check if output was created
         if not os.path.exists(wav_path) or os.path.getsize(wav_path) == 0:
-            print("MuseScore did not create output file")
+            logger.error("MuseScore did not create output file")
             return None
         
         # Read WAV bytes
@@ -325,14 +328,14 @@ def musicxml_to_wav_musescore(musicxml_content: str, timeout: int = 60) -> Optio
         # Cleanup output
         os.unlink(wav_path)
         
-        print(f"MuseScore rendered {len(wav_bytes)} bytes")
+        logger.debug(f"MuseScore rendered {len(wav_bytes)} bytes")
         return wav_bytes
         
     except subprocess.TimeoutExpired:
-        print(f"MuseScore timed out after {timeout}s")
+        logger.error(f"MuseScore timed out after {timeout}s")
         return None
     except Exception as e:
-        print(f"Error rendering with MuseScore: {e}")
+        logger.error(f"Error rendering with MuseScore: {e}")
         import traceback
         traceback.print_exc()
         return None

@@ -17,9 +17,9 @@ class MaterialEntry:
     spelling_policy: str = "from_key"
     
     # Analysis results (generated)
-    detected_capabilities: List[str] = None
-    soft_gates: Dict[str, Any] = None
-    range_analysis: Dict[str, Any] = None
+    detected_capabilities: Optional[List[str]] = None
+    soft_gates: Optional[Dict[str, Any]] = None
+    range_analysis: Optional[Dict[str, Any]] = None
 
 
 @dataclass

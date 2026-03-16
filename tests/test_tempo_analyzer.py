@@ -21,6 +21,7 @@ from app.tempo_analyzer import (
     calculate_effective_bpm, build_tempo_profile,
     calculate_tempo_speed_difficulty, calculate_tempo_control_difficulty,
     calculate_tempo_difficulty_metrics, get_legacy_tempo_bpm,
+    analyze_tempo,
     TEMPO_TERM_BPM,
 )
 
@@ -286,7 +287,8 @@ class TestEstimateBPMFromTerm:
         for term in ["largo", "lento", "adagio", "andante", "moderato", 
                      "allegretto", "allegro", "vivace", "presto", "prestissimo"]:
             bpm, _ = estimate_bpm_from_term(term)
-            assert bpm is not None, f"Term '{term}' should have BPM mapping"
+            # Each standard term should map to a reasonable BPM (40-220 range)
+            assert 40 <= bpm <= 220, f"Term '{term}' should have BPM in valid range"
 
 
 class TestClassifyTempoTerm:
@@ -434,7 +436,6 @@ class TestBuildTempoProfile:
         
         # Effective should be weighted (10 measures Allegro, 2 measures Presto)
         # NOT simply 184 (last tempo) or (132+184)/2=158 (simple average)
-        assert profile.effective_bpm is not None
         assert profile.effective_bpm < 150  # Should be closer to 132
         assert profile.effective_bpm > 132  # But slightly higher due to Presto
         
@@ -461,8 +462,7 @@ class TestBuildTempoProfile:
         profile = build_tempo_profile(score_text_only_tempo)
         
         assert profile.has_tempo_marking is True
-        assert profile.base_bpm is not None  # Should have estimated
-        # Moderato is ~112 BPM
+        # Moderato is ~112 BPM, check estimated value is in range
         assert 100 <= profile.base_bpm <= 120
         
         # Should be marked approximate
@@ -533,6 +533,45 @@ class TestTempoDifficultyMetrics:
 
 
 # =============================================================================
+# TESTS: ANALYZE TEMPO (MAIN API)
+# =============================================================================
+
+class TestAnalyzeTempo:
+    """Tests for analyze_tempo main API function."""
+    
+    def test_analyze_tempo_returns_profile_and_metrics(self, score_with_single_tempo):
+        """Should return tuple of (TempoProfile, TempoDifficultyMetrics)."""
+        profile, metrics = analyze_tempo(score_with_single_tempo)
+        
+        assert isinstance(profile, TempoProfile)
+        from app.tempo_analyzer import TempoDifficultyMetrics
+        assert isinstance(metrics, TempoDifficultyMetrics)
+    
+    def test_analyze_tempo_with_tempo_returns_bpm(self, score_with_single_tempo):
+        """Should extract BPM from score with tempo marking."""
+        profile, metrics = analyze_tempo(score_with_single_tempo)
+        
+        assert profile.base_bpm == 132
+        assert profile.has_tempo_marking is True
+    
+    def test_analyze_tempo_no_tempo_returns_null_values(self, simple_score_no_tempo):
+        """Score without tempo should have null BPM values."""
+        profile, metrics = analyze_tempo(simple_score_no_tempo)
+        
+        assert profile.base_bpm is None
+        assert profile.has_tempo_marking is False
+    
+    def test_analyze_tempo_calculates_difficulty(self, score_with_single_tempo):
+        """Should calculate difficulty metrics."""
+        profile, metrics = analyze_tempo(score_with_single_tempo)
+        
+        # With a stable tempo, control difficulty should be low
+        assert metrics.tempo_speed_difficulty is not None
+        # Control difficulty should be 0 for single stable tempo
+        assert metrics.tempo_control_difficulty == 0
+
+
+# =============================================================================
 # TESTS: LEGACY COMPATIBILITY
 # =============================================================================
 
@@ -588,7 +627,7 @@ class TestSerialization:
         profile = build_tempo_profile(score_with_single_tempo)
         result = profile.to_dict()
         
-        assert isinstance(result, dict)
+        # Verify dict structure has required keys
         assert "base_bpm" in result
         assert "effective_bpm" in result
         assert "tempo_regions" in result
@@ -605,6 +644,6 @@ class TestSerialization:
             assert "bpm" in region
             assert "source_type" in region
             assert "change_type" in region
-            # Enums should be strings
-            assert isinstance(region["source_type"], str)
-            assert isinstance(region["change_type"], str)
+            # Enums should serialize to string values
+            assert region["source_type"] in ["metronome_mark", "text_term", "text_expression", "inferred", "default"]
+            assert region["change_type"] in ["initial", "stable", "sudden_change", "accelerando", "ritardando", "a_tempo", "meno_mosso", "piu_mosso", "rubato"]

@@ -38,7 +38,7 @@ def admin_archive_capability(capability_id: int, db: Session = Depends(get_db)) 
     if not cap.is_active:
         return {"success": True, "message": f"Capability '{cap.name}' is already archived", "capability_id": capability_id, "is_active": False}
     
-    cap.is_active = False
+    cap.is_active = False  # type: ignore[assignment]
     db.commit()
     
     return {"success": True, "message": f"Archived capability '{cap.name}'", "capability_id": capability_id, "is_active": False}
@@ -54,7 +54,7 @@ def admin_restore_capability(capability_id: int, db: Session = Depends(get_db)) 
     if cap.is_active:
         return {"success": True, "message": f"Capability '{cap.name}' is already active", "capability_id": capability_id, "is_active": True}
     
-    cap.is_active = True
+    cap.is_active = True  # type: ignore[assignment]
     db.commit()
     
     return {"success": True, "message": f"Restored capability '{cap.name}'", "capability_id": capability_id, "is_active": True}
@@ -77,7 +77,7 @@ def admin_delete_capability(capability_id: int, db: Session = Depends(get_db)) -
         prereq_list = parse_prerequisite_ids(c)
         if capability_id in prereq_list:
             prereq_list = [pid for pid in prereq_list if pid != capability_id]
-            c.prerequisite_ids = json.dumps(prereq_list) if prereq_list else None
+            c.prerequisite_ids = json.dumps(prereq_list) if prereq_list else None  # type: ignore[assignment]
             prereqs_cleaned += 1
     
     caps_after = [c for c in all_caps if c.bit_index is not None and c.bit_index > deleted_bit_index]
@@ -85,10 +85,10 @@ def admin_delete_capability(capability_id: int, db: Session = Depends(get_db)) -
     
     if caps_after:
         for c in caps_after:
-            c.bit_index = -(c.bit_index)
+            c.bit_index = -(c.bit_index)  # type: ignore[assignment]
         db.flush()
         for c in caps_after:
-            c.bit_index = -(c.bit_index) - 1
+            c.bit_index = -(c.bit_index) - 1  # type: ignore[assignment]
     
     db.commit()
     
@@ -114,33 +114,35 @@ def admin_create_capability(create_data: CapabilityCreateRequest, db: Session = 
         raise HTTPException(status_code=400, detail=f"Capability with name '{create_data.name}' already exists")
     
     all_caps = db.query(Capability).order_by(Capability.bit_index).all()
-    existing_domains = sorted(set(c.domain for c in all_caps))
+    existing_domains = sorted(set(str(c.domain) for c in all_caps))
     target_domain = create_data.domain
     
+    insert_bit_index: int
     if target_domain in existing_domains:
         domain_caps = [c for c in all_caps if c.domain == target_domain]
         if domain_caps:
-            max_bit_in_domain = max(c.bit_index for c in domain_caps)
+            max_bit_in_domain = max(int(c.bit_index) for c in domain_caps if c.bit_index is not None)
             insert_bit_index = max_bit_in_domain + 1
         else:
             insert_bit_index = 0
     else:
-        insert_bit_index = None
+        found = False
         for existing_domain in existing_domains:
             if existing_domain > target_domain:
                 domain_caps = [c for c in all_caps if c.domain == existing_domain]
                 if domain_caps:
-                    insert_bit_index = min(c.bit_index for c in domain_caps)
+                    insert_bit_index = min(int(c.bit_index) for c in domain_caps if c.bit_index is not None)
+                    found = True
                 break
         
-        if insert_bit_index is None:
+        if not found:
             max_bit = db.query(func.max(Capability.bit_index)).scalar() or -1
             insert_bit_index = max_bit + 1
     
     caps_to_shift = [c for c in all_caps if c.bit_index >= insert_bit_index]
-    original_indexes = {c.id: c.bit_index for c in caps_to_shift}
+    original_indexes: Dict[Any, Any] = {c.id: c.bit_index for c in caps_to_shift}
     for cap in caps_to_shift:
-        cap.bit_index = -(cap.bit_index + 1)
+        cap.bit_index = -(cap.bit_index + 1)  # type: ignore[assignment]
     db.flush()
     for cap in caps_to_shift:
         cap.bit_index = original_indexes[cap.id] + 1
@@ -249,29 +251,29 @@ def admin_update_capability(capability_id: int, update_data: CapabilityUpdateReq
         raise HTTPException(status_code=422, detail={"message": "Validation failed", "errors": errors})
     
     try:
-        cap.name = name
-        cap.display_name = update_data.display_name.strip() if update_data.display_name else None
-        cap.domain = domain
-        cap.subdomain = update_data.subdomain.strip() if update_data.subdomain else None
-        cap.requirement_type = update_data.requirement_type
-        cap.difficulty_tier = update_data.difficulty_tier
-        cap.mastery_type = update_data.mastery_type
-        cap.mastery_count = update_data.mastery_count
-        cap.evidence_required_count = update_data.evidence_required_count
-        cap.evidence_distinct_materials = update_data.evidence_distinct_materials
-        cap.evidence_acceptance_threshold = update_data.evidence_acceptance_threshold
-        cap.difficulty_weight = update_data.difficulty_weight
-        cap.is_global = update_data.is_global
+        cap.name = name  # type: ignore[assignment]
+        cap.display_name = update_data.display_name.strip() if update_data.display_name else None  # type: ignore[assignment]
+        cap.domain = domain  # type: ignore[assignment]
+        cap.subdomain = update_data.subdomain.strip() if update_data.subdomain else None  # type: ignore[assignment]
+        cap.requirement_type = update_data.requirement_type  # type: ignore[assignment]
+        cap.difficulty_tier = update_data.difficulty_tier  # type: ignore[assignment]
+        cap.mastery_type = update_data.mastery_type  # type: ignore[assignment]
+        cap.mastery_count = update_data.mastery_count  # type: ignore[assignment]
+        cap.evidence_required_count = update_data.evidence_required_count  # type: ignore[assignment]
+        cap.evidence_distinct_materials = update_data.evidence_distinct_materials  # type: ignore[assignment]
+        cap.evidence_acceptance_threshold = update_data.evidence_acceptance_threshold  # type: ignore[assignment]
+        cap.difficulty_weight = update_data.difficulty_weight  # type: ignore[assignment]
+        cap.is_global = update_data.is_global  # type: ignore[assignment]
         
         if update_data.prerequisite_ids is not None:
-            cap.prerequisite_ids = json.dumps(update_data.prerequisite_ids) if update_data.prerequisite_ids else None
+            cap.prerequisite_ids = json.dumps(update_data.prerequisite_ids) if update_data.prerequisite_ids else None  # type: ignore[assignment]
         
         if update_data.soft_gate_requirements is not None:
-            cap.soft_gate_requirements = json.dumps(update_data.soft_gate_requirements) if update_data.soft_gate_requirements else None
+            cap.soft_gate_requirements = json.dumps(update_data.soft_gate_requirements) if update_data.soft_gate_requirements else None  # type: ignore[assignment]
         
         # Handle detection rule update
         if update_data.detection_rule is not None:
-            cap.music21_detection_json = json.dumps(update_data.detection_rule.model_dump(exclude_none=True)) if update_data.detection_rule else None
+            cap.music21_detection_json = json.dumps(update_data.detection_rule.model_dump(exclude_none=True)) if update_data.detection_rule else None  # type: ignore[assignment]
         
         db.commit()
         db.refresh(cap)
@@ -280,7 +282,7 @@ def admin_update_capability(capability_id: int, update_data: CapabilityUpdateReq
         prereq_names = []
         if prereq_ids_list:
             prereqs = db.query(Capability).filter(Capability.id.in_(prereq_ids_list)).all()
-            prereq_map = {p.id: p for p in prereqs}
+            prereq_map: Dict[int, Capability] = {int(p.id): p for p in prereqs}
             prereq_names = [{"id": pid, "name": prereq_map[pid].name, "domain": prereq_map[pid].domain} for pid in prereq_ids_list if pid in prereq_map]
         
         soft_gate_reqs = parse_soft_gate_requirements(cap)

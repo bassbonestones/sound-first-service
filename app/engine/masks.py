@@ -1,10 +1,10 @@
 """
 Database capability mask helper functions.
 """
-from typing import List
+from typing import Any, List
 
 
-def get_user_capability_masks(user) -> List[int]:
+def get_user_capability_masks(user: Any) -> List[int]:
     """Extract capability masks from user object."""
     return [
         user.cap_mask_0 or 0,
@@ -18,7 +18,7 @@ def get_user_capability_masks(user) -> List[int]:
     ]
 
 
-def get_material_capability_masks(material) -> List[int]:
+def get_material_capability_masks(material: Any) -> List[int]:
     """Extract capability masks from material object."""
     return [
         material.req_cap_mask_0 or 0,

@@ -1,6 +1,6 @@
 """Session-related Pydantic models."""
 from pydantic import BaseModel, field_validator
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 import datetime
 import re
 
@@ -97,14 +97,14 @@ class MiniSessionOut(BaseModel):
     focus_card_category: str = ""
     focus_card_attention_cue: str = ""
     focus_card_micro_cues: List[str] = []
-    focus_card_prompts: dict = {}
+    focus_card_prompts: Dict[str, Any] = {}
     goal_type: Optional[str] = None
     goal_label: Optional[str] = None
     show_notation: bool = False
-    target_key: str = None
-    original_key_center: str = None
-    resolved_musicxml: str = None
-    starting_pitch: str = None
+    target_key: Optional[str] = None
+    original_key_center: Optional[str] = None
+    resolved_musicxml: Optional[str] = None
+    starting_pitch: Optional[str] = None
     
     # Teaching module session fields (populated when session_type == "teaching_module")
     module_id: Optional[str] = None
@@ -114,8 +114,8 @@ class MiniSessionOut(BaseModel):
     lesson_display_name: Optional[str] = None
     lesson_description: Optional[str] = None
     exercise_template_id: Optional[str] = None
-    exercise_config: Optional[dict] = None
-    mastery_config: Optional[dict] = None
+    exercise_config: Optional[Dict[str, Any]] = None
+    mastery_config: Optional[Dict[str, Any]] = None
     hints: Optional[List[str]] = None
     capability_name: Optional[str] = None
 
@@ -136,7 +136,7 @@ class FocusCardOut(BaseModel):
     category: str = ""
     attention_cue: str = ""
     micro_cues: List[str] = []
-    prompts: dict = {}
+    prompts: Dict[str, Any] = {}
 
     class Config:
         from_attributes = True

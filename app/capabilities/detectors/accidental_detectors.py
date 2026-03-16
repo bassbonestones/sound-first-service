@@ -5,21 +5,21 @@ Detection functions for pitch-related capabilities:
 accidentals, chromatic approach tones, modulation.
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 
 
-def register_custom_detector(name: str):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
     """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator
 
 
 @register_custom_detector("detect_flat_accidentals")
-def detect_flat_accidentals(extraction_result, score) -> bool:
+def detect_flat_accidentals(extraction_result: Any, score: Any) -> bool:
     """Detect flat accidentals in the music."""
     if score is None:
         return False
@@ -31,7 +31,7 @@ def detect_flat_accidentals(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_sharp_accidentals")
-def detect_sharp_accidentals(extraction_result, score) -> bool:
+def detect_sharp_accidentals(extraction_result: Any, score: Any) -> bool:
     """Detect sharp accidentals in the music."""
     if score is None:
         return False
@@ -43,7 +43,7 @@ def detect_sharp_accidentals(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_natural_accidentals")
-def detect_natural_accidentals(extraction_result, score) -> bool:
+def detect_natural_accidentals(extraction_result: Any, score: Any) -> bool:
     """Detect natural accidentals (explicit naturals)."""
     if score is None:
         return False
@@ -55,7 +55,7 @@ def detect_natural_accidentals(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_double_flat_accidentals")
-def detect_double_flat_accidentals(extraction_result, score) -> bool:
+def detect_double_flat_accidentals(extraction_result: Any, score: Any) -> bool:
     """Detect double-flat accidentals."""
     if score is None:
         return False
@@ -67,7 +67,7 @@ def detect_double_flat_accidentals(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_double_sharp_accidentals")
-def detect_double_sharp_accidentals(extraction_result, score) -> bool:
+def detect_double_sharp_accidentals(extraction_result: Any, score: Any) -> bool:
     """Detect double-sharp accidentals."""
     if score is None:
         return False
@@ -79,7 +79,7 @@ def detect_double_sharp_accidentals(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_chromatic_approach_tones")
-def detect_chromatic_approach_tones(extraction_result, score) -> bool:
+def detect_chromatic_approach_tones(extraction_result: Any, score: Any) -> bool:
     """Detect chromatic approach tones (chromatic note approaching diatonic target by half-step)."""
     if score is None:
         return False
@@ -127,12 +127,12 @@ def detect_chromatic_approach_tones(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_modulation")
-def detect_modulation(extraction_result, score) -> bool:
+def detect_modulation(extraction_result: Any, score: Any) -> bool:
     """Detect key change / modulation."""
     return len(extraction_result.key_signatures) > 1
 
 
 @register_custom_detector("detect_any_key_signature")
-def detect_any_key_signature(extraction_result, score) -> bool:
+def detect_any_key_signature(extraction_result: Any, score: Any) -> bool:
     """Detect presence of any key signature."""
     return len(extraction_result.key_signatures) > 0

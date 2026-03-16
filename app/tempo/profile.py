@@ -86,7 +86,7 @@ def build_tempo_profile(score: stream.Score) -> TempoProfile:
         source_counts: Dict[TempoSourceType, int] = {}
         for e in events:
             source_counts[e.source_type] = source_counts.get(e.source_type, 0) + 1
-        primary_source_type = max(source_counts, key=source_counts.get)
+        primary_source_type = max(source_counts, key=lambda k: source_counts.get(k, 0))
     else:
         primary_source_type = TempoSourceType.DEFAULT
     

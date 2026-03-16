@@ -1,7 +1,7 @@
 """Bulk operation endpoints for capabilities (export, reorder, rename)."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Dict, Any
+from typing import Dict, Any, List
 import datetime
 import json
 import os
@@ -131,23 +131,23 @@ def admin_reorder_capabilities(reorder_data: ReorderCapabilitiesRequest, db: Ses
     
     provided_ids = set(capability_ids)
     if provided_ids != domain_cap_ids:
-        missing = domain_cap_ids - provided_ids
-        extra = provided_ids - domain_cap_ids
-        errors = []
-        if missing:
-            errors.append(f"Missing capability IDs from domain: {list(missing)}")
-        if extra:
-            errors.append(f"Capability IDs not in domain '{domain}': {list(extra)}")
+        missing_ids = {int(cid) for cid in domain_cap_ids} - {int(pid) for pid in provided_ids}
+        extra_ids = {int(pid) for pid in provided_ids} - {int(cid) for cid in domain_cap_ids}
+        errors: List[str] = []
+        if missing_ids:
+            errors.append(f"Missing capability IDs from domain: {list(missing_ids)}")
+        if extra_ids:
+            errors.append(f"Capability IDs not in domain '{domain}': {list(extra_ids)}")
         raise HTTPException(status_code=400, detail="; ".join(errors))
     
-    min_bit = min(c.bit_index for c in domain_caps if c.bit_index is not None)
-    cap_by_id = {c.id: c for c in domain_caps}
+    min_bit = min(int(c.bit_index) for c in domain_caps if c.bit_index is not None)
+    cap_by_id: Dict[int, Capability] = {int(c.id): c for c in domain_caps}
     
     for i, cap_id in enumerate(capability_ids):
-        cap_by_id[cap_id].bit_index = -(i + 1)
+        cap_by_id[cap_id].bit_index = -(i + 1)  # type: ignore[assignment]
     db.flush()
     for i, cap_id in enumerate(capability_ids):
-        cap_by_id[cap_id].bit_index = min_bit + i
+        cap_by_id[cap_id].bit_index = min_bit + i  # type: ignore[assignment]
     
     db.commit()
     
@@ -178,27 +178,27 @@ def admin_rename_domain(rename_data: RenameDomainRequest, db: Session = Depends(
             raise HTTPException(status_code=400, detail=f"Domain '{new_name}' already exists")
     
     for cap in caps_in_domain:
-        cap.domain = new_name
+        cap.domain = new_name  # type: ignore[assignment]
     
     all_caps = db.query(Capability).all()
-    caps_by_domain = {}
+    caps_by_domain: Dict[Any, List[Capability]] = {}
     for cap in all_caps:
         if cap.domain not in caps_by_domain:
             caps_by_domain[cap.domain] = []
         caps_by_domain[cap.domain].append(cap)
     
     for domain in caps_by_domain:
-        caps_by_domain[domain].sort(key=lambda c: c.bit_index)
+        caps_by_domain[domain].sort(key=lambda c: int(c.bit_index) if c.bit_index is not None else 0)
     
-    new_order = []
+    new_order: List[Capability] = []
     for domain in sorted(caps_by_domain.keys()):
         new_order.extend(caps_by_domain[domain])
     
     for i, cap in enumerate(new_order):
-        cap.bit_index = -(i + 1)
+        cap.bit_index = -(i + 1)  # type: ignore[assignment]
     db.flush()
     for i, cap in enumerate(new_order):
-        cap.bit_index = i
+        cap.bit_index = i  # type: ignore[assignment]
     
     db.commit()
     

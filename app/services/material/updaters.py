@@ -5,12 +5,12 @@ Methods for updating MaterialAnalysis records with computed metrics.
 """
 
 import json
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from app.models.capability_schema import MaterialAnalysis
 
 
-def update_soft_gates(analysis: MaterialAnalysis, soft_gates) -> Dict:
+def update_soft_gates(analysis: MaterialAnalysis, soft_gates: Any) -> Dict[str, Any]:
     """Update MaterialAnalysis with soft gate metrics."""
     analysis.tonal_complexity_stage = soft_gates.tonal_complexity_stage
     analysis.interval_size_stage = soft_gates.interval_size_stage
@@ -31,7 +31,7 @@ def update_soft_gates(analysis: MaterialAnalysis, soft_gates) -> Dict:
     if soft_gates.interval_local_difficulty:
         analysis.interval_max_large_in_window = soft_gates.interval_local_difficulty.max_large_leaps_in_window
         analysis.interval_max_extreme_in_window = soft_gates.interval_local_difficulty.max_extreme_leaps_in_window
-        analysis.interval_hardest_measures = json.dumps(soft_gates.interval_local_difficulty.hardest_measure_numbers)
+        analysis.interval_hardest_measures = json.dumps(soft_gates.interval_local_difficulty.hardest_measure_numbers)  # type: ignore[assignment]
     
     analysis.rhythm_complexity_stage = soft_gates.rhythm_complexity_score
     analysis.rhythm_complexity_peak = soft_gates.rhythm_complexity_peak
@@ -62,43 +62,43 @@ def update_soft_gates(analysis: MaterialAnalysis, soft_gates) -> Dict:
     }
 
 
-def update_unified_scores(analysis: MaterialAnalysis, soft_gates) -> Dict:
+def update_unified_scores(analysis: MaterialAnalysis, soft_gates: Any) -> Dict[str, Any]:
     """Calculate and store unified domain scores."""
     from app.soft_gate_calculator import calculate_unified_domain_scores
     
     scores = calculate_unified_domain_scores(soft_gates)
-    analysis.rhythm_domain_score = scores.rhythm_score
-    analysis.interval_domain_score = scores.interval_score
-    analysis.range_domain_score = scores.range_score
-    analysis.throughput_domain_score = scores.throughput_score
-    analysis.tonality_domain_score = scores.tonality_score
+    analysis.rhythm_domain_score = scores.rhythm_score  # type: ignore[attr-defined]
+    analysis.interval_domain_score = scores.interval_score  # type: ignore[attr-defined]
+    analysis.range_domain_score = scores.range_score  # type: ignore[attr-defined]
+    analysis.throughput_domain_score = scores.throughput_score  # type: ignore[attr-defined]
+    analysis.tonality_domain_score = scores.tonality_score  # type: ignore[attr-defined]
     
     return {
-        "rhythm_domain_score": round(scores.rhythm_score, 2),
-        "interval_domain_score": round(scores.interval_score, 2),
-        "range_domain_score": round(scores.range_score, 2),
-        "throughput_domain_score": round(scores.throughput_score, 2),
-        "tonality_domain_score": round(scores.tonality_score, 2),
+        "rhythm_domain_score": round(scores.rhythm_score, 2),  # type: ignore[attr-defined]
+        "interval_domain_score": round(scores.interval_score, 2),  # type: ignore[attr-defined]
+        "range_domain_score": round(scores.range_score, 2),  # type: ignore[attr-defined]
+        "throughput_domain_score": round(scores.throughput_score, 2),  # type: ignore[attr-defined]
+        "tonality_domain_score": round(scores.tonality_score, 2),  # type: ignore[attr-defined]
     }
 
 
-def calculate_difficulty_scores(analysis: MaterialAnalysis) -> Dict:
+def calculate_difficulty_scores(analysis: MaterialAnalysis) -> Dict[str, Any]:
     """Calculate and store composite difficulty scores."""
     from app.difficulty_interactions import calculate_composite_difficulty
     
-    diff = calculate_composite_difficulty(analysis)
-    analysis.physical_difficulty = diff.physical_difficulty
-    analysis.cognitive_difficulty = diff.cognitive_difficulty
-    analysis.combined_difficulty = diff.combined_difficulty
+    diff = calculate_composite_difficulty(analysis)  # type: ignore[arg-type]
+    analysis.physical_difficulty = diff.physical_difficulty  # type: ignore[attr-defined]
+    analysis.cognitive_difficulty = diff.cognitive_difficulty  # type: ignore[attr-defined]
+    analysis.combined_difficulty = diff.combined_difficulty  # type: ignore[attr-defined]
     
     return {
-        "physical_difficulty": round(diff.physical_difficulty, 2),
-        "cognitive_difficulty": round(diff.cognitive_difficulty, 2),
-        "combined_difficulty": round(diff.combined_difficulty, 2),
+        "physical_difficulty": round(diff.physical_difficulty, 2),  # type: ignore[attr-defined]
+        "cognitive_difficulty": round(diff.cognitive_difficulty, 2),  # type: ignore[attr-defined]
+        "combined_difficulty": round(diff.combined_difficulty, 2),  # type: ignore[attr-defined]
     }
 
 
-def update_range_analysis(analysis: MaterialAnalysis, extraction_result) -> Dict:
+def update_range_analysis(analysis: MaterialAnalysis, extraction_result: Any) -> Dict[str, Any]:
     """Update range analysis fields from extraction result."""
     range_data = extraction_result.range_analysis
     if not range_data:
@@ -122,9 +122,9 @@ def update_range_analysis(analysis: MaterialAnalysis, extraction_result) -> Dict
 
 def persist_unified_scores(
     analysis: MaterialAnalysis,
-    soft_gates,
-    extraction_result
-) -> Optional[Dict]:
+    soft_gates: Any,
+    extraction_result: Any
+) -> Optional[Dict[str, Any]]:
     """
     Calculate and persist unified domain scores with composite difficulty.
     
@@ -157,13 +157,13 @@ def persist_unified_scores(
         )
         
         # Persist JSON columns
-        analysis.analysis_schema_version = 1
-        analysis.interval_analysis_json = json.dumps(domain_results['interval'].to_dict()) if 'interval' in domain_results else None
-        analysis.rhythm_analysis_json = json.dumps(domain_results['rhythm'].to_dict()) if 'rhythm' in domain_results else None
-        analysis.tonal_analysis_json = json.dumps(domain_results['tonal'].to_dict()) if 'tonal' in domain_results else None
-        analysis.tempo_analysis_json = json.dumps(domain_results['tempo'].to_dict()) if 'tempo' in domain_results else None
-        analysis.range_analysis_json = json.dumps(domain_results['range'].to_dict()) if 'range' in domain_results else None
-        analysis.throughput_analysis_json = json.dumps(domain_results['throughput'].to_dict()) if 'throughput' in domain_results else None
+        analysis.analysis_schema_version = 1  # type: ignore[assignment]
+        analysis.interval_analysis_json = json.dumps(domain_results['interval'].to_dict()) if 'interval' in domain_results else None  # type: ignore[assignment]
+        analysis.rhythm_analysis_json = json.dumps(domain_results['rhythm'].to_dict()) if 'rhythm' in domain_results else None  # type: ignore[assignment]
+        analysis.tonal_analysis_json = json.dumps(domain_results['tonal'].to_dict()) if 'tonal' in domain_results else None  # type: ignore[assignment]
+        analysis.tempo_analysis_json = json.dumps(domain_results['tempo'].to_dict()) if 'tempo' in domain_results else None  # type: ignore[assignment]
+        analysis.range_analysis_json = json.dumps(domain_results['range'].to_dict()) if 'range' in domain_results else None  # type: ignore[assignment]
+        analysis.throughput_analysis_json = json.dumps(domain_results['throughput'].to_dict()) if 'throughput' in domain_results else None  # type: ignore[assignment]
         
         # Persist indexed primary scores
         for domain in ['interval', 'rhythm', 'tonal', 'tempo', 'range', 'throughput']:
@@ -172,9 +172,9 @@ def persist_unified_scores(
         
         # Compute and persist composite scores
         all_scores = {name: dr.scores for name, dr in domain_results.items()}
-        composite = calculate_composite_difficulty(all_scores)
-        analysis.overall_score = composite.get('overall')
-        analysis.interaction_bonus = composite.get('interaction_bonus')
+        composite = calculate_composite_difficulty(all_scores)  # type: ignore[arg-type]
+        analysis.overall_score = composite.get('overall')  # type: ignore[assignment]
+        analysis.interaction_bonus = composite.get('interaction_bonus')  # type: ignore[assignment]
         
         return composite
     except Exception as e:

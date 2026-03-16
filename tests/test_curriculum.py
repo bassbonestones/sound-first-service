@@ -130,8 +130,8 @@ class TestGenerateCurriculumSteps:
             fatigue_level=2
         )
         
-        # Should have multiple steps
-        assert len(steps) > 0
+        # Should have multiple steps with required structure
+        assert len(steps) >= 3, "fluency_through_keys should generate at least 3 steps"
         
         # Should start with LISTEN
         assert steps[0]["step_type"] == "LISTEN"

@@ -109,4 +109,4 @@ class SoftGateMetrics:
     tessitura_span_semitones: int = 0  # p10-p90 pitch range (working range)
     
     # Raw intermediate values (for debugging/tuning)
-    raw_metrics: Dict[str, Any] = None
+    raw_metrics: Optional[Dict[str, Any]] = None

@@ -11,7 +11,7 @@ Key concepts:
 
 import math
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 from dataclasses import dataclass
 
 # Default values
@@ -30,7 +30,7 @@ class SpacedRepetitionItem:
     last_reviewed: Optional[datetime] = None
     next_review: Optional[datetime] = None
     
-    def is_due(self, now: datetime = None) -> bool:
+    def is_due(self, now: Optional[datetime] = None) -> bool:
         """Check if item is due for review."""
         if now is None:
             now = datetime.now()
@@ -38,7 +38,7 @@ class SpacedRepetitionItem:
             return True
         return now >= self.next_review
     
-    def days_overdue(self, now: datetime = None) -> float:
+    def days_overdue(self, now: Optional[datetime] = None) -> float:
         """How many days overdue (negative if not yet due)."""
         if now is None:
             now = datetime.now()
@@ -94,7 +94,7 @@ def calculate_new_interval(
 def update_item_after_review(
     item: SpacedRepetitionItem,
     rating: int,
-    reviewed_at: datetime = None
+    reviewed_at: Optional[datetime] = None
 ) -> SpacedRepetitionItem:
     """
     Update an item's spaced repetition state after a review.
@@ -118,7 +118,7 @@ def update_item_after_review(
 
 def prioritize_materials(
     items: List[SpacedRepetitionItem],
-    now: datetime = None,
+    now: Optional[datetime] = None,
     limit: int = 10
 ) -> List[SpacedRepetitionItem]:
     """
@@ -147,7 +147,7 @@ def prioritize_materials(
     return sorted_items[:limit]
 
 
-def get_review_stats(items: List[SpacedRepetitionItem], now: datetime = None) -> Dict:
+def get_review_stats(items: List[SpacedRepetitionItem], now: Optional[datetime] = None) -> Dict[str, Any]:
     """
     Calculate review statistics.
     """
@@ -220,7 +220,7 @@ def get_capability_weight_adjustment(item: SpacedRepetitionItem) -> float:
 # Database Integration Helpers
 # ============================================================
 
-def build_sr_item_from_db(material_id: int, attempts: List[Dict]) -> SpacedRepetitionItem:
+def build_sr_item_from_db(material_id: int, attempts: List[Dict[str, Any]]) -> SpacedRepetitionItem:
     """
     Build SpacedRepetitionItem from practice attempt history.
     
@@ -246,11 +246,11 @@ def build_sr_item_from_db(material_id: int, attempts: List[Dict]) -> SpacedRepet
 
 
 def select_materials_with_sr(
-    all_materials: List[Dict],
-    attempt_history: Dict[int, List[Dict]],
+    all_materials: List[Dict[str, Any]],
+    attempt_history: Dict[int, List[Dict[str, Any]]],
     count: int = 5,
     novelty_ratio: float = 0.2
-) -> List[Dict]:
+) -> List[Dict[str, Any]]:
     """
     Select materials using spaced repetition prioritization.
     
@@ -302,7 +302,7 @@ def select_materials_with_sr(
                     break
                 # Weighted choice
                 r = random.random() * sum(probs[i] for i in indices)
-                cumsum = 0
+                cumsum: float = 0.0
                 for i in indices:
                     cumsum += probs[i]
                     if r <= cumsum:

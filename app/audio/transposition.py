@@ -4,9 +4,12 @@ MusicXML transposition utilities.
 Functions for calculating transposition intervals and transposing MusicXML content.
 """
 
+import logging
 from typing import Optional
 
 from .config import MUSIC21_AVAILABLE
+
+logger = logging.getLogger(__name__)
 
 
 def get_transposition_interval(from_key: str, to_key: str) -> Optional[int]:
@@ -46,9 +49,9 @@ def get_transposition_interval(from_key: str, to_key: str) -> Optional[int]:
         while semitones < -6:
             semitones += 12
             
-        return semitones
+        return int(semitones)
     except Exception as e:
-        print(f"Error calculating transposition: {e}")
+        logger.error(f"Error calculating transposition: {e}")
         return None
 
 
@@ -79,7 +82,8 @@ def transpose_musicxml(musicxml_content: str, semitones: int) -> Optional[str]:
         transposed = score.transpose(trans_interval)
         
         # Export back to MusicXML
-        return transposed.write('musicxml').read_text()
+        result = transposed.write('musicxml')
+        return str(result.read_text())
     except Exception as e:
-        print(f"Error transposing MusicXML: {e}")
+        logger.error(f"Error transposing MusicXML: {e}")
         return None

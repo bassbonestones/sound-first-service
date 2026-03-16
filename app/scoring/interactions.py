@@ -16,7 +16,7 @@ Design principles:
 - Interaction flags help with UI warnings and targeted practice
 """
 
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 from dataclasses import dataclass
 
 
@@ -100,7 +100,7 @@ class InteractionResult:
 
 def calculate_interaction_bonus(
     domain_scores: Dict[str, Dict[str, float]],
-    config: Optional[Dict] = None,
+    config: Optional[Dict[str, Dict[str, Any]]] = None,
     max_bonus: float = MAX_INTERACTION_BONUS
 ) -> InteractionResult:
     """
@@ -142,8 +142,10 @@ def calculate_interaction_bonus(
         domain1, domain2 = domains
         
         # Get thresholds
-        thresh1 = interaction.get(f'{domain1}_threshold', 1.0)
-        thresh2 = interaction.get(f'{domain2}_threshold', 1.0)
+        thresh1_val = interaction.get(f'{domain1}_threshold', 1.0)
+        thresh2_val = interaction.get(f'{domain2}_threshold', 1.0)
+        thresh1: float = thresh1_val if isinstance(thresh1_val, (int, float)) else 1.0
+        thresh2: float = thresh2_val if isinstance(thresh2_val, (int, float)) else 1.0
         
         # Check if interaction is triggered (skip if either score is None)
         score1 = get_primary(domain1)
@@ -153,14 +155,15 @@ def calculate_interaction_bonus(
             continue
         
         if score1 > thresh1 and score2 > thresh2:
-            bonus = interaction.get('bonus', 0.0)
+            bonus_val = interaction.get('bonus', 0.0)
+            bonus: float = bonus_val if isinstance(bonus_val, (int, float)) else 0.0
             total_bonus += bonus
             triggered.append(name)
             
             if 'flag' in interaction:
-                flags.append(interaction['flag'])
+                flags.append(str(interaction['flag']))
             if 'warning' in interaction:
-                warnings.append(interaction['warning'])
+                warnings.append(str(interaction['warning']))
     
     # Cap total bonus
     total_bonus = min(total_bonus, max_bonus)
@@ -268,8 +271,8 @@ def calculate_composite_difficulty(
         'weighted_sum': round(weighted_sum, 4),
         'interaction_bonus': round(interaction_result.bonus, 4),
         'overall': round(overall, 4),
-        'interaction_flags': interaction_result.flags,
-        'interaction_warnings': interaction_result.warnings,
+        'interaction_flags': interaction_result.flags,  # type: ignore[dict-item]
+        'interaction_warnings': interaction_result.warnings,  # type: ignore[dict-item]
     }
 
 
@@ -297,7 +300,7 @@ def analyze_hazards(
             - 'ability_hazards': Domains exceeding student ability + tolerance
             - 'interaction_hazards': Interaction hazards
     """
-    hazards = {
+    hazards: Dict[str, List[Any]] = {
         'domain_hazards': [],
         'ability_hazards': [],
         'interaction_hazards': [],

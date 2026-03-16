@@ -3,8 +3,14 @@
 Contains all database models for users, materials, sessions, capabilities,
 teaching modules, and related entities.
 """
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    """SQLAlchemy 2.0 declarative base class."""
+    pass
+
+
 target_metadata = Base.metadata
 
 from .core import *

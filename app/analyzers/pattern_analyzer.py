@@ -5,7 +5,7 @@ Rhythm and melodic pattern analysis for sight-reading difficulty prediction.
 """
 
 from collections import Counter
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from music21 import stream
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 from .extraction_models import RhythmPatternAnalysis, MelodicPatternAnalysis
 
 
-def analyze_rhythm_patterns(score: "stream.Score", result: "ExtractionResult"):
+def analyze_rhythm_patterns(score: "stream.Score", result: "ExtractionResult") -> None:
     """Analyze rhythm pattern uniqueness across measures.
     
     This is a key predictor of sight-reading difficulty:
@@ -26,7 +26,7 @@ def analyze_rhythm_patterns(score: "stream.Score", result: "ExtractionResult"):
     """
     from music21 import note
     
-    pattern_counts = Counter()
+    pattern_counts: Counter[str] = Counter()
     
     for part in score.parts:
         measures = part.getElementsByClass('Measure')
@@ -88,7 +88,7 @@ def analyze_rhythm_patterns(score: "stream.Score", result: "ExtractionResult"):
     )
 
 
-def analyze_melodic_patterns(score: "stream.Score", result: "ExtractionResult"):
+def analyze_melodic_patterns(score: "stream.Score", result: "ExtractionResult") -> None:
     """
     Analyze melodic patterns/motifs for predictability scoring (Phase 8).
     
@@ -101,8 +101,8 @@ def analyze_melodic_patterns(score: "stream.Score", result: "ExtractionResult"):
     from music21 import note
     
     # Collect all melodic intervals in sequence
-    all_intervals = []  # List of interval semitones
-    all_pitches = []  # For sequence detection
+    all_intervals: List[int] = []  # List of interval semitones
+    all_pitches: List[int] = []  # For sequence detection
     
     for part in score.parts:
         prev_note = None
@@ -130,19 +130,19 @@ def analyze_melodic_patterns(score: "stream.Score", result: "ExtractionResult"):
         return
     
     # Detect 3-note motifs (2 intervals)
-    motif_counts_2 = Counter()  # 2-interval motifs
+    motif_counts_2: Counter[str] = Counter()  # 2-interval motifs
     for i in range(len(all_intervals) - 1):
         motif = f"{all_intervals[i]}_{all_intervals[i+1]}"
         motif_counts_2[motif] += 1
     
     # Detect 4-note motifs (3 intervals)
-    motif_counts_3 = Counter()
+    motif_counts_3: Counter[str] = Counter()
     for i in range(len(all_intervals) - 2):
         motif = f"{all_intervals[i]}_{all_intervals[i+1]}_{all_intervals[i+2]}"
         motif_counts_3[motif] += 1
     
     # Combine motif counts (weight 3-interval motifs more)
-    combined_counts = Counter()
+    combined_counts: Counter[str] = Counter()
     for motif, count in motif_counts_2.items():
         combined_counts[motif] = count
     for motif, count in motif_counts_3.items():

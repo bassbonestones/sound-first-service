@@ -1,7 +1,7 @@
 """
 Eligibility checking functions for material selection.
 """
-from typing import Dict, List, Tuple, TYPE_CHECKING
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from .config import DEFAULT_CONFIG, EngineConfig
 from .models import Bucket
@@ -48,8 +48,8 @@ def check_content_dimension_eligibility(
 def is_material_eligible(
     user_masks: List[int],
     material_masks: List[int],
-    material_stages: Dict[str, int] = None,
-    user_max_stages: Dict[str, int] = None,
+    material_stages: Optional[Dict[str, int]] = None,
+    user_max_stages: Optional[Dict[str, int]] = None,
     has_license: bool = True
 ) -> bool:
     """
@@ -76,8 +76,8 @@ def is_material_eligible(
 def check_unified_score_eligibility(
     material_candidate: 'MaterialCandidate',
     user_ability_scores: Dict[str, float],
-    bucket: 'Bucket' = None,
-    config: EngineConfig = None
+    bucket: Optional['Bucket'] = None,
+    config: Optional[EngineConfig] = None
 ) -> Tuple[bool, List[str]]:
     """
     Check eligibility based on unified scoring (Phase 6).
@@ -133,7 +133,7 @@ def check_unified_score_eligibility(
 
 def get_hazard_warnings(
     material_candidate: 'MaterialCandidate',
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> List[str]:
     """
     Get hazard warnings for a material (informational, not blocking).

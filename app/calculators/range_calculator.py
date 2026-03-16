@@ -4,10 +4,10 @@ Range Usage Calculator
 D4 — Range Usage Stage (0-6) based on distinct note names.
 """
 
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 
-def calculate_range_usage_stage(note_steps: List[str]) -> Tuple[int, Dict]:
+def calculate_range_usage_stage(note_steps: List[str]) -> Tuple[int, Dict[str, Any]]:
     """
     Calculate D4 range usage stage (0-6) based on distinct note names.
     

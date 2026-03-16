@@ -4,7 +4,7 @@ User service.
 Handles business logic for user management, capability assignments, and journey tracking.
 """
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Set, Tuple
+from typing import List, Dict, Optional, Set, Tuple, Any
 import datetime
 
 from sqlalchemy.orm import Session as DbSession
@@ -64,7 +64,7 @@ class JourneyStageResult:
     stage: int
     stage_name: str
     factors: List[str]
-    metrics: Dict
+    metrics: Dict[str, Any]
 
 
 class UserService:
@@ -102,12 +102,12 @@ class UserService:
         Returns list of granted capability names.
         """
         # Determine clef capability based on instrument
-        inst_name = instrument_name or user.instrument
+        inst_name = instrument_name or str(user.instrument) if user.instrument else None
         clef_capability = cls.get_clef_capability(inst_name)
         capabilities_to_grant = DAY0_BASE_CAPABILITIES + [clef_capability]
         
         caps = db.query(Capability).filter(Capability.name.in_(capabilities_to_grant)).all()
-        cap_map = {c.name: c for c in caps}
+        cap_map: Dict[str, Capability] = {str(c.name): c for c in caps}
         
         now = datetime.datetime.utcnow()
         granted = []
@@ -131,8 +131,8 @@ class UserService:
                 if existing:
                     # Already have this global cap - skip if mastered, otherwise master it
                     if not existing.mastered_at:
-                        existing.mastered_at = now
-                        existing.is_active = True
+                        existing.mastered_at = now  # type: ignore[assignment]
+                        existing.is_active = True  # type: ignore[assignment]
                         granted.append(cap_name)
                     # If already mastered, skip silently
                 else:
@@ -158,8 +158,8 @@ class UserService:
                 
                 if existing:
                     if not existing.mastered_at:
-                        existing.mastered_at = now
-                        existing.is_active = True
+                        existing.mastered_at = now  # type: ignore[assignment]
+                        existing.is_active = True  # type: ignore[assignment]
                         granted.append(cap_name)
                 else:
                     # Create new instrument-specific capability record
@@ -190,16 +190,17 @@ class UserService:
         # Days since first session
         days_since_first = 0
         if sessions:
-            first_session = min((s.started_at for s in sessions if s.started_at), default=None)
+            started_times = [s.started_at for s in sessions if s.started_at]
+            first_session = min(started_times, default=None) if started_times else None  # type: ignore[type-var]
             if first_session:
                 days_since_first = (datetime.datetime.now() - first_session).days
         
         # Average rating
-        ratings = [a.rating for a in attempts if a.rating is not None]
+        ratings = [float(a.rating) for a in attempts if a.rating is not None]
         avg_rating = sum(ratings) / len(ratings) if ratings else 0.0
         
         # Average fatigue
-        fatigues = [a.fatigue for a in attempts if a.fatigue is not None]
+        fatigues = [float(a.fatigue) for a in attempts if a.fatigue is not None]
         avg_fatigue = sum(fatigues) / len(fatigues) if fatigues else 3.0
         
         # Build SR items for mastery counts
@@ -209,10 +210,11 @@ class UserService:
         mastered_count = familiar_count = stabilizing_count = learning_count = 0
         
         for m in materials:
-            mat_attempts = attempt_history.get(m.id, [])
+            mat_id = int(m.id)
+            mat_attempts = attempt_history.get(mat_id, [])
             if not mat_attempts:
                 continue
-            sr_item = build_sr_item_from_db(m.id, mat_attempts)
+            sr_item = build_sr_item_from_db(mat_id, mat_attempts)
             mastery = estimate_mastery_level(sr_item)
             if mastery == "mastered":
                 mastered_count += 1
@@ -262,7 +264,7 @@ class UserService:
         return JourneyStageResult(
             stage=stage_num,
             stage_name=stage_name,
-            factors=factors,
+            factors=factors,  # type: ignore[arg-type]
             metrics={
                 "total_sessions": metrics.total_sessions,
                 "total_attempts": metrics.total_attempts,
@@ -283,14 +285,14 @@ class UserService:
         user_id = user.id
         
         # Clear user profile data
-        user.instrument = None
-        user.resonant_note = None
-        user.range_low = None
-        user.range_high = None
-        user.comfortable_capabilities = None
-        user.max_melodic_interval = "M2"
-        user.day0_completed = False
-        user.day0_stage = 0
+        user.instrument = None  # type: ignore[assignment]
+        user.resonant_note = None  # type: ignore[assignment]
+        user.range_low = None  # type: ignore[assignment]
+        user.range_high = None  # type: ignore[assignment]
+        user.comfortable_capabilities = None  # type: ignore[assignment]
+        user.max_melodic_interval = "M2"  # type: ignore[assignment]
+        user.day0_completed = False  # type: ignore[assignment]
+        user.day0_stage = 0  # type: ignore[assignment]
         
         # Reset capability bitmasks
         for attr in MASK_ATTRS:
@@ -339,9 +341,9 @@ class UserService:
             if existing.is_active:
                 return False, "Capability already granted"
             else:
-                existing.is_active = True
-                existing.deactivated_at = None
-                existing.mastered_at = datetime.datetime.now()
+                existing.is_active = True  # type: ignore[assignment]
+                existing.deactivated_at = None  # type: ignore[assignment]
+                existing.mastered_at = datetime.datetime.now()  # type: ignore[assignment]
         else:
             user_cap = UserCapability(
                 user_id=user.id,
@@ -353,7 +355,7 @@ class UserService:
             db.add(user_cap)
         
         # Update bitmask
-        cls._set_capability_bit(user, cap.bit_index, True)
+        cls._set_capability_bit(user, int(cap.bit_index) if cap.bit_index else None, True)
         
         return True, "Capability granted"
     
@@ -376,11 +378,11 @@ class UserService:
         if not existing or not existing.is_active:
             return False, "Capability not currently active"
         
-        existing.is_active = False
-        existing.deactivated_at = datetime.datetime.now()
+        existing.is_active = False  # type: ignore[assignment]
+        existing.deactivated_at = datetime.datetime.now()  # type: ignore[assignment]
         
         # Update bitmask
-        cls._set_capability_bit(user, cap.bit_index, False)
+        cls._set_capability_bit(user, int(cap.bit_index) if cap.bit_index else None, False)
         
         return True, "Capability revoked"
     
@@ -403,13 +405,14 @@ class UserService:
         setattr(user, MASK_ATTRS[bucket], new_mask)
     
     @staticmethod
-    def _build_attempt_history(attempts) -> Dict[int, List[Dict]]:
+    def _build_attempt_history(attempts: List[Any]) -> Dict[int, List[Dict[str, Any]]]:
         """Build attempt history dict from list of attempts."""
-        history = {}
+        history: Dict[int, List[Dict[str, Any]]] = {}
         for a in attempts:
-            if a.material_id not in history:
-                history[a.material_id] = []
-            history[a.material_id].append({
+            mat_id = int(a.material_id)
+            if mat_id not in history:
+                history[mat_id] = []
+            history[mat_id].append({
                 "rating": a.rating,
                 "timestamp": a.timestamp.isoformat() if a.timestamp else None,
             })
@@ -489,8 +492,8 @@ class UserService:
         
         if user_cap:
             # Update to mastered
-            user_cap.mastered_at = now
-            user_cap.evidence_count = cap.evidence_required_count or 1
+            user_cap.mastered_at = now  # type: ignore[assignment]
+            user_cap.evidence_count = cap.evidence_required_count or 1  # type: ignore[assignment]
         else:
             # Create new mastered capability
             user_cap = UserCapability(

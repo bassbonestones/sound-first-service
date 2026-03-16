@@ -8,3 +8,7 @@ supabase
 music21
 midi2audio
 pysfizz
+
+# Type checking
+mypy
+types-requests

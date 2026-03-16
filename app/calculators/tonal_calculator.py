@@ -4,14 +4,14 @@ Tonal Complexity Calculator
 D1 — Tonal Complexity Stage (0-5) based on chromatic vs diatonic content.
 """
 
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 
 def calculate_tonal_complexity_stage(
     pitch_class_count: int,
     accidental_count: int,
     total_note_count: int,
-) -> Tuple[int, Dict]:
+) -> Tuple[int, Dict[str, Any]]:
     """
     Calculate D1 tonal complexity stage (0-5).
     

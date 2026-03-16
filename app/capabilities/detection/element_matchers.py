@@ -42,7 +42,7 @@ ORNAMENT_MAP = {
 }
 
 
-def check_element(config: Dict, result, score=None) -> bool:
+def check_element(config: Dict[str, Any], result: Any, score: Any = None) -> bool:
     """Check for music21 element class presence."""
     class_name = config.get("class", "")
     
@@ -66,7 +66,7 @@ def check_element(config: Dict, result, score=None) -> bool:
     
     # Fermata
     if class_name == "music21.expressions.Fermata":
-        return result.fermatas > 0
+        return bool(result.fermatas > 0)
     
     # Spanners and dynamics that require score access
     if score is not None:
@@ -76,7 +76,7 @@ def check_element(config: Dict, result, score=None) -> bool:
     return False
 
 
-def _check_score_elements(class_name: str, result, score) -> bool:
+def _check_score_elements(class_name: str, result: Any, score: Any) -> bool:
     """Check elements that require score traversal."""
     try:
         # Slurs for legato
@@ -105,7 +105,7 @@ def _check_score_elements(class_name: str, result, score) -> bool:
         
         if class_name == "music21.dynamics.Decrescendo":
             from music21 import dynamics, spanner
-            for d in score.recurse().getElementsByClass(dynamics.Decrescendo):
+            for d in score.recurse().getElementsByClass(dynamics.Diminuendo):
                 return True
             for sp in score.recurse().getElementsByClass(spanner.Spanner):
                 if hasattr(sp, 'type') and sp.type == 'decrescendo':

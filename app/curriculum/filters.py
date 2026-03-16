@@ -7,7 +7,7 @@ within the user's comfortable range.
 
 import json
 import random
-from typing import List, Optional
+from typing import Any, List, Optional, Set, Tuple
 
 from .utils import note_to_midi, KEY_TRANSPOSITION_OFFSET
 
@@ -44,9 +44,9 @@ def check_material_in_range(
 
 
 def filter_materials_by_capabilities(
-    materials: list,
+    materials: List[Any],
     user_capabilities: List[str]
-) -> list:
+) -> List[Any]:
     """
     Filter materials to only those the user has capabilities for.
     
@@ -79,10 +79,10 @@ def filter_materials_by_capabilities(
 
 
 def filter_materials_by_range(
-    materials: list,
+    materials: List[Any],
     user_range_low: str,
     user_range_high: str
-) -> list:
+) -> List[Any]:
     """
     Filter materials to only those within user's comfortable range.
     """
@@ -96,10 +96,10 @@ def filter_materials_by_range(
 
 
 def estimate_material_pitch_range(
-    material,
+    material: Any,
     target_key: str,
-    original_key: str = None
-) -> tuple:
+    original_key: Optional[str] = None
+) -> Tuple[int, int]:
     """
     Estimate the pitch range (low, high) in MIDI when material is transposed.
     
@@ -159,12 +159,12 @@ def estimate_material_pitch_range(
 
 
 def filter_keys_by_range(
-    allowed_keys: list,
-    material,
+    allowed_keys: List[str],
+    material: Any,
     user_range_low: str,
     user_range_high: str,
-    original_key: str = None
-) -> list:
+    original_key: Optional[str] = None
+) -> List[str]:
     """
     Filter a list of allowed keys to only those playable within user's range.
     
@@ -203,10 +203,10 @@ def filter_keys_by_range(
 
 
 def select_key_for_mini_session(
-    material,
+    material: Any,
     user_range_low: str,
     user_range_high: str,
-    used_keys: set = None,
+    used_keys: Optional[Set[str]] = None,
     prefer_original: bool = True
 ) -> str:
     """

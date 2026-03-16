@@ -4,7 +4,7 @@ Interval Parser
 Extraction of melodic and harmonic intervals from MusicXML scores.
 """
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from music21 import stream
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 from .extraction_models import IntervalInfo
 
 
-def extract_intervals(score: "stream.Score", result: "ExtractionResult"):
+def extract_intervals(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract melodic and harmonic intervals."""
     from music21 import note, chord, interval
     
@@ -55,7 +55,7 @@ def extract_intervals(score: "stream.Score", result: "ExtractionResult"):
                         pass
 
 
-def _get_interval_info(intv, is_melodic: bool) -> IntervalInfo:
+def _get_interval_info(intv: Any, is_melodic: bool) -> IntervalInfo:
     """Convert music21 interval to IntervalInfo."""
     from music21 import interval
     

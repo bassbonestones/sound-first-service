@@ -1,7 +1,7 @@
 """Admin user progression and diagnostics endpoints."""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 from sqlalchemy.orm import Session
 import datetime
 import random
@@ -160,19 +160,19 @@ def admin_get_session_candidates(user_id: int, db: Session = Depends(get_db)) ->
     mastered_caps = db.query(UserCapability).filter_by(user_id=user_id, is_active=True).filter(UserCapability.mastered_at != None).all()
     mastered_cap_ids = {uc.capability_id for uc in mastered_caps}
     
-    soft_rules = {r.dimension_name: r for r in db.query(SoftGateRule).all()}
-    soft_states = {s.dimension_name: s for s in db.query(UserSoftGateState).filter_by(user_id=user_id).all()}
+    soft_rules: Dict[Any, SoftGateRule] = {r.dimension_name: r for r in db.query(SoftGateRule).all()}
+    soft_states: Dict[Any, UserSoftGateState] = {s.dimension_name: s for s in db.query(UserSoftGateState).filter_by(user_id=user_id).all()}
     
-    eligible_materials = []
-    ineligible_sample = []
+    eligible_materials: List[Dict[str, Any]] = []
+    ineligible_sample: List[Dict[str, Any]] = []
     
     for mat in materials:
         req_caps = db.query(MaterialCapability).filter_by(material_id=mat.id, is_required=True).all()
         missing_caps = [rc.capability_id for rc in req_caps if rc.capability_id not in mastered_cap_ids]
         
         if missing_caps:
-            missing_names = db.query(Capability.name).filter(Capability.id.in_(missing_caps)).all()
-            missing_names = [n[0] for n in missing_names]
+            missing_names_result = db.query(Capability.name).filter(Capability.id.in_(missing_caps)).all()
+            missing_names = [n[0] for n in missing_names_result]
             
             if len(ineligible_sample) < 20:
                 ineligible_sample.append({"id": mat.id, "title": mat.title, "ineligibility_reason": f"Missing capabilities: {', '.join(missing_names[:3])}"})
@@ -224,7 +224,7 @@ def admin_generate_diagnostic_session(user_id: int, duration_minutes: int = 30, 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    diagnostics = {
+    diagnostics: Dict[str, Any] = {
         "target_capabilities": [], "hard_gates": [], "soft_envelope_filters": [],
         "candidates_considered": 0, "candidate_ranking": [], "selection_reasons": [],
     }
@@ -250,8 +250,12 @@ def admin_generate_diagnostic_session(user_id: int, duration_minutes: int = 30, 
     ]
     
     try:
-        eligible = filter_materials_by_capabilities(db.query(Material).all(), db, user_id)
-        eligible = filter_materials_by_range(eligible, user.range_low, user.range_high)
+        # Get user's mastered capabilities
+        user_caps = db.query(UserCapability).filter_by(user_id=user_id, is_active=True).filter(UserCapability.mastered_at != None).all()
+        user_cap_names = [str(db.query(Capability.name).filter_by(id=uc.capability_id).scalar() or "") for uc in user_caps]
+        
+        eligible = filter_materials_by_capabilities(db.query(Material).all(), user_cap_names)
+        eligible = filter_materials_by_range(eligible, str(user.range_low) if user.range_low else "", str(user.range_high) if user.range_high else "")
         diagnostics["candidates_considered"] = len(eligible)
         
         for i, mat in enumerate(eligible[:10]):
@@ -261,12 +265,16 @@ def admin_generate_diagnostic_session(user_id: int, duration_minutes: int = 30, 
         db.add(practice_session)
         db.flush()
         
-        mini_sessions_out = []
+        mini_sessions_out: List[Dict[str, Any]] = []
         focus_cards = db.query(FocusCard).all()
         
         for i, material in enumerate(eligible[:3]):
             focus_card = random.choice(focus_cards) if focus_cards else None
-            target_key = select_key_for_mini_session(material, user, db)
+            target_key = select_key_for_mini_session(
+                material, 
+                str(user.range_low) if user.range_low else "", 
+                str(user.range_high) if user.range_high else ""
+            )
             
             mini_session = MiniSession(
                 practice_session_id=practice_session.id, material_id=material.id, key=target_key,
@@ -338,37 +346,37 @@ def admin_update_user_info(user_id: int, update: UserInfoUpdate, db: Session = D
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    changes = []
+    changes: List[str] = []
     
     if update.instrument is not None:
-        old = user.instrument
-        user.instrument = update.instrument
-        changes.append(f"instrument: {old} -> {update.instrument}")
+        old_val: Any = user.instrument
+        user.instrument = update.instrument  # type: ignore[assignment]
+        changes.append(f"instrument: {old_val} -> {update.instrument}")
     
     if update.resonant_note is not None:
-        old = user.resonant_note
-        user.resonant_note = update.resonant_note
-        changes.append(f"resonant_note: {old} -> {update.resonant_note}")
+        old_val = user.resonant_note
+        user.resonant_note = update.resonant_note  # type: ignore[assignment]
+        changes.append(f"resonant_note: {old_val} -> {update.resonant_note}")
     
     if update.range_low is not None:
-        old = user.range_low
-        user.range_low = update.range_low
-        changes.append(f"range_low: {old} -> {update.range_low}")
+        old_val = user.range_low
+        user.range_low = update.range_low  # type: ignore[assignment]
+        changes.append(f"range_low: {old_val} -> {update.range_low}")
     
     if update.range_high is not None:
-        old = user.range_high
-        user.range_high = update.range_high
-        changes.append(f"range_high: {old} -> {update.range_high}")
+        old_val = user.range_high
+        user.range_high = update.range_high  # type: ignore[assignment]
+        changes.append(f"range_high: {old_val} -> {update.range_high}")
     
     if update.day0_completed is not None:
-        old = getattr(user, "day0_completed", None)
-        user.day0_completed = update.day0_completed
-        changes.append(f"day0_completed: {old} -> {update.day0_completed}")
+        old_val = getattr(user, "day0_completed", None)
+        user.day0_completed = update.day0_completed  # type: ignore[assignment]
+        changes.append(f"day0_completed: {old_val} -> {update.day0_completed}")
     
     if update.day0_stage is not None:
-        old = getattr(user, "day0_stage", None)
-        user.day0_stage = update.day0_stage
-        changes.append(f"day0_stage: {old} -> {update.day0_stage}")
+        old_val = getattr(user, "day0_stage", None)
+        user.day0_stage = update.day0_stage  # type: ignore[assignment]
+        changes.append(f"day0_stage: {old_val} -> {update.day0_stage}")
     
     db.commit()
     
@@ -394,19 +402,20 @@ def admin_get_available_capabilities(user_id: int, instrument_id: Optional[int] 
     user_caps_list = user_caps_query.all()
     
     # Build lookup: for global caps key by (cap_id, None), for instrument-specific key by (cap_id, instrument_id)
-    user_caps = {}
+    user_caps: Dict[tuple[int, Optional[int]], UserCapability] = {}
     for uc in user_caps_list:
-        user_caps[(uc.capability_id, uc.instrument_id)] = uc
+        user_caps[(int(uc.capability_id), int(uc.instrument_id) if uc.instrument_id else None)] = uc
     
-    result = []
+    result: List[Dict[str, Any]] = []
     for cap in all_caps:
         is_global = cap.is_global if hasattr(cap, 'is_global') else True
+        cap_id = int(cap.id)  # Extract int from Column
         
         # For global caps, look for instrument_id=None; for instrument-specific, use provided instrument_id
         if is_global:
-            user_cap = user_caps.get((cap.id, None))
+            user_cap = user_caps.get((cap_id, None))
         else:
-            user_cap = user_caps.get((cap.id, instrument_id)) if instrument_id else None
+            user_cap = user_caps.get((cap_id, instrument_id)) if instrument_id else None
         
         result.append({
             "id": cap.id,
@@ -460,9 +469,9 @@ def admin_add_user_capability(user_id: int, data: CapabilityAdd, db: Session = D
     ).first()
     if existing:
         if not existing.is_active:
-            existing.is_active = True
+            existing.is_active = True  # type: ignore[assignment]
             if data.mastered:
-                existing.mastered_at = datetime.datetime.now()
+                existing.mastered_at = datetime.datetime.now()  # type: ignore[assignment]
             db.commit()
             return {"success": True, "message": "Capability reactivated"}
         else:
@@ -513,7 +522,7 @@ def admin_remove_user_capability(
     if not user_cap:
         raise HTTPException(status_code=404, detail="User capability not found")
     
-    user_cap.is_active = False
+    user_cap.is_active = False  # type: ignore[assignment]
     db.commit()
     
     return {"success": True, "message": "Capability removed"}
@@ -549,10 +558,10 @@ def admin_toggle_capability_mastery(
         raise HTTPException(status_code=404, detail="User capability not found")
     
     if user_cap.mastered_at:
-        user_cap.mastered_at = None
+        user_cap.mastered_at = None  # type: ignore[assignment]
         action = "unmastered"
     else:
-        user_cap.mastered_at = datetime.datetime.now()
+        user_cap.mastered_at = datetime.datetime.now()  # type: ignore[assignment]
         action = "mastered"
     
     db.commit()
@@ -611,27 +620,27 @@ def admin_update_soft_gate(user_id: int, dimension_name: str, update: SoftGateUp
         db.commit()
         return {"success": True, "message": "Soft gate state created"}
     
-    changes = []
+    changes: List[str] = []
     
     if update.comfortable_value is not None:
-        old = state.comfortable_value
-        state.comfortable_value = update.comfortable_value
-        changes.append(f"comfortable_value: {old} -> {update.comfortable_value}")
+        old_val: Any = state.comfortable_value
+        state.comfortable_value = update.comfortable_value  # type: ignore[assignment]
+        changes.append(f"comfortable_value: {old_val} -> {update.comfortable_value}")
     
     if update.max_demonstrated_value is not None:
-        old = state.max_demonstrated_value
-        state.max_demonstrated_value = update.max_demonstrated_value
-        changes.append(f"max_demonstrated_value: {old} -> {update.max_demonstrated_value}")
+        old_val = state.max_demonstrated_value
+        state.max_demonstrated_value = update.max_demonstrated_value  # type: ignore[assignment]
+        changes.append(f"max_demonstrated_value: {old_val} -> {update.max_demonstrated_value}")
     
     if update.frontier_success_ema is not None:
-        old = state.frontier_success_ema
-        state.frontier_success_ema = update.frontier_success_ema
-        changes.append(f"frontier_success_ema: {old} -> {update.frontier_success_ema}")
+        old_val = state.frontier_success_ema
+        state.frontier_success_ema = update.frontier_success_ema  # type: ignore[assignment]
+        changes.append(f"frontier_success_ema: {old_val} -> {update.frontier_success_ema}")
     
     if update.frontier_attempt_count_since_last_promo is not None:
-        old = state.frontier_attempt_count_since_last_promo
-        state.frontier_attempt_count_since_last_promo = update.frontier_attempt_count_since_last_promo
-        changes.append(f"frontier_attempt_count: {old} -> {update.frontier_attempt_count_since_last_promo}")
+        old_val = state.frontier_attempt_count_since_last_promo
+        state.frontier_attempt_count_since_last_promo = update.frontier_attempt_count_since_last_promo  # type: ignore[assignment]
+        changes.append(f"frontier_attempt_count: {old_val} -> {update.frontier_attempt_count_since_last_promo}")
     
     db.commit()
     
@@ -686,8 +695,8 @@ def admin_reset_user(user_id: int, db: Session = Depends(get_db)) -> Dict[str, A
     deleted_counts["lesson_progress"] = count
     
     # Reset user day0 status
-    user.day0_completed = False
-    user.day0_stage = 0
+    user.day0_completed = False  # type: ignore[assignment]
+    user.day0_stage = 0  # type: ignore[assignment]
     
     db.commit()
     
@@ -715,7 +724,7 @@ def admin_grant_day0_capabilities(user_id: int, db: Session = Depends(get_db)) -
     db.commit()
     
     # Get full list of day 0 capability names for reference
-    clef = UserService.get_clef_capability(user.instrument)
+    clef = UserService.get_clef_capability(str(user.instrument) if user.instrument else "")
     all_day0 = DAY0_BASE_CAPABILITIES + [clef]
     
     return {

@@ -1,6 +1,7 @@
 """Admin-related Pydantic models."""
 from pydantic import BaseModel, field_validator, model_validator
 from typing import List, Optional, Dict, Any
+from typing_extensions import Self
 from datetime import datetime
 
 
@@ -12,7 +13,7 @@ class FocusCardCreate(BaseModel):
     description: str = ""
     attention_cue: str = ""
     micro_cues: List[str] = []
-    prompts: dict = {}
+    prompts: Dict[str, Any] = {}
 
 
 class FocusCardUpdate(BaseModel):
@@ -21,7 +22,7 @@ class FocusCardUpdate(BaseModel):
     description: Optional[str] = None
     attention_cue: Optional[str] = None
     micro_cues: Optional[List[str]] = None
-    prompts: Optional[dict] = None
+    prompts: Optional[Dict[str, Any]] = None
 
 
 class SoftGateRuleUpdate(BaseModel):
@@ -118,7 +119,7 @@ class SoftGateRuleCreate(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def validate_window_vs_required(self):
+    def validate_window_vs_required(self) -> Self:
         """Validate window count is at least as large as required count."""
         if self.success_window_count is not None:
             if self.success_window_count < self.success_required_count:

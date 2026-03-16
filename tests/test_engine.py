@@ -20,8 +20,8 @@ class TestEngineConfig:
     
     def test_default_config_exists(self):
         """DEFAULT_CONFIG should be available."""
-        assert DEFAULT_CONFIG is not None
-        assert isinstance(DEFAULT_CONFIG, EngineConfig)
+        # Verify DEFAULT_CONFIG has expected default values
+        assert DEFAULT_CONFIG.ema_alpha > 0
     
     def test_default_ema_alpha(self):
         """Default EMA alpha should be 0.3."""
@@ -38,7 +38,7 @@ class TestEngineConfig:
     def test_config_is_dataclass(self):
         """Config should be convertible to dict."""
         config_dict = asdict(DEFAULT_CONFIG)
-        assert isinstance(config_dict, dict)
+        # Verify dict has expected keys
         assert "ema_alpha" in config_dict
     
     def test_custom_config(self):

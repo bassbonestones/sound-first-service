@@ -6,14 +6,14 @@ clefs, time signatures, chord symbols, figured bass, grace notes,
 breath marks, multi-measure rests, voices.
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 
 
-def register_custom_detector(name: str):
-    """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
+    """Decorator to register a custom notation detection function."""
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator
@@ -24,7 +24,7 @@ def register_custom_detector(name: str):
 # =============================================================================
 
 @register_custom_detector("detect_clef_bass_8va")
-def detect_clef_bass_8va(extraction_result, score) -> bool:
+def detect_clef_bass_8va(extraction_result: Any, score: Any) -> bool:
     """Detect bass clef with octave transposition up."""
     if score is None:
         return False
@@ -36,7 +36,7 @@ def detect_clef_bass_8va(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_clef_treble_8vb")
-def detect_clef_treble_8vb(extraction_result, score) -> bool:
+def detect_clef_treble_8vb(extraction_result: Any, score: Any) -> bool:
     """Detect treble clef with octave transposition down."""
     if score is None:
         return False
@@ -52,7 +52,7 @@ def detect_clef_treble_8vb(extraction_result, score) -> bool:
 # =============================================================================
 
 @register_custom_detector("detect_any_time_signature")
-def detect_any_time_signature(extraction_result, score) -> bool:
+def detect_any_time_signature(extraction_result: Any, score: Any) -> bool:
     """Detect presence of any time signature."""
     return len(extraction_result.time_signatures) > 0
 
@@ -62,7 +62,7 @@ def detect_any_time_signature(extraction_result, score) -> bool:
 # =============================================================================
 
 @register_custom_detector("detect_chord_symbols")
-def detect_chord_symbols(extraction_result, score) -> bool:
+def detect_chord_symbols(extraction_result: Any, score: Any) -> bool:
     """Detect chord symbols (lead sheet notation)."""
     if len(extraction_result.chord_symbols) > 0:
         return True
@@ -75,7 +75,7 @@ def detect_chord_symbols(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_figured_bass")
-def detect_figured_bass(extraction_result, score) -> bool:
+def detect_figured_bass(extraction_result: Any, score: Any) -> bool:
     """Detect figured bass notation."""
     if extraction_result.figured_bass:
         return True
@@ -122,7 +122,7 @@ def detect_figured_bass(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_grace_note")
-def detect_grace_note(extraction_result, score) -> bool:
+def detect_grace_note(extraction_result: Any, score: Any) -> bool:
     """Detect grace notes."""
     if score is None:
         return False
@@ -134,7 +134,7 @@ def detect_grace_note(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_breath_mark")
-def detect_breath_mark(extraction_result, score) -> bool:
+def detect_breath_mark(extraction_result: Any, score: Any) -> bool:
     """Detect breath marks."""
     if extraction_result.breath_marks > 0:
         return True
@@ -149,9 +149,9 @@ def detect_breath_mark(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_multimeasure_rest")
-def detect_multimeasure_rest(extraction_result, score) -> bool:
+def detect_multimeasure_rest(extraction_result: Any, score: Any) -> bool:
     """Detect multi-measure rest."""
-    return extraction_result.has_multi_measure_rest
+    return bool(extraction_result.has_multi_measure_rest)
 
 
 # =============================================================================
@@ -159,7 +159,7 @@ def detect_multimeasure_rest(extraction_result, score) -> bool:
 # =============================================================================
 
 @register_custom_detector("detect_two_voices")
-def detect_two_voices(extraction_result, score) -> bool:
+def detect_two_voices(extraction_result: Any, score: Any) -> bool:
     """Detect two-voice texture."""
     if score is None:
         return False
@@ -172,7 +172,7 @@ def detect_two_voices(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_three_voices")
-def detect_three_voices(extraction_result, score) -> bool:
+def detect_three_voices(extraction_result: Any, score: Any) -> bool:
     """Detect three-voice texture."""
     if score is None:
         return False
@@ -185,7 +185,7 @@ def detect_three_voices(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_four_voices")
-def detect_four_voices(extraction_result, score) -> bool:
+def detect_four_voices(extraction_result: Any, score: Any) -> bool:
     """Detect four-voice texture."""
     if score is None:
         return False

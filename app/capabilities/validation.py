@@ -4,13 +4,13 @@ Validation functions for capability detection rules.
 Validates detection rules from capabilities.json at startup.
 """
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from .types import DetectionRule, DetectionType, VALID_SOURCES
 from .custom_detectors import CUSTOM_DETECTORS
 
 
-def validate_detection_rule(capability_name: str, rule_config: Optional[Dict]) -> DetectionRule:
+def validate_detection_rule(capability_name: str, rule_config: Optional[Dict[str, Any]]) -> DetectionRule:
     """
     Validate a detection rule configuration.
     

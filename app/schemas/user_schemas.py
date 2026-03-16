@@ -34,14 +34,14 @@ class UserRangeIn(BaseModel):
 
 class ClientLogIn(BaseModel):
     event: str
-    data: dict
+    data: Dict[str, Any]
     timestamp: Optional[str] = None
 
 
 class ConfigUpdateIn(BaseModel):
-    capability_weights: Optional[dict] = None
-    difficulty_weights: Optional[dict] = None
-    novelty_reinforcement: Optional[dict] = None
+    capability_weights: Optional[Dict[str, Any]] = None
+    difficulty_weights: Optional[Dict[str, Any]] = None
+    novelty_reinforcement: Optional[Dict[str, Any]] = None
 
 
 class QuizResultIn(BaseModel):

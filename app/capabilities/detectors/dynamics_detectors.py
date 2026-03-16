@@ -5,21 +5,21 @@ Detection functions for dynamics-related capabilities:
 decrescendo, subito dynamics.
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 
 
-def register_custom_detector(name: str):
-    """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
+    """Decorator to register a custom dynamics detection function."""
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator
 
 
 @register_custom_detector("detect_decrescendo")
-def detect_decrescendo(extraction_result, score) -> bool:
+def detect_decrescendo(extraction_result: Any, score: Any) -> bool:
     """Detect decrescendo (diminuendo wedge or text)."""
     if score is None:
         return False
@@ -39,7 +39,7 @@ def detect_decrescendo(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_subito")
-def detect_subito(extraction_result, score) -> bool:
+def detect_subito(extraction_result: Any, score: Any) -> bool:
     """Detect subito (sudden) dynamic change."""
     if hasattr(extraction_result, 'dynamic_changes'):
         changes = extraction_result.dynamic_changes or []

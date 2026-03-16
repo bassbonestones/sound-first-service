@@ -1,23 +1,42 @@
 """Audio generation endpoints."""
+import logging
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response, JSONResponse
-from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.core import Material
 from app.schemas.user_schemas import AudioStatusOut
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/audio", tags=["audio"])
 
+# Response documentation for binary audio endpoints
+AUDIO_RESPONSES = {
+    200: {
+        "description": "Audio file (WAV or MIDI fallback)",
+        "content": {
+            "audio/wav": {},
+            "audio/midi": {},
+        }
+    },
+    400: {"description": "Invalid request parameters"},
+    404: {"description": "Resource not found"},
+    422: {"description": "Processing error"},
+    503: {"description": "Audio library unavailable"},
+}
 
-@router.get("/material/{material_id}")
+
+@router.get("/material/{material_id}", responses=AUDIO_RESPONSES, status_code=200)  # type: ignore[arg-type]
 def get_material_audio(
     material_id: int,
     key: str = Query(..., description="Target key for transposition (e.g., 'Bb major')"),
     instrument: str = Query(default="piano", description="Instrument for soundfont"),
     db: Session = Depends(get_db)
-):
+) -> Response:
     """
     Generate audio for a material transposed to the specified key.
     
@@ -63,8 +82,8 @@ def get_material_audio(
     
     # Generate audio
     result = generate_audio_with_result(
-        musicxml_content=material.musicxml_canonical,
-        original_key=material.original_key_center or "C major",
+        musicxml_content=material.musicxml_canonical,  # type: ignore[arg-type]
+        original_key=material.original_key_center or "C major",  # type: ignore[arg-type]
         target_key=key,
         instrument=instrument,
         material_id=material_id,
@@ -111,13 +130,13 @@ def get_material_audio(
     )
 
 
-@router.get("/note/{note}")
+@router.get("/note/{note}", responses=AUDIO_RESPONSES, status_code=200)  # type: ignore[arg-type]
 def get_single_note_audio(
     note: str,
     instrument: str = Query(default="piano", description="Instrument for soundfont"),
     duration: int = Query(default=3, description="Duration in beats (3 = 3 seconds at 60 BPM)"),
     octave: Optional[int] = Query(default=None, description="Override octave (1-8)")
-):
+) -> Response:
     """
     Generate audio for a single sustained note.
     
@@ -204,7 +223,7 @@ def get_audio_status() -> AudioStatusOut:
     
     soundfont = get_soundfont_path()
     
-    return {
+    return {  # type: ignore[return-value]
         "music21_available": MUSIC21_AVAILABLE,
         "fluidsynth_available": FLUIDSYNTH_AVAILABLE,
         "use_direct_fluidsynth": USE_DIRECT_FLUIDSYNTH,

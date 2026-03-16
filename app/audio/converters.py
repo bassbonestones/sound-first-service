@@ -4,6 +4,7 @@ Audio format converters.
 Functions for converting MusicXML to MIDI and MIDI to audio.
 """
 
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -14,6 +15,8 @@ from .config import (
     SOUNDFONT_DIR,
     DEFAULT_SOUNDFONT,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def musicxml_to_midi(musicxml_content: str, instrument: str = "piano") -> Optional[bytes]:
@@ -80,19 +83,19 @@ def musicxml_to_midi(musicxml_content: str, instrument: str = "piano") -> Option
         InstrumentClass = instrument_map.get(norm_instrument, m21instrument.Piano)
         
         # Set instrument on all parts
-        for part in score.parts:
+        for part in score.parts:  # type: ignore[union-attr]
             # Remove any existing instruments
             part.removeByClass(m21instrument.Instrument)
             # Insert new instrument at the beginning
-            inst = InstrumentClass()
+            inst = InstrumentClass()  # type: ignore[no-untyped-call]
             part.insert(0, inst)
         
         # Write to MIDI
-        midi_file = score.write('midi')
+        midi_file = score.write('midi')  # type: ignore[no-untyped-call]
         with open(midi_file, 'rb') as f:
             return f.read()
     except Exception as e:
-        print(f"Error converting to MIDI: {e}")
+        logger.error(f"Error converting to MIDI: {e}")
         return None
 
 
@@ -159,7 +162,7 @@ def midi_to_audio(midi_bytes: bytes, soundfont_path: Optional[Path] = None) -> O
         soundfont_path = get_soundfont_path()
     
     if soundfont_path is None or not soundfont_path.exists():
-        print("No soundfont file found. Please add a .sf2 file to the soundfonts/ directory.")
+        logger.warning("No soundfont file found. Please add a .sf2 file to the soundfonts/ directory.")
         return None
     
     try:
@@ -185,7 +188,7 @@ def midi_to_audio(midi_bytes: bytes, soundfont_path: Optional[Path] = None) -> O
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             if result.returncode != 0:
-                print(f"FluidSynth error: {result.stderr}")
+                logger.error(f"FluidSynth error: {result.stderr}")
                 return None
         else:
             # Use midi2audio library
@@ -194,7 +197,7 @@ def midi_to_audio(midi_bytes: bytes, soundfont_path: Optional[Path] = None) -> O
                 fs = FluidSynth(str(soundfont_path))
                 fs.midi_to_audio(midi_path, wav_path)
             except ImportError:
-                print("midi2audio not installed. Run: pip install midi2audio")
+                logger.warning("midi2audio not installed. Run: pip install midi2audio")
                 return None
         
         # Read WAV bytes
@@ -207,5 +210,5 @@ def midi_to_audio(midi_bytes: bytes, soundfont_path: Optional[Path] = None) -> O
         
         return wav_bytes
     except Exception as e:
-        print(f"Error rendering audio: {e}")
+        logger.error(f"Error rendering audio: {e}")
         return None

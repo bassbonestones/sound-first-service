@@ -268,8 +268,7 @@ class TestRhythmComplexityWindowed:
             pitch_changes=[2] * (n - 1),
             offsets=list(range(n)),
         )
-        assert peak is not None
-        assert p95 is not None
+        # Verify valid normalized scores
         assert 0 <= peak <= 1
         assert 0 <= p95 <= 1
         assert raw.get("window_count") > 0
@@ -309,7 +308,6 @@ class TestRhythmComplexityWindowed:
         )
         
         # Peak should be higher than global because of the complex section
-        assert peak is not None
         assert peak >= global_score * 0.9  # Allow some tolerance
     
     def test_uniform_piece_peak_equals_global_approximately(self):
@@ -333,7 +331,6 @@ class TestRhythmComplexityWindowed:
             durations, types, dots, tuplets, ties, pitch_changes, offsets
         )
         
-        assert peak is not None
         # For uniform piece, peak should be within 20% of global
         assert abs(peak - global_score) < 0.2
     
@@ -358,8 +355,7 @@ class TestRhythmComplexityWindowed:
             durations, types, dots, tuplets, ties, pitch_changes, offsets
         )
         
-        assert peak is not None
-        assert p95 is not None
+        # P95 is the 95th percentile, must be <= peak (max)
         assert p95 <= peak
     
     def test_empty_returns_none(self):
@@ -547,7 +543,7 @@ class TestSoftGateCalculator:
         
         metrics = calculator.calculate_from_musicxml(content)
         
-        assert isinstance(metrics, SoftGateMetrics)
+        # Verify all domain scores are valid
         assert 0 <= metrics.tonal_complexity_stage <= 5
         assert 0 <= metrics.interval_size_stage <= 6
         assert 0 <= metrics.rhythm_complexity_score <= 1

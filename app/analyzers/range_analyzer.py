@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 from .extraction_models import RangeAnalysis, format_pitch_name
 
 
-def analyze_range(score: "stream.Score", result: "ExtractionResult"):
+def analyze_range(score: "stream.Score", result: "ExtractionResult") -> None:
     """Analyze pitch range and density."""
     from music21 import note, chord, pitch
     
@@ -70,7 +70,7 @@ def analyze_range(score: "stream.Score", result: "ExtractionResult"):
     )
 
 
-def analyze_chromatic_complexity(score: "stream.Score", result: "ExtractionResult"):
+def analyze_chromatic_complexity(score: "stream.Score", result: "ExtractionResult") -> None:
     """Analyze accidentals outside key signature."""
     from music21 import note, chord, key
     
@@ -86,7 +86,7 @@ def analyze_chromatic_complexity(score: "stream.Score", result: "ExtractionResul
         in_key_pitches = set(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
     
     # Count accidentals outside key
-    accidentals = Counter()
+    accidentals: Counter[str] = Counter()
     total_notes = 0
     
     for n in score.recurse().notes:

@@ -20,6 +20,7 @@ from app.schemas.history_schemas import (
     TimelineDay,
     FocusCardHistoryItem,
     DueItem,
+    SessionAnalyticsOut,
 )
 
 router = APIRouter(prefix="/history", tags=["history"])
@@ -123,11 +124,12 @@ def get_focus_card_history(user_id: int = Query(...), db: DbSession = Depends(ge
     history_data = HistoryService.get_focus_card_history(attempts, focus_cards)
     
     # Build ratings list for trend calculation
-    fc_ratings = {}
+    fc_ratings: Dict[int, List[Any]] = {}
     for a in attempts:
-        if a.focus_card_id not in fc_ratings:
-            fc_ratings[a.focus_card_id] = []
-        fc_ratings[a.focus_card_id].append(a.rating)
+        fc_id = int(a.focus_card_id) if a.focus_card_id else 0
+        if fc_id not in fc_ratings:
+            fc_ratings[fc_id] = []
+        fc_ratings[fc_id].append(a.rating)
     
     # Convert dataclass to dict and add extra fields
     result = []
@@ -146,7 +148,7 @@ def get_focus_card_history(user_id: int = Query(...), db: DbSession = Depends(ge
     return result
 
 
-def _calculate_trend(values) -> str:
+def _calculate_trend(values: List[Any]) -> str:
     """Calculate trend from list of values."""
     if len(values) < 3:
         return "stable"
@@ -163,15 +165,16 @@ def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db:
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
     materials = db.query(Material).all()
     
-    attempt_history = {a.material_id: [] for a in attempts}
+    attempt_history: Dict[int, List[Dict[str, Any]]] = {int(a.material_id): [] for a in attempts}
     for a in attempts:
-        attempt_history[a.material_id].append({
+        mat_id = int(a.material_id) if a.material_id else 0
+        attempt_history[mat_id].append({
             "rating": a.rating,
             "timestamp": a.timestamp.isoformat() if a.timestamp else None,
         })
     
-    mat_map = {m.id: m for m in materials}
-    sr_items = [build_sr_item_from_db(m.id, attempt_history.get(m.id, [])) for m in materials]
+    mat_map: Dict[int, Material] = {int(m.id): m for m in materials}
+    sr_items = [build_sr_item_from_db(int(m.id), attempt_history.get(int(m.id), [])) for m in materials]
     
     prioritized = prioritize_materials(sr_items, limit=limit)
     
@@ -190,8 +193,8 @@ def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db:
     ]
 
 
-@router.get("/analytics")
-def get_session_analytics(user_id: int = Query(...), db: DbSession = Depends(get_db)):
+@router.get("/analytics", response_model=SessionAnalyticsOut, status_code=200)
+def get_session_analytics(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> SessionAnalyticsOut:
     """Comprehensive session history analytics."""
     sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).order_by(PracticeAttempt.timestamp).all()
@@ -213,20 +216,20 @@ def get_session_analytics(user_id: int = Query(...), db: DbSession = Depends(get
     # Practice by day of week
     practice_by_day = _calculate_practice_by_day(sessions)
     
-    return {
-        "time_stats": time_stats,
-        "capability_progress": cap_stats,
-        "quality_metrics": quality_metrics,
-        "completion_stats": {
+    return SessionAnalyticsOut(
+        time_stats=time_stats,
+        capability_progress=cap_stats,
+        quality_metrics=quality_metrics,
+        completion_stats={
             "completed_mini_sessions": completed,
             "total_mini_sessions": total,
             "completion_rate": round(completed / total * 100, 1) if total else 0,
         },
-        "practice_by_day": practice_by_day,
-    }
+        practice_by_day=practice_by_day,
+    )
 
 
-def _calculate_time_stats(sessions):
+def _calculate_time_stats(sessions: List[PracticeSession]) -> Dict[str, Any]:
     """Calculate time-related statistics."""
     total_minutes = 0
     session_durations = []
@@ -245,7 +248,7 @@ def _calculate_time_stats(sessions):
     }
 
 
-def _calculate_capability_stats(user_id: int, db: DbSession):
+def _calculate_capability_stats(user_id: int, db: DbSession) -> Dict[str, Any]:
     """Calculate capability progress statistics."""
     cap_progress = db.query(UserCapability).filter_by(user_id=user_id).all()
     capabilities = db.query(Capability).all()
@@ -264,7 +267,7 @@ def _calculate_capability_stats(user_id: int, db: DbSession):
             domain_stats[domain]["introduced"] += 1
             if cp.mastered_at:
                 domain_stats[domain]["mastered"] += 1
-            domain_stats[domain]["refreshed"] += cp.times_refreshed or 0
+            domain_stats[domain]["refreshed"] += int(cp.times_refreshed or 0)
     
     return {
         "total_introduced": introduced,
@@ -275,7 +278,7 @@ def _calculate_capability_stats(user_id: int, db: DbSession):
     }
 
 
-def _calculate_quality_metrics(attempts, mini_sessions):
+def _calculate_quality_metrics(attempts: List[PracticeAttempt], mini_sessions: List[MiniSession]) -> Dict[str, Any]:
     """Calculate quality-related metrics."""
     ratings = [a.rating for a in attempts if a.rating is not None]
     fatigues = [a.fatigue for a in attempts if a.fatigue is not None]
@@ -293,8 +296,9 @@ def _calculate_quality_metrics(attempts, mini_sessions):
     
     rating_dist = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
     for r in ratings:
-        if r in rating_dist:
-            rating_dist[r] += 1
+        r_int = int(r)
+        if r_int in rating_dist:
+            rating_dist[r_int] += 1
     
     return {
         "overall_avg_rating": round(overall_rating, 2),
@@ -311,7 +315,7 @@ def _calculate_quality_metrics(attempts, mini_sessions):
     }
 
 
-def _calculate_practice_by_day(sessions):
+def _calculate_practice_by_day(sessions: List[PracticeSession]) -> List[Dict[str, Any]]:
     """Calculate practice statistics by day of week."""
     day_stats = {i: {"count": 0, "minutes": 0} for i in range(7)}
     day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]

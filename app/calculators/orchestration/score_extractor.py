@@ -4,7 +4,7 @@ Score Data Extraction
 Extracts note data from music21 Score objects for metric calculations.
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 try:
     from music21 import stream, note, chord, key
@@ -15,7 +15,7 @@ except ImportError:
 from ..models import NoteEvent
 
 
-def extract_note_data(score: stream.Score) -> Dict:
+def extract_note_data(score: stream.Score) -> Dict[str, Any]:
     """
     Extract all note-related data from a music21 Score for calculations.
     
@@ -88,9 +88,9 @@ def extract_note_data(score: stream.Score) -> Dict:
             
             # Note event for IVS
             note_events.append(NoteEvent(
-                pitch_midi=n.pitch.midi,
-                duration_ql=n.duration.quarterLength,
-                offset_ql=n.offset,
+                pitch_midi=int(n.pitch.midi),
+                duration_ql=float(n.duration.quarterLength),
+                offset_ql=float(n.offset),
             ))
             
             prev_midi = n.pitch.midi
@@ -131,9 +131,9 @@ def extract_note_data(score: stream.Score) -> Dict:
                 pitch_changes.append(top_pitch.midi - prev_midi)
             
             note_events.append(NoteEvent(
-                pitch_midi=top_pitch.midi,
-                duration_ql=n.duration.quarterLength,
-                offset_ql=n.offset,
+                pitch_midi=int(top_pitch.midi),
+                duration_ql=float(n.duration.quarterLength),
+                offset_ql=float(n.offset),
             ))
             
             prev_midi = top_pitch.midi

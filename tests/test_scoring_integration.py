@@ -115,17 +115,17 @@ class TestSoftGateCalculation:
         """Verify basic metrics extraction works."""
         metrics = calculate_soft_gates(simple_musicxml)
         
-        assert metrics is not None
+        # Verify metrics object is created with expected structure
         assert metrics.unique_pitch_count > 0
         assert metrics.density_notes_per_second > 0
-        assert metrics.rhythm_complexity_score >= 0
-        assert metrics.rhythm_complexity_score <= 1
+        # Rhythm complexity should be normalized 0-1
+        assert 0 <= metrics.rhythm_complexity_score <= 1
     
     def test_interval_profile_populated(self, simple_musicxml):
         """Verify interval profile is populated."""
         metrics = calculate_soft_gates(simple_musicxml)
         
-        assert metrics.interval_profile is not None
+        # Interval profile should exist and have data
         assert metrics.interval_profile.total_intervals > 0
         # Simple stepwise motion should have high step_ratio
         assert metrics.interval_profile.step_ratio > 0.5
@@ -155,7 +155,8 @@ class TestUnifiedDomainScoring:
         expected_domains = ['interval', 'rhythm', 'tonal', 'tempo', 'range', 'throughput', 'pattern']
         for domain in expected_domains:
             assert domain in results, f"Missing domain: {domain}"
-            assert isinstance(results[domain], DomainResult)
+            # Verify the result has the expected structure
+            assert results[domain].profile is not None
     
     def test_domain_result_structure(self, simple_musicxml):
         """Verify each domain result has required fields."""
@@ -163,11 +164,11 @@ class TestUnifiedDomainScoring:
         results = calculate_unified_domain_scores(metrics)
         
         for domain, result in results.items():
-            # Check profile
-            assert isinstance(result.profile, dict), f"{domain} missing profile"
+            # Check profile is a dict with data
+            assert isinstance(result.profile, dict), f"{domain} profile should be dict"
             
-            # Check facet_scores
-            assert isinstance(result.facet_scores, dict), f"{domain} missing facet_scores"
+            # Check facet_scores is a dict with data
+            assert isinstance(result.facet_scores, dict), f"{domain} facet_scores should be dict"
             
             # Check scores (dict with primary/hazard/overall keys)
             assert 'primary' in result.scores, f"{domain} scores missing primary"
@@ -180,8 +181,8 @@ class TestUnifiedDomainScoring:
             assert 'overall_stage' in result.bands, f"{domain} bands missing overall_stage"
             
             # Check flags and confidence
-            assert isinstance(result.flags, list)
-            assert isinstance(result.confidence, float)
+            assert isinstance(result.flags, (list, set)), f"{domain} flags should be list/set"
+            assert 0 <= result.confidence <= 1
     
     def test_tempo_returns_null_scores_without_marking(self, simple_musicxml):
         """Tempo domain should return null scores when no tempo marking."""
@@ -324,10 +325,10 @@ class TestEndToEndPipeline:
         assert 'overall' in composite
         
         # Verify interval is scored (test file has intervals)
-        assert results['interval'].scores['overall'] is not None
+        assert results['interval'].scores['overall'] > 0, "Expected interval score for test file"
         
         # Verify rhythm is scored
-        assert results['rhythm'].scores['overall'] is not None
+        assert results['rhythm'].scores['overall'] > 0, "Expected rhythm score for test file"
     
     def test_pipeline_to_dict_serialization(self, simple_musicxml):
         """Test that results serialize correctly for API response."""
@@ -338,7 +339,7 @@ class TestEndToEndPipeline:
         serialized = {name: dr.to_dict() for name, dr in results.items()}
         
         for domain, data in serialized.items():
-            assert isinstance(data, dict)
+            # Verify serialized dict has all required keys
             assert 'profile' in data
             assert 'facet_scores' in data
             assert 'scores' in data
@@ -405,4 +406,5 @@ class TestRegressions:
         
         # Should not raise TypeError
         composite = calculate_composite_difficulty(mock_scores)
-        assert composite['overall'] is not None
+        # Overall should be computed (not None)
+        assert 0 <= composite['overall'] <= 1

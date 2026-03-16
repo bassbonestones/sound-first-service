@@ -84,7 +84,8 @@ class TestAnalyzeAllDomains:
             }
         }
         results = analyze_all_domains(profiles)
-        assert results.interval is not None
+        # Verify interval is populated by accessing its attributes
+        assert results.interval.scores['overall'] >= 0
         assert results.rhythm is None
     
     def test_multiple_domains(self):
@@ -102,8 +103,9 @@ class TestAnalyzeAllDomains:
             }
         }
         results = analyze_all_domains(profiles)
-        assert results.interval is not None
-        assert results.rhythm is not None
+        # Verify both domains are populated with scores
+        assert results.interval.scores['overall'] >= 0
+        assert results.rhythm.scores['overall'] >= 0
 
 
 class TestLegacyAliases:

@@ -1,0 +1,35 @@
+[tool.mypy]
+# Strict mode settings
+strict = true
+
+# Project paths
+files = ["app"]
+exclude = [
+    "alembic",
+    "tests",
+    "htmlcov",
+    "__pycache__",
+]
+
+# Plugin support
+plugins = ["pydantic.mypy"]
+
+# Allow untyped decorators from external libraries
+allow_untyped_decorators = true
+
+# Gradual adoption - can tighten these over time
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+pretty = true
+
+# Per-module overrides for third-party libraries without stubs
+[[tool.mypy.overrides]]
+module = [
+    "music21.*",
+    "supabase.*",
+    "pysfizz.*",
+    "midi2audio.*",
+    "asyncpg.*",
+]
+ignore_missing_imports = true

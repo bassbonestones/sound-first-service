@@ -34,7 +34,7 @@ def health_check() -> HealthCheckOut:
     """
     db_status = check_db_health()
     overall_status = "healthy" if db_status["status"] == "healthy" else "unhealthy"
-    return {
+    return {  # type: ignore[return-value]
         "status": overall_status,
         "database": {
             "pool_size": db_status["pool_size"],
@@ -57,16 +57,13 @@ def log_client_event(log: ClientLogIn = Body(...)) -> LoggedOut:
     ts = log.timestamp or datetime.datetime.now().isoformat()
     logger.info(f"[CLIENT] {log.event} | {ts} | {json.dumps(log.data)}")
     
-    # Also print to stdout for uvicorn visibility
-    print(f"[CLIENT LOG] {log.event} | {ts} | {json.dumps(log.data)}")
-    
-    return {"status": "logged"}
+    return {"status": "logged"}  # type: ignore[return-value]
 
 
 @router.get("/config", response_model=SessionConfigOut)
 def get_session_config() -> SessionConfigOut:
     """Get current session generation configuration."""
-    return {
+    return {  # type: ignore[return-value]
         "capability_weights": CAPABILITY_WEIGHTS,
         "difficulty_weights": DIFFICULTY_WEIGHTS,
         "novelty_reinforcement": NOVELTY_REINFORCEMENT,
@@ -98,4 +95,4 @@ def update_session_config(data: ConfigUpdateIn = Body(...)) -> ConfigUpdateOut:
         config.NOVELTY_REINFORCEMENT.update(data.novelty_reinforcement)
         updated.append("novelty_reinforcement")
     
-    return {"status": "success", "updated": updated}
+    return {"status": "success", "updated": updated}  # type: ignore[return-value]

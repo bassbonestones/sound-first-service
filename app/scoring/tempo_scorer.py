@@ -55,12 +55,12 @@ def analyze_tempo_domain(profile: Dict[str, Any]) -> DomainResult:
         return DomainResult(
             profile=profile,
             facet_scores={
-                'speed_demand': None,
-                'tempo_control_demand': None,
-                'tempo_variability': None,
+                'speed_demand': None,  # type: ignore[dict-item]
+                'tempo_control_demand': None,  # type: ignore[dict-item]
+                'tempo_variability': None,  # type: ignore[dict-item]
             },
-            scores=DomainScores(primary=None, hazard=None, overall=None),
-            bands={'primary_stage': None, 'hazard_stage': None, 'overall_stage': None},
+            scores=DomainScores(primary=None, hazard=None, overall=None),  # type: ignore[typeddict-item]
+            bands={'primary_stage': None, 'hazard_stage': None, 'overall_stage': None},  # type: ignore[typeddict-item]
             flags=['no_tempo_marking'],
             confidence=0.0,
         )

@@ -196,7 +196,8 @@ class TestCheckUnifiedScoreEligibility:
             config=None
         )
         
-        assert isinstance(is_eligible, bool)
+        # Should return valid eligibility result (eligible with empty scores)
+        assert is_eligible in (True, False)
         assert isinstance(reasons, list)
 
     def test_blocks_when_primary_score_delta_exceeded(self):
@@ -407,6 +408,7 @@ class TestGetHazardWarnings:
         
         warnings = get_hazard_warnings(candidate, config=None)
         
+        # Should return list of warnings (possibly empty)
         assert isinstance(warnings, list)
 
     def test_combines_flags_and_score_warnings(self):

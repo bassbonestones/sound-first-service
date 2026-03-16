@@ -5,21 +5,21 @@ Detection functions for melodic pattern capabilities:
 scale fragments, compound intervals.
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 
 
-def register_custom_detector(name: str):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
     """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator
 
 
 @register_custom_detector("detect_compound_intervals")
-def detect_compound_intervals(extraction_result, score) -> bool:
+def detect_compound_intervals(extraction_result: Any, score: Any) -> bool:
     """Detect compound intervals (9th or larger)."""
     for key, info in extraction_result.melodic_intervals.items():
         if info.semitones >= 13:  # More than an octave
@@ -32,7 +32,7 @@ def detect_compound_intervals(extraction_result, score) -> bool:
 # =============================================================================
 
 @register_custom_detector("detect_scale_fragment_2")
-def detect_scale_fragment_2(extraction_result, score) -> bool:
+def detect_scale_fragment_2(extraction_result: Any, score: Any) -> bool:
     """Detect 2-note scale fragment (stepwise motion)."""
     for key, info in extraction_result.melodic_intervals.items():
         if info.semitones in [1, 2]:  # m2 or M2
@@ -41,7 +41,7 @@ def detect_scale_fragment_2(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_scale_fragment_3")
-def detect_scale_fragment_3(extraction_result, score) -> bool:
+def detect_scale_fragment_3(extraction_result: Any, score: Any) -> bool:
     """Detect 3-note scale fragment."""
     if score is None:
         return len(extraction_result.melodic_intervals) >= 2
@@ -58,7 +58,7 @@ def detect_scale_fragment_3(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_scale_fragment_4")
-def detect_scale_fragment_4(extraction_result, score) -> bool:
+def detect_scale_fragment_4(extraction_result: Any, score: Any) -> bool:
     """Detect 4-note scale fragment."""
     if score is None:
         return False
@@ -74,7 +74,7 @@ def detect_scale_fragment_4(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_scale_fragment_5")
-def detect_scale_fragment_5(extraction_result, score) -> bool:
+def detect_scale_fragment_5(extraction_result: Any, score: Any) -> bool:
     """Detect 5-note scale fragment."""
     if score is None:
         return False
@@ -90,7 +90,7 @@ def detect_scale_fragment_5(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_scale_fragment_6")
-def detect_scale_fragment_6(extraction_result, score) -> bool:
+def detect_scale_fragment_6(extraction_result: Any, score: Any) -> bool:
     """Detect 6-note scale fragment."""
     if score is None:
         return False
@@ -106,7 +106,7 @@ def detect_scale_fragment_6(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_scale_fragment_7")
-def detect_scale_fragment_7(extraction_result, score) -> bool:
+def detect_scale_fragment_7(extraction_result: Any, score: Any) -> bool:
     """Detect 7-note scale fragment (full scale)."""
     if score is None:
         return False

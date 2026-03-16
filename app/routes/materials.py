@@ -1,4 +1,5 @@
 """Materials endpoints for upload, analysis, and ingestion."""
+import logging
 from fastapi import APIRouter, Depends, Body, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -16,9 +17,11 @@ from app.schemas import (
     BatchReanalyzeResponse,
 )
 from app.schemas.material_schemas import (
-    MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut
+    MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut, AnalysisPreviewOut
 )
 from app.services import MaterialService, get_material_service
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/materials", tags=["materials"])
 
@@ -27,16 +30,17 @@ router = APIRouter(prefix="/materials", tags=["materials"])
 def get_materials(db: Session = Depends(get_db)) -> List[MaterialBasicOut]:
     """List all materials with basic info."""
     materials = db.query(Material).all()
-    return [
+    result = [
         {
             "id": m.id,
             "title": m.title,
-            "allowed_keys": m.allowed_keys.split(",") if m.allowed_keys else [],
+            "allowed_keys": str(m.allowed_keys).split(",") if m.allowed_keys else [],
             "original_key_center": m.original_key_center,
             "pitch_reference_type": m.pitch_reference_type
         }
         for m in materials
     ]
+    return result  # type: ignore[return-value]
 
 
 @router.post("/upload", response_model=MaterialAnalysisResponse)
@@ -55,6 +59,7 @@ def upload_material(
     try:
         extraction_result, capability_names = service.analyze_musicxml(data.musicxml_content)
     except Exception as e:
+        logger.error(f"MusicXML analysis failed for upload: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to analyze MusicXML: {str(e)}")
     
     allowed_keys = data.allowed_keys or ["C", "G", "F", "D", "Bb", "A", "Eb"]
@@ -64,27 +69,25 @@ def upload_material(
         db=db,
         title=data.title or extraction_result.title or "Untitled",
         musicxml_content=data.musicxml_content,
-        original_key_center=data.original_key_center,
-        allowed_keys=allowed_keys,
     )
     
     # Link capabilities and compute bitmasks
-    bit_indices, warnings = service.link_capabilities(db, material.id, capability_names)
+    bit_indices = service.link_capabilities(db, material, list(capability_names))
     service.compute_and_store_bitmasks(material, bit_indices)
     
     # Create analysis record
-    service.create_material_analysis(db, material.id, extraction_result)
+    service.create_material_analysis(db, material, extraction_result)
     
     db.commit()
     
     return MaterialAnalysisResponse(
-        material_id=material.id,
-        title=material.title,
-        extracted_capabilities=capability_names,
+        material_id=int(material.id),
+        title=str(material.title),
+        extracted_capabilities=list(capability_names),
         range_analysis=extraction_result.range_analysis.__dict__ if extraction_result.range_analysis else None,
         chromatic_complexity=extraction_result.chromatic_complexity_score,
         measure_count=extraction_result.measure_count,
-        warnings=warnings,
+        warnings=[],
     )
 
 
@@ -124,11 +127,11 @@ def get_material_analysis(material_id: int, db: Session = Depends(get_db)) -> Ma
             "tempo_bpm": analysis.tempo_bpm if analysis else None,
             "measure_count": analysis.measure_count if analysis else None,
         } if analysis else None,
-    }
+    }  # type: ignore[return-value]
 
 
-@router.post("/analyze")
-def analyze_material_preview(data: MaterialUpload = Body(...)):
+@router.post("/analyze", response_model=AnalysisPreviewOut, status_code=200)
+def analyze_material_preview(data: MaterialUpload = Body(...)) -> AnalysisPreviewOut:
     """
     Preview material analysis without saving to database.
     
@@ -139,8 +142,9 @@ def analyze_material_preview(data: MaterialUpload = Body(...)):
     try:
         service = get_analysis_service()
         result = service.analyze_musicxml(data.musicxml_content, data.title)
-        return result.to_dict()
+        return result.to_dict()  # type: ignore[return-value]
     except Exception as e:
+        logger.error(f"Material analysis preview failed: {e}")
         raise HTTPException(status_code=400, detail=f"Analysis failed: {str(e)}")
 
 
@@ -178,6 +182,7 @@ def ingest_materials_batch(data: BatchIngestionRequest = Body(...)) -> BatchInge
             analyzed_materials=result.analyzed_materials,
         )
     except Exception as e:
+        logger.error(f"Batch ingestion failed: {e}")
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
@@ -189,8 +194,9 @@ def export_materials_to_json() -> ExportMessageOut:
     try:
         service = MaterialIngestionService()
         path = service.export_to_json()
-        return {"message": "Materials exported", "path": str(path)}
+        return {"message": "Materials exported", "path": str(path)}  # type: ignore[return-value]
     except Exception as e:
+        logger.error(f"Material JSON export failed: {e}")
         raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
 
 

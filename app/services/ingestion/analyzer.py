@@ -3,7 +3,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Set
 
-from app.musicxml_analyzer import MusicXMLAnalyzer, ExtractionResult
+from app.musicxml_analyzer import MusicXMLAnalyzer, ExtractionResult  # type: ignore[attr-defined]
 from app.capability_registry import CapabilityRegistry, DetectionEngine
 from app.soft_gate_calculator import SoftGateCalculator, SoftGateMetrics
 
@@ -17,7 +17,7 @@ def format_soft_gates(soft_gates: SoftGateMetrics) -> Dict[str, Any]:
         "range_usage_stage": soft_gates.range_usage_stage,
         "density_notes_per_second": round(soft_gates.density_notes_per_second, 3),
         "note_density_per_measure": round(soft_gates.note_density_per_measure, 3),
-        "tempo_difficulty_score": round(soft_gates.tempo_difficulty_score, 3),
+        "tempo_difficulty_score": round(soft_gates.tempo_difficulty_score or 0.0, 3),
         "interval_velocity_score": round(soft_gates.interval_velocity_score, 3),
         "unique_pitch_count": soft_gates.unique_pitch_count,
         "largest_interval_semitones": soft_gates.largest_interval_semitones,

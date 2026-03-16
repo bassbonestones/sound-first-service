@@ -4,7 +4,7 @@ Interval Stage Calculations
 D2 — Interval Size Stage and related stage derivation functions.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.calculators.models import (
     IntervalProfile,
@@ -14,7 +14,7 @@ from app.calculators.models import (
 
 def calculate_interval_size_stage(
     interval_semitones: List[int],
-) -> Tuple[int, Dict]:
+) -> Tuple[int, Dict[str, Any]]:
     """
     Calculate D2 interval size stage (0-6) based on p90 interval.
     

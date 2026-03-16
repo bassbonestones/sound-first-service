@@ -5,7 +5,7 @@ D3 — Rhythm Complexity Score (0-1) with global and windowed analysis.
 """
 
 import math
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from collections import Counter
 
 
@@ -30,7 +30,7 @@ def calculate_rhythm_complexity_score(
     has_ties: List[bool],
     pitch_changes: List[int],  # semitone changes between consecutive notes
     offsets: List[float],  # onset times
-) -> Tuple[float, Dict]:
+) -> Tuple[float, Dict[str, Any]]:
     """
     Calculate D3 rhythm complexity score (0-1).
     
@@ -127,7 +127,7 @@ def calculate_rhythm_complexity_windowed(
     has_ties: List[bool],
     pitch_changes: List[int],
     offsets: List[float],
-) -> Tuple[Optional[float], Optional[float], Dict]:
+) -> Tuple[Optional[float], Optional[float], Dict[str, Any]]:
     """
     Calculate windowed rhythm complexity for longer pieces.
     

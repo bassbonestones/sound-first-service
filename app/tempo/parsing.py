@@ -107,12 +107,12 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
         return best if 'best' in dir() else 1
     
     # Parse MetronomeMark objects
-    for t in score.recurse().getElementsByClass(tempo.MetronomeMark):
-        measure_num = get_measure_number(t.getOffsetInHierarchy(score))
-        offset_in_meas = t.offset if hasattr(t, 'offset') else 0.0
+    for mm in score.recurse().getElementsByClass(tempo.MetronomeMark):
+        measure_num = get_measure_number(float(mm.getOffsetInHierarchy(score)))
+        offset_in_meas = float(mm.offset) if hasattr(mm, 'offset') else 0.0
         
-        bpm = int(t.number) if t.number else None
-        text = t.text if t.text else None
+        bpm = int(mm.number) if mm.number else None
+        text = mm.text if mm.text else None
         
         # Determine source type
         if bpm is not None:
@@ -138,7 +138,7 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
         
         events.append(TempoEvent(
             measure_number=measure_num,
-            offset_in_measure=offset_in_meas,
+            offset_in_measure=float(offset_in_meas),
             bpm=bpm,
             text=text,
             source_type=source_type,
@@ -147,13 +147,13 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
         ))
     
     # Parse TempoText objects
-    for t in score.recurse().getElementsByClass(tempo.TempoText):
-        if not t.text:
+    for tt in score.recurse().getElementsByClass(tempo.TempoText):
+        if not tt.text:
             continue
             
-        measure_num = get_measure_number(t.getOffsetInHierarchy(score))
-        offset_in_meas = t.offset if hasattr(t, 'offset') else 0.0
-        text = t.text
+        measure_num = get_measure_number(float(tt.getOffsetInHierarchy(score)))
+        offset_in_meas = float(tt.offset) if hasattr(tt, 'offset') else 0.0
+        text = tt.text
         
         # Check if this is a modifier (rit., accel., a tempo)
         modifier = classify_tempo_term(text)
@@ -171,7 +171,7 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
         
         events.append(TempoEvent(
             measure_number=measure_num,
-            offset_in_measure=offset_in_meas,
+            offset_in_measure=float(offset_in_meas),
             bpm=estimated,
             text=text,
             source_type=TempoSourceType.TEXT_TERM,
@@ -195,8 +195,8 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
             # Not tempo-related
             continue
         
-        measure_num = get_measure_number(te.getOffsetInHierarchy(score))
-        offset_in_meas = te.offset if hasattr(te, 'offset') else 0.0
+        measure_num = get_measure_number(float(te.getOffsetInHierarchy(score)))
+        offset_in_meas = float(te.offset) if hasattr(te, 'offset') else 0.0
         
         if modifier:
             change_type = modifier
@@ -205,7 +205,7 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
         
         events.append(TempoEvent(
             measure_number=measure_num,
-            offset_in_measure=offset_in_meas,
+            offset_in_measure=float(offset_in_meas),
             bpm=estimated,
             text=text,
             source_type=TempoSourceType.TEXT_EXPRESSION,
@@ -217,7 +217,7 @@ def parse_tempo_events(score: stream.Score) -> List[TempoEvent]:
     events.sort(key=lambda e: (e.measure_number, e.offset_in_measure))
     
     # Deduplicate (same measure, same type)
-    deduped = []
+    deduped: List[TempoEvent] = []
     for event in events:
         if not deduped:
             deduped.append(event)

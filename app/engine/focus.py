@@ -13,8 +13,8 @@ def compute_focus_score(
     ema_score: float,
     last_attempt_at: Optional[datetime],
     user_range_center: int,
-    now: datetime = None,
-    config: EngineConfig = None
+    now: Optional[datetime] = None,
+    config: Optional[EngineConfig] = None
 ) -> float:
     """
     Compute focus targeting score for a pitch/focus combo.
@@ -57,7 +57,7 @@ def select_focus_targets(
     focus_card_ids: List[int],
     pitch_focus_stats: Dict[Tuple[int, int], Tuple[float, Optional[datetime]]],
     user_range_center: int,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> List[FocusTarget]:
     """
     Select pitch/focus combinations to emphasize in this material.

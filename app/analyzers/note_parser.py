@@ -4,7 +4,7 @@ Note Parser
 Extraction of notes, rests, tuplets, and related musical events from MusicXML.
 """
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from music21 import stream
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 from .capability_maps import NOTE_VALUE_CAPABILITY_MAP, REST_CAPABILITY_MAP
 
 
-def extract_notes_and_rests(score: "stream.Score", result: "ExtractionResult"):
+def extract_notes_and_rests(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract note values, rests, tuplets, ties, multi-voice."""
     from music21 import note, chord
     
@@ -59,7 +59,7 @@ def extract_notes_and_rests(score: "stream.Score", result: "ExtractionResult"):
     _extract_voice_count(score, result)
 
 
-def _extract_voice_count(score: "stream.Score", result: "ExtractionResult"):
+def _extract_voice_count(score: "stream.Score", result: "ExtractionResult") -> None:
     """Extract maximum voice count from all measures."""
     for part in score.parts:
         for measure in part.getElementsByClass('Measure'):
@@ -68,7 +68,7 @@ def _extract_voice_count(score: "stream.Score", result: "ExtractionResult"):
                 result.max_voices = len(voices)
 
 
-def get_tuplet_name(tuplet) -> str:
+def get_tuplet_name(tuplet: Any) -> str:
     """Convert tuplet to capability name."""
     actual = tuplet.numberNotesActual
     normal = tuplet.numberNotesNormal

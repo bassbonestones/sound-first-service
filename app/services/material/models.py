@@ -5,7 +5,7 @@ Dataclasses for material service operation results.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 
 
 @dataclass
@@ -14,7 +14,7 @@ class UploadResult:
     material_id: int
     title: str
     extracted_capabilities: List[str]
-    range_analysis: Optional[Dict] = None
+    range_analysis: Optional[Dict[str, Any]] = None
     chromatic_complexity: Optional[float] = None
     measure_count: Optional[int] = None
     warnings: List[str] = field(default_factory=list)
@@ -27,11 +27,11 @@ class ReanalyzeResult:
     title: str
     metrics_updated: List[str]
     capabilities_count: Optional[int] = None
-    soft_gates: Optional[Dict] = None
-    range_analysis: Optional[Dict] = None
-    unified_scores: Optional[Dict] = None
+    soft_gates: Optional[Dict[str, Any]] = None
+    range_analysis: Optional[Dict[str, Any]] = None
+    unified_scores: Optional[Dict[str, Any]] = None
     unified_scores_error: Optional[str] = None
-    difficulty_scores: Optional[Dict] = None
+    difficulty_scores: Optional[Dict[str, Any]] = None
 
 
 @dataclass

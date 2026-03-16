@@ -4,7 +4,7 @@ Interval Velocity Score (IVS) Calculation
 Measures interval difficulty considering both size and speed.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.calculators.models import NoteEvent
 
@@ -19,7 +19,7 @@ def calculate_interval_velocity_score(
     note_events: List[NoteEvent],
     alpha: float = 1.0,
     beta: float = 1.5,
-) -> Tuple[float, Dict]:
+) -> Tuple[float, Dict[str, Any]]:
     """
     Calculate Interval Velocity Score (IVS).
     
@@ -88,7 +88,7 @@ def calculate_interval_velocity_windowed(
     note_events: List[NoteEvent],
     alpha: float = 1.0,
     beta: float = 1.5,
-) -> Tuple[Optional[float], Optional[float], Dict]:
+) -> Tuple[Optional[float], Optional[float], Dict[str, Any]]:
     """
     Calculate windowed interval velocity score for longer pieces.
     

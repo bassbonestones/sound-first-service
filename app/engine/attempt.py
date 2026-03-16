@@ -1,7 +1,7 @@
 """
 Attempt processing and stats update functions.
 """
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .config import DEFAULT_CONFIG, EngineConfig
 from .ema import check_material_mastery, compute_ema
@@ -14,7 +14,7 @@ def process_attempt(
     teaches_capability_ids: List[int],
     capability_progress: Dict[int, CapabilityProgress],
     is_off_course: bool = False,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> AttemptResult:
     """
     Process a practice attempt and return updates.
@@ -70,7 +70,7 @@ def update_pitch_focus_stats(
     rating: int,
     current_ema: float,
     current_attempts: int,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> Tuple[float, int]:
     """
     Update pitch/focus stats after an attempt.

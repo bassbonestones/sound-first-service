@@ -128,8 +128,11 @@ class TestMaterialAnalysisServiceInit:
         """Test initialization creates analyzer and calculator."""
         service = MaterialAnalysisService()
         
+        # Verify analyzers are initialized and have expected methods
         assert service.analyzer is not None
+        assert hasattr(service.analyzer, 'analyze')
         assert service.soft_gate_calculator is not None
+        assert hasattr(service.soft_gate_calculator, 'calculate_from_musicxml')
         assert service.registry is None  # Lazy loaded
 
 
@@ -383,7 +386,9 @@ class TestGetAnalysisService:
         
         service = get_analysis_service()
         
+        # Verify service has expected interface
         assert service is not None
+        assert hasattr(service, 'analyze_musicxml')
         assert isinstance(service, MaterialAnalysisService)
     
     def test_returns_same_instance(self):

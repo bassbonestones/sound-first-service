@@ -17,7 +17,7 @@ from .notation_detectors import CUSTOM_DETECTORS as notation_detectors
 from .pattern_detectors import CUSTOM_DETECTORS as pattern_detectors
 
 # Merge all detectors into a single registry
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 CUSTOM_DETECTORS.update(rhythm_detectors)
 CUSTOM_DETECTORS.update(accidental_detectors)
 CUSTOM_DETECTORS.update(dynamics_detectors)
@@ -26,9 +26,9 @@ CUSTOM_DETECTORS.update(notation_detectors)
 CUSTOM_DETECTORS.update(pattern_detectors)
 
 # Register helper for external modules
-def register_custom_detector(name: str):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
     """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator

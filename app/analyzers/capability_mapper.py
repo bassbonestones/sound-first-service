@@ -17,7 +17,7 @@ def get_capability_names(result: "ExtractionResult") -> List[str]:
     Returns:
         List of capability ID names (e.g., ["clef_treble", "time_sig_4_4", ...])
     """
-    capabilities = []
+    capabilities: List[str] = []
     
     # Clefs
     capabilities.extend(result.clefs)

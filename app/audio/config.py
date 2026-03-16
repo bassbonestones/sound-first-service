@@ -6,7 +6,7 @@ Contains availability checks, paths, instrument mappings, and cache settings.
 
 import shutil
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 # music21 for MusicXML parsing and transposition
 try:
@@ -127,12 +127,12 @@ def get_single_note_cache() -> Dict[Tuple[str, str, int], bytes]:
     return _single_note_cache
 
 
-def clear_audio_cache():
+def clear_audio_cache() -> None:
     """Clear all cached audio."""
     _audio_cache.clear()
 
 
-def get_cache_stats() -> dict:
+def get_cache_stats() -> Dict[str, Any]:
     """Get cache statistics."""
     return {
         "cached_items": len(_audio_cache),

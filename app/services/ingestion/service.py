@@ -17,7 +17,7 @@ try:
 except ImportError:
     MUSIC21_AVAILABLE = False
 
-from app.musicxml_analyzer import MusicXMLAnalyzer
+from app.musicxml_analyzer import MusicXMLAnalyzer  # type: ignore[attr-defined]
 from app.capability_registry import CapabilityRegistry, DetectionEngine
 from app.soft_gate_calculator import SoftGateCalculator
 
@@ -62,14 +62,15 @@ class MaterialIngestionService:
         # Load existing materials.json
         self.materials_data = self._load_materials_json()
     
-    def _load_materials_json(self) -> Dict:
+    def _load_materials_json(self) -> Dict[str, Any]:
         """Load materials.json or create empty structure."""
         if self.json_path.exists():
             with self.json_path.open("r") as f:
-                return json.load(f)
+                result: Dict[str, Any] = json.load(f)
+                return result
         return {"materials": [], "last_updated": None}
     
-    def _save_materials_json(self, data: Dict):
+    def _save_materials_json(self, data: Dict[str, Any]) -> None:
         """Save materials.json with archive backup."""
         # Create archive if file exists
         if self.json_path.exists():
@@ -105,14 +106,14 @@ class MaterialIngestionService:
         
         return musicxml_files
     
-    def get_existing_entries(self) -> Dict[str, Dict]:
+    def get_existing_entries(self) -> Dict[str, Dict[str, Any]]:
         """
         Get a map of musicxml_file -> material entry from JSON.
         
         Returns:
             Dict mapping filenames to their entry data
         """
-        entries = {}
+        entries: Dict[str, Dict[str, Any]] = {}
         for mat in self.materials_data.get("materials", []):
             if "musicxml_file" in mat:
                 entries[mat["musicxml_file"]] = mat

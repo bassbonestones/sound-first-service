@@ -5,18 +5,18 @@ Contains functions for generating curriculum steps, handling fatigue,
 and inserting recovery steps.
 """
 
-from typing import List, Dict
+from typing import Any, List, Dict
 
 from .types import CURRICULUM_TEMPLATES, DEFAULT_CURRICULUM
 
 
 def generate_curriculum_steps(
     goal_type: str,
-    focus_card_prompts: dict,
+    focus_card_prompts: Dict[str, Any],
     material_title: str,
     target_key: str,
     fatigue_level: int = 2
-) -> List[Dict]:
+) -> List[Dict[str, Any]]:
     """
     Generate curriculum steps for a mini-session.
     
@@ -109,7 +109,7 @@ def get_goals_for_fatigue(fatigue_level: int) -> List[str]:
         return ["learn_by_ear"]
 
 
-def insert_recovery_steps(steps: List[Dict], after_play_count: int = 2) -> List[Dict]:
+def insert_recovery_steps(steps: List[Dict[str, Any]], after_play_count: int = 2) -> List[Dict[str, Any]]:
     """
     Insert RECOVERY steps after every N PLAY steps.
     

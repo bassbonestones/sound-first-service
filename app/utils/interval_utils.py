@@ -19,6 +19,8 @@ Interval naming convention:
 - P8 = perfect 8th / octave (12 semitones)
 """
 
+from typing import List, Optional
+
 # Ordered list of intervals from smallest to largest
 # When user masters an interval, they can play materials with that interval or smaller
 INTERVAL_ORDER = [
@@ -51,7 +53,7 @@ def interval_to_semitones(interval: str) -> int:
     return INTERVAL_SEMITONES.get(interval, 0)
 
 
-def semitones_to_interval(semitones: int) -> str:
+def semitones_to_interval(semitones: int) -> Optional[str]:
     """Convert semitone count to interval name. Returns None for invalid."""
     for name, st in INTERVAL_SEMITONES.items():
         if st == semitones:
@@ -82,7 +84,7 @@ def can_play_interval(user_max: str, material_largest: str) -> bool:
     return user_idx >= material_idx
 
 
-def get_next_interval(current: str) -> str:
+def get_next_interval(current: str) -> Optional[str]:
     """
     Get the next interval to learn after mastering current.
     
@@ -94,7 +96,7 @@ def get_next_interval(current: str) -> str:
     return INTERVAL_ORDER[idx + 1]
 
 
-def get_previous_interval(current: str) -> str:
+def get_previous_interval(current: str) -> Optional[str]:
     """
     Get the interval before the current one.
     
@@ -106,7 +108,7 @@ def get_previous_interval(current: str) -> str:
     return INTERVAL_ORDER[idx - 1]
 
 
-def get_intervals_up_to(interval: str) -> list:
+def get_intervals_up_to(interval: str) -> List[str]:
     """
     Get all intervals up to and including the given interval.
     

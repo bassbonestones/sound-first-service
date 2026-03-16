@@ -164,9 +164,9 @@ class ExtractionResult:
     measure_count: int = 0
     estimated_duration_seconds: Optional[int] = None
     
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary, handling sets and dataclasses."""
-        result = {}
+        result: Dict[str, Any] = {}
         for k, v in self.__dict__.items():
             if isinstance(v, set):
                 result[k] = list(v)

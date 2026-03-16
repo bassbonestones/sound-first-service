@@ -2,7 +2,7 @@
 Target capability selection and candidate pool building.
 """
 import random
-from typing import Callable, Dict, List, Set
+from typing import Callable, Dict, List, Optional, Set
 
 from .config import DEFAULT_CONFIG, EngineConfig
 from .eligibility import check_bitmask_eligibility
@@ -17,7 +17,7 @@ from .models import (
 
 def select_target_capabilities(
     capability_progress: List[CapabilityProgress],
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> List[CapabilityProgress]:
     """
     Select target capabilities for this session.
@@ -47,7 +47,7 @@ def build_candidate_pool(
     material_states: Dict[int, MaterialCandidate],
     user_masks: List[int],
     get_material_masks: Callable[[int], List[int]],
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> List[MaterialCandidate]:
     """
     Build candidate pool by sampling from materials that teach target capabilities.

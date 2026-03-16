@@ -4,7 +4,7 @@ Session generation service.
 Handles business logic for practice session generation, separating it from HTTP concerns.
 """
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Set, Any
+from typing import List, Dict, Optional, Set, Any, cast
 import random
 import json
 
@@ -106,7 +106,7 @@ class SessionService:
         """Determine starting pitch based on material's pitch reference type."""
         if material.pitch_reference_type == "TONAL":
             try:
-                ref = json.loads(material.pitch_ref_json) if material.pitch_ref_json else {}
+                ref = json.loads(cast(str, material.pitch_ref_json)) if material.pitch_ref_json else {}
                 tonic = ref.get("tonic", "C")
                 return f"{tonic}4"
             except Exception:
@@ -131,26 +131,28 @@ class SessionService:
     ) -> MiniSessionData:
         """Build a MiniSessionData from material and focus card."""
         if not target_key:
-            target_key = material.original_key_center or "C major"
+            target_key = str(material.original_key_center or "C major")
         
         prompts_data = parse_focus_card_json_field(focus_card.prompts)
+        micro_cues_raw = parse_focus_card_json_field(focus_card.micro_cues)
+        micro_cues: List[str] = micro_cues_raw if isinstance(micro_cues_raw, list) else []
         
         return MiniSessionData(
-            material_id=material.id,
-            material_title=material.title,
-            focus_card_id=focus_card.id,
-            focus_card_name=focus_card.name,
-            focus_card_description=focus_card.description or "",
-            focus_card_category=focus_card.category or "",
-            focus_card_attention_cue=focus_card.attention_cue or "",
-            focus_card_micro_cues=parse_focus_card_json_field(focus_card.micro_cues),
+            material_id=int(material.id),
+            material_title=str(material.title),
+            focus_card_id=int(focus_card.id),
+            focus_card_name=str(focus_card.name),
+            focus_card_description=str(focus_card.description or ""),
+            focus_card_category=str(focus_card.category or ""),
+            focus_card_attention_cue=str(focus_card.attention_cue or ""),
+            focus_card_micro_cues=micro_cues,
             focus_card_prompts=prompts_data if isinstance(prompts_data, dict) else {},
             goal_type=goal_type,
             goal_label=GOAL_LABEL_MAP.get(goal_type, goal_type.replace("_", " ").title()),
             show_notation=random.random() < 0.2,
             target_key=target_key,
-            original_key_center=material.original_key_center or "C major",
-            resolved_musicxml=material.musicxml_canonical or "<musicxml/>",
+            original_key_center=str(material.original_key_center or "C major"),
+            resolved_musicxml=str(material.musicxml_canonical or "<musicxml/>"),
             starting_pitch=cls.get_starting_pitch(material, target_key)
         )
     
@@ -159,7 +161,7 @@ class SessionService:
         cls,
         materials: List[Material],
         state: SessionState,
-        attempt_history: Dict[int, List[Dict]],
+        attempt_history: Dict[int, List[Dict[str, Any]]],
         selection_mode: str,
         user: Optional[User] = None
     ) -> Material:
@@ -171,26 +173,29 @@ class SessionService:
         
         # Filter by user's range if available
         if user and user.range_low and user.range_high:
-            range_filtered = filter_materials_by_range(available, user.range_low, user.range_high)
+            range_filtered = filter_materials_by_range(
+                available, str(user.range_low), str(user.range_high)
+            )
             if range_filtered:
                 available = range_filtered
         
         # Build spaced repetition items
-        sr_items = {}
+        sr_items: Dict[int, Any] = {}
         for m in available:
-            mat_attempts = attempt_history.get(m.id, [])
-            sr_item = build_sr_item_from_db(m.id, mat_attempts)
-            sr_items[m.id] = sr_item
+            m_id = int(m.id)
+            mat_attempts = attempt_history.get(m_id, [])
+            sr_item = build_sr_item_from_db(m_id, mat_attempts)
+            sr_items[m_id] = sr_item
         
         if selection_mode == "novelty":
             # Prefer materials never reviewed (new)
-            new_materials = [m for m in available if sr_items[m.id].repetitions == 0]
+            new_materials = [m for m in available if sr_items[int(m.id)].repetitions == 0]
             if new_materials:
                 return random.choice(new_materials)
             return random.choice(available)
         else:
             # Reinforcement: use SR weighting (due items get higher weight)
-            weights = [get_capability_weight_adjustment(sr_items[m.id]) for m in available]
+            weights = [get_capability_weight_adjustment(sr_items[int(m.id)]) for m in available]
             total_weight = sum(weights)
             if total_weight > 0:
                 probs = [w / total_weight for w in weights]
@@ -236,7 +241,7 @@ class SessionService:
         materials: List[Material],
         focus_cards: List[FocusCard],
         state: SessionState,
-        attempt_history: Dict[int, List[Dict]],
+        attempt_history: Dict[int, List[Dict[str, Any]]],
         user: Optional[User],
         fatigue: int
     ) -> Optional[MiniSessionData]:
@@ -263,18 +268,18 @@ class SessionService:
         
         # Step 5: Select material
         material = cls.select_material(materials, state, attempt_history, selection_mode, user)
-        state.used_materials.add(material.id)
+        state.used_materials.add(int(material.id))
         
         # Step 6: Choose goal
         goal_type = cls.select_goal(capability, fatigue)
         
         # Step 7: Choose focus card
         focus_card = cls.select_focus_card(focus_cards, capability, state)
-        state.used_focus_cards.add(focus_card.id)
+        state.used_focus_cards.add(int(focus_card.id))
         
         # Step 8: Select key
-        user_range_low = user.range_low if user else None
-        user_range_high = user.range_high if user else None
+        user_range_low = str(user.range_low) if user and user.range_low else ""
+        user_range_high = str(user.range_high) if user and user.range_high else ""
         
         selected_key = select_key_for_mini_session(
             material=material,
@@ -287,7 +292,7 @@ class SessionService:
         
         # Check if key is playable
         playable_keys = filter_keys_by_range(
-            [k.strip() for k in (material.allowed_keys or "C").split(",")],
+            [k.strip() for k in (str(material.allowed_keys) if material.allowed_keys else "C").split(",")],
             material,
             user_range_low,
             user_range_high
@@ -318,13 +323,14 @@ class SessionService:
         return mini_session
     
     @classmethod
-    def build_attempt_history(cls, attempts: List) -> Dict[int, List[Dict]]:
+    def build_attempt_history(cls, attempts: List[Any]) -> Dict[int, List[Dict[str, Any]]]:
         """Build attempt history dict from database records."""
-        history = {}
+        history: Dict[int, List[Dict[str, Any]]] = {}
         for a in attempts:
-            if a.material_id not in history:
-                history[a.material_id] = []
-            history[a.material_id].append({
+            mat_id = int(a.material_id)
+            if mat_id not in history:
+                history[mat_id] = []
+            history[mat_id].append({
                 "rating": a.rating,
                 "timestamp": a.timestamp.isoformat() if a.timestamp else None,
             })

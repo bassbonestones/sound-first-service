@@ -129,32 +129,43 @@ class TestCapabilityRegistry:
     """Test capability registry loading and validation."""
     
     def test_registry_loads_capabilities(self, registry):
-        """Registry should load capabilities from JSON."""
-        assert len(registry.rules) > 0
-        # Registry has all capabilities loaded
+        """Registry should load at least 100 capabilities from JSON."""
+        # The capabilities.json has ~210 capabilities
+        assert len(registry.rules) >= 100, f"Expected 100+ capabilities, got {len(registry.rules)}"
     
-    def test_registry_extracts_detection_rules(self, registry):
-        """Registry should have detectable capabilities."""
+    def test_registry_has_detectable_capabilities(self, registry):
+        """Registry should have capabilities with detection rules."""
         detectable = registry.get_detectable_capabilities()
-        # At least some capabilities should be detectable
-        assert isinstance(detectable, list)
+        # Should have meaningful detection coverage (~50+ detectable)
+        assert len(detectable) >= 30, f"Expected 30+ detectable, got {len(detectable)}"
+    
+    def test_registry_tracks_domains(self, registry):
+        """Registry should organize capabilities by domain."""
+        assert len(registry.capabilities_by_domain) >= 15, "Should have 15+ domains"
+        # Key domains should exist
+        expected_domains = {"dynamics", "meter", "rhythm_duration", "pitch_foundation"}
+        actual_domains = set(registry.capabilities_by_domain.keys())
+        found = expected_domains & actual_domains
+        assert len(found) >= 2, f"Should have dynamics/meter/rhythm domains, got {actual_domains}"
     
     def test_registry_validates_rules(self, registry):
-        """Registry should validate rule schema."""
+        """Rules with detection_type should have required fields."""
         for name, rule in registry.rules.items():
-            assert isinstance(rule, DetectionRule)
-            assert rule.capability_name
-            # Valid detection types should be valid
-            if rule.detection_type:
-                assert rule.is_valid, f"Rule {name} should be valid"
+            # Verify rule has required structure
+            assert rule.capability_name == name
+            if rule.detection_type and rule.is_valid:
+                # Valid rules should have a method to apply
+                assert rule.detection_type in DetectionType.__members__.values()
     
     def test_registry_gets_capability_by_name(self, registry):
         """Registry should find rule by name."""
-        # Check if any rule exists
-        if registry.rules:
-            first_name = list(registry.rules.keys())[0]
-            rule = registry.get_rule(first_name)
-            assert rule is not None or rule is None  # May or may not exist
+        # Known capability should return its rule
+        rule = registry.get_rule("clef_treble")
+        assert rule.capability_name == "clef_treble"
+        
+        # Unknown capability should return None
+        rule = registry.get_rule("not_a_real_capability_xyz")
+        assert rule is None
 
 
 # =============================================================================
@@ -164,45 +175,37 @@ class TestCapabilityRegistry:
 class TestDetectionEngine:
     """Test detection engine applying rules to extraction results."""
     
-    def test_detect_clef_treble(self, detection_engine, simple_extraction, registry):
-        """Should attempt detection on extraction results."""
+    def test_detect_clef_treble(self, detection_engine, simple_extraction):
+        """Should detect treble clef in simple file."""
         capabilities = detection_engine.detect_capabilities(simple_extraction)
-        # Detection should return a set
-        assert isinstance(capabilities, set)
-        # If clef detection rules exist, may find clef
-        clef_rules = [r for r in registry.rules if "clef" in r]
-        if clef_rules:
-            # May or may not detect depending on extraction
-            pass
+        # Simple test file uses treble clef
+        assert "clef_treble" in capabilities, f"Expected clef_treble, got {capabilities}"
     
-    def test_detect_time_signature_4_4(self, detection_engine, simple_extraction, registry):
-        """Should detect time signatures if rules exist."""
+    def test_detect_time_signature_4_4(self, detection_engine, simple_extraction):
+        """Should detect 4/4 time signature."""
         capabilities = detection_engine.detect_capabilities(simple_extraction)
-        time_rules = registry.get_capabilities_by_type(DetectionType.TIME_SIGNATURE)
-        # If time signature rules exist, detection should work
-        assert isinstance(capabilities, set)
+        # Simple file is in 4/4
+        assert "time_signature_4_4" in capabilities, f"Expected 4/4 time sig, got {capabilities}"
     
-    def test_detect_time_signature_6_8(self, detection_engine, rhythm_extraction, registry):
-        """Should detect time signature in rhythm file."""
+    def test_detect_time_signature_6_8(self, detection_engine, rhythm_extraction):
+        """Should detect 6/8 time signature in rhythm file."""
         capabilities = detection_engine.detect_capabilities(rhythm_extraction)
-        # Should return a set of capabilities
-        assert isinstance(capabilities, set)
+        # Rhythm file is in 6/8
+        assert "time_signature_6_8" in capabilities, f"Expected 6/8 time sig, got {capabilities}"
     
     def test_detect_dynamics(self, detection_engine, simple_extraction):
-        """Should detect dynamics."""
+        """Should detect dynamics in simple file."""
         capabilities = detection_engine.detect_capabilities(simple_extraction)
-        # Simple file has mf dynamic
+        # Simple file should have at least one dynamic marking
         dynamic_caps = [c for c in capabilities if c.startswith("dynamic_")]
-        assert len(dynamic_caps) >= 0  # May or may not have dynamics depending on file
+        # Test file should have mf or similar
+        assert len(dynamic_caps) >= 1, f"Expected dynamics, got {capabilities}"
     
-    def test_detect_multiple_capabilities(self, detection_engine, complex_extraction, registry):
-        """Complex file should detect capabilities if rules exist."""
+    def test_detect_multiple_capabilities(self, detection_engine, complex_extraction):
+        """Complex file should detect many capabilities."""
         capabilities = detection_engine.detect_capabilities(complex_extraction)
-        # Number of detected depends on configured rules
-        detectable_count = len(registry.get_detectable_capabilities())
-        if detectable_count > 0:
-            # Should detect some if rules exist
-            assert isinstance(capabilities, set)
+        # Complex file should trigger 10+ capability detections
+        assert len(capabilities) >= 10, f"Expected 10+ caps from complex file, got {len(capabilities)}"
 
 
 # =============================================================================
@@ -213,40 +216,40 @@ class TestElementDetection:
     """Test element type detection."""
     
     def test_element_detection_clef(self, detection_engine, simple_extraction, registry):
-        """Element detection should work for configured rules."""
+        """Element detection should detect clef from music21 elements."""
         capabilities = detection_engine.detect_capabilities(simple_extraction)
-        # Check that element detection type works
-        element_caps = registry.get_capabilities_by_type(DetectionType.ELEMENT)
-        # If element rules exist, detection should function
-        assert isinstance(capabilities, set)
+        # Element-based clef detection should work
+        element_rules = registry.get_capabilities_by_type(DetectionType.ELEMENT)
+        assert len(element_rules) >= 1, "Should have element-type rules"
+        # Should detect clef (element-based detection)
+        assert "clef_treble" in capabilities or "clef_bass" in capabilities
 
 
 class TestValueMatchDetection:
     """Test value_match type detection."""
     
     def test_value_match_dynamics(self, detection_engine, complex_extraction):
-        """Value match should detect dynamics."""
+        """Value match should detect dynamics by field comparison."""
         capabilities = detection_engine.detect_capabilities(complex_extraction)
-        # Complex file should have dynamics
+        # Complex file should have dynamic markings (mf, f, p, etc.)
         dynamic_caps = [c for c in capabilities if "dynamic" in c]
-        assert len(dynamic_caps) >= 0
+        assert len(dynamic_caps) >= 1, f"Expected dynamics in complex file, got {capabilities}"
 
 
 class TestTimeSignatureDetection:
     """Test time_signature type detection."""
     
-    def test_time_sig_detection(self, detection_engine, simple_extraction, registry):
-        """Time signature detection should work if rules exist."""
+    def test_time_sig_detection_simple(self, detection_engine, simple_extraction, registry):
+        """Time signature detection should find 4/4 in simple file."""
         capabilities = detection_engine.detect_capabilities(simple_extraction)
         time_rules = registry.get_capabilities_by_type(DetectionType.TIME_SIGNATURE)
-        # If time sig rules exist, detection should work
-        assert isinstance(capabilities, set)
+        assert len(time_rules) >= 3, "Should have multiple time sig rules"
+        assert "time_signature_4_4" in capabilities
     
-    def test_compound_time_sig(self, detection_engine, rhythm_extraction, registry):
-        """Should detect compound time signatures if configured."""
+    def test_compound_time_sig(self, detection_engine, rhythm_extraction):
+        """Should detect compound 6/8 time signature."""
         capabilities = detection_engine.detect_capabilities(rhythm_extraction)
-        # Whether 6/8 is detected depends on rule configuration
-        assert isinstance(capabilities, set)
+        assert "time_signature_6_8" in capabilities, f"Expected 6/8, got {capabilities}"
 
 
 class TestIntervalDetection:
@@ -256,41 +259,40 @@ class TestIntervalDetection:
         """Interval detection should find melodic intervals."""
         capabilities = detection_engine.detect_capabilities(interval_extraction)
         interval_caps = [c for c in capabilities if "interval" in c]
-        # Interval test file should have many interval capabilities
-        assert len(interval_caps) >= 0  # Depends on rule configuration
+        # Interval test file specifically tests intervals - should find 3+
+        assert len(interval_caps) >= 3, f"Expected 3+ interval caps, got {interval_caps}"
 
 
 class TestCompoundDetection:
     """Test compound type detection (multiple conditions)."""
     
     def test_compound_dotted_notes(self, detection_engine, rhythm_extraction):
-        """Compound detection should find dotted notes."""
+        """Compound detection should find dotted notes in rhythm file."""
         capabilities = detection_engine.detect_capabilities(rhythm_extraction)
-        # Rhythm file has dotted notes
+        # Rhythm test file is designed to have dotted rhythms
         dotted_caps = [c for c in capabilities if "dotted" in c]
-        assert len(dotted_caps) >= 0
+        assert len(dotted_caps) >= 1, f"Expected dotted notes in rhythm file, got {capabilities}"
 
 
 class TestRangeDetection:
     """Test range type detection (interval size ranges)."""
     
     def test_range_detection_small(self, detection_engine, simple_extraction):
-        """Simple file should have small range."""
+        """Simple file should detect range-based capabilities."""
         capabilities = detection_engine.detect_capabilities(simple_extraction)
-        # Simple file is mostly stepwise
-        range_caps = [c for c in capabilities if "range" in c or "span" in c]
-        assert len(range_caps) >= 0
+        # Simple file has notes - should detect some range/span based caps
+        # At minimum should detect stepwise motion or similar
+        assert len(capabilities) >= 5, f"Simple file should detect multiple caps"
 
 
 class TestTextMatchDetection:
     """Test text_match type detection."""
     
     def test_text_match_expressions(self, detection_engine, ornament_extraction):
-        """Text match should find expression terms."""
+        """Text match should find expression markings in ornament file."""
         capabilities = detection_engine.detect_capabilities(ornament_extraction)
-        # Ornament file may have expression markings
-        expr_caps = [c for c in capabilities if "expr" in c or "tempo" in c]
-        assert len(expr_caps) >= 0
+        # Ornament file should have articulation/ornament markings
+        assert len(capabilities) >= 5, f"Ornament file should detect caps, got {capabilities}"
 
 
 # =============================================================================
@@ -305,11 +307,14 @@ class TestFullDetectionPipeline:
         if not test_files_dir.exists():
             pytest.skip("Test files directory not found")
         
-        for file in test_files_dir.glob("*.musicxml"):
+        test_files = list(test_files_dir.glob("*.musicxml"))
+        assert len(test_files) >= 3, "Should have multiple test files"
+        
+        for file in test_files:
             with open(file) as f:
                 result = analyzer.analyze(f.read())
-            assert result is not None
-            assert isinstance(result, ExtractionResult)
+            # Verify extraction produced meaningful data
+            assert result.measure_count >= 1, f"{file.name} should have measures"
     
     def test_all_test_files_detect_capabilities(self, detection_engine, analyzer, test_files_dir):
         """All test files should yield detected capabilities."""
@@ -320,22 +325,21 @@ class TestFullDetectionPipeline:
             with open(file) as f:
                 extraction = analyzer.analyze(f.read())
             capabilities = detection_engine.detect_capabilities(extraction)
-            # Detection should return a set (may be empty if no rules)
-            assert isinstance(capabilities, set), f"{file.name} should return set"
+            # Each file should detect at least basic capabilities
+            assert len(capabilities) >= 3, f"{file.name} should detect 3+ capabilities, got {len(capabilities)}"
     
-    def test_simple_file_has_basic_caps(self, detection_engine, simple_extraction, registry):
-        """Simple file detection should work."""
+    def test_simple_file_has_basic_caps(self, detection_engine, simple_extraction):
+        """Simple file should detect core capabilities."""
         caps = detection_engine.detect_capabilities(simple_extraction)
-        # Result depends on configured rules
-        detectable = registry.get_detectable_capabilities()
-        # Should return valid set
-        assert isinstance(caps, set)
+        # Simple file must have: clef, time sig, key sig at minimum
+        assert "clef_treble" in caps or "clef_bass" in caps
+        assert any("time_signature" in c for c in caps)
     
-    def test_complex_file_has_many_caps(self, detection_engine, complex_extraction, registry):
-        """Complex file detection should work."""
+    def test_complex_file_has_many_caps(self, detection_engine, complex_extraction):
+        """Complex file should detect significantly more capabilities."""
         caps = detection_engine.detect_capabilities(complex_extraction)
-        # Number detected depends on rules in capabilities.json
-        assert isinstance(caps, set)
+        # Complex file should trigger many detections
+        assert len(caps) >= 15, f"Complex file should have 15+ caps, got {len(caps)}"
 
 
 # =============================================================================
@@ -346,10 +350,18 @@ class TestCustomDetectors:
     """Test custom detection functions."""
     
     def test_syncopation_detector_registered(self):
-        """Syncopation detector should be registered."""
+        """Syncopation detector should be registered and callable."""
         assert "detect_syncopation" in CUSTOM_DETECTORS
+        detector = CUSTOM_DETECTORS["detect_syncopation"]
+        # Verify detector is a function we can call
+        import inspect
+        assert inspect.isfunction(detector) or inspect.ismethod(detector)
     
-    def test_custom_detector_callable(self):
-        """Custom detectors should be callable."""
+    def test_custom_detectors_have_correct_signature(self):
+        """Custom detectors should accept extraction and score params."""
+        import inspect
         for name, func in CUSTOM_DETECTORS.items():
-            assert callable(func), f"Custom detector {name} should be callable"
+            sig = inspect.signature(func)
+            params = list(sig.parameters.keys())
+            # Should accept extraction_result at minimum
+            assert len(params) >= 1, f"Detector {name} should accept parameters"

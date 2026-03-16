@@ -79,7 +79,10 @@ class TestAdminUserEndpoints:
         
         assert "eligible_materials" in data
         assert "ineligible_sample" in data
+        # Response should contain lists of materials
         assert isinstance(data["eligible_materials"], list)
+        for material in data["eligible_materials"][:3]:
+            assert "id" in material
     
     def test_get_session_candidates_not_found(self, client):
         """GET /admin/users/{user_id}/session-candidates returns 404 for unknown user."""
@@ -123,7 +126,10 @@ class TestAdminUserEndpoints:
         data = response.json()
         
         assert "capabilities" in data
+        # Response should contain list of capability objects
         assert isinstance(data["capabilities"], list)
+        for cap in data["capabilities"][:3]:
+            assert "id" in cap or "name" in cap
     
     def test_post_add_capability(self, client, test_user_id):
         """POST /admin/users/{user_id}/capabilities adds capability to user."""
@@ -178,7 +184,10 @@ class TestAdminUserEndpoints:
         data = response.json()
         
         assert "soft_gates" in data
+        # Response should contain list of soft gate objects
         assert isinstance(data["soft_gates"], list)
+        for gate in data["soft_gates"][:3]:
+            assert "dimension" in gate or "comfortable_value" in gate
     
     def test_put_soft_gate(self, client, test_user_id):
         """PUT /admin/users/{user_id}/soft-gates/{dim} updates soft gate."""
@@ -218,7 +227,8 @@ class TestAdminCapabilityEndpoints:
         data = response.json()
         
         assert "capabilities" in data
-        assert isinstance(data["capabilities"], list)
+        # Should have many capabilities in the database
+        assert len(data["capabilities"]) >= 50, "Expected 50+ capabilities"
     
     def test_list_capabilities_with_domain_filter(self, client):
         """GET /admin/capabilities?domain=rhythm filters by domain."""
@@ -307,7 +317,8 @@ class TestAdminSoftGateEndpoints:
         response = client.get("/admin/soft-gate-rules")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
+        # Should return list of soft gate rule objects
+        assert len(data) >= 1, "Expected at least one soft gate rule"
     
     def test_get_user_soft_gate_state(self, client, test_user_id):
         """GET /admin/user-soft-gate-state returns user soft gate states."""
@@ -319,7 +330,9 @@ class TestAdminSoftGateEndpoints:
         response = client.get("/admin/users")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
+        # Should return list of user objects
+        for user in data[:3]:
+            assert "id" in user
 
 
 # =============================================================================
@@ -336,7 +349,9 @@ class TestAdminMaterialEndpoints:
         data = response.json()
         
         assert "materials" in data
-        assert isinstance(data["materials"], list)
+        # Should return list of material objects
+        for material in data["materials"][:3]:
+            assert "id" in material
     
     def test_list_materials_with_limit(self, client):
         """GET /admin/materials?limit=5 limits results."""
@@ -380,6 +395,7 @@ class TestAdminFocusCardEndpoints:
         response = client.get("/admin/focus-cards/categories")
         assert response.status_code == 200
         data = response.json()
+        # Should return list of category strings
         assert isinstance(data, list)
     
     def test_create_focus_card(self, client):
@@ -433,6 +449,7 @@ class TestTeachingModuleEndpoints:
         assert response.status_code == 200
         data = response.json()
         
+        # Data should be a list of modules
         assert isinstance(data, list)
     
     def test_get_module_by_id(self, client):
@@ -456,6 +473,7 @@ class TestTeachingModuleEndpoints:
         response = client.get(f"/modules/user/{test_user_id}/available")
         assert response.status_code == 200
         data = response.json()
+        # Should return list of available modules
         assert isinstance(data, list)
     
     def test_start_module(self, client, test_user_id):

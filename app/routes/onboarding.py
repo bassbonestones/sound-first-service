@@ -36,7 +36,7 @@ def get_onboarding(user_id: int, db: Session = Depends(get_db)) -> OnboardingOut
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {
+    return {  # type: ignore[return-value]
         "user_id": user.id,
         "instrument": user.instrument,
         "resonant_note": user.resonant_note,
@@ -68,10 +68,10 @@ def save_onboarding(data: OnboardingIn = Body(...), db: Session = Depends(get_db
         # Create user if not exists
         user = User(id=data.user_id, email=f"user{data.user_id}@example.com")
         db.add(user)
-    user.instrument = data.instrument
-    user.resonant_note = data.resonant_note
-    user.range_low = data.range_low
-    user.range_high = data.range_high
-    user.comfortable_capabilities = ",".join(data.comfortable_capabilities) if data.comfortable_capabilities else ""
+    user.instrument = data.instrument  # type: ignore[assignment]
+    user.resonant_note = data.resonant_note  # type: ignore[assignment]
+    user.range_low = data.range_low  # type: ignore[assignment]
+    user.range_high = data.range_high  # type: ignore[assignment]
+    user.comfortable_capabilities = ",".join(data.comfortable_capabilities) if data.comfortable_capabilities else ""  # type: ignore[assignment]
     db.commit()
-    return {"status": "success", "user_id": user.id}
+    return {"status": "success", "user_id": user.id}  # type: ignore[return-value]

@@ -1,10 +1,12 @@
 """Session generation and management endpoints."""
-from fastapi import APIRouter, Depends, Body, HTTPException, Query
-from sqlalchemy.orm import Session as DbSession
 import datetime
 import json
+import logging
 import random
-from typing import List, Optional, Tuple, Union
+from typing import Any, cast, Dict, List, Optional, Tuple, Union
+
+from fastapi import APIRouter, Depends, Body, HTTPException, Query
+from sqlalchemy.orm import Session as DbSession
 
 from app.db import get_db
 from app.models.core import (
@@ -39,10 +41,12 @@ from app.services import (
 )
 from app.curriculum import generate_curriculum_steps, insert_recovery_steps
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(tags=["sessions"])
 
 
-def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: int = None) -> List[Tuple[TeachingModule, Lesson]]:
+def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: Optional[int] = None) -> List[Tuple[TeachingModule, Lesson]]:
     """Get teaching modules available to user with their next available lesson.
     
     Returns list of (module, next_lesson) tuples for modules where:
@@ -121,7 +125,7 @@ def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: 
             continue
         
         # Check prerequisites - now based on mastered capabilities
-        prereqs = json.loads(module.prerequisite_capability_names) if module.prerequisite_capability_names else []
+        prereqs: List[str] = json.loads(cast(str, module.prerequisite_capability_names)) if module.prerequisite_capability_names else []
         prereqs_met = all(cap_name in mastered_cap_names for cap_name in prereqs)
         
         if not prereqs_met:
@@ -156,9 +160,9 @@ def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: 
 
 def _teaching_module_to_out(module: TeachingModule, lesson: Lesson) -> MiniSessionOut:
     """Convert teaching module and lesson to MiniSessionOut."""
-    config = json.loads(lesson.config_json) if lesson.config_json else {}
-    mastery = json.loads(lesson.mastery_json) if lesson.mastery_json else {}
-    hints = json.loads(lesson.hints_json) if lesson.hints_json else None
+    config: Dict[str, Any] = json.loads(cast(str, lesson.config_json)) if lesson.config_json else {}
+    mastery: Dict[str, Any] = json.loads(cast(str, lesson.mastery_json)) if lesson.mastery_json else {}
+    hints: Optional[List[str]] = json.loads(cast(str, lesson.hints_json)) if lesson.hints_json else None
     
     return MiniSessionOut(
         session_type="teaching_module",
@@ -206,7 +210,7 @@ def _mini_session_data_to_out(data: MiniSessionData) -> MiniSessionOut:
 @router.post("/generate-session", response_model=PracticeSessionResponse)
 def generate_session(
     user_id: int = 1,
-    instrument_id: int = None,
+    instrument_id: Optional[int] = None,
     planned_duration_minutes: int = 30,
     fatigue: int = 2,
     cooldown_mode: bool = False,
@@ -396,7 +400,7 @@ def generate_self_directed_session(data: SelfDirectedSessionIn = Body(...), db: 
 
 # --- Practice Attempts ---
 @router.post("/practice-attempt", response_model=PracticeAttemptOut)
-def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(get_db)) -> PracticeAttemptOut:
+def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Record a practice attempt."""
     attempt_obj = PracticeAttempt(
         user_id=attempt.user_id,
@@ -413,7 +417,7 @@ def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(
 
 
 @router.get("/practice-attempts", response_model=List[PracticeAttemptDetailOut])
-def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[PracticeAttemptDetailOut]:
+def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get all practice attempts for a user."""
     attempts = db.query(PracticeAttempt).filter(PracticeAttempt.user_id == user_id).all()
     return [
@@ -432,12 +436,12 @@ def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get
 
 # --- Session Completion ---
 @router.post("/sessions/{session_id}/complete", response_model=SessionCompleteOut)
-def complete_session(session_id: int, db: DbSession = Depends(get_db)) -> SessionCompleteOut:
+def complete_session(session_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Mark a session as complete."""
     session = db.query(PracticeSession).filter_by(id=session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    session.ended_at = datetime.datetime.now()
+    session.ended_at = datetime.datetime.now()  # type: ignore[assignment]
     db.commit()
     return {"status": "success", "session_id": session_id}
 
@@ -459,10 +463,10 @@ def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(ge
     if not steps:
         prompts = parse_focus_card_json_field(focus_card.prompts) if focus_card else {}
         step_data = generate_curriculum_steps(
-            goal_type=mini.goal_type or "repertoire_fluency",
+            goal_type=str(mini.goal_type or "repertoire_fluency"),
             focus_card_prompts=prompts if isinstance(prompts, dict) else {},
-            material_title=material.title if material else "Unknown",
-            target_key=mini.key or "C major",
+            material_title=str(material.title) if material else "Unknown",
+            target_key=str(mini.key or "C major"),
             fatigue_level=2
         )
 
@@ -488,7 +492,7 @@ def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(ge
         focus_card_name=focus_card.name if focus_card else "Unknown",
         focus_card_attention_cue=focus_card.attention_cue if focus_card else "",
         goal_type=mini.goal_type or "",
-        goal_label=GOAL_LABEL_MAP.get(mini.goal_type, "Practice"),
+        goal_label=GOAL_LABEL_MAP.get(str(mini.goal_type) if mini.goal_type else "", "Practice"),
         target_key=mini.key or "C major",
         current_step_index=mini.current_step_index or 0,
         is_completed=mini.is_completed or False,
@@ -510,7 +514,7 @@ def complete_step(
     step_index: int, 
     data: StepCompleteIn = Body(...), 
     db: DbSession = Depends(get_db)
-) -> StepCompleteOut:
+) -> Dict[str, Any]:
     """Mark a curriculum step as complete and advance to next step."""
     mini = db.query(MiniSession).filter_by(id=mini_session_id).first()
     if not mini:
@@ -520,14 +524,14 @@ def complete_step(
     if not step:
         raise HTTPException(status_code=404, detail="Step not found")
 
-    step.is_completed = True
-    step.rating = data.rating
-    step.notes = data.notes
+    step.is_completed = True  # type: ignore[assignment]
+    step.rating = data.rating  # type: ignore[assignment]
+    step.notes = data.notes  # type: ignore[assignment]
 
     # Handle strain detection for range work
     if data.strain_detected and mini.goal_type == "range_expansion":
-        mini.strain_detected = True
-        mini.is_completed = True
+        mini.strain_detected = True  # type: ignore[assignment]
+        mini.is_completed = True  # type: ignore[assignment]
         db.commit()
         return {
             "status": "strain_detected",
@@ -539,9 +543,9 @@ def complete_step(
     if step.step_type == "PLAY" and mini.goal_type == "range_expansion":
         is_failed_attempt = (data.rating is None) or (data.rating < 3)
         if is_failed_attempt:
-            mini.attempt_count = (mini.attempt_count or 0) + 1
+            mini.attempt_count = (mini.attempt_count or 0) + 1  # type: ignore[assignment]
         if mini.attempt_count >= 3:
-            mini.is_completed = True
+            mini.is_completed = True  # type: ignore[assignment]
             db.commit()
             return {
                 "status": "max_attempts",
@@ -556,7 +560,7 @@ def complete_step(
     ).first()
 
     if next_step:
-        mini.current_step_index = step_index + 1
+        mini.current_step_index = step_index + 1  # type: ignore[assignment]
         db.commit()
         return {
             "status": "next_step",
@@ -567,14 +571,14 @@ def complete_step(
             "is_range_work": mini.goal_type == "range_expansion"
         }
     else:
-        mini.is_completed = True
-        mini.current_step_index = step_index
+        mini.is_completed = True  # type: ignore[assignment]
+        mini.current_step_index = step_index  # type: ignore[assignment]
         db.commit()
         return {"status": "completed", "message": "Mini-session complete!"}
 
 
 @router.get("/sessions/{session_id}/next-mini-session", response_model=Union[MiniSessionWithStepsOut, SessionCompleteStatusOut])
-def get_next_mini_session(session_id: int, db: DbSession = Depends(get_db)) -> Union[MiniSessionWithStepsOut, SessionCompleteStatusOut]:
+def get_next_mini_session(session_id: int, db: DbSession = Depends(get_db)) -> Union[MiniSessionWithStepsOut, Dict[str, Any]]:
     """Get the next incomplete mini-session in a practice session."""
     session = db.query(PracticeSession).filter_by(id=session_id).first()
     if not session:
@@ -588,4 +592,4 @@ def get_next_mini_session(session_id: int, db: DbSession = Depends(get_db)) -> U
     if not mini:
         return {"status": "session_complete", "message": "All mini-sessions complete!"}
 
-    return get_mini_session_curriculum(mini.id, db)
+    return get_mini_session_curriculum(int(mini.id), db)

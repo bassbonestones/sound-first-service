@@ -36,7 +36,7 @@ class TestCalculateIntervalLocalDifficulty:
         measures = [1, 1, 1]
         
         result = calculate_interval_local_difficulty(intervals, offsets, measures)
-        assert result is not None
+        # Verify short piece returns result with window_count=0
         assert result.window_count == 0  # Too short for windowing
     
     def test_short_piece_detects_large_leaps(self):
@@ -70,7 +70,7 @@ class TestCalculateIntervalLocalDifficulty:
         measures = [(i // 4) + 1 for i in range(num_intervals)]
         
         result = calculate_interval_local_difficulty(intervals, offsets, measures)
-        assert result is not None
+        # Verify long piece uses windowing
         assert result.window_count > 0
     
     def test_long_piece_with_large_leaps_in_window(self):

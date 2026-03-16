@@ -2,7 +2,7 @@
 Maturity calculation and bucket weight functions.
 """
 import random
-from typing import Dict
+from typing import Dict, Optional
 
 from .config import DEFAULT_CONFIG, EngineConfig
 from .models import Bucket
@@ -39,7 +39,7 @@ def compute_capability_maturity(
 def compute_combined_maturity(
     cap_maturity: float,
     mat_maturity: float,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> float:
     """
     Compute combined maturity score.
@@ -59,7 +59,7 @@ def compute_combined_maturity(
 
 def compute_bucket_weights(
     maturity: float,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> Dict[Bucket, float]:
     """
     Compute bucket weights based on maturity.

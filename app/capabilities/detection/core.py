@@ -5,7 +5,7 @@ Main DetectionEngine class that applies detection rules to extraction results.
 """
 
 import logging
-from typing import Dict, Set
+from typing import Any, Dict, Set
 
 from app.capabilities.types import DetectionRule, DetectionType
 from app.capabilities.registry import CapabilityRegistry
@@ -34,8 +34,8 @@ class DetectionEngine:
     
     def detect_capabilities(
         self,
-        extraction_result,  # ExtractionResult from musicxml_analyzer
-        score=None,  # Optional music21 score for custom detectors
+        extraction_result: Any,  # ExtractionResult from musicxml_analyzer
+        score: Any = None,  # Optional music21 score for custom detectors
     ) -> Set[str]:
         """
         Detect all capabilities present in the extraction result.
@@ -64,8 +64,8 @@ class DetectionEngine:
     def _check_rule(
         self,
         rule: DetectionRule,
-        result,  # ExtractionResult
-        score,
+        result: Any,  # ExtractionResult
+        score: Any,
     ) -> bool:
         """Check if a single detection rule matches."""
         
@@ -95,9 +95,9 @@ class DetectionEngine:
         
         return False
     
-    def _check_value_match(self, config: Dict, result) -> bool:
+    def _check_value_match(self, config: Dict[str, Any], result: Any) -> bool:
         """Check for field value match on source objects."""
-        source = config.get("source")
+        source = config.get("source", "")
         field_path = config.get("field", "")
         
         source_data = get_source_data(source, result)
@@ -110,9 +110,9 @@ class DetectionEngine:
         
         return False
     
-    def _check_compound(self, config: Dict, result) -> bool:
+    def _check_compound(self, config: Dict[str, Any], result: Any) -> bool:
         """Check multiple conditions (AND logic)."""
-        source = config.get("source")
+        source = config.get("source", "")
         conditions = config.get("conditions", [])
         
         source_data = get_source_data(source, result)
@@ -132,7 +132,7 @@ class DetectionEngine:
         
         return False
     
-    def _check_interval(self, config: Dict, result) -> bool:
+    def _check_interval(self, config: Dict[str, Any], result: Any) -> bool:
         """Check for interval quality/direction."""
         quality = config.get("quality")  # e.g., "M3", "P5"
         melodic = config.get("melodic", True)
@@ -147,7 +147,7 @@ class DetectionEngine:
         
         return False
     
-    def _check_text_match(self, config: Dict, result) -> bool:
+    def _check_text_match(self, config: Dict[str, Any], result: Any) -> bool:
         """Check for text content in expressions/tempos."""
         source = config.get("source")
         contains = config.get("contains", "").lower()
@@ -182,7 +182,7 @@ class DetectionEngine:
         
         return False
     
-    def _check_time_signature(self, config: Dict, result) -> bool:
+    def _check_time_signature(self, config: Dict[str, Any], result: Any) -> bool:
         """Check for time signature match."""
         numerator = config.get("numerator")
         denominator = config.get("denominator")
@@ -190,7 +190,7 @@ class DetectionEngine:
         expected = f"time_sig_{numerator}_{denominator}"
         return expected in result.time_signatures
     
-    def _check_range(self, config: Dict, result) -> bool:
+    def _check_range(self, config: Dict[str, Any], result: Any) -> bool:
         """Check for interval size range."""
         min_semi = config.get("min_semitones", 0)
         max_semi = config.get("max_semitones", 999)
@@ -199,12 +199,12 @@ class DetectionEngine:
             return False
         
         range_semi = result.range_analysis.range_semitones
-        return min_semi <= range_semi <= max_semi
+        return bool(min_semi <= range_semi <= max_semi)
     
-    def _check_custom(self, config: Dict, result, score) -> bool:
+    def _check_custom(self, config: Dict[str, Any], result: Any, score: Any) -> bool:
         """Execute custom detection function."""
         func_name = config.get("function")
         if func_name not in CUSTOM_DETECTORS:
             return False
         
-        return CUSTOM_DETECTORS[func_name](result, score)
+        return bool(CUSTOM_DETECTORS[func_name](result, score))

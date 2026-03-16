@@ -32,9 +32,8 @@ MUSESCORE_PATH = os.getenv("MUSESCORE_PATH", "/Applications/MuseScore 4.app/Cont
 
 # Only create async engine if using async driver (not sqlite)
 if "asyncpg" in DATABASE_URL or "aiosqlite" in DATABASE_URL:
-    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
     engine = create_async_engine(DATABASE_URL, echo=True)
-    AsyncSessionLocal = sessionmaker(
+    AsyncSessionLocal = async_sessionmaker(
         bind=engine, class_=AsyncSession, expire_on_commit=False
     )

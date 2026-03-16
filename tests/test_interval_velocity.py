@@ -159,8 +159,9 @@ class TestCalculateIntervalVelocityWindowed:
             ))
         
         peak, p95, raw = calculate_interval_velocity_windowed(events)
-        assert peak is not None
-        assert p95 is not None
+        # Verify scores are valid floats in expected range
+        assert 0 <= peak <= 1
+        assert 0 <= p95 <= 1
         assert raw["window_count"] > 0
     
     def test_peak_gte_p95(self):
@@ -193,5 +194,4 @@ class TestCalculateIntervalVelocityWindowed:
         
         peak, p95, raw = calculate_interval_velocity_windowed(events)
         # Peak should capture the hard section
-        assert peak is not None
         assert peak > 0.0

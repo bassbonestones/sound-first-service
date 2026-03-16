@@ -49,7 +49,7 @@ class CapabilityRegistry:
         Returns:
             Dict of validation issues: {"warnings": [...], "errors": [...]}
         """
-        issues = {"warnings": [], "errors": []}
+        issues: Dict[str, List[str]] = {"warnings": [], "errors": []}
         
         try:
             with open(self.capabilities_path, 'r') as f:

@@ -133,19 +133,20 @@ RANGE_RECOVERY_AFTER_ATTEMPTS = 1  # Insert recovery after every N PLAY steps
 # HELPER FUNCTIONS
 # =============================================================================
 import random
+from typing import Any, Dict, List, Optional
 
-def weighted_choice(weights_dict: dict) -> str:
+def weighted_choice(weights_dict: Dict[str, float]) -> str:
     """Select a key from a dict of {key: weight} probabilistically."""
     items = list(weights_dict.keys())
     weights = list(weights_dict.values())
     total = sum(weights)
     if total == 0:
-        return random.choice(items)
+        return items[0] if items else ""
     normalized = [w / total for w in weights]
-    return random.choices(items, weights=normalized, k=1)[0]
+    return str(random.choices(items, weights=normalized, k=1)[0])
 
 
-def get_adjusted_capability_weights(fatigue: int) -> dict:
+def get_adjusted_capability_weights(fatigue: int) -> Dict[str, float]:
     """Get capability weights adjusted for current fatigue level."""
     base_weights = CAPABILITY_WEIGHTS.copy()
     modifiers = FATIGUE_CAPABILITY_MODIFIERS.get(fatigue, {})
@@ -167,7 +168,7 @@ def select_difficulty() -> str:
     return weighted_choice(DIFFICULTY_WEIGHTS)
 
 
-def select_intensity(time_remaining: float = None) -> str:
+def select_intensity(time_remaining: Optional[float] = None) -> str:
     """Select intensity, constrained by time remaining."""
     weights = INTENSITY_WEIGHTS.copy()
     
@@ -182,7 +183,7 @@ def select_intensity(time_remaining: float = None) -> str:
     return weighted_choice(weights)
 
 
-def select_capability(fatigue: int, recent_capabilities: list = None, time_remaining: float = None) -> str:
+def select_capability(fatigue: int, recent_capabilities: Optional[List[str]] = None, time_remaining: Optional[float] = None) -> str:
     """
     Select next capability bucket probabilistically.
     Considers fatigue, anti-repetition, and time constraints.

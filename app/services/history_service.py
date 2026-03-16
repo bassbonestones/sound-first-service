@@ -4,7 +4,7 @@ History service.
 Handles business logic for practice history, analytics, and spaced repetition tracking.
 """
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, cast
 import datetime
 
 from sqlalchemy.orm import Session as DbSession
@@ -83,9 +83,10 @@ class HistoryService:
         """
         history: Dict[int, List[Dict[str, Any]]] = {}
         for a in attempts:
-            if a.material_id not in history:
-                history[a.material_id] = []
-            history[a.material_id].append({
+            mat_id = int(a.material_id) if a.material_id else 0
+            if mat_id not in history:
+                history[mat_id] = []
+            history[mat_id].append({
                 "id": getattr(a, 'id', None),
                 "rating": a.rating,
                 "timestamp": a.timestamp,
@@ -141,9 +142,10 @@ class HistoryService:
         mastery_counts = {"mastered": 0, "familiar": 0, "stabilizing": 0, "learning": 0}
         
         for m in materials:
-            mat_attempts = attempt_history.get(m.id, [])
+            m_id = int(m.id)
+            mat_attempts = attempt_history.get(m_id, [])
             sr_data = [{"rating": a["rating"], "timestamp": a["timestamp"]} for a in mat_attempts]
-            sr_item = build_sr_item_from_db(m.id, sr_data)
+            sr_item = build_sr_item_from_db(m_id, sr_data)
             sr_items.append(sr_item)
             
             if mat_attempts:
@@ -174,9 +176,10 @@ class HistoryService:
         result = []
         
         for m in materials:
-            mat_attempts = attempt_history.get(m.id, [])
+            m_id = int(m.id)
+            mat_attempts = attempt_history.get(m_id, [])
             sr_data = [{"rating": a["rating"], "timestamp": a["timestamp"]} for a in mat_attempts]
-            sr_item = build_sr_item_from_db(m.id, sr_data)
+            sr_item = build_sr_item_from_db(m_id, sr_data)
             
             ratings = [a["rating"] for a in mat_attempts if a["rating"] is not None]
             avg_rating = sum(ratings) / len(ratings) if ratings else None
@@ -186,8 +189,8 @@ class HistoryService:
             )
             
             result.append(MaterialHistoryData(
-                material_id=m.id,
-                material_title=m.title,
+                material_id=m_id,
+                material_title=str(m.title),
                 attempt_count=len(mat_attempts),
                 average_rating=round(avg_rating, 2) if avg_rating else None,
                 last_practiced=last_practiced.isoformat() if last_practiced else None,
@@ -256,17 +259,17 @@ class HistoryService:
         Returns:
             List of FocusCardHistoryData sorted by attempt count descending
         """
-        fc_map = {fc.id: fc for fc in focus_cards}
+        fc_map: Dict[int, FocusCard] = {int(fc.id): fc for fc in focus_cards}
         fc_stats: Dict[int, Dict[str, Any]] = {}
         
         for a in attempts:
-            fc_id = a.focus_card_id
+            fc_id = int(a.focus_card_id) if a.focus_card_id else 0
             if fc_id not in fc_stats:
                 fc = fc_map.get(fc_id)
                 fc_stats[fc_id] = {
                     "focus_card_id": fc_id,
-                    "focus_card_name": fc.name if fc else "Unknown",
-                    "category": fc.category if fc else "",
+                    "focus_card_name": str(fc.name) if fc else "Unknown",
+                    "category": str(fc.category) if fc else "",
                     "ratings": [],
                     "timestamps": [],
                 }
@@ -313,14 +316,15 @@ class HistoryService:
         due_items = []
         
         for m in materials:
-            mat_attempts = attempt_history.get(m.id, [])
+            m_id = int(m.id)
+            mat_attempts = attempt_history.get(m_id, [])
             sr_data = [{"rating": a["rating"], "timestamp": a["timestamp"]} for a in mat_attempts]
-            sr_item = build_sr_item_from_db(m.id, sr_data)
+            sr_item = build_sr_item_from_db(m_id, sr_data)
             
             if sr_item.is_due():
                 due_items.append({
-                    "material_id": m.id,
-                    "material_title": m.title,
+                    "material_id": m_id,
+                    "material_title": str(m.title),
                     "days_overdue": round(sr_item.days_overdue(), 1),
                     "ease_factor": round(sr_item.ease_factor, 2),
                     "interval_days": sr_item.interval,
@@ -328,7 +332,7 @@ class HistoryService:
                 })
         
         # Sort by most overdue first
-        due_items.sort(key=lambda x: x["days_overdue"], reverse=True)
+        due_items.sort(key=lambda x: cast(float, x["days_overdue"]), reverse=True)
         return due_items[:limit]
 
 

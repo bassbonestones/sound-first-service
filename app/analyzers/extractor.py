@@ -5,7 +5,7 @@ Main analyzer class for extracting capabilities and metrics from MusicXML files.
 Orchestrates extraction through focused parser modules.
 """
 
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 try:
     from music21 import converter
@@ -43,7 +43,7 @@ class MusicXMLAnalyzer:
         capabilities = analyzer.get_capability_names(result)
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         if not MUSIC21_AVAILABLE:
             raise ImportError("music21 is required for MusicXML analysis")
     
@@ -61,7 +61,7 @@ class MusicXMLAnalyzer:
         
         # Parse the MusicXML
         try:
-            score = converter.parse(musicxml_content)
+            score: Any = converter.parse(musicxml_content)
         except Exception as e:
             raise ValueError(f"Failed to parse MusicXML: {e}")
         
@@ -118,8 +118,8 @@ def analyze_musicxml(musicxml_content: str) -> Tuple[ExtractionResult, List[str]
         Tuple of (ExtractionResult, list of capability names)
     """
     analyzer = MusicXMLAnalyzer()
-    result = analyzer.analyze(musicxml_content)
-    capabilities = analyzer.get_capability_names(result)
+    result: ExtractionResult = analyzer.analyze(musicxml_content)
+    capabilities: List[str] = analyzer.get_capability_names(result)
     return result, capabilities
 
 

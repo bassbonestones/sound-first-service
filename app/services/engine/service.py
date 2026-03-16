@@ -49,7 +49,7 @@ class PracticeEngineService:
     providing a complete service for session generation and attempt tracking.
     """
     
-    def __init__(self, db: Session, config: EngineConfig = None):
+    def __init__(self, db: Session, config: Optional[EngineConfig] = None):
         """Initialize with database session and optional config."""
         self.db = db
         self.config = config or DEFAULT_CONFIG
@@ -62,7 +62,7 @@ class PracticeEngineService:
         """Load all material states for a user."""
         return load_user_material_states(self.db, user_id)
     
-    def get_capability_progress(self, user_id: int, instrument_id: int = None) -> List[CapabilityProgress]:
+    def get_capability_progress(self, user_id: int, instrument_id: Optional[int] = None) -> List[CapabilityProgress]:
         """Load capability progress for a user.
         
         Args:
@@ -121,7 +121,7 @@ class PracticeEngineService:
     #  Material Selection
     # ─────────────────────────────────────────────────────────────────────────────
     
-    def select_next_material(self, user_id: int, instrument_id: int = None) -> Optional[SessionMaterial]:
+    def select_next_material(self, user_id: int, instrument_id: Optional[int] = None) -> Optional[SessionMaterial]:
         """Select the next material for a practice session.
         
         Args:
@@ -229,8 +229,8 @@ class PracticeEngineService:
         
         # Generate pitches from range
         if analysis and analysis.lowest_pitch and analysis.highest_pitch:
-            low_midi = pitch_name_to_midi(analysis.lowest_pitch)
-            high_midi = pitch_name_to_midi(analysis.highest_pitch)
+            low_midi = pitch_name_to_midi(str(analysis.lowest_pitch))
+            high_midi = pitch_name_to_midi(str(analysis.highest_pitch))
             material_pitches = list(range(low_midi, high_midi + 1))
         else:
             # Default range

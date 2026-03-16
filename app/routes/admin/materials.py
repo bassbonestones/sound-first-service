@@ -144,11 +144,12 @@ def admin_check_material_gates(material_id: int, user_id: int = Query(...), db: 
         }
         
         for rule in soft_rules:
-            material_value = dimension_mapping.get(rule.dimension_name)
+            dim_name = str(rule.dimension_name)
+            material_value = dimension_mapping.get(dim_name)
             if material_value is None:
                 continue
             
-            user_state = db.query(UserSoftGateState).filter_by(user_id=user_id, dimension_name=rule.dimension_name).first()
+            user_state = db.query(UserSoftGateState).filter_by(user_id=user_id, dimension_name=dim_name).first()
             comfort = user_state.comfortable_value if user_state else 0
             max_allowed = comfort + rule.frontier_buffer
             
@@ -168,7 +169,7 @@ def admin_check_material_gates(material_id: int, user_id: int = Query(...), db: 
 @router.post("/materials/{material_id}/analyze", response_model=AnalysisResponse)
 def admin_trigger_analysis(material_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Trigger re-analysis of a material's MusicXML."""
-    from app.musicxml_analyzer import analyze_musicxml
+    from app.musicxml_analyzer import analyze_musicxml  # type: ignore[attr-defined]
     
     material = db.query(Material).filter_by(id=material_id).first()
     if not material:
@@ -178,18 +179,23 @@ def admin_trigger_analysis(material_id: int, db: Session = Depends(get_db)) -> D
         raise HTTPException(status_code=400, detail="Material has no MusicXML content")
     
     try:
-        analysis_result = analyze_musicxml(material.musicxml_canonical)
+        extraction_result, _ = analyze_musicxml(str(material.musicxml_canonical))
+        analysis_dict = extraction_result.to_dict() if hasattr(extraction_result, 'to_dict') else {}
         
         existing = db.query(MaterialAnalysis).filter_by(material_id=material_id).first()
         if existing:
-            for key, value in analysis_result.items():
+            for key, value in analysis_dict.items():
                 if hasattr(existing, key):
                     setattr(existing, key, value)
         else:
-            analysis = MaterialAnalysis(material_id=material_id, **analysis_result)
+            analysis = MaterialAnalysis(
+                material_id=material_id,
+                chromatic_complexity=getattr(extraction_result, 'chromatic_complexity_score', None),
+                measure_count=getattr(extraction_result, 'measure_count', None),
+            )
             db.add(analysis)
         
         db.commit()
-        return {"message": "Analysis completed", "analysis": analysis_result}
+        return {"message": "Analysis completed", "analysis": analysis_dict}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

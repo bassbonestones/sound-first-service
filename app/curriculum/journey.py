@@ -5,12 +5,12 @@ Estimates user's journey stage based on practice metrics and
 provides adaptive weights for session generation.
 """
 
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 from .types import JOURNEY_STAGES, JourneyMetrics
 
 
-def estimate_journey_stage(metrics: JourneyMetrics) -> Tuple[int, str, dict]:
+def estimate_journey_stage(metrics: JourneyMetrics) -> Tuple[int, str, Dict[str, Any]]:
     """
     Estimate user's journey stage based on practice metrics.
     
@@ -87,7 +87,7 @@ def estimate_journey_stage(metrics: JourneyMetrics) -> Tuple[int, str, dict]:
     return (1, JOURNEY_STAGES[1]["name"], factors)
 
 
-def get_stage_adaptive_weights(stage: int) -> dict:
+def get_stage_adaptive_weights(stage: int) -> Dict[str, Any]:
     """
     Get adaptive weights for session generation based on journey stage.
     
@@ -143,4 +143,4 @@ def get_stage_adaptive_weights(stage: int) -> dict:
             "avoid_goals": [],
         },
     }
-    return weights.get(stage, weights[1])
+    return weights.get(stage) or weights[1]  # type: ignore[return-value]

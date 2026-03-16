@@ -1,14 +1,16 @@
 """
 EMA and mastery calculation functions.
 """
+from typing import Optional
+
 from .config import DEFAULT_CONFIG, EngineConfig
 
 
 def compute_ema(
     current_score: float,
     previous_ema: float,
-    alpha: float = None,
-    config: EngineConfig = None
+    alpha: Optional[float] = None,
+    config: Optional[EngineConfig] = None
 ) -> float:
     """
     Compute exponential moving average.
@@ -26,7 +28,7 @@ def compute_ema(
 def check_material_mastery(
     ema_score: float,
     attempt_count: int,
-    config: EngineConfig = None
+    config: Optional[EngineConfig] = None
 ) -> bool:
     """
     Check if material is mastered based on EMA + minimum attempts gate.

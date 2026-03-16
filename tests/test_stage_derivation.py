@@ -217,7 +217,10 @@ class TestDeriveDomainStages:
     def test_returns_domain_stages_object(self):
         scores = {"primary": 0.5, "hazard": 0.3, "overall": 0.4}
         result = derive_domain_stages(scores)
-        assert isinstance(result, DomainStages)
+        # Verify structure by accessing attributes
+        assert result.primary_stage == 3
+        assert result.hazard_stage == 2
+        assert result.overall_stage == 2
     
     def test_all_zeroes(self):
         scores = {"primary": 0.0, "hazard": 0.0, "overall": 0.0}
@@ -363,7 +366,7 @@ class TestDeriveAllStages:
         """Single domain should populate only that field."""
         scores = {"interval": {"primary": 0.5, "hazard": 0.3, "overall": 0.4}}
         result = derive_all_stages(scores)
-        assert result.interval is not None
+        # Access directly - will fail if None
         assert result.interval.primary_stage == 3
         assert result.rhythm is None
     
@@ -391,12 +394,13 @@ class TestDeriveAllStages:
             "throughput": {"primary": 0.5, "hazard": 0.3, "overall": 0.4},
         }
         result = derive_all_stages(scores)
-        assert result.interval is not None
-        assert result.rhythm is not None
-        assert result.tonal is not None
-        assert result.tempo is not None
-        assert result.range is not None
-        assert result.throughput is not None
+        # All domains should have stage 3 for primary (0.5 score)
+        assert result.interval.primary_stage == 3
+        assert result.rhythm.primary_stage == 3
+        assert result.tonal.primary_stage == 3
+        assert result.tempo.primary_stage == 3
+        assert result.range.primary_stage == 3
+        assert result.throughput.primary_stage == 3
 
 
 # =============================================================================

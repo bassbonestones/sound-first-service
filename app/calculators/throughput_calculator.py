@@ -5,7 +5,7 @@ D5 — Density metrics (notes per second, per measure, peak, volatility)
 Also includes tempo difficulty score calculation.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def calculate_density_metrics(
@@ -15,7 +15,7 @@ def calculate_density_metrics(
     notes_per_measure_list: Optional[List[int]] = None,
     tempo_bpm: int = 120,
     beats_per_measure: float = 4.0,
-) -> Tuple[float, float, float, float, Dict]:
+) -> Tuple[float, float, float, float, Dict[str, Any]]:
     """
     Calculate D5 density metrics including per-measure peak and volatility.
     
@@ -75,7 +75,7 @@ def calculate_tempo_difficulty_score(
     bpm: Optional[int],
     rhythm_complexity: float,
     interval_velocity: float,
-) -> Tuple[Optional[float], Dict]:
+) -> Tuple[Optional[float], Dict[str, Any]]:
     """
     Calculate tempo difficulty score (0-1).
     

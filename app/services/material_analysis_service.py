@@ -5,10 +5,10 @@ Provides clean API for analyzing MusicXML content without database operations.
 Used by routes/materials.py for preview analysis and other analysis endpoints.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple, cast
 from dataclasses import dataclass, field
 
-from app.musicxml_analyzer import MusicXMLAnalyzer, ExtractionResult
+from app.musicxml_analyzer import MusicXMLAnalyzer, ExtractionResult  # type: ignore[attr-defined]
 from app.soft_gate_calculator import SoftGateCalculator, SoftGateMetrics
 from app.capability_registry import CapabilityRegistry, DetectionEngine
 
@@ -51,13 +51,13 @@ class AnalysisResult:
 class MaterialAnalysisService:
     """Service for analyzing MusicXML content."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.analyzer = MusicXMLAnalyzer()
         self.soft_gate_calculator = SoftGateCalculator()
-        self.registry = None
-        self.engine = None
+        self.registry: Optional[CapabilityRegistry] = None
+        self.engine: Optional[DetectionEngine] = None
     
-    def _ensure_registry_loaded(self):
+    def _ensure_registry_loaded(self) -> None:
         """Lazily load capability registry."""
         if self.registry is None:
             self.registry = CapabilityRegistry()
@@ -173,20 +173,22 @@ class MaterialAnalysisService:
         self, 
         result: ExtractionResult, 
         fallback_capabilities: List[str]
-    ) -> tuple:
+    ) -> Tuple[List[str], Dict[str, List[str]]]:
         """Detect capabilities using registry."""
         try:
             self._ensure_registry_loaded()
+            if self.engine is None or self.registry is None:
+                return fallback_capabilities, {"unknown": fallback_capabilities}
             detected_capabilities = list(self.engine.detect_capabilities(result))
             
             # Build domain lookup
-            domain_lookup = {}
+            domain_lookup: Dict[str, str] = {}
             for domain, cap_names in self.registry.capabilities_by_domain.items():
                 for cap_name in cap_names:
                     domain_lookup[cap_name] = domain
             
             # Group by domain
-            capabilities_by_domain = {}
+            capabilities_by_domain: Dict[str, List[str]] = {}
             for cap_name in detected_capabilities:
                 domain = domain_lookup.get(cap_name, "unknown")
                 if domain not in capabilities_by_domain:
@@ -196,7 +198,7 @@ class MaterialAnalysisService:
             # Sort within domains
             for domain in capabilities_by_domain:
                 capabilities_by_domain[domain].sort(
-                    key=lambda c: self.registry.capability_bit_index.get(c, 9999)
+                    key=lambda c: self.registry.capability_bit_index.get(c, 9999) if self.registry else 9999
                 )
             
             return detected_capabilities, capabilities_by_domain
@@ -246,7 +248,10 @@ class MaterialAnalysisService:
             )
             
             # Compute composite
-            all_scores = {name: dr.scores for name, dr in domain_results.items()}
+            all_scores: Dict[str, Dict[str, float]] = {
+                name: cast(Dict[str, float], dr.scores) 
+                for name, dr in domain_results.items()
+            }
             composite = calculate_composite_difficulty(all_scores)
             
             unified_scores = {name: dr.to_dict() for name, dr in domain_results.items()}

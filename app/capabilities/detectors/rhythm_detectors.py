@@ -5,22 +5,22 @@ Detection functions for rhythm-related capabilities:
 syncopation, ties, hemiola, tuplets, triplets.
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
 # Inherited registry
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 
 
-def register_custom_detector(name: str):
-    """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
+    """Decorator to register a custom rhythm detection function."""
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator
 
 
 @register_custom_detector("detect_syncopation")
-def detect_syncopation(extraction_result, score) -> bool:
+def detect_syncopation(extraction_result: Any, score: Any) -> bool:
     """Detect syncopation patterns in the music.
     
     Syncopation occurs when notes start on weak beats and continue to strong beats,
@@ -63,13 +63,13 @@ def detect_syncopation(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_ties")
-def detect_ties(extraction_result, score) -> bool:
+def detect_ties(extraction_result: Any, score: Any) -> bool:
     """Detect presence of tied notes."""
-    return extraction_result.has_ties
+    return bool(extraction_result.has_ties)
 
 
 @register_custom_detector("detect_hemiola")
-def detect_hemiola(extraction_result, score) -> bool:
+def detect_hemiola(extraction_result: Any, score: Any) -> bool:
     """Detect hemiola patterns (3 against 2)."""
     return False  # Stub - would need to analyze rhythm groupings
 
@@ -79,13 +79,13 @@ def detect_hemiola(extraction_result, score) -> bool:
 # =============================================================================
 
 @register_custom_detector("detect_eighth_triplets")
-def detect_eighth_triplets(extraction_result, score) -> bool:
+def detect_eighth_triplets(extraction_result: Any, score: Any) -> bool:
     """Detect eighth note triplets."""
     return "tuplet_3_eighth" in extraction_result.tuplets
 
 
 @register_custom_detector("detect_quarter_triplets")
-def detect_quarter_triplets(extraction_result, score) -> bool:
+def detect_quarter_triplets(extraction_result: Any, score: Any) -> bool:
     """Detect quarter note triplets (3 quarters in time of 2)."""
     if score is None:
         return False
@@ -102,7 +102,7 @@ def detect_quarter_triplets(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_duplet")
-def detect_duplet(extraction_result, score) -> bool:
+def detect_duplet(extraction_result: Any, score: Any) -> bool:
     """Detect duplets (2 notes in space of 3)."""
     if score is None:
         return False
@@ -115,7 +115,7 @@ def detect_duplet(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_quintuplet")
-def detect_quintuplet(extraction_result, score) -> bool:
+def detect_quintuplet(extraction_result: Any, score: Any) -> bool:
     """Detect quintuplets (5 notes in space of 4)."""
     if score is None:
         return False
@@ -128,7 +128,7 @@ def detect_quintuplet(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_sextuplet")
-def detect_sextuplet(extraction_result, score) -> bool:
+def detect_sextuplet(extraction_result: Any, score: Any) -> bool:
     """Detect sextuplets (6 notes)."""
     if score is None:
         return False
@@ -141,7 +141,7 @@ def detect_sextuplet(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_septuplet")
-def detect_septuplet(extraction_result, score) -> bool:
+def detect_septuplet(extraction_result: Any, score: Any) -> bool:
     """Detect septuplets (7 notes)."""
     if score is None:
         return False
@@ -154,7 +154,7 @@ def detect_septuplet(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_triplet_general")
-def detect_triplet_general(extraction_result, score) -> bool:
+def detect_triplet_general(extraction_result: Any, score: Any) -> bool:
     """Detect any triplet figure (3 notes in time of 2)."""
     if "tuplet_triplet" in extraction_result.tuplets:
         return True
@@ -171,7 +171,7 @@ def detect_triplet_general(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_triplet_eighth_rest")
-def detect_triplet_eighth_rest(extraction_result, score) -> bool:
+def detect_triplet_eighth_rest(extraction_result: Any, score: Any) -> bool:
     """Detect eighth note rest within a triplet."""
     if score is None:
         return False
@@ -185,7 +185,7 @@ def detect_triplet_eighth_rest(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_tuplet_3_quarter_rest")
-def detect_tuplet_3_quarter_rest(extraction_result, score) -> bool:
+def detect_tuplet_3_quarter_rest(extraction_result: Any, score: Any) -> bool:
     """Detect quarter note rest within a triplet."""
     if score is None:
         return False

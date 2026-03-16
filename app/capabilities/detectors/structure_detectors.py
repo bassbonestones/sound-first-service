@@ -5,21 +5,21 @@ Detection functions for form and repeat-related capabilities:
 coda, da capo, dal segno, fine, segno, repeat signs, endings.
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
-CUSTOM_DETECTORS: Dict[str, Callable] = {}
+CUSTOM_DETECTORS: Dict[str, Callable[..., bool]] = {}
 
 
-def register_custom_detector(name: str):
-    """Decorator to register a custom detection function."""
-    def decorator(func: Callable):
+def register_custom_detector(name: str) -> Callable[[Callable[..., bool]], Callable[..., bool]]:
+    """Decorator to register a custom structure detection function."""
+    def decorator(func: Callable[..., bool]) -> Callable[..., bool]:
         CUSTOM_DETECTORS[name] = func
         return func
     return decorator
 
 
 @register_custom_detector("detect_coda")
-def detect_coda(extraction_result, score) -> bool:
+def detect_coda(extraction_result: Any, score: Any) -> bool:
     """Detect coda marking."""
     if score is None:
         return "coda" in str(extraction_result.repeat_structures).lower()
@@ -33,7 +33,7 @@ def detect_coda(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_da_capo")
-def detect_da_capo(extraction_result, score) -> bool:
+def detect_da_capo(extraction_result: Any, score: Any) -> bool:
     """Detect D.C. (Da Capo) marking."""
     if score is None:
         return "d.c." in str(extraction_result.repeat_structures).lower() or "da capo" in str(extraction_result.repeat_structures).lower()
@@ -47,7 +47,7 @@ def detect_da_capo(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_dal_segno")
-def detect_dal_segno(extraction_result, score) -> bool:
+def detect_dal_segno(extraction_result: Any, score: Any) -> bool:
     """Detect D.S. (Dal Segno) marking."""
     if score is None:
         return "d.s." in str(extraction_result.repeat_structures).lower() or "dal segno" in str(extraction_result.repeat_structures).lower()
@@ -61,7 +61,7 @@ def detect_dal_segno(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_fine")
-def detect_fine(extraction_result, score) -> bool:
+def detect_fine(extraction_result: Any, score: Any) -> bool:
     """Detect Fine marking."""
     if score is None:
         return "fine" in str(extraction_result.repeat_structures).lower()
@@ -75,7 +75,7 @@ def detect_fine(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_segno")
-def detect_segno(extraction_result, score) -> bool:
+def detect_segno(extraction_result: Any, score: Any) -> bool:
     """Detect Segno sign."""
     if score is None:
         return "segno" in str(extraction_result.repeat_structures).lower()
@@ -87,7 +87,7 @@ def detect_segno(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_repeat_sign")
-def detect_repeat_sign(extraction_result, score) -> bool:
+def detect_repeat_sign(extraction_result: Any, score: Any) -> bool:
     """Detect repeat barlines."""
     if score is None:
         return "repeat" in str(extraction_result.repeat_structures).lower()
@@ -101,7 +101,7 @@ def detect_repeat_sign(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_first_ending")
-def detect_first_ending(extraction_result, score) -> bool:
+def detect_first_ending(extraction_result: Any, score: Any) -> bool:
     """Detect first ending bracket."""
     if score is None:
         return False
@@ -113,7 +113,7 @@ def detect_first_ending(extraction_result, score) -> bool:
 
 
 @register_custom_detector("detect_second_ending")
-def detect_second_ending(extraction_result, score) -> bool:
+def detect_second_ending(extraction_result: Any, score: Any) -> bool:
     """Detect second ending bracket."""
     if score is None:
         return False

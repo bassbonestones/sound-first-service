@@ -45,11 +45,11 @@ class SoftGateCalculator:
     Main calculator for soft gate metrics from music21 score.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         if not MUSIC21_AVAILABLE:
             raise ImportError("music21 is required for soft gate calculation")
     
-    def _extract_note_data(self, score: stream.Score) -> Dict:
+    def _extract_note_data(self, score: stream.Score) -> Dict[str, Any]:
         """Extract all note-related data for calculations. Delegates to module function."""
         return extract_note_data(score)
     
@@ -130,7 +130,7 @@ class SoftGateCalculator:
         duration_seconds = self._estimate_duration(score, tempo_bpm or 100, measure_count)
         
         # Get time signature for beats per measure
-        time_sigs = list(score.recurse().getElementsByClass(meter.TimeSignature))
+        time_sigs = list(score.recurse().getElementsByClass(meter.TimeSignature))  # type: ignore[attr-defined]
         if time_sigs:
             beats_per_measure = time_sigs[0].beatCount * (4.0 / time_sigs[0].denominator)
         else:
@@ -249,7 +249,7 @@ class SoftGateCalculator:
         Returns:
             SoftGateMetrics dataclass
         """
-        score = converter.parse(musicxml_content)
+        score: Any = converter.parse(musicxml_content)
         return self.calculate_from_score(score, tempo_bpm)
     
     def _extract_tempo(self, score: stream.Score) -> Optional[int]:
@@ -274,10 +274,10 @@ class SoftGateCalculator:
         time_sigs = list(score.recurse().getElementsByClass('TimeSignature'))
         if time_sigs:
             ts = time_sigs[0]
-            beats_per_measure = ts.beatCount
-            beat_duration = ts.beatDuration.quarterLength
+            beats_per_measure: float = float(ts.beatCount)
+            beat_duration: float = float(ts.beatDuration.quarterLength)
         else:
-            beats_per_measure = 4
+            beats_per_measure = 4.0
             beat_duration = 1.0  # Quarter note
         
         # Total beats
