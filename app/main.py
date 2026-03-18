@@ -21,6 +21,7 @@ from app.routes import (
     users_router,
     teaching_modules_router,
     admin_router,
+    imports_router,
 )
 import logging
 import traceback
@@ -296,4 +297,5 @@ app.include_router(capabilities_router)
 app.include_router(users_router)
 app.include_router(teaching_modules_router)
 app.include_router(admin_router)
+app.include_router(imports_router)
 

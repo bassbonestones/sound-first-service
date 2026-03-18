@@ -85,7 +85,77 @@ class Settings(BaseSettings):
     
     enable_admin_routes: bool = True
     """Enable admin management endpoints."""
-    
+
+    # ==========================================================================
+    # Storage Settings
+    # ==========================================================================
+    storage_provider: str = "local"
+    """Storage provider: 'local' or 's3'."""
+
+    local_storage_path: str = "./uploads"
+    """Local storage directory for uploaded files."""
+
+    s3_bucket: str = ""
+    """S3 bucket name for file storage."""
+
+    s3_region: str = "us-east-1"
+    """AWS S3 region."""
+
+    s3_access_key: str = ""
+    """AWS access key ID."""
+
+    s3_secret_key: str = ""
+    """AWS secret access key."""
+
+    signed_url_expiry: int = 3600
+    """Signed URL expiry time in seconds (default: 1 hour)."""
+
+    # ==========================================================================
+    # OMR Settings
+    # ==========================================================================
+    omr_provider: str = "mock"
+    """OMR provider: 'mock', 'audiveris', 'oemer', or 'commercial'."""
+
+    omr_api_url: str = ""
+    """External OMR API URL (for commercial providers)."""
+
+    omr_api_key: str = ""
+    """External OMR API key."""
+
+    audiveris_path: str = ""
+    """Path to Audiveris executable or JAR (auto-detect if empty)."""
+
+    audiveris_java_opts: str = "-Xmx2g"
+    """JVM options for Audiveris (memory, etc.)."""
+
+    # ==========================================================================
+    # Celery / Redis Settings
+    # ==========================================================================
+    redis_url: str = "redis://localhost:6379/0"
+    """Redis URL for Celery broker and result backend."""
+
+    celery_broker_url: str = ""
+    """Celery broker URL (defaults to redis_url if empty)."""
+
+    celery_result_backend: str = ""
+    """Celery result backend URL (defaults to redis_url if empty)."""
+
+    celery_task_time_limit: int = 600
+    """Maximum time (seconds) for a single task."""
+
+    celery_task_soft_time_limit: int = 540
+    """Soft time limit for tasks (allows graceful shutdown)."""
+
+    @property
+    def effective_celery_broker(self) -> str:
+        """Return the Celery broker URL to use."""
+        return self.celery_broker_url or self.redis_url
+
+    @property
+    def effective_celery_backend(self) -> str:
+        """Return the Celery result backend URL to use."""
+        return self.celery_result_backend or self.redis_url
+
     @property
     def effective_database_url(self) -> str:
         """Return the database URL to use (prefers ALEMBIC_DATABASE_URL)."""

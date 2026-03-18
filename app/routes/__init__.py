@@ -1,7 +1,7 @@
 """API route exports.
 
 Exports all FastAPI routers for the application including onboarding, sessions,
-history, audio, materials, capabilities, users, teaching modules, and admin.
+history, audio, materials, capabilities, users, teaching modules, admin, and imports.
 """
 from .onboarding import router as onboarding_router
 from .config import router as config_router
@@ -13,6 +13,7 @@ from .capabilities import router as capabilities_router
 from .users import router as users_router
 from .teaching_modules import router as teaching_modules_router
 from .admin import router as admin_router
+from .imports import router as imports_router
 
 __all__ = [
     "onboarding_router",
@@ -25,4 +26,5 @@ __all__ = [
     "users_router",
     "teaching_modules_router",
     "admin_router",
+    "imports_router",
 ]

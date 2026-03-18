@@ -9,6 +9,15 @@ music21
 midi2audio
 pysfizz
 
+# Async task queue
+celery[redis]
+redis
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
 # Type checking
 mypy
 types-requests
