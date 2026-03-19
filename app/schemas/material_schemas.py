@@ -209,3 +209,35 @@ class AnalysisPreviewOut(BaseModel):
     soft_gates: Dict[str, Any]
     unified_scores: Dict[str, Any]
     detailed_extraction: Dict[str, Any]
+
+
+# --- Learning Path Schemas ---
+
+
+class LearningPathRequest(BaseModel):
+    """Request model for generating a learning path from capabilities."""
+    capability_names: List[str]
+    user_id: int
+
+
+class LearningPathCapability(BaseModel):
+    """A capability in the learning path with its prerequisites."""
+    id: int
+    name: str
+    display_name: Optional[str] = None
+    domain: str
+    difficulty_tier: int
+    is_mastered: bool
+    prerequisite_names: List[str] = []
+    depth: int  # How many prerequisites deep (0 = no unmastered prereqs)
+
+
+class LearningPathResponse(BaseModel):
+    """Response model for learning path generation."""
+    user_id: int
+    total_capabilities_in_score: int
+    capabilities_already_mastered: int
+    capabilities_to_learn: int
+    learning_path: List[LearningPathCapability]
+    # Grouped by domain for UI
+    path_by_domain: Dict[str, List[LearningPathCapability]] = {}

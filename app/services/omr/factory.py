@@ -10,6 +10,7 @@ from app.settings import settings
 from .base import OmrProvider, OmrProviderType
 from .mock_provider import MockOmrProvider
 from .audiveris_provider import AudiverisProvider
+from .oemer_provider import OemerProvider
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +65,11 @@ def _create_provider(provider_type: str) -> OmrProvider:
         return MockOmrProvider()
 
     if ptype == OmrProviderType.AUDIVERIS:
-        logger.info("Using AudiverisProvider")
-        provider = AudiverisProvider()
+        logger.info("Using AudiverisProvider with path: %s", settings.audiveris_path or "auto-detect")
+        provider = AudiverisProvider(
+            audiveris_path=settings.audiveris_path or None,
+            java_path=settings.audiveris_java_path,
+        )
         if not provider.is_available:
             logger.warning(
                 "Audiveris is not available. "
@@ -74,9 +78,14 @@ def _create_provider(provider_type: str) -> OmrProvider:
         return provider
 
     if ptype == OmrProviderType.OEMER:
-        # Placeholder for future oemer integration
-        logger.warning("oemer provider not yet implemented, falling back to mock")
-        return MockOmrProvider()
+        logger.info("Using OemerProvider")
+        provider = OemerProvider()
+        if not provider.is_available:
+            logger.warning(
+                "oemer is not available. "
+                "Install it with: pip install oemer"
+            )
+        return provider
 
     if ptype == OmrProviderType.COMMERCIAL:
         # Placeholder for commercial API integration

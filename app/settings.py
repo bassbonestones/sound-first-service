@@ -125,6 +125,9 @@ class Settings(BaseSettings):
     audiveris_path: str = ""
     """Path to Audiveris executable or JAR (auto-detect if empty)."""
 
+    audiveris_java_path: str = "java"
+    """Path to Java executable for Audiveris (default: 'java')."""
+
     audiveris_java_opts: str = "-Xmx2g"
     """JVM options for Audiveris (memory, etc.)."""
 

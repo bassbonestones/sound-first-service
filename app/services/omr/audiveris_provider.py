@@ -19,6 +19,7 @@ import subprocess
 import tempfile
 import time
 import xml.etree.ElementTree as ET
+import zipfile
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -156,8 +157,16 @@ class AudiverisProvider(OmrProvider):
     def _build_command(self, audiveris_path: Path, args: list) -> list:
         """Build command to run Audiveris."""
         if self._is_jar:
-            # Running as JAR file
-            cmd = [self._java_path] + self._java_opts + ["-jar", str(audiveris_path)]
+            # Check if this is an app bundle (contains multiple JARs)
+            jar_dir = audiveris_path.parent
+            all_jars = list(jar_dir.glob("*.jar"))
+            if len(all_jars) > 1:
+                # App bundle: use -cp with all JARs and main class
+                classpath = str(jar_dir / "*")
+                cmd = [self._java_path] + self._java_opts + ["-cp", classpath, "Audiveris"]
+            else:
+                # Standalone JAR: use -jar
+                cmd = [self._java_path] + self._java_opts + ["-jar", str(audiveris_path)]
         else:
             # Running as executable script
             cmd = [str(audiveris_path)]
@@ -303,7 +312,16 @@ class AudiverisProvider(OmrProvider):
             )
 
         # Read and parse MusicXML
-        music_xml = musicxml_path.read_text(encoding="utf-8")
+        # Handle both .mxl (compressed) and .xml (plain) formats
+        if musicxml_path.suffix.lower() == ".mxl":
+            # MXL is a ZIP archive containing the MusicXML
+            music_xml = self._extract_mxl(musicxml_path)
+        else:
+            # Plain XML file
+            try:
+                music_xml = musicxml_path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                music_xml = musicxml_path.read_text(encoding="latin-1")
 
         # Extract metadata and confidence
         metadata, measure_confidence, uncertain_measures = self._analyze_output(
@@ -354,6 +372,40 @@ class AudiverisProvider(OmrProvider):
                 return files[0]
 
         return None
+
+    def _extract_mxl(self, mxl_path: Path) -> str:
+        """Extract MusicXML content from a compressed .mxl file.
+        
+        MXL files are ZIP archives containing:
+        - META-INF/container.xml (points to the main MusicXML file)
+        - One or more .xml files with the actual MusicXML content
+        """
+        with zipfile.ZipFile(mxl_path, 'r') as zf:
+            # Look for the main MusicXML file
+            # First try to find it via container.xml
+            container_path = "META-INF/container.xml"
+            if container_path in zf.namelist():
+                container = zf.read(container_path).decode("utf-8")
+                # Parse container to find rootfile
+                root = ET.fromstring(container)
+                ns = {"c": "urn:oasis:names:tc:opendocument:xmlns:container"}
+                rootfile = root.find(".//c:rootfile", ns)
+                if rootfile is not None:
+                    full_path = rootfile.get("full-path")
+                    if full_path and full_path in zf.namelist():
+                        return zf.read(full_path).decode("utf-8")
+            
+            # Fallback: find any .xml file that's not in META-INF
+            for name in zf.namelist():
+                if name.endswith(".xml") and not name.startswith("META-INF"):
+                    return zf.read(name).decode("utf-8")
+            
+            # Last resort: find first .xml file
+            for name in zf.namelist():
+                if name.endswith(".xml"):
+                    return zf.read(name).decode("utf-8")
+            
+            raise ValueError("MXL file does not contain any MusicXML content")
 
     def _parse_error(self, stderr: str) -> Optional[str]:
         """Extract meaningful error message from stderr."""

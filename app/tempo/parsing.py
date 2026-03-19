@@ -4,7 +4,12 @@ Tempo event parsing functions.
 Parses tempo-related elements from music21 scores into structured TempoEvent objects.
 """
 
-from typing import List, Optional, Tuple
+from __future__ import annotations
+
+from typing import List, Optional, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from music21 import stream
 
 try:
     from music21 import stream, tempo, expressions

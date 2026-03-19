@@ -361,8 +361,8 @@ def _process_mock_omr(job_id: str, asset_id: str):
     job["status"] = OmrJobStatus.PROCESSING.value
     job["progress"] = 50
 
-    # Generate mock result
-    mock_musicxml = """<?xml version="1.0" encoding="UTF-8"?>
+    # Generate mock result - a simple C major scale
+    mock_musicxml = '''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN"
     "http://www.musicxml.org/dtds/partwise.dtd">
 <score-partwise version="3.1">
@@ -384,12 +384,49 @@ def _process_mock_omr(job_id: str, asset_id: str):
       </attributes>
       <note>
         <pitch><step>C</step><octave>4</octave></pitch>
-        <duration>4</duration>
-        <type>whole</type>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>D</step><octave>4</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>E</step><octave>4</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>F</step><octave>4</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <pitch><step>G</step><octave>4</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>A</step><octave>4</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>B</step><octave>4</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
+      </note>
+      <note>
+        <pitch><step>C</step><octave>5</octave></pitch>
+        <duration>1</duration>
+        <type>quarter</type>
       </note>
     </measure>
   </part>
-</score-partwise>"""
+</score-partwise>'''
 
     job["status"] = OmrJobStatus.COMPLETED.value
     job["progress"] = 100
@@ -397,7 +434,8 @@ def _process_mock_omr(job_id: str, asset_id: str):
         "confidence": 0.85,
         "music_xml": mock_musicxml,
         "measure_confidence": [
-            {"measure_number": 1, "part_index": 0, "confidence": 0.85}
+            {"measure_number": 1, "part_index": 0, "confidence": 0.85},
+            {"measure_number": 2, "part_index": 0, "confidence": 0.83},
         ],
         "uncertain_measures": [],
         "preview_url": None,
@@ -407,7 +445,7 @@ def _process_mock_omr(job_id: str, asset_id: str):
             "key_signature": "C",
             "time_signature": "4/4",
             "tempo": None,
-            "measure_count": 1,
+            "measure_count": 2,
             "part_count": 1,
             "page_count": 1,
         },

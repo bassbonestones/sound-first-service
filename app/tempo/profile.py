@@ -4,7 +4,12 @@ Tempo profile building.
 Builds complete tempo profile from music21 score.
 """
 
-from typing import Dict
+from __future__ import annotations
+
+from typing import Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from music21 import stream
 
 try:
     from music21 import stream

@@ -4,7 +4,12 @@ Main tempo analysis API.
 Provides convenience functions for complete tempo analysis.
 """
 
-from typing import Tuple, Optional
+from __future__ import annotations
+
+from typing import Tuple, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from music21 import stream
 
 try:
     from music21 import stream

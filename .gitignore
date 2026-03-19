@@ -27,6 +27,12 @@ test_audio.py
 *.mid
 node_modules
 .DS_Store
+htmlcov/
+coverage/
+.coverage
+
+# User uploads (generated at runtime)
+uploads/
 
 # Coverage
 .coverage

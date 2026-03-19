@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 High-level audio generation functions.
 

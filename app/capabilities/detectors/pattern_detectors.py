@@ -31,6 +31,22 @@ def detect_compound_intervals(extraction_result: Any, score: Any) -> bool:
 # SCALE FRAGMENT DETECTORS
 # =============================================================================
 
+def _is_stepwise_same_direction(notes: list, start: int, count: int) -> bool:
+    """Check if 'count' consecutive intervals from 'start' are stepwise and same direction."""
+    intervals = []
+    for j in range(count):
+        diff = notes[start+j+1].pitch.midi - notes[start+j].pitch.midi
+        # Must be stepwise (1 or 2 semitones) - check absolute value
+        if abs(diff) not in [1, 2]:
+            return False
+        intervals.append(diff)
+    
+    # All must be same direction (all positive or all negative)
+    if all(i > 0 for i in intervals) or all(i < 0 for i in intervals):
+        return True
+    return False
+
+
 @register_custom_detector("detect_scale_fragment_2")
 def detect_scale_fragment_2(extraction_result: Any, score: Any) -> bool:
     """Detect 2-note scale fragment (stepwise motion)."""
@@ -42,7 +58,7 @@ def detect_scale_fragment_2(extraction_result: Any, score: Any) -> bool:
 
 @register_custom_detector("detect_scale_fragment_3")
 def detect_scale_fragment_3(extraction_result: Any, score: Any) -> bool:
-    """Detect 3-note scale fragment."""
+    """Detect 3-note scale fragment (2 consecutive steps in same direction)."""
     if score is None:
         return len(extraction_result.melodic_intervals) >= 2
     from music21 import note
@@ -50,16 +66,14 @@ def detect_scale_fragment_3(extraction_result: Any, score: Any) -> bool:
     if len(notes) < 3:
         return False
     for i in range(len(notes) - 2):
-        int1 = abs(notes[i+1].pitch.midi - notes[i].pitch.midi)
-        int2 = abs(notes[i+2].pitch.midi - notes[i+1].pitch.midi)
-        if int1 in [1, 2] and int2 in [1, 2]:
+        if _is_stepwise_same_direction(notes, i, 2):
             return True
     return False
 
 
 @register_custom_detector("detect_scale_fragment_4")
 def detect_scale_fragment_4(extraction_result: Any, score: Any) -> bool:
-    """Detect 4-note scale fragment."""
+    """Detect 4-note scale fragment (3 consecutive steps in same direction)."""
     if score is None:
         return False
     from music21 import note
@@ -67,15 +81,14 @@ def detect_scale_fragment_4(extraction_result: Any, score: Any) -> bool:
     if len(notes) < 4:
         return False
     for i in range(len(notes) - 3):
-        steps = [abs(notes[i+j+1].pitch.midi - notes[i+j].pitch.midi) for j in range(3)]
-        if all(s in [1, 2] for s in steps):
+        if _is_stepwise_same_direction(notes, i, 3):
             return True
     return False
 
 
 @register_custom_detector("detect_scale_fragment_5")
 def detect_scale_fragment_5(extraction_result: Any, score: Any) -> bool:
-    """Detect 5-note scale fragment."""
+    """Detect 5-note scale fragment (4 consecutive steps in same direction)."""
     if score is None:
         return False
     from music21 import note
@@ -83,15 +96,14 @@ def detect_scale_fragment_5(extraction_result: Any, score: Any) -> bool:
     if len(notes) < 5:
         return False
     for i in range(len(notes) - 4):
-        steps = [abs(notes[i+j+1].pitch.midi - notes[i+j].pitch.midi) for j in range(4)]
-        if all(s in [1, 2] for s in steps):
+        if _is_stepwise_same_direction(notes, i, 4):
             return True
     return False
 
 
 @register_custom_detector("detect_scale_fragment_6")
 def detect_scale_fragment_6(extraction_result: Any, score: Any) -> bool:
-    """Detect 6-note scale fragment."""
+    """Detect 6-note scale fragment (5 consecutive steps in same direction)."""
     if score is None:
         return False
     from music21 import note
@@ -99,15 +111,14 @@ def detect_scale_fragment_6(extraction_result: Any, score: Any) -> bool:
     if len(notes) < 6:
         return False
     for i in range(len(notes) - 5):
-        steps = [abs(notes[i+j+1].pitch.midi - notes[i+j].pitch.midi) for j in range(5)]
-        if all(s in [1, 2] for s in steps):
+        if _is_stepwise_same_direction(notes, i, 5):
             return True
     return False
 
 
 @register_custom_detector("detect_scale_fragment_7")
 def detect_scale_fragment_7(extraction_result: Any, score: Any) -> bool:
-    """Detect 7-note scale fragment (full scale)."""
+    """Detect 7-note scale fragment (6 consecutive steps in same direction)."""
     if score is None:
         return False
     from music21 import note
@@ -115,7 +126,6 @@ def detect_scale_fragment_7(extraction_result: Any, score: Any) -> bool:
     if len(notes) < 7:
         return False
     for i in range(len(notes) - 6):
-        steps = [abs(notes[i+j+1].pitch.midi - notes[i+j].pitch.midi) for j in range(6)]
-        if all(s in [1, 2] for s in steps):
+        if _is_stepwise_same_direction(notes, i, 6):
             return True
     return False

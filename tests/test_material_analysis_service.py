@@ -345,7 +345,8 @@ class TestAnalyzeMusicxml:
         service.soft_gate_calculator = Mock()
         
         mock_result = MockExtractionResult()
-        service.analyzer.analyze.return_value = mock_result
+        mock_score = Mock()
+        service.analyzer.analyze_with_score.return_value = (mock_result, mock_score)
         service.analyzer.get_capability_names.return_value = ["cap1"]
         
         with patch.object(service, '_compute_soft_gates', return_value={"tonal": 2}):
@@ -365,7 +366,8 @@ class TestAnalyzeMusicxml:
         
         mock_result = MockExtractionResult()
         mock_result.title = "Extraction Title"
-        service.analyzer.analyze.return_value = mock_result
+        mock_score = Mock()
+        service.analyzer.analyze_with_score.return_value = (mock_result, mock_score)
         service.analyzer.get_capability_names.return_value = []
         
         with patch.object(service, '_compute_soft_gates', return_value={}):

@@ -57,6 +57,19 @@ class MusicXMLAnalyzer:
         Returns:
             ExtractionResult with all extracted information
         """
+        result, _ = self.analyze_with_score(musicxml_content)
+        return result
+    
+    def analyze_with_score(self, musicxml_content: str) -> Tuple[ExtractionResult, Any]:
+        """
+        Analyze MusicXML content and return both result and parsed score.
+        
+        Args:
+            musicxml_content: MusicXML string
+            
+        Returns:
+            Tuple of (ExtractionResult, music21 Score object)
+        """
         result = ExtractionResult()
         
         # Parse the MusicXML
@@ -94,7 +107,7 @@ class MusicXMLAnalyzer:
         # Count measures
         result.measure_count = len(score.parts[0].getElementsByClass('Measure')) if score.parts else 0
         
-        return result
+        return result, score
     
     def get_capability_names(self, result: ExtractionResult) -> List[str]:
         """

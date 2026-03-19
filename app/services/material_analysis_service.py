@@ -79,16 +79,16 @@ class MaterialAnalysisService:
         Returns:
             AnalysisResult with all analysis data
         """
-        # Basic analysis
-        result = self.analyzer.analyze(musicxml_content)
+        # Basic analysis - get both result and score for custom detector use
+        result, score = self.analyzer.analyze_with_score(musicxml_content)
         basic_capabilities = self.analyzer.get_capability_names(result)
         
         # Soft gate metrics
         soft_gate_data = self._compute_soft_gates(musicxml_content)
         
-        # Capability detection via registry
+        # Capability detection via registry (pass score for custom detectors)
         detected_capabilities, capabilities_by_domain = self._detect_capabilities(
-            result, basic_capabilities
+            result, basic_capabilities, score
         )
         
         # Unified scores
@@ -172,14 +172,15 @@ class MaterialAnalysisService:
     def _detect_capabilities(
         self, 
         result: ExtractionResult, 
-        fallback_capabilities: List[str]
+        fallback_capabilities: List[str],
+        score: Any = None
     ) -> Tuple[List[str], Dict[str, List[str]]]:
         """Detect capabilities using registry."""
         try:
             self._ensure_registry_loaded()
             if self.engine is None or self.registry is None:
                 return fallback_capabilities, {"unknown": fallback_capabilities}
-            detected_capabilities = list(self.engine.detect_capabilities(result))
+            detected_capabilities = list(self.engine.detect_capabilities(result, score))
             
             # Build domain lookup
             domain_lookup: Dict[str, str] = {}

@@ -17,7 +17,8 @@ from app.schemas import (
     BatchReanalyzeResponse,
 )
 from app.schemas.material_schemas import (
-    MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut, AnalysisPreviewOut
+    MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut, AnalysisPreviewOut,
+    LearningPathRequest, LearningPathResponse
 )
 from app.services import MaterialService, get_material_service
 
@@ -269,3 +270,183 @@ def reanalyze_all_materials(
         materials_failed=result.materials_failed,
         errors=result.errors,
     )
+
+
+# === Learning Path Generation ===
+
+
+@router.post("/learning-path", response_model=LearningPathResponse)
+def generate_learning_path(
+    data: LearningPathRequest = Body(...),
+    db: Session = Depends(get_db)
+) -> LearningPathResponse:
+    """
+    Generate a learning path from capabilities found in an imported score.
+    
+    Takes capability names detected in the score and the user ID,
+    returns an ordered list of capabilities the user needs to learn,
+    sorted by prerequisites (learn prerequisites first).
+    
+    Args:
+        capability_names: List of capability names from the imported score
+        user_id: User ID to check mastery against
+    
+    Returns:
+        Learning path with capabilities ordered by prerequisite depth,
+        indicating which capabilities the user already knows and which
+        they need to learn.
+    """
+    from app.models.capability_schema import Capability, UserCapability
+    from app.models.core import User
+    import json
+    from collections import defaultdict
+    
+    # Verify user exists
+    user = db.query(User).filter_by(id=data.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get all requested capabilities
+    capabilities = db.query(Capability).filter(
+        Capability.name.in_(data.capability_names)
+    ).all()
+    
+    cap_by_name = {c.name: c for c in capabilities}
+    cap_by_id = {c.id: c for c in capabilities}
+    
+    # Get user's mastered capabilities (all, not just those in the score)
+    user_caps = db.query(UserCapability).filter(
+        UserCapability.user_id == data.user_id,
+        UserCapability.is_active == True,
+        UserCapability.mastered_at != None
+    ).all()
+    mastered_cap_ids = {uc.capability_id for uc in user_caps}
+    
+    # Also load all capabilities referenced as prerequisites
+    # (we might need them even if not in the original list)
+    all_prereq_ids: set = set()
+    for cap in capabilities:
+        if cap.prerequisite_ids:
+            prereq_ids = json.loads(str(cap.prerequisite_ids))
+            all_prereq_ids.update(prereq_ids)
+    
+    # Load any prerequisite capabilities not already loaded
+    missing_prereq_ids = all_prereq_ids - set(cap_by_id.keys())
+    if missing_prereq_ids:
+        prereq_caps = db.query(Capability).filter(
+            Capability.id.in_(missing_prereq_ids)
+        ).all()
+        for pc in prereq_caps:
+            cap_by_id[pc.id] = pc
+            cap_by_name[pc.name] = pc
+            
+        # Recursively load prerequisites of prerequisites
+        def load_all_prereqs(cap_ids: set, loaded: dict) -> None:
+            new_ids: set = set()
+            for cid in cap_ids:
+                if cid in loaded and loaded[cid].prerequisite_ids:
+                    prereqs = json.loads(str(loaded[cid].prerequisite_ids))
+                    for pid in prereqs:
+                        if pid not in loaded:
+                            new_ids.add(pid)
+            if new_ids:
+                new_caps = db.query(Capability).filter(Capability.id.in_(new_ids)).all()
+                for nc in new_caps:
+                    loaded[nc.id] = nc
+                    cap_by_name[nc.name] = nc
+                load_all_prereqs(new_ids, loaded)
+        
+        load_all_prereqs(missing_prereq_ids, cap_by_id)
+    
+    # Calculate depth for each capability (distance from no unmastered prerequisites)
+    def calculate_depth(cap_id: int, depth_cache: dict, visited: set) -> int:
+        """Calculate prerequisite depth (0 = no unmastered prereqs)."""
+        if cap_id in depth_cache:
+            return depth_cache[cap_id]
+        
+        if cap_id in visited:
+            return 0  # Circular dependency - treat as 0
+        
+        visited.add(cap_id)
+        
+        cap = cap_by_id.get(cap_id)
+        if not cap or not cap.prerequisite_ids:
+            depth_cache[cap_id] = 0
+            return 0
+        
+        prereq_ids = json.loads(str(cap.prerequisite_ids))
+        max_prereq_depth = 0
+        
+        for prereq_id in prereq_ids:
+            # Only count unmastered prerequisites
+            if prereq_id not in mastered_cap_ids:
+                prereq_depth = calculate_depth(prereq_id, depth_cache, visited)
+                max_prereq_depth = max(max_prereq_depth, prereq_depth + 1)
+        
+        depth_cache[cap_id] = max_prereq_depth
+        return max_prereq_depth
+    
+    depth_cache: dict = {}
+    
+    # Build learning path
+    learning_path = []
+    mastered_count = 0
+    
+    # Include original score capabilities AND their unmastered prerequisites
+    caps_to_include = set(cap_by_name.keys())
+    for cap in capabilities:
+        if cap.prerequisite_ids:
+            prereq_ids = json.loads(str(cap.prerequisite_ids))
+            for pid in prereq_ids:
+                if pid not in mastered_cap_ids and pid in cap_by_id:
+                    caps_to_include.add(cap_by_id[pid].name)
+    
+    for cap_name in caps_to_include:
+        cap = cap_by_name.get(cap_name)
+        if not cap:
+            continue
+        
+        is_mastered = cap.id in mastered_cap_ids
+        if is_mastered:
+            mastered_count += 1
+        
+        # Get prerequisite names
+        prereq_names = []
+        if cap.prerequisite_ids:
+            prereq_ids = json.loads(str(cap.prerequisite_ids))
+            prereq_names = [
+                cap_by_id[pid].name 
+                for pid in prereq_ids 
+                if pid in cap_by_id
+            ]
+        
+        depth = calculate_depth(cap.id, depth_cache, set())
+        
+        learning_path.append({
+            "id": cap.id,
+            "name": cap.name,
+            "display_name": cap.display_name,
+            "domain": cap.domain,
+            "difficulty_tier": cap.difficulty_tier or 1,
+            "is_mastered": is_mastered,
+            "prerequisite_names": prereq_names,
+            "depth": depth,
+        })
+    
+    # Sort by: not mastered first, then by depth (lower first), then by name
+    learning_path.sort(key=lambda x: (x["is_mastered"], x["depth"], x["name"]))
+    
+    # Group by domain for UI convenience
+    path_by_domain: dict = defaultdict(list)
+    for cap_data in learning_path:
+        if not cap_data["is_mastered"]:
+            path_by_domain[cap_data["domain"]].append(cap_data)
+    
+    return {  # type: ignore[return-value]
+        "user_id": data.user_id,
+        "total_capabilities_in_score": len(data.capability_names),
+        "capabilities_already_mastered": mastered_count,
+        "capabilities_to_learn": len([c for c in learning_path if not c["is_mastered"]]),
+        "learning_path": learning_path,
+        "path_by_domain": dict(path_by_domain),
+    }
