@@ -591,6 +591,18 @@ def get_transposed_scale_spellings_descending(
 # Major scale pitch classes (semitones from root)
 MAJOR_SCALE_PITCH_CLASSES = {0, 2, 4, 5, 7, 9, 11}  # 1, 2, 3, 4, 5, 6, 7
 
+# Chromatic note resolution targets for leading tone spelling
+# Maps pitch class -> (sharp_spelling, flat_spelling, sharp_target_letter, flat_target_letter)
+# Sharp spelling is used when resolving up to sharp_target_letter
+# Flat spelling is used when resolving down to flat_target_letter
+CHROMATIC_RESOLUTION_MAP = {
+    1: ("C#", "Db", "D", "C"),   # C#→D (up), Db→C (down)
+    3: ("D#", "Eb", "E", "D"),   # D#→E (up), Eb→D (down)
+    6: ("F#", "Gb", "G", "F"),   # F#→G (up), Gb→F (down)
+    8: ("G#", "Ab", "A", "G"),   # G#→A (up), Ab→G (down)
+    10: ("A#", "Bb", "B", "A"),  # A#→B (up), Bb→A (down)
+}
+
 
 def get_chromatic_pitch_names(
     midi_notes: List[int],
@@ -603,6 +615,12 @@ def get_chromatic_pitch_names(
     - Notes leading UP use sharps (e.g., F# leading to G)
     - Notes leading DOWN use flats (e.g., Eb leading to D)
     - Scale tones are spelled according to the key signature
+    
+    Resolution is octave-agnostic: we look at the letter name of the target
+    note, not its absolute pitch. So D# leading to E5 or E3 both use D#.
+    
+    Groups of consecutive enharmonic notes (e.g., multiple D#/Eb across
+    octaves) are all spelled the same based on where the group resolves.
     
     Args:
         midi_notes: List of MIDI note numbers.
@@ -641,57 +659,92 @@ def get_chromatic_pitch_names(
     # Calculate which pitch classes are in the major scale for this key
     scale_pitch_classes = {(key_semitones + pc) % 12 for pc in MAJOR_SCALE_PITCH_CLASSES}
     
-    result = []
-    for i, midi in enumerate(midi_notes):
+    # Helper to get letter name from MIDI note (for resolution target checking)
+    def get_letter_from_midi(midi: int) -> str:
+        """Get the natural letter name for a MIDI note's pitch class."""
+        pc = midi % 12
+        # Map pitch class to natural letter (or closest)
+        PC_TO_LETTER = {
+            0: "C", 1: "C", 2: "D", 3: "D", 4: "E", 5: "F",
+            6: "F", 7: "G", 8: "G", 9: "A", 10: "A", 11: "B"
+        }
+        return PC_TO_LETTER[pc]
+    
+    # First pass: identify scale tones vs chromatic tones
+    result = [None] * len(midi_notes)
+    chromatic_groups = []  # List of (start_idx, end_idx, pitch_class) for groups
+    
+    i = 0
+    while i < len(midi_notes):
+        midi = midi_notes[i]
         pitch_class = midi % 12
         octave = (midi // 12) - 1
         
         # If it's a scale tone, use standard key-aware spelling
         if pitch_class in scale_pitch_classes:
-            result.append(midi_to_pitch_name_in_key(midi, effective_key))
+            result[i] = midi_to_pitch_name_in_key(midi, effective_key)
+            i += 1
             continue
         
-        # It's a chromatic note - determine direction from next note
-        # Default: look at the next note to determine if we're going up or down
-        use_sharp = True  # Default to sharp if we can't determine
+        # It's a chromatic note - find the extent of consecutive enharmonic notes
+        group_start = i
+        group_pc = pitch_class
+        while i < len(midi_notes) and (midi_notes[i] % 12) == group_pc:
+            i += 1
+        group_end = i  # exclusive
         
-        if i < len(midi_notes) - 1:
-            next_midi = midi_notes[i + 1]
-            if next_midi > midi:
-                # Going up - use sharp (chromatic leading tone up)
-                use_sharp = True
-            elif next_midi < midi:
-                # Going down - use flat (chromatic leading tone down)
-                use_sharp = False
+        chromatic_groups.append((group_start, group_end, group_pc))
+    
+    # Second pass: resolve each chromatic group based on the NEXT non-enharmonic note
+    for group_start, group_end, group_pc in chromatic_groups:
+        # Look ahead to find the resolution target
+        resolution_target_letter = None
+        for j in range(group_end, len(midi_notes)):
+            target_pc = midi_notes[j] % 12
+            if target_pc != group_pc:
+                # Found a different note - get its letter
+                # For chromatic notes, we need the "expected" letter based on pitch class
+                # For scale tones, we can use the spelled result
+                if result[j] is not None:
+                    resolution_target_letter = result[j][0]  # First char is letter
+                else:
+                    resolution_target_letter = get_letter_from_midi(midi_notes[j])
+                break
+        
+        # If no resolution found ahead, look backward
+        if resolution_target_letter is None:
+            for j in range(group_start - 1, -1, -1):
+                target_pc = midi_notes[j] % 12
+                if target_pc != group_pc:
+                    if result[j] is not None:
+                        resolution_target_letter = result[j][0]
+                    else:
+                        resolution_target_letter = get_letter_from_midi(midi_notes[j])
+                    break
+        
+        # Determine spelling based on resolution target
+        if group_pc in CHROMATIC_RESOLUTION_MAP:
+            sharp_name, flat_name, sharp_target, flat_target = CHROMATIC_RESOLUTION_MAP[group_pc]
+            
+            if resolution_target_letter == sharp_target:
+                # Resolving up - use sharp
+                chosen_name = sharp_name
+            elif resolution_target_letter == flat_target:
+                # Resolving down - use flat
+                chosen_name = flat_name
             else:
-                # Same note - look at previous note for context
-                if i > 0:
-                    prev_midi = midi_notes[i - 1]
-                    use_sharp = midi > prev_midi
-        elif i > 0:
-            # Last note - look at previous to infer direction
-            prev_midi = midi_notes[i - 1]
-            use_sharp = midi > prev_midi
-        
-        # Get the pitch name based on direction
-        # Map pitch class to sharp or flat spelling
-        CHROMATIC_SHARP_NAMES = {
-            1: "C#", 3: "D#", 6: "F#", 8: "G#", 10: "A#"
-        }
-        CHROMATIC_FLAT_NAMES = {
-            1: "Db", 3: "Eb", 6: "Gb", 8: "Ab", 10: "Bb"
-        }
-        
-        if use_sharp and pitch_class in CHROMATIC_SHARP_NAMES:
-            name = CHROMATIC_SHARP_NAMES[pitch_class]
-        elif not use_sharp and pitch_class in CHROMATIC_FLAT_NAMES:
-            name = CHROMATIC_FLAT_NAMES[pitch_class]
+                # Ambiguous - default to sharp
+                chosen_name = sharp_name
         else:
-            # Fallback for any edge cases
+            # Not a standard chromatic pitch class - use fallback
+            midi = midi_notes[group_start]
             name = midi_to_pitch_name_in_key(midi, effective_key)
-            # Strip octave if present (we'll add it below)
-            name = ''.join(c for c in name if not c.isdigit())
+            chosen_name = ''.join(c for c in name if not c.isdigit())
         
-        result.append(f"{name}{octave}")
+        # Apply the chosen spelling to all notes in the group
+        for idx in range(group_start, group_end):
+            midi = midi_notes[idx]
+            octave = (midi // 12) - 1
+            result[idx] = f"{chosen_name}{octave}"
     
     return result

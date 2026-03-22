@@ -32,6 +32,7 @@ from .scale_definitions import (
     get_scale_intervals_descending,
     DIRECTION_AWARE_SPELLING_SCALES,
     get_chromatic_pitch_names,
+    get_scale_note_count,
 )
 from .tempo_definitions import (
     get_tempo_bounds,
@@ -350,12 +351,28 @@ class GenerationService:
                         raise
                     # Not a recognized scale type, allow it
             
+            # Validate blocked scale types
+            blocked_scales = constraints.get("blocked_scale_types", [])
+            if blocked_scales and request.definition in blocked_scales:
+                raise ValueError(
+                    f"Pattern '{pattern.value}' is not compatible with "
+                    f"scale type '{request.definition}'. "
+                    "This pattern requires a diatonic scale structure."
+                )
+            
             # Apply octave limit from constraints
             max_octaves = constraints.get("max_octaves")
             if max_octaves is not None:
-                # Calculate notes per octave (typically 8 for 7-note scales)
-                # For a 1-octave scale, we have 8 notes (do to do)
-                max_notes = max_octaves * 7 + 1
+                # Calculate notes per octave based on actual scale type
+                # e.g., diatonic = 7 notes/octave, chromatic = 12, pentatonic = 5
+                try:
+                    scale_type = ScaleType(request.definition)
+                    notes_per_octave = get_scale_note_count(scale_type)
+                except ValueError:
+                    notes_per_octave = 7  # Default to diatonic
+                
+                # For N octaves: N * notes_per_octave + 1 (include top do)
+                max_notes = max_octaves * notes_per_octave + 1
                 pitches = pitches[:max_notes]
             
             # For asymmetric scales, generate descending pitches if needed

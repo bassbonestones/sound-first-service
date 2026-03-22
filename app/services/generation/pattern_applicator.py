@@ -239,7 +239,159 @@ def _in_7ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = No
 
 
 def _in_octaves(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
-    return _in_interval(pitches, 8, ascending, desc)
+    """Play scale in octaves (diatonic) or P5 intervals (chromatic).
+    
+    For diatonic (7-note) scales:
+    - Octave pairs (low-high) ascending, then (high-low) descending
+    - Ascending: do-do', re-re', ..., ti-ti', do''
+    - Descending: do''-do', ti'-ti, ..., re'-re, do
+    
+    For chromatic (12-note) scales:
+    - Uses _in_interval(8) for P5 pairs (skip 7 = 7 semitones)
+    - The separate in_13ths pattern handles actual chromatic octaves
+    
+    For 1-octave diatonic input, extends pitches upward only.
+    """
+    n = len(pitches)
+    if n < 7:
+        return list(pitches)
+    
+    # Detect scale size by finding the first octave (same pitch class)
+    scale_size = 7  # default
+    for i in range(5, min(13, n)):
+        if (pitches[i] - pitches[0]) % 12 == 0:
+            scale_size = i
+            break
+    
+    # For chromatic (12-note) scales, delegate to _in_interval(8) for P5
+    if scale_size == 12:
+        return _in_interval(pitches, 8, ascending, desc)
+    
+    # For diatonic scales, use special octave-pair pattern
+    # Extend pitches upward to have enough for octave pairs
+    extended = list(pitches)
+    intervals = [pitches[i+1] - pitches[i] for i in range(min(scale_size, n-1))]
+    while len(extended) < scale_size * 2 + 1:
+        interval_idx = (len(extended) - 1) % len(intervals)
+        extended.append(extended[-1] + intervals[interval_idx])
+    
+    n = len(extended)
+    
+    # Find top tonic (highest note that shares pitch class with root)
+    top_tonic_idx = n - 1
+    while top_tonic_idx > 0 and (extended[top_tonic_idx] - extended[0]) % 12 != 0:
+        top_tonic_idx -= 1
+    
+    # middle_tonic_idx = one octave up from bottom
+    middle_tonic_idx = scale_size
+    
+    result = []
+    
+    # Ascending: octave pairs (low-high) for scale degrees 0 through scale_size-1
+    for pos in range(scale_size):
+        if pos + scale_size < n:
+            result.append(extended[pos])
+            result.append(extended[pos + scale_size])
+    
+    # Turnaround: step up to top tonic (also first note of descending)
+    result.append(extended[top_tonic_idx])
+    
+    # First descending pair: top_tonic already added, add middle_tonic
+    result.append(extended[middle_tonic_idx])
+    
+    # Remaining descending pairs (high-low)
+    for pos in range(scale_size - 1, 0, -1):
+        upper_idx = pos + scale_size
+        lower_idx = pos
+        if upper_idx < n:
+            result.append(extended[upper_idx])
+            result.append(extended[lower_idx])
+    
+    # End on bottom tonic
+    result.append(extended[0])
+    
+    return result
+
+
+def _in_9ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Interval 9 - for chromatic: m6 (8 semitones)."""
+    return _in_interval(pitches, 9, ascending, desc)
+
+
+def _in_10ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Interval 10 - for chromatic: M6 (9 semitones)."""
+    return _in_interval(pitches, 10, ascending, desc)
+
+
+def _in_11ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Interval 11 - for chromatic: m7 (10 semitones)."""
+    return _in_interval(pitches, 11, ascending, desc)
+
+
+def _in_12ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Interval 12 - for chromatic: M7 (11 semitones)."""
+    return _in_interval(pitches, 12, ascending, desc)
+
+
+def _in_13ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Chromatic Octaves - octave pairs with turnaround like diatonic.
+    
+    For chromatic scales, plays actual octave pairs:
+    - Ascending: C-C', C#-C#', D-D', ..., B-B', C''
+    - Descending: C''-C', B'-B, ..., C#'-C#, C
+    
+    Uses same turnaround structure as diatonic in_octaves.
+    """
+    n = len(pitches)
+    if n < 12:
+        return list(pitches)
+    
+    scale_size = 12  # chromatic
+    interval = 12    # actual octave
+    
+    # Extend pitches upward to have enough for octave pairs
+    extended = list(pitches)
+    intervals = [pitches[i+1] - pitches[i] for i in range(min(scale_size, n-1))]
+    while len(extended) < scale_size * 2 + 1:
+        interval_idx = (len(extended) - 1) % len(intervals)
+        extended.append(extended[-1] + intervals[interval_idx])
+    
+    n = len(extended)
+    
+    # Find top tonic (highest note that shares pitch class with root)
+    top_tonic_idx = n - 1
+    while top_tonic_idx > 0 and (extended[top_tonic_idx] - extended[0]) % 12 != 0:
+        top_tonic_idx -= 1
+    
+    # middle_tonic_idx = one octave up from bottom
+    middle_tonic_idx = scale_size
+    
+    result = []
+    
+    # Ascending: octave pairs (low-high) for scale degrees 0 through scale_size-1
+    for pos in range(scale_size):
+        if pos + interval < n:
+            result.append(extended[pos])
+            result.append(extended[pos + interval])
+    
+    # Turnaround: step up to top tonic (also first note of descending)
+    result.append(extended[top_tonic_idx])
+    
+    # First descending pair: top_tonic already added, add middle_tonic
+    result.append(extended[middle_tonic_idx])
+    
+    # Remaining descending pairs (high-low)
+    for pos in range(scale_size - 1, 0, -1):
+        upper_idx = pos + interval
+        lower_idx = pos
+        if upper_idx < n:
+            result.append(extended[upper_idx])
+            result.append(extended[lower_idx])
+    
+    # End on bottom tonic
+    result.append(extended[0])
+    
+    return result
 
 
 def _groups_of_n(pitches: List[int], n: int, ascending: bool, _desc: Optional[List[int]] = None) -> List[int]:
@@ -329,6 +481,31 @@ def _groups_of_6(pitches: List[int], ascending: bool, desc: Optional[List[int]] 
 
 def _groups_of_7(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
     return _groups_of_n(pitches, 7, ascending, desc)
+
+
+def _groups_of_8(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Groups of 8 - for diminished scales and larger."""
+    return _groups_of_n(pitches, 8, ascending, desc)
+
+
+def _groups_of_9(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Groups of 9."""
+    return _groups_of_n(pitches, 9, ascending, desc)
+
+
+def _groups_of_10(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Groups of 10."""
+    return _groups_of_n(pitches, 10, ascending, desc)
+
+
+def _groups_of_11(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Groups of 11."""
+    return _groups_of_n(pitches, 11, ascending, desc)
+
+
+def _groups_of_12(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """Groups of 12 - for chromatic scale."""
+    return _groups_of_n(pitches, 12, ascending, desc)
 
 
 def _diatonic_triads(pitches: List[int], ascending: bool, _desc: Optional[List[int]] = None) -> List[int]:
@@ -494,16 +671,17 @@ def _broken_chords(pitches: List[int], ascending: bool, _desc: Optional[List[int
 
 
 def _broken_thirds_neighbor(pitches: List[int], ascending: bool, _desc: Optional[List[int]] = None) -> List[int]:
-    """Broken thirds with neighbor pattern (1 octave only).
+    """Broken thirds with neighbor pattern.
     
     Pattern: do mi fa re | mi sol la fa | sol ti do la | ti re mi do |
+             [stops when cell ends on do'] then reverses:
              mi do ti re | do la sol ti | la fa mi sol | fa re do
     
     Ascending cell: [+0, +2, +3, +1] stepping by 2
     Descending cell: [+0, -2, -3, -1] stepping by 2
     
-    Goes up to "mi above do", repeats that mi to turn around, comes back down to tonic.
-    This pattern only works with 1 octave (8 notes for 7-note scales).
+    The pattern continues ascending until a cell ends on the octave (do'),
+    then reverses direction and descends back down to the tonic.
     """
     result = []
     n = len(pitches)
@@ -511,33 +689,77 @@ def _broken_thirds_neighbor(pitches: List[int], ascending: bool, _desc: Optional
     if n < 4:
         return pitches.copy()
     
-    # Extend scale by 2 degrees to reach "mi above do"
+    # Extend scale - add enough notes above to allow pattern completion
     extended = list(pitches)
-    if n >= 2:
-        interval_1 = pitches[1] - pitches[0]  # do-re interval
-        extended.append(pitches[-1] + interval_1)  # re above top
-    if n >= 3:
-        interval_2 = pitches[2] - pitches[1]  # re-mi interval
-        extended.append(extended[-1] + interval_2)  # mi above top
+    intervals = [pitches[i+1] - pitches[i] for i in range(n-1)]
+    
+    for i in range(3):
+        interval_idx = i % len(intervals)
+        extended.append(extended[-1] + intervals[interval_idx])
     
     n_ext = len(extended)
-    mi_index = n_ext - 1  # mi is the last extended note
+    octave_idx = n - 1  # Index of the octave (do') in original scale
+    octave_pitch = pitches[-1]
     
     # Ascending pass: step by 2, cells of [+0, +2, +3, +1]
+    # Continue until the cell's last note (position +1) is the octave
     i = 0
-    while i + 3 <= mi_index:
+    last_ascending_idx = 0
+    while i + 3 < n_ext:
         result.extend([extended[i], extended[i + 2], extended[i + 3], extended[i + 1]])
+        last_ascending_idx = max(last_ascending_idx, i + 3)
+        
+        # Check if this cell ended on the octave
+        if extended[i + 1] >= octave_pitch:
+            break
+        
+        # Check if next step would overshoot the octave
+        # If so, do one more cell that ends on the octave
+        next_i = i + 2
+        if next_i + 1 > octave_idx and i + 1 < octave_idx:
+            # Need an intermediate cell ending on octave_idx
+            final_i = octave_idx - 1
+            if final_i + 3 < n_ext:
+                cell = [extended[final_i], extended[final_i + 2], 
+                        extended[final_i + 3], extended[final_i + 1]]
+                # Skip first note if it duplicates last output
+                start_idx = 1 if result and cell[0] == result[-1] else 0
+                result.extend(cell[start_idx:])
+                last_ascending_idx = max(last_ascending_idx, final_i + 3)
+            break
+        
         i += 2
     
-    # Descending starts from mi
-    i = mi_index
-    while i - 3 > 0:
-        result.extend([extended[i], extended[i - 2], extended[i - 3], extended[i - 1]])
+    # Descending pass: start from the highest note reached, go back down
+    # Cell pattern: [+0, -2, -3, -1] stepping by -2
+    i = last_ascending_idx
+    tonic = pitches[0]
+    while i - 3 >= 0:
+        cell = [extended[i], extended[i - 2], extended[i - 3], extended[i - 1]]
+        
+        # Output cell notes, but stop at or before tonic
+        for note in cell:
+            result.append(note)
+            if note <= tonic:
+                return result
+        
         i -= 2
     
-    # Final partial cell ending on tonic (index 0)
-    if i >= 3:
-        result.extend([extended[i], extended[i - 2], extended[i - 3]])
+    # If stepping by 2 skipped the cell containing tonic, add it now
+    # Find i where i-3=0 (cell includes index 0 = tonic)
+    if i < 3 and 3 - 3 >= 0:
+        i = 3
+        cell = [extended[i], extended[i - 2], extended[i - 3], extended[i - 1]]
+        # Skip first note if it duplicates the last note we output
+        start_idx = 1 if result and cell[0] == result[-1] else 0
+        for note in cell[start_idx:]:
+            result.append(note)
+            if note <= tonic:
+                return result
+    
+    # Make sure we end on tonic if not already there
+    if result[-1] != tonic:
+        result.append(tonic)
     
     return result
 
@@ -556,11 +778,21 @@ _SCALE_PATTERN_MAP = {
     ScalePattern.IN_6THS: _in_6ths,
     ScalePattern.IN_7THS: _in_7ths,
     ScalePattern.IN_OCTAVES: _in_octaves,
+    ScalePattern.IN_9THS: _in_9ths,
+    ScalePattern.IN_10THS: _in_10ths,
+    ScalePattern.IN_11THS: _in_11ths,
+    ScalePattern.IN_12THS: _in_12ths,
+    ScalePattern.IN_13THS: _in_13ths,
     ScalePattern.GROUPS_OF_3: _groups_of_3,
     ScalePattern.GROUPS_OF_4: _groups_of_4,
     ScalePattern.GROUPS_OF_5: _groups_of_5,
     ScalePattern.GROUPS_OF_6: _groups_of_6,
     ScalePattern.GROUPS_OF_7: _groups_of_7,
+    ScalePattern.GROUPS_OF_8: _groups_of_8,
+    ScalePattern.GROUPS_OF_9: _groups_of_9,
+    ScalePattern.GROUPS_OF_10: _groups_of_10,
+    ScalePattern.GROUPS_OF_11: _groups_of_11,
+    ScalePattern.GROUPS_OF_12: _groups_of_12,
     ScalePattern.DIATONIC_TRIADS: _diatonic_triads,
     ScalePattern.DIATONIC_7THS: _diatonic_7ths,
     ScalePattern.BROKEN_CHORDS: _broken_chords,

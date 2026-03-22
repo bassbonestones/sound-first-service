@@ -545,12 +545,15 @@ class TestHelperFunctions:
 
     def test_get_supported_scale_patterns(self) -> None:
         patterns = get_supported_scale_patterns()
-        assert len(patterns) == 21  # All 21 scale patterns
+        assert len(patterns) == 31  # All 31 scale patterns (includes extended intervals and groups)
         assert ScalePattern.IN_3RDS in patterns
         assert ScalePattern.GROUPS_OF_4 in patterns
         assert ScalePattern.PYRAMID_ASCEND in patterns
         assert ScalePattern.PYRAMID_DESCEND in patterns
         assert ScalePattern.BROKEN_THIRDS_NEIGHBOR in patterns
+        # Verify new extended patterns
+        assert ScalePattern.IN_13THS in patterns
+        assert ScalePattern.GROUPS_OF_12 in patterns
 
     def test_get_supported_arpeggio_patterns(self) -> None:
         patterns = get_supported_arpeggio_patterns()
