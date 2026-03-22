@@ -22,6 +22,7 @@ from app.routes import (
     teaching_modules_router,
     admin_router,
     imports_router,
+    generation_router,
 )
 import logging
 import traceback
@@ -98,6 +99,10 @@ tags_metadata = [
     {
         "name": "admin-engine",
         "description": "Admin: Session engine configuration and tuning.",
+    },
+    {
+        "name": "generation",
+        "description": "Dynamic music content generation with customizable parameters.",
     },
 ]
 
@@ -298,4 +303,5 @@ app.include_router(users_router)
 app.include_router(teaching_modules_router)
 app.include_router(admin_router)
 app.include_router(imports_router)
+app.include_router(generation_router)
 

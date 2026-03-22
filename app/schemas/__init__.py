@@ -51,6 +51,24 @@ from .admin_schemas import (
     UserSoftGateStateReset,
 )
 
+from .generation_schemas import (
+    GenerationType,
+    ScaleType,
+    ArpeggioType,
+    ScalePattern,
+    ArpeggioPattern,
+    RhythmType,
+    DynamicType,
+    ArticulationType,
+    MusicalKey,
+    CANONICAL_KEYS,
+    RangeSpec,
+    GenerationRequest,
+    PitchEvent,
+    GenerationResponse,
+    GenerationPreview,
+)
+
 from .teaching_module_schemas import (
     ModuleStatus,
     LessonStatus,
@@ -113,4 +131,20 @@ __all__ = [
     "SoftGateRuleCreate",
     "UserSoftGateStateUpdate",
     "UserSoftGateStateReset",
+    # Generation schemas
+    "GenerationType",
+    "ScaleType",
+    "ArpeggioType",
+    "ScalePattern",
+    "ArpeggioPattern",
+    "RhythmType",
+    "DynamicType",
+    "ArticulationType",
+    "MusicalKey",
+    "CANONICAL_KEYS",
+    "RangeSpec",
+    "GenerationRequest",
+    "PitchEvent",
+    "GenerationResponse",
+    "GenerationPreview",
 ]
