@@ -20,6 +20,8 @@ from app.schemas.generation_schemas import (
     ScaleType,
     ArpeggioType,
     SCALE_PATTERN_CONSTRAINTS,
+    WHOLE_NOTE_PATTERNS,
+    HALF_NOTE_PATTERNS,
 )
 from .pitch_generator import PitchSequenceGenerator, midi_to_pitch_name, get_key_offset
 from .pattern_applicator import apply_scale_pattern, apply_arpeggio_pattern
@@ -37,14 +39,7 @@ from .scale_definitions import (
 from .tempo_definitions import (
     get_tempo_bounds,
     validate_tempo_for_rhythm,
-    validate_note_count_for_rhythm,
 )
-
-
-# Patterns that typically end off-beat and need a final sustained note
-# NOTE: Groups patterns (GROUPS_OF_3, etc.) no longer need this because
-# they now end explicitly on do as part of the up-and-down pattern
-PATTERNS_NEED_FINAL_SUSTAINED: set[ScalePattern] = set()
 
 
 class GenerationService:
@@ -90,42 +85,44 @@ class GenerationService:
                 "Use SCALE or ARPEGGIO content types."
             )
         
-        # Step 1: Generate raw pitches
+        # Step 1: Validate rhythm/pattern compatibility for scales
+        # Whole notes and half notes are only allowed with simple patterns
+        pattern = request.pattern
+        if pattern is not None and request.content_type == GenerationType.SCALE:
+            if request.rhythm == RhythmType.WHOLE_NOTES and pattern not in WHOLE_NOTE_PATTERNS:
+                raise ValueError(
+                    f"whole_notes rhythm is only allowed with patterns: "
+                    f"straight_up, straight_down"
+                )
+            if request.rhythm == RhythmType.HALF_NOTES and pattern not in HALF_NOTE_PATTERNS:
+                raise ValueError(
+                    f"half_notes rhythm is only allowed with patterns: "
+                    f"straight_up, straight_down, straight_up_down, straight_down_up"
+                )
+        
+        # Step 2: Generate raw pitches
         pitches, effective_octaves = self._generate_pitches(request)
         
-        # Step 2: Apply pattern if specified
+        # Step 3: Apply pattern if specified
         pitches = self._apply_pattern(pitches, request)
         
-        # Step 2.5: Validate note count is appropriate for rhythm
-        # Sustained rhythms (whole/half notes) have max note limits
-        validate_note_count_for_rhythm(request.rhythm, len(pitches))
-        
-        # Step 3: Generate pitch names with proper scale-degree-aware spelling
+        # Step 4: Generate pitch names with proper scale-degree-aware spelling
         # Each scale type defines canonical spellings in C which are transposed
         pitch_names = self._generate_pitch_names(pitches, request)
         
-        # Step 4: Apply rhythm to get PitchEvents
-        # Check if pattern needs a final sustained note (groups_of_N patterns)
-        pattern_needs_final = False
-        if request.pattern is not None:
-            try:
-                scale_pattern = ScalePattern(request.pattern)
-                pattern_needs_final = scale_pattern in PATTERNS_NEED_FINAL_SUSTAINED
-            except ValueError:
-                pass  # Not a scale pattern, might be arpeggio pattern
-        
+        # Step 5: Apply rhythm to get PitchEvents
+        # Global rule: if final note ends off-beat, extend and add quarter "do"
         events = apply_rhythm(
             pitches=pitches,
             rhythm=request.rhythm,
             pitch_names=pitch_names,
-            pattern_needs_final_sustained=pattern_needs_final,
         )
         
-        # Step 5: Apply articulation to events if not legato
+        # Step 6: Apply articulation to events if not legato
         if request.articulation != ArticulationType.LEGATO:
             events = self._apply_articulation(events, request.articulation)
         
-        # Step 6: Calculate metadata
+        # Step 7: Calculate metadata
         total_beats = sum(e.duration_beats for e in events)
         range_low = min(e.midi_note for e in events) if events else None
         range_high = max(e.midi_note for e in events) if events else None
@@ -190,6 +187,7 @@ class GenerationService:
             events=response.events,
             title=title,
             key=request.key,
+            rhythm=request.rhythm,
         )
     
     def _generate_pitches(

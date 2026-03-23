@@ -284,6 +284,26 @@ SCALE_PATTERN_CONSTRAINTS: dict[str, PatternConstraints] = {
     },
 }
 
+# =============================================================================
+# Rhythm-Pattern Compatibility
+# =============================================================================
+# Slow rhythms (whole notes, half notes) produce very long exercises with
+# complex patterns. Restrict them to simple straight-line patterns.
+
+# Patterns that allow WHOLE_NOTES rhythm (simplest patterns only)
+WHOLE_NOTE_PATTERNS: set[str] = {
+    ScalePattern.STRAIGHT_UP.value,
+    ScalePattern.STRAIGHT_DOWN.value,
+}
+
+# Patterns that allow HALF_NOTES rhythm (simple + basic up-down patterns)
+HALF_NOTE_PATTERNS: set[str] = {
+    ScalePattern.STRAIGHT_UP.value,
+    ScalePattern.STRAIGHT_DOWN.value,
+    ScalePattern.STRAIGHT_UP_DOWN.value,
+    ScalePattern.STRAIGHT_DOWN_UP.value,
+}
+
 
 class RhythmType(str, Enum):
     """Rhythm/duration templates."""

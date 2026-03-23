@@ -101,21 +101,6 @@ RHYTHM_CELLS: dict[RhythmType, RhythmCell] = {
 # Core Functions
 # =============================================================================
 
-# Triplet rhythm types that should complete their groups
-TRIPLET_RHYTHMS = {RhythmType.EIGHTH_TRIPLETS}
-
-# Compound rhythm patterns that end on a short note and need a final sustained do
-COMPOUND_RHYTHMS_NEED_FINAL = {
-    RhythmType.EIGHTH_NOTES,
-    RhythmType.SIXTEENTH_NOTES,
-    RhythmType.SIXTEENTH_EIGHTH_SIXTEENTH,
-    RhythmType.EIGHTH_SIXTEENTH_SIXTEENTH,
-    RhythmType.SIXTEENTH_SIXTEENTH_EIGHTH,
-    RhythmType.SYNCOPATED,
-    RhythmType.DOTTED_EIGHTH_SIXTEENTH,
-    RhythmType.DOTTED_QUARTER_EIGHTH,
-}
-
 
 def apply_rhythm(
     pitches: List[int],
@@ -123,9 +108,11 @@ def apply_rhythm(
     time_signature: Tuple[int, int] = (4, 4),
     pitch_names: Optional[List[str]] = None,
     min_final_duration: float = QUARTER_NOTE,
-    pattern_needs_final_sustained: bool = False,
 ) -> List[PitchEvent]:
     """Apply a rhythm pattern to a pitch sequence.
+    
+    Global rule: If the final note ends NOT on a beat, it is extended to fill
+    to the next beat, and a quarter note "do" (tonic) is added on that beat.
     
     Args:
         pitches: List of MIDI pitch values.
@@ -133,9 +120,6 @@ def apply_rhythm(
         time_signature: (beats_per_measure, beat_unit) - used for alignment.
         pitch_names: Optional pitch names corresponding to pitches.
         min_final_duration: Minimum duration for the final note (default: quarter note).
-            For triplet and compound rhythms, a final sustained note is added.
-        pattern_needs_final_sustained: If True, add a final sustained quarter note
-            (used for patterns like groups_of_N that often end off-beat).
         
     Returns:
         List of PitchEvent objects with timing information.
@@ -148,52 +132,20 @@ def apply_rhythm(
         # Default to quarter notes
         cell = RHYTHM_CELLS[RhythmType.QUARTER_NOTES]
     
-    # For triplets: handle orphan notes - they become the final sustained note
-    is_triplet = rhythm in TRIPLET_RHYTHMS
-    is_compound = rhythm in COMPOUND_RHYTHMS_NEED_FINAL
-    needs_final_sustained = is_triplet or is_compound or pattern_needs_final_sustained
-    
-    working_pitches = pitches
-    working_names = pitch_names
-    final_sustained_pitch = None
-    final_sustained_name = None
-    
-    if is_triplet:
-        notes_in_group = 3
-        remainder = len(pitches) % notes_in_group
-        if remainder != 0:
-            # Orphan notes at the end - last one becomes the sustained final note
-            # Remove orphans from triplet processing
-            working_pitches = pitches[:-remainder]
-            final_sustained_pitch = pitches[-1]
-            final_sustained_name = pitch_names[-1] if pitch_names else None
-            if pitch_names:
-                working_names = pitch_names[:-remainder]
-        else:
-            # All notes fit in triplets - add final sustained note on last pitch
-            final_sustained_pitch = pitches[-1]
-            final_sustained_name = pitch_names[-1] if pitch_names else None
-    elif is_compound or pattern_needs_final_sustained:
-        # For compound rhythms or patterns that need final sustained,
-        # always add a final sustained note on the last pitch
-        final_sustained_pitch = pitches[-1]
-        final_sustained_name = pitch_names[-1] if pitch_names else None
+    # The "tonic" (do) is the final pitch in the scale - used for final sustained note
+    final_tonic_pitch = pitches[-1]
+    final_tonic_name = pitch_names[-1] if pitch_names else _midi_to_name(final_tonic_pitch)
     
     events = []
     offset = 0.0
     cell_index = 0
     
-    for i, pitch in enumerate(working_pitches):
+    for i, pitch in enumerate(pitches):
         # Get duration from current position in cell
         duration = cell.durations[cell_index]
         
-        # For simple rhythms (not triplet or compound): extend final note to minimum duration
-        is_final = i == len(working_pitches) - 1
-        if is_final and not needs_final_sustained and duration < min_final_duration:
-            duration = min_final_duration
-        
         # Get pitch name if available, or generate a placeholder
-        name = working_names[i] if working_names and i < len(working_names) else _midi_to_name(pitch)
+        name = pitch_names[i] if pitch_names and i < len(pitch_names) else _midi_to_name(pitch)
         
         events.append(PitchEvent(
             midi_note=pitch,
@@ -208,23 +160,48 @@ def apply_rhythm(
         # Move to next position in cell
         cell_index = (cell_index + 1) % cell.notes_per_cell
     
-    # Add final sustained note for triplets and compound rhythms
+    # ==========================================================================
+    # GLOBAL RULE: If final note STARTS off-beat, adjust to end on beat + add quarter do
+    # ==========================================================================
+    # This applies to ALL scales/rhythms:
+    # - If the last note STARTS off-beat (on the "and"), adjust its duration to
+    #   END exactly on the next beat, then add a quarter note "do" on that beat
+    # - This could mean extending (short notes), no change, or shortening (syncopated)
+    # - If the last note STARTS on-beat but is too short, just extend to min
+    #
     # Skip if min_final_duration is 0 (disabled)
-    if needs_final_sustained and final_sustained_pitch is not None and min_final_duration > 0:
-        name = final_sustained_name if final_sustained_name else _midi_to_name(final_sustained_pitch)
-        beats_per_measure = time_signature[0]
+    if events and min_final_duration > 0:
+        last_event = events[-1]
+        start_position_in_beat = round(last_event.offset_beats % 1.0, 6)
         
-        # Check if the last note is already the same pitch as final sustained (e.g., do)
-        last_event = events[-1] if events else None
-        last_is_same_pitch = last_event and last_event.midi_note == final_sustained_pitch
+        # Check if the note STARTS off a beat (not at 0.0 or very close to 1.0)
+        starts_off_beat = start_position_in_beat > 0.01 and start_position_in_beat < 0.99
         
-        # Check if last note is on a beat (any beat, not just beat 1)
-        last_position_in_beat = last_event.offset_beats % 1.0 if last_event else 0
-        last_is_on_beat = last_position_in_beat < 0.01 or last_position_in_beat > 0.99
-        
-        if last_is_same_pitch:
-            if last_is_on_beat:
-                # Do is already on a beat - just extend it to a quarter note
+        if starts_off_beat:
+            # Note starts off-beat - adjust duration to end exactly on next beat
+            next_beat = int(last_event.offset_beats) + 1
+            duration_to_next_beat = next_beat - last_event.offset_beats
+            
+            # Set duration to fill exactly to next beat (extend, no-op, or shorten)
+            if abs(last_event.duration_beats - duration_to_next_beat) > 0.001:
+                events[-1] = PitchEvent(
+                    midi_note=last_event.midi_note,
+                    pitch_name=last_event.pitch_name,
+                    duration_beats=duration_to_next_beat,
+                    offset_beats=last_event.offset_beats,
+                )
+            
+            # Add a quarter note "do" on the next beat
+            events.append(PitchEvent(
+                midi_note=final_tonic_pitch,
+                pitch_name=final_tonic_name,
+                duration_beats=min_final_duration,
+                offset_beats=float(next_beat),
+            ))
+            offset = next_beat + min_final_duration
+        else:
+            # Note starts on beat - if too short, just extend to minimum
+            if last_event.duration_beats < min_final_duration:
                 events[-1] = PitchEvent(
                     midi_note=last_event.midi_note,
                     pitch_name=last_event.pitch_name,
@@ -232,50 +209,6 @@ def apply_rhythm(
                     offset_beats=last_event.offset_beats,
                 )
                 offset = last_event.offset_beats + min_final_duration
-            else:
-                # Do is off-beat - extend it to the next beat, then add quarter do on that beat
-                next_beat = int(last_event.offset_beats) + 1
-                
-                # Extend the off-beat do to fill to the next beat
-                extended_duration = next_beat - last_event.offset_beats
-                events[-1] = PitchEvent(
-                    midi_note=last_event.midi_note,
-                    pitch_name=last_event.pitch_name,
-                    duration_beats=extended_duration,
-                    offset_beats=last_event.offset_beats,
-                )
-                
-                # Add do on next beat as quarter
-                events.append(PitchEvent(
-                    midi_note=final_sustained_pitch,
-                    pitch_name=name,
-                    duration_beats=min_final_duration,
-                    offset_beats=next_beat,
-                ))
-                offset = next_beat + min_final_duration
-        else:
-            # Last note is different pitch - extend if off-beat, then add final do
-            position_in_beat = offset % 1.0
-            is_on_offbeat = position_in_beat > 0.01 and position_in_beat < 0.99
-            if is_on_offbeat:
-                remaining_in_beat = 1.0 - position_in_beat
-                extended_duration = last_event.duration_beats + remaining_in_beat
-                events[-1] = PitchEvent(
-                    midi_note=last_event.midi_note,
-                    pitch_name=last_event.pitch_name,
-                    duration_beats=extended_duration,
-                    offset_beats=last_event.offset_beats,
-                )
-                offset = last_event.offset_beats + extended_duration
-            
-            # Add final quarter on the beat
-            events.append(PitchEvent(
-                midi_note=final_sustained_pitch,
-                pitch_name=name,
-                duration_beats=min_final_duration,
-                offset_beats=offset,
-            ))
-            offset += min_final_duration
     
     # Fill incomplete final measure with rests
     beats_per_measure = time_signature[0]

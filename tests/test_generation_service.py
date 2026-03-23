@@ -580,12 +580,11 @@ class TestEdgeCases:
     def test_whole_notes_with_complex_pattern_rejected(
         self, service: GenerationService
     ) -> None:
-        """Test that whole notes with too many notes raises error.
+        """Test that whole notes with complex patterns raises error.
         
-        Complex patterns can produce many notes (e.g., groups_of_7 with 3 octaves).
-        Whole notes are limited to 16 notes max to keep exercises reasonable.
+        Whole notes are only allowed with simple patterns (straight_up, straight_down).
+        Complex patterns like groups_of_7 cannot use whole notes.
         """
-        # 3 octaves with groups_of_7 pattern produces many notes
         request = GenerationRequest(
             content_type=GenerationType.SCALE,
             definition="ionian",
@@ -594,7 +593,26 @@ class TestEdgeCases:
             pattern="groups_of_7",
         )
         
-        with pytest.raises(ValueError, match="whole_notes rhythm is limited"):
+        with pytest.raises(ValueError, match="whole_notes rhythm is only allowed"):
+            service.generate(request)
+
+    def test_half_notes_with_complex_pattern_rejected(
+        self, service: GenerationService
+    ) -> None:
+        """Test that half notes with complex patterns raises error.
+        
+        Half notes are only allowed with simple patterns:
+        straight_up, straight_down, straight_up_down, straight_down_up.
+        """
+        request = GenerationRequest(
+            content_type=GenerationType.SCALE,
+            definition="ionian",
+            octaves=2,
+            rhythm=RhythmType.HALF_NOTES,
+            pattern="in_3rds",
+        )
+        
+        with pytest.raises(ValueError, match="half_notes rhythm is only allowed"):
             service.generate(request)
 
     def test_whole_notes_simple_pattern_accepted(

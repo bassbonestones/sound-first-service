@@ -13,6 +13,7 @@ from app.schemas.generation_schemas import (
     GenerationRequest,
     MusicalKey,
     PitchEvent,
+    RhythmType,
 )
 
 
@@ -22,6 +23,11 @@ from app.schemas.generation_schemas import (
 
 # Triplet durations
 EIGHTH_TRIPLET_DURATION = 1.0 / 3.0
+QUARTER_TRIPLET_DURATION = 2.0 / 3.0  # Triplet quarter = 2 triplet eighths
+
+# Rhythm types that should use triplet notation
+# Swing eighths use 2/3 and 1/3 durations but should NOT be notated as triplets
+TRIPLET_NOTATION_RHYTHMS: set[RhythmType] = {RhythmType.EIGHTH_TRIPLETS}
 
 # MusicXML duration types based on beats (quarter = 1.0)
 DURATION_TYPES = [
@@ -144,6 +150,16 @@ def _is_eighth_triplet(duration: float) -> bool:
     return abs(duration - EIGHTH_TRIPLET_DURATION) < 0.01
 
 
+def _is_quarter_triplet(duration: float) -> bool:
+    """Check if duration is a quarter note triplet (2/3 beat)."""
+    return abs(duration - QUARTER_TRIPLET_DURATION) < 0.01
+
+
+def _is_any_triplet(duration: float) -> bool:
+    """Check if duration is any triplet note (1/3 or 2/3 beat)."""
+    return _is_eighth_triplet(duration) or _is_quarter_triplet(duration)
+
+
 def _get_triplet_info(duration: float) -> tuple[bool, str, int, int]:
     """Get triplet information for a note duration.
     
@@ -153,6 +169,8 @@ def _get_triplet_info(duration: float) -> tuple[bool, str, int, int]:
     """
     if _is_eighth_triplet(duration):
         return (True, "eighth", 3, 2)
+    if _is_quarter_triplet(duration):
+        return (True, "quarter", 3, 2)
     return (False, "", 0, 0)
 
 
@@ -186,7 +204,7 @@ def _calculate_divisions(events: List[PitchEvent]) -> int:
     Returns a divisions value that can represent all durations precisely.
     For triplets, we need divisions divisible by 3.
     """
-    has_triplets = any(_is_eighth_triplet(e.duration_beats) for e in events)
+    has_triplets = any(_is_any_triplet(e.duration_beats) for e in events)
     # Use 12 for triplets (divisible by both 3 and 4), otherwise 4
     return 12 if has_triplets else 4
 
@@ -200,6 +218,7 @@ def events_to_musicxml(
     clef: str = "G",
     tempo_bpm: Optional[int] = None,
     part_name: str = "Part 1",
+    rhythm: Optional[RhythmType] = None,
 ) -> str:
     """Convert a list of PitchEvents to MusicXML string.
     
@@ -210,6 +229,7 @@ def events_to_musicxml(
         time_signature: (beats_per_measure, beat_type).
         divisions: Divisions per quarter note. If None, auto-calculated.
         clef: Clef sign (G, F, C).
+        rhythm: The rhythm type used for notation decisions (triplet vs swing).
         tempo_bpm: Optional tempo marking.
         part_name: Name for the part.
         
@@ -259,8 +279,9 @@ def events_to_musicxml(
             if tempo_bpm:
                 _add_tempo(measure, tempo_bpm)
         
-        # Add notes with triplet grouping
-        _add_notes_with_triplets(measure, measure_events, divisions, use_flats)
+        # Add notes with triplet grouping (only for triplet rhythms, not swing)
+        use_triplet_notation = rhythm in TRIPLET_NOTATION_RHYTHMS if rhythm else True
+        _add_notes_with_triplets(measure, measure_events, divisions, use_flats, use_triplet_notation)
         
         # Final barline on last measure
         if measure_num == len(measures):
@@ -274,58 +295,68 @@ def _add_notes_with_triplets(
     events: List[PitchEvent],
     divisions: int,
     use_flats: bool,
+    use_triplet_notation: bool = True,
 ) -> None:
     """Add notes to a measure, handling triplet grouping.
     
     Detects triplet notes and adds appropriate beam, time-modification,
-    and tuplet notation elements.
+    and tuplet notation elements. Groups triplets by beat, allowing
+    mixed durations (e.g., triplet eighth + triplet quarter in one beat).
+    
+    Args:
+        use_triplet_notation: If False, skip triplet notation (for swing).
     """
     i = 0
     while i < len(events):
         event = events[i]
-        is_triplet, triplet_type, actual, normal = _get_triplet_info(event.duration_beats)
+        # Only use triplet notation if the rhythm type supports it
+        is_triplet = use_triplet_notation and _is_any_triplet(event.duration_beats)
         
         if is_triplet:
-            # Find consecutive triplet notes with same duration
-            triplet_group = [event]
+            # Find all consecutive triplet notes (any triplet duration)
+            triplet_sequence = [event]
             j = i + 1
             while j < len(events):
-                next_is_triplet, _, _, _ = _get_triplet_info(events[j].duration_beats)
-                if next_is_triplet and abs(events[j].duration_beats - event.duration_beats) < 0.01:
-                    triplet_group.append(events[j])
+                if _is_any_triplet(events[j].duration_beats):
+                    triplet_sequence.append(events[j])
                     j += 1
                 else:
                     break
             
-            # Add triplet notes with proper beaming and notation
-            # Process in groups of 3, handling incomplete final groups
-            group_size = len(triplet_group)
-            for idx, triplet_event in enumerate(triplet_group):
-                position_in_group = idx % 3  # 0, 1, 2 within each triplet
+            # Process triplets by beat - each beat is a triplet group
+            seq_idx = 0
+            while seq_idx < len(triplet_sequence):
+                # Get beat number for this note (round to handle floating point)
+                current_beat = int(round(triplet_sequence[seq_idx].offset_beats, 6))
                 
-                # How many notes remain in this 3-group?
-                notes_remaining_in_group = group_size - (idx - position_in_group)
+                # Collect all triplet notes in this beat
+                beat_group = []
+                while seq_idx < len(triplet_sequence):
+                    note_beat = int(round(triplet_sequence[seq_idx].offset_beats, 6))
+                    if note_beat == current_beat:
+                        beat_group.append(triplet_sequence[seq_idx])
+                        seq_idx += 1
+                    else:
+                        break
                 
-                # Determine if this is the first/last of a 3-note group
-                is_first = position_in_group == 0
-                
-                # is_last is true if:
-                # - position is 2 (normal end of group), OR
-                # - this is the last note in an incomplete group
-                is_last_in_sequence = idx == group_size - 1
-                is_last = position_in_group == 2 or is_last_in_sequence
-                
-                # Don't start a tuplet bracket for single leftover note
-                # (it will still have time-modification but no visual bracket)
-                skip_tuplet_start = is_first and notes_remaining_in_group < 2
-                
-                _add_triplet_note(
-                    measure, triplet_event, divisions, use_flats,
-                    triplet_type, actual, normal,
-                    is_first and not skip_tuplet_start, 
-                    is_last and not skip_tuplet_start,
-                    include_beam=not skip_tuplet_start  # No beam for orphan notes
-                )
+                # Render the beat group with triplet notation
+                for idx, triplet_event in enumerate(beat_group):
+                    is_triplet_note, triplet_type, actual, normal = _get_triplet_info(
+                        triplet_event.duration_beats
+                    )
+                    is_first = idx == 0
+                    is_last = idx == len(beat_group) - 1
+                    
+                    # Only beam eighth triplets, not quarter triplets
+                    include_beam = _is_eighth_triplet(triplet_event.duration_beats)
+                    
+                    _add_triplet_note(
+                        measure, triplet_event, divisions, use_flats,
+                        triplet_type, actual, normal,
+                        is_first, 
+                        is_last,
+                        include_beam=include_beam
+                    )
             
             i = j
         else:
@@ -376,18 +407,21 @@ def _group_into_measures(
     
     measures: List[List[PitchEvent]] = []
     current_measure: List[PitchEvent] = []
-    current_measure_start = 0.0
+    current_measure_num = 0
     
     for event in events:
-        # Determine which measure this event belongs to
-        measure_num = int(event.offset_beats // beats_per_measure)
-        expected_start = measure_num * beats_per_measure
+        # Round offset to avoid floating point precision issues
+        # (triplet eighths = 1/3 can't be represented exactly)
+        rounded_offset = round(event.offset_beats, 6)
         
-        # If we've moved to a new measure
-        while expected_start > current_measure_start and current_measure:
+        # Determine which measure this event belongs to
+        event_measure_num = int(rounded_offset // beats_per_measure)
+        
+        # If we've moved to a new measure, finalize previous and create empties
+        while event_measure_num > current_measure_num:
             measures.append(current_measure)
             current_measure = []
-            current_measure_start += beats_per_measure
+            current_measure_num += 1
         
         current_measure.append(event)
     
@@ -638,6 +672,7 @@ def generate_musicxml_from_request(
         title=title,
         key=request.key,
         time_signature=(4, 4),
+        rhythm=request.rhythm,
     )
 
 

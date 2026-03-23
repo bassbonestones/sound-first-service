@@ -149,19 +149,21 @@ class TestApplyRhythm:
         events = apply_rhythm(c_major_pitches, RhythmType.EIGHTH_NOTES)
         note_events = notes_only(events)
         
-        # 9 notes total: 8 original scale notes + 1 final sustained do
+        # 8 original scale notes + 1 final "do" = 9 notes
+        # C5 at offset 3.5 STARTS off-beat, so:
+        # - Keep its 0.5 duration (fills to beat 4)
+        # - Add quarter "do" (C5) on beat 4
         assert len(note_events) == 9
-        # All notes are 8ths except final note which is extended to quarter
-        for event in note_events[:-1]:
+        # All notes are 8ths except final note at 3.5 and added do
+        for event in note_events[:-2]:
             assert event.duration_beats == 0.5
-        # Last do is off-beat at 3.5, then quarter do on beat 4
-        assert note_events[-2].duration_beats == 0.5  # stays 8th at 3.5
-        assert note_events[-1].duration_beats == 1.0  # Final sustained quarter at 4.0
-        
-        # Check offsets: 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0
-        expected_offsets = [i * 0.5 for i in range(8)] + [4.0]
-        actual_offsets = [e.offset_beats for e in note_events]
-        assert actual_offsets == expected_offsets
+        # C5 at offset 3.5 keeps 0.5 duration
+        assert note_events[-2].duration_beats == 0.5
+        assert note_events[-2].offset_beats == 3.5
+        # Final do (C5) at beat 4.0 with quarter duration
+        assert note_events[-1].duration_beats == 1.0
+        assert note_events[-1].offset_beats == 4.0
+        assert note_events[-1].midi_note == note_events[-2].midi_note  # Same pitch
 
     def test_whole_notes_timing(self, triad_pitches: List[int]) -> None:
         events = apply_rhythm(triad_pitches, RhythmType.WHOLE_NOTES)
@@ -180,42 +182,57 @@ class TestApplyRhythm:
         events = apply_rhythm(pitches, RhythmType.SWING_EIGHTHS)
         note_events = notes_only(events)
         
-        assert len(note_events) == 4
-        # Swing pattern: long-short-long-short, but final note extended to quarter
+        # 4 original + 1 final "do" = 5 notes
+        # F4 at offset 1.667 STARTS off-beat, so:
+        # - Keep its 0.333 duration (fills to beat 2)
+        # - Add quarter "do" (F4) on beat 2
+        assert len(note_events) == 5
         assert note_events[0].duration_beats == pytest.approx(SWING_LONG)
         assert note_events[1].duration_beats == pytest.approx(SWING_SHORT)
         assert note_events[2].duration_beats == pytest.approx(SWING_LONG)
-        assert note_events[3].duration_beats == pytest.approx(QUARTER_NOTE)  # Extended
+        # F4 at offset 1.667 keeps its swing short duration
+        assert note_events[3].duration_beats == pytest.approx(SWING_SHORT)
+        # Final do (F4) at beat 2.0 with quarter duration
+        assert note_events[4].duration_beats == pytest.approx(QUARTER_NOTE)
+        assert note_events[4].offset_beats == pytest.approx(2.0)
 
     def test_dotted_pattern(self) -> None:
         pitches = [60, 62, 64, 65]
         events = apply_rhythm(pitches, RhythmType.DOTTED_QUARTER_EIGHTH)
         note_events = notes_only(events)
         
-        # Pattern: dotted quarter, eighth, dotted quarter, eighth
-        # Last note (F4) at offset 3.5 (off-beat) - keep it AND add another on next beat
+        # Pattern: dotted quarter (1.5), eighth (0.5), ...
+        # 4 notes: C4 at 0 (1.5), D4 at 1.5 (0.5), E4 at 2.0 (1.5), F4 at 3.5 (0.5)
+        # F4 at offset 3.5 STARTS off-beat, so:
+        # - Keep its 0.5 duration (fills to beat 4)
+        # - Add quarter "do" (F4) on beat 4
         assert len(note_events) == 5
         assert note_events[0].duration_beats == pytest.approx(DOTTED_QUARTER)
         assert note_events[1].duration_beats == pytest.approx(EIGHTH_NOTE)
         assert note_events[2].duration_beats == pytest.approx(DOTTED_QUARTER)
-        assert note_events[3].duration_beats == pytest.approx(EIGHTH_NOTE)  # Kept as-is
-        assert note_events[4].duration_beats == pytest.approx(QUARTER_NOTE)  # Final sustained
-        assert note_events[4].offset_beats == pytest.approx(4.0)  # Next beat after 3.5
+        # F4 at offset 3.5 keeps its 0.5 duration
+        assert note_events[3].duration_beats == pytest.approx(EIGHTH_NOTE)
+        # Final do (F4) at beat 4.0 with quarter duration
+        assert note_events[4].duration_beats == pytest.approx(QUARTER_NOTE)
+        assert note_events[4].offset_beats == pytest.approx(4.0)
 
     def test_syncopated_pattern(self) -> None:
         pitches = [60, 62, 64]  # 3 notes for partial syncopated cell
         events = apply_rhythm(pitches, RhythmType.SYNCOPATED)
         note_events = notes_only(events)
         
-        # Syncopated cell is 8th-Q-Q-Q-8th (5 notes)
+        # Syncopated cell is 8th-Q-Q-Q-8th (5 notes per 4 beats)
         # With 3 notes: uses first 3 durations (8th, Q, Q)
-        # Last note (E4) is at offset 1.5 (off-beat) - extend to beat 2, then quarter on 2
-        assert len(note_events) == 4  # 3 original + 1 sustained on next beat
+        # C4 at 0.0 (0.5), D4 at 0.5 (1.0), E4 at 1.5 (1.0)
+        # E4 at offset 1.5 STARTS off-beat (0.5 into beat 2), so:
+        # - SHORTEN to 0.5 to end exactly on beat 2
+        # - Add quarter "do" on beat 2.0
+        assert len(note_events) == 4  # 3 original + 1 final do
         assert note_events[0].duration_beats == EIGHTH_NOTE  # C4
         assert note_events[1].duration_beats == QUARTER_NOTE  # D4
-        assert note_events[2].duration_beats == EIGHTH_NOTE  # E4 extended from 1.5 to 2.0
-        assert note_events[3].duration_beats == QUARTER_NOTE  # E4 sustained on beat 2
-        assert note_events[3].offset_beats == pytest.approx(2.0)  # Next beat after offset 1.5
+        assert note_events[2].duration_beats == pytest.approx(0.5)  # E4 shortened to end on beat 2
+        assert note_events[3].duration_beats == QUARTER_NOTE  # Final do (E4) on beat 2
+        assert note_events[3].offset_beats == pytest.approx(2.0)
 
     def test_preserves_pitch_values(self, c_major_pitches: List[int]) -> None:
         events = apply_rhythm(c_major_pitches, RhythmType.QUARTER_NOTES)

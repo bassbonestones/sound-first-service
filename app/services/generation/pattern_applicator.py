@@ -299,17 +299,15 @@ def _in_octaves(pitches: List[int], ascending: bool, desc: Optional[List[int]] =
     # First descending pair: top_tonic already added, add middle_tonic
     result.append(extended[middle_tonic_idx])
     
-    # Remaining descending pairs (high-low)
-    for pos in range(scale_size - 1, 0, -1):
+    # Remaining descending pairs (high-low), including do'-do (pos=0)
+    for pos in range(scale_size - 1, -1, -1):
         upper_idx = pos + scale_size
         lower_idx = pos
         if upper_idx < n:
             result.append(extended[upper_idx])
             result.append(extended[lower_idx])
     
-    # End on bottom tonic
-    result.append(extended[0])
-    
+    # Last pair ends on bottom tonic, no separate ending needed
     return result
 
 
@@ -380,17 +378,15 @@ def _in_13ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = N
     # First descending pair: top_tonic already added, add middle_tonic
     result.append(extended[middle_tonic_idx])
     
-    # Remaining descending pairs (high-low)
-    for pos in range(scale_size - 1, 0, -1):
+    # Remaining descending pairs (high-low), including root octave pair (pos=0)
+    for pos in range(scale_size - 1, -1, -1):
         upper_idx = pos + interval
         lower_idx = pos
         if upper_idx < n:
             result.append(extended[upper_idx])
             result.append(extended[lower_idx])
     
-    # End on bottom tonic
-    result.append(extended[0])
-    
+    # Last pair ends on bottom tonic, no separate ending needed
     return result
 
 
