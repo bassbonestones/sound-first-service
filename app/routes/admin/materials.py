@@ -10,6 +10,7 @@ from app.models.capability_schema import (
     Capability, UserCapability, SoftGateRule, UserSoftGateState,
     MaterialCapability, MaterialTeachesCapability, MaterialAnalysis
 )
+from app.capabilities import sort_capabilities_by_bit_index_with_session
 
 
 router = APIRouter(tags=["admin-materials"])
@@ -75,12 +76,12 @@ def admin_get_materials(db: Session = Depends(get_db)) -> Dict[str, Any]:
         req_caps = db.query(MaterialCapability, Capability).join(
             Capability, MaterialCapability.capability_id == Capability.id
         ).filter(MaterialCapability.material_id == mat.id).all()
-        required_capabilities = [c.name for _, c in req_caps]
+        required_capabilities = sort_capabilities_by_bit_index_with_session([c.name for _, c in req_caps], db)
         
         teach_caps = db.query(MaterialTeachesCapability, Capability).join(
             Capability, MaterialTeachesCapability.capability_id == Capability.id
         ).filter(MaterialTeachesCapability.material_id == mat.id).all()
-        teaches_capabilities = [c.name for _, c in teach_caps]
+        teaches_capabilities = sort_capabilities_by_bit_index_with_session([c.name for _, c in teach_caps], db)
         
         mat_data = {
             "id": mat.id, "title": mat.title, "original_key_center": mat.original_key_center,

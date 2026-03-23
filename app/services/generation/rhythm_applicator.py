@@ -259,12 +259,38 @@ def _fill_gap_with_rests(
     return result
 
 
+def _get_half_measure_boundary(beats_per_measure: int) -> Optional[float]:
+    """Get the half-measure boundary for a given time signature.
+    
+    In most time signatures, half rests should not cross the middle of the measure
+    unless they start exactly at beat 0 or at the boundary.
+    
+    Args:
+        beats_per_measure: Number of beats per measure.
+        
+    Returns:
+        Beat position of the half-measure boundary, or None if not applicable.
+    """
+    # 4/4: boundary at beat 2
+    # 3/4: no boundary (can't evenly split)
+    # 2/4: boundary at beat 1
+    # 6/8: would be at beat 3 if treating eighth as beat unit
+    if beats_per_measure == 4:
+        return 2.0
+    if beats_per_measure == 2:
+        return 1.0
+    return None
+
+
 def _fill_measure_with_rests(
     events: List[PitchEvent],
     current_offset: float,
     beats_per_measure: int,
 ) -> List[PitchEvent]:
     """Add rests to complete an incomplete final measure.
+    
+    Respects the half-measure boundary: rests should not cross the middle
+    of the measure (beat 2 in 4/4) unless starting exactly at beat 0 or beat 2.
     
     Args:
         events: List of existing events.
@@ -284,22 +310,41 @@ def _fill_measure_with_rests(
     # How much time remains in the measure
     remaining = beats_per_measure - position_in_measure
     
-    # Fill with appropriate rests (prefer longer values)
-    rest_values = [
-        (2.0, "half"),
-        (1.0, "quarter"),
-        (0.5, "eighth"),
-        (0.25, "16th"),
-    ]
+    # Get half-measure boundary
+    boundary = _get_half_measure_boundary(beats_per_measure)
+    
+    # Rest values in descending order
+    rest_values = [2.0, 1.0, 0.5, 0.25, 0.125]
     
     offset = current_offset
     while remaining > 0.001:
-        # Find largest rest that fits
+        # Calculate position within measure for this rest
+        pos_in_measure = offset % beats_per_measure
+        
+        # Find largest rest that fits AND doesn't cross boundary inappropriately
         rest_duration = None
-        for duration, _ in rest_values:
-            if duration <= remaining + 0.001:
-                rest_duration = duration
-                break
+        for duration in rest_values:
+            if duration > remaining + 0.001:
+                continue
+            
+            # Check if this duration would cross the boundary inappropriately
+            # ANY rest that crosses the half-measure boundary is forbidden
+            # unless starting at beat 0 or exactly at the boundary
+            if boundary is not None:
+                at_or_past_boundary = pos_in_measure >= boundary - 0.001
+                at_measure_start = pos_in_measure < 0.001
+                rest_end = pos_in_measure + duration
+                would_cross = (
+                    not at_or_past_boundary 
+                    and not at_measure_start 
+                    and rest_end > boundary + 0.001
+                )
+                if would_cross:
+                    # Can't use this rest here, try smaller
+                    continue
+            
+            rest_duration = duration
+            break
         
         if rest_duration is None:
             # Remaining is too small, just stop

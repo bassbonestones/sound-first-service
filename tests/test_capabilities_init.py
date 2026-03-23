@@ -110,3 +110,78 @@ class TestGetDetectionEngine:
             
             # Should create two different instances
             assert MockEngine.call_count == 2
+
+
+class TestSortCapabilitiesByBitIndex:
+    """Tests for the sort_capabilities_by_bit_index function."""
+
+    def test_sorts_by_bit_index(self):
+        """Capabilities are sorted by their bit_index values from DB."""
+        import app.capabilities as cap_module
+        
+        # Mock the database session
+        mock_db = Mock()
+        mock_db.query.return_value.filter.return_value.all.return_value = [
+            ("cap_a", 10),
+            ("cap_b", 20),
+            ("cap_c", 30),
+        ]
+        
+        with patch('app.db.SessionLocal', return_value=mock_db):
+            result = cap_module.sort_capabilities_by_bit_index(["cap_c", "cap_b", "cap_a"])
+
+        assert result == ["cap_a", "cap_b", "cap_c"]
+
+    def test_unknown_capabilities_sorted_last(self):
+        """Capabilities not in the DB are placed at the end."""
+        import app.capabilities as cap_module
+        
+        mock_db = Mock()
+        mock_db.query.return_value.filter.return_value.all.return_value = [
+            ("cap_a", 10),
+            ("cap_b", 20),
+        ]
+        
+        with patch('app.db.SessionLocal', return_value=mock_db):
+            result = cap_module.sort_capabilities_by_bit_index(["unknown", "cap_b", "cap_a"])
+
+        assert result == ["cap_a", "cap_b", "unknown"]
+
+    def test_empty_list_returns_empty(self):
+        """Empty input returns empty output."""
+        import app.capabilities as cap_module
+
+        result = cap_module.sort_capabilities_by_bit_index([])
+
+        assert result == []
+
+
+class TestSortCapabilitiesByBitIndexWithSession:
+    """Tests for the sort_capabilities_by_bit_index_with_session function."""
+
+    def test_sorts_by_bit_index(self):
+        """Capabilities are sorted by their bit_index values using provided session."""
+        import app.capabilities as cap_module
+        
+        mock_db = Mock()
+        mock_db.query.return_value.filter.return_value.all.return_value = [
+            ("cap_a", 10),
+            ("cap_b", 20),
+            ("cap_c", 30),
+        ]
+        
+        result = cap_module.sort_capabilities_by_bit_index_with_session(
+            ["cap_c", "cap_b", "cap_a"], mock_db
+        )
+
+        assert result == ["cap_a", "cap_b", "cap_c"]
+
+    def test_empty_list_returns_empty(self):
+        """Empty input returns empty output."""
+        import app.capabilities as cap_module
+        
+        mock_db = Mock()
+        
+        result = cap_module.sort_capabilities_by_bit_index_with_session([], mock_db)
+
+        assert result == []

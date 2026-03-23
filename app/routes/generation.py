@@ -5,11 +5,14 @@ using the content generation engine.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastapi.responses import Response
+from sqlalchemy.orm import Session as DbSession
 
+from app.db import get_db
+from app.models.capability_schema import Capability, UserCapability
 from app.schemas.generation_schemas import (
     ArpeggioType,
     GenerationRequest,
@@ -21,9 +24,11 @@ from app.schemas.generation_schemas import (
     ArpeggioPattern,
     ScaleType,
     SCALE_PATTERN_CONSTRAINTS,
+    ValidPoolResponse,
 )
 from app.services.generation.scale_definitions import ASYMMETRIC_SCALES
 from app.services.generation import get_generation_service
+from app.services.generation.valid_pool_calculator import get_valid_pool_calculator
 
 
 logger = logging.getLogger(__name__)
@@ -210,3 +215,70 @@ def get_keys() -> List[str]:
     be used in the `key` field for transposition.
     """
     return [k.value for k in MusicalKey]
+
+
+@router.get("/valid-pool", response_model=ValidPoolResponse)
+def get_valid_pool(
+    user_id: int = Query(..., description="User ID to check capabilities for"),
+    db: DbSession = Depends(get_db),
+) -> ValidPoolResponse:
+    """Get valid generation options based on user's mastered capabilities.
+    
+    Returns the pool of valid scale types, arpeggio types, patterns, rhythms,
+    and keys that the user can practice based on their mastered capabilities.
+    
+    This endpoint is designed for the practice session to query upfront to know
+    its possible pool, ensuring generated content never requires capabilities
+    the user hasn't mastered.
+    
+    Example response:
+    ```json
+    {
+        "scale_types": ["ionian", "dorian", "aeolian"],
+        "arpeggio_types": ["major", "minor"],
+        "rhythms": ["quarter_notes", "eighth_notes"],
+        "keys": ["C", "G", "F"],
+        "scale_patterns": {
+            "ionian": ["straight_up", "straight_down", "in_3rds"]
+        },
+        "arpeggio_patterns": {
+            "major": ["straight_up", "straight_down"]
+        }
+    }
+    ```
+    """
+    # Get user's mastered capability names
+    user_caps = _get_user_mastered_capabilities(user_id, db)
+    
+    # Calculate valid pool
+    calculator = get_valid_pool_calculator()
+    pool = calculator.get_full_valid_pool(user_caps)
+    
+    return ValidPoolResponse(**pool.to_dict())
+
+
+def _get_user_mastered_capabilities(user_id: int, db: DbSession) -> Set[str]:
+    """Get set of capability names that user has mastered.
+    
+    A capability is considered mastered if:
+    - mastered_at is not None
+    - is_active is True
+    
+    Args:
+        user_id: The user ID.
+        db: Database session.
+        
+    Returns:
+        Set of capability names (strings).
+    """
+    results = (
+        db.query(Capability.name)
+        .join(UserCapability, Capability.id == UserCapability.capability_id)
+        .filter(
+            UserCapability.user_id == user_id,
+            UserCapability.mastered_at.isnot(None),
+            UserCapability.is_active == True,  # noqa: E712
+        )
+        .all()
+    )
+    return {row[0] for row in results}

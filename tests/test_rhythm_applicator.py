@@ -21,6 +21,8 @@ from app.services.generation.rhythm_applicator import (
     quantize_to_grid,
     create_rest_event,
     insert_rests_between_groups,
+    _fill_measure_with_rests,
+    _get_half_measure_boundary,
     RHYTHM_CELLS,
     QUARTER_NOTE,
     HALF_NOTE,

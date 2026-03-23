@@ -4,7 +4,7 @@ Defines request/response models for the musical content generation engine.
 All content is authored in C major/A minor and transposed to target keys.
 """
 from enum import Enum
-from typing import List, Literal, Optional
+from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -828,4 +828,48 @@ class GenerationPreview(BaseModel):
         ge=1,
         le=5,
         description="Estimated difficulty (1-5)",
+    )
+
+
+# =============================================================================
+# Valid Pool Models
+# =============================================================================
+
+
+class ValidPoolResponse(BaseModel):
+    """Response model for valid generation options given user's capabilities.
+    
+    The practice session queries this upfront to know its possible pool,
+    then selects from that pool to ensure generated content never requires
+    capabilities the user hasn't mastered.
+    """
+    
+    scale_types: List[str] = Field(
+        default_factory=list,
+        description="Valid scale type identifiers",
+    )
+    
+    arpeggio_types: List[str] = Field(
+        default_factory=list,
+        description="Valid arpeggio type identifiers",
+    )
+    
+    rhythms: List[str] = Field(
+        default_factory=list,
+        description="Valid rhythm type identifiers",
+    )
+    
+    keys: List[str] = Field(
+        default_factory=list,
+        description="Valid key identifiers",
+    )
+    
+    scale_patterns: Dict[str, List[str]] = Field(
+        default_factory=dict,
+        description="Mapping of scale type to valid patterns for that scale",
+    )
+    
+    arpeggio_patterns: Dict[str, List[str]] = Field(
+        default_factory=dict,
+        description="Mapping of arpeggio type to valid patterns for that arpeggio",
     )

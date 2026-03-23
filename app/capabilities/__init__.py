@@ -18,7 +18,7 @@ Usage:
 """
 
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from .types import DetectionType, DetectionRule, VALID_SOURCES
 from .registry import CapabilityRegistry
@@ -38,6 +38,8 @@ __all__ = [
     "DetectionEngine",
     # Functions
     "get_registry",
+    "sort_capabilities_by_bit_index",
+    "sort_capabilities_by_bit_index_with_session",
     "get_detection_engine",
     "validate_detection_rule",
     "register_custom_detector",
@@ -68,3 +70,73 @@ def get_registry() -> CapabilityRegistry:
 def get_detection_engine() -> DetectionEngine:
     """Get a detection engine with the global registry."""
     return DetectionEngine(get_registry())
+
+
+def sort_capabilities_by_bit_index(capability_names: List[str]) -> List[str]:
+    """
+    Sort capability names by their bit_index order from the DATABASE.
+    
+    Queries the database for bit_index values (the source of truth).
+    Capabilities without a bit_index are placed at the end.
+    
+    Args:
+        capability_names: List of capability name strings
+        
+    Returns:
+        List sorted by bit_index (ascending)
+    """
+    if not capability_names:
+        return []
+    
+    # Import here to avoid circular imports
+    from app.db import SessionLocal
+    from app.models.capability_schema import Capability
+    
+    db = SessionLocal()
+    try:
+        # Query bit_index for all requested capabilities
+        caps = db.query(Capability.name, Capability.bit_index).filter(
+            Capability.name.in_(capability_names)
+        ).all()
+        
+        bit_index_map = {name: (bit_idx if bit_idx is not None else 99999) for name, bit_idx in caps}
+        
+        return sorted(
+            capability_names,
+            key=lambda name: bit_index_map.get(name, 99999)
+        )
+    finally:
+        db.close()
+
+
+def sort_capabilities_by_bit_index_with_session(
+    capability_names: List[str], 
+    db
+) -> List[str]:
+    """
+    Sort capability names by bit_index using an existing db session.
+    
+    Use this when you already have a database session (e.g., in a route handler).
+    
+    Args:
+        capability_names: List of capability name strings
+        db: SQLAlchemy Session
+        
+    Returns:
+        List sorted by bit_index (ascending)
+    """
+    if not capability_names:
+        return []
+    
+    from app.models.capability_schema import Capability
+    
+    caps = db.query(Capability.name, Capability.bit_index).filter(
+        Capability.name.in_(capability_names)
+    ).all()
+    
+    bit_index_map = {name: (bit_idx if bit_idx is not None else 99999) for name, bit_idx in caps}
+    
+    return sorted(
+        capability_names,
+        key=lambda name: bit_index_map.get(name, 99999)
+    )

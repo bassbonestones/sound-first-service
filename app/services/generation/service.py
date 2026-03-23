@@ -4,7 +4,7 @@ Provides a high-level service that coordinates pitch generation,
 pattern application, rhythm application, and output formatting.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Set, Tuple
 
 from app.schemas.generation_schemas import (
     ArpeggioPattern,
@@ -23,6 +23,7 @@ from app.schemas.generation_schemas import (
     WHOLE_NOTE_PATTERNS,
     HALF_NOTE_PATTERNS,
 )
+from app.capabilities import sort_capabilities_by_bit_index
 from .pitch_generator import PitchSequenceGenerator, midi_to_pitch_name, get_key_offset
 from .pattern_applicator import apply_scale_pattern, apply_arpeggio_pattern
 from .rhythm_applicator import apply_rhythm
@@ -40,6 +41,7 @@ from .tempo_definitions import (
     get_tempo_bounds,
     validate_tempo_for_rhythm,
 )
+from .valid_pool_calculator import get_valid_pool_calculator
 
 
 class GenerationService:
@@ -147,6 +149,9 @@ class GenerationService:
             # Use rhythm-appropriate defaults
             tempo_range = rhythm_bounds.as_tuple()
         
+        # Compute required capabilities for this generation
+        required_caps = self._compute_required_capabilities(request)
+        
         return GenerationResponse(
             content_type=request.content_type,
             definition=request.definition,
@@ -162,6 +167,7 @@ class GenerationService:
             events=events,
             total_beats=total_beats,
             tempo_range=tempo_range,
+            capabilities_required=sort_capabilities_by_bit_index(list(required_caps)),
         )
     
     def generate_musicxml(
@@ -521,6 +527,61 @@ class GenerationService:
             parts.insert(0, request.key.value)
         
         return " ".join(parts)
+    
+    def _compute_required_capabilities(
+        self,
+        request: GenerationRequest,
+    ) -> Set[str]:
+        """Compute capabilities required for the given generation request.
+        
+        Args:
+            request: The generation request.
+            
+        Returns:
+            Set of capability names required to perform this content.
+        """
+        calculator = get_valid_pool_calculator()
+        required: Set[str] = set()
+        
+        # Track scale/arpeggio type for accidental calculation
+        scale_type_for_accidentals: Optional[ScaleType] = None
+        
+        # Get interval capabilities based on content type and pattern
+        if request.content_type == GenerationType.SCALE:
+            try:
+                scale_type = ScaleType(request.definition)
+                scale_type_for_accidentals = scale_type
+                pattern = ScalePattern(request.pattern) if request.pattern else ScalePattern.STRAIGHT_UP_DOWN
+                interval_caps = calculator.get_required_capabilities_for_scale(scale_type, pattern)
+                required.update(interval_caps)
+            except ValueError:
+                pass
+        
+        elif request.content_type == GenerationType.ARPEGGIO:
+            try:
+                arpeggio_type = ArpeggioType(request.definition)
+                pattern = ArpeggioPattern(request.pattern) if request.pattern else ArpeggioPattern.STRAIGHT_UP_DOWN
+                interval_caps = calculator.get_required_capabilities_for_arpeggio(arpeggio_type, pattern)
+                required.update(interval_caps)
+            except ValueError:
+                pass
+        
+        # Add rhythm capabilities
+        rhythm_caps = calculator.get_required_capabilities_for_rhythm(request.rhythm)
+        required.update(rhythm_caps)
+        
+        # Add accidental capabilities based on scale + key combination
+        if scale_type_for_accidentals is not None:
+            accidental_caps = calculator.get_required_accidentals_for_scale_in_key(
+                scale_type_for_accidentals, request.key
+            )
+            required.update(accidental_caps)
+        else:
+            # Fallback to basic key accidentals for arpeggios (for now)
+            key_caps = calculator.get_required_capabilities_for_key(request.key)
+            required.update(key_caps)
+        
+        return required
 
 
 # Singleton instance for dependency injection
