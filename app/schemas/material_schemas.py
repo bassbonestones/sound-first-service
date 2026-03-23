@@ -269,3 +269,20 @@ class MaterialPreviewResponse(BaseModel):
     soft_gates: Dict[str, Any]
     unified_scores: Dict[str, Any]
     playback_events: List[Dict[str, Any]] = []  # PitchEvent-compatible dicts for playback
+
+
+class TransposeRequest(BaseModel):
+    """Request model for transposing MusicXML content."""
+    musicxml_content: str
+    semitones: int = 0  # Key transposition in semitones (-12 to +12)
+    octaves: int = 0  # Additional octave transposition (-2 to +2)
+    target_clef: Optional[str] = None  # "treble" or "bass" to change clef
+
+
+class TransposeResponse(BaseModel):
+    """Response model for transposed MusicXML content."""
+    musicxml_content: str
+    original_key: Optional[str] = None
+    new_key: Optional[str] = None
+    transposition_semitones: int
+    transposition_octaves: int

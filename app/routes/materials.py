@@ -20,7 +20,8 @@ from app.schemas import (
 from app.schemas.material_schemas import (
     MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut, AnalysisPreviewOut,
     LearningPathRequest, LearningPathResponse,
-    MaterialPreviewFilesResponse, MaterialPreviewResponse
+    MaterialPreviewFilesResponse, MaterialPreviewResponse,
+    TransposeRequest, TransposeResponse
 )
 from app.services import MaterialService, get_material_service
 
@@ -730,3 +731,90 @@ def preview_material_solfege(
     except Exception as e:
         logger.error(f"Solfège conversion failed for {filename}: {e}")
         raise HTTPException(status_code=400, detail=f"Solfège conversion failed: {str(e)}")
+
+
+@router.post("/preview/transpose", response_model=TransposeResponse)
+def transpose_preview_material(request: TransposeRequest) -> TransposeResponse:
+    """
+    Transpose MusicXML content by semitones and/or octaves, optionally changing clef.
+    
+    Used for previewing tunes in different keys or clefs.
+    
+    Args:
+        request: Contains musicxml_content, semitones (-12 to +12), octaves (-2 to +2), target_clef
+        
+    Returns:
+        Transposed MusicXML content with transposition details
+    """
+    from app.audio.transposition import transpose_musicxml
+    from music21 import converter, clef as m21clef
+    import re
+    
+    # Validate input ranges
+    if not -12 <= request.semitones <= 12:
+        raise HTTPException(status_code=400, detail="semitones must be between -12 and +12")
+    if not -2 <= request.octaves <= 2:
+        raise HTTPException(status_code=400, detail="octaves must be between -2 and +2")
+    if request.target_clef and request.target_clef not in ("treble", "bass"):
+        raise HTTPException(status_code=400, detail="target_clef must be 'treble' or 'bass'")
+    
+    # Calculate total transposition (semitones + octaves * 12)
+    total_semitones = request.semitones + (request.octaves * 12)
+    
+    working_xml = request.musicxml_content
+    original_key = None
+    new_key = None
+    
+    # Try to determine original key
+    try:
+        score = converter.parse(working_xml)
+        analyzed_key = score.analyze('key')
+        if analyzed_key:
+            original_key = str(analyzed_key)
+    except Exception as e:
+        logger.warning(f"Could not analyze key: {e}")
+    
+    # Perform pitch transposition if needed
+    if total_semitones != 0:
+        transposed_xml = transpose_musicxml(working_xml, total_semitones)
+        if transposed_xml is None:
+            raise HTTPException(
+                status_code=500, 
+                detail="Transposition failed. music21 may not be available."
+            )
+        working_xml = transposed_xml
+        
+        # Determine new key
+        if original_key:
+            try:
+                transposed_score = converter.parse(working_xml)
+                analyzed_new_key = transposed_score.analyze('key')
+                if analyzed_new_key:
+                    new_key = str(analyzed_new_key)
+            except Exception as e:
+                logger.warning(f"Could not analyze transposed key: {e}")
+    
+    # Change clef if requested
+    if request.target_clef:
+        if request.target_clef == "treble":
+            # Replace any clef with treble (G clef on line 2)
+            working_xml = re.sub(
+                r'<clef[^>]*>\s*<sign>[A-Z]</sign>\s*<line>\d</line>\s*</clef>',
+                '<clef>\n          <sign>G</sign>\n          <line>2</line>\n        </clef>',
+                working_xml
+            )
+        elif request.target_clef == "bass":
+            # Replace any clef with bass (F clef on line 4)
+            working_xml = re.sub(
+                r'<clef[^>]*>\s*<sign>[A-Z]</sign>\s*<line>\d</line>\s*</clef>',
+                '<clef>\n          <sign>F</sign>\n          <line>4</line>\n        </clef>',
+                working_xml
+            )
+    
+    return TransposeResponse(
+        musicxml_content=working_xml,
+        original_key=original_key,
+        new_key=new_key,
+        transposition_semitones=request.semitones,
+        transposition_octaves=request.octaves
+    )
