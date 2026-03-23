@@ -144,6 +144,7 @@ class ScalePattern(str, Enum):
     IN_5THS = "in_5ths"
     IN_6THS = "in_6ths"
     IN_7THS = "in_7ths"
+    IN_8THS = "in_8ths"  # For octatonic scales (8 notes) - enables "Skip 6"
     IN_OCTAVES = "in_octaves"
     
     # Extended intervals (primarily for chromatic scale, but work for all)

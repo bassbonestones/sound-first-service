@@ -238,22 +238,23 @@ def _in_7ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = No
     return _in_interval(pitches, 7, ascending, desc)
 
 
+def _in_8ths(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
+    """For octatonic scales - pairs notes 8 scale degrees apart (Skip 6)."""
+    return _in_interval(pitches, 8, ascending, desc)
+
+
 def _in_octaves(pitches: List[int], ascending: bool, desc: Optional[List[int]] = None) -> List[int]:
-    """Play scale in octaves (diatonic) or P5 intervals (chromatic).
+    """Play scale in octaves - ALWAYS pairs each note with itself an octave apart.
     
-    For diatonic (7-note) scales:
-    - Octave pairs (low-high) ascending, then (high-low) descending
+    This is an isolated pattern that's distinct from the interval skip patterns.
+    For ALL scale types (including chromatic):
     - Ascending: do-do', re-re', ..., ti-ti', do''
     - Descending: do''-do', ti'-ti, ..., re'-re, do
     
-    For chromatic (12-note) scales:
-    - Uses _in_interval(8) for P5 pairs (skip 7 = 7 semitones)
-    - The separate in_13ths pattern handles actual chromatic octaves
-    
-    For 1-octave diatonic input, extends pitches upward only.
+    For 1-octave input, extends pitches upward only.
     """
     n = len(pitches)
-    if n < 7:
+    if n < 5:
         return list(pitches)
     
     # Detect scale size by finding the first octave (same pitch class)
@@ -263,11 +264,7 @@ def _in_octaves(pitches: List[int], ascending: bool, desc: Optional[List[int]] =
             scale_size = i
             break
     
-    # For chromatic (12-note) scales, delegate to _in_interval(8) for P5
-    if scale_size == 12:
-        return _in_interval(pitches, 8, ascending, desc)
-    
-    # For diatonic scales, use special octave-pair pattern
+    # Use special octave-pair pattern for ALL scales (including chromatic)
     # Extend pitches upward to have enough for octave pairs
     extended = list(pitches)
     intervals = [pitches[i+1] - pitches[i] for i in range(min(scale_size, n-1))]
@@ -773,6 +770,7 @@ _SCALE_PATTERN_MAP = {
     ScalePattern.IN_5THS: _in_5ths,
     ScalePattern.IN_6THS: _in_6ths,
     ScalePattern.IN_7THS: _in_7ths,
+    ScalePattern.IN_8THS: _in_8ths,
     ScalePattern.IN_OCTAVES: _in_octaves,
     ScalePattern.IN_9THS: _in_9ths,
     ScalePattern.IN_10THS: _in_10ths,
