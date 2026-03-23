@@ -15,6 +15,7 @@ from app.schemas.generation_schemas import (
     GenerationType,
     MusicalKey,
     PitchEvent,
+    PredictedSoftGates,
     RhythmType,
     ScalePattern,
     ScaleType,
@@ -42,6 +43,7 @@ from .tempo_definitions import (
     validate_tempo_for_rhythm,
 )
 from .valid_pool_calculator import get_valid_pool_calculator
+from .soft_gate_predictor import predict_soft_gates
 
 
 class GenerationService:
@@ -152,6 +154,18 @@ class GenerationService:
         # Compute required capabilities for this generation
         required_caps = self._compute_required_capabilities(request)
         
+        # Compute predicted soft gates for difficulty estimation
+        soft_gates_result = predict_soft_gates(request)
+        predicted_gates = PredictedSoftGates(
+            interval_sustained_stage=soft_gates_result.interval_sustained_stage,
+            interval_hazard_stage=soft_gates_result.interval_hazard_stage,
+            rhythm_complexity_score=soft_gates_result.rhythm_complexity_score,
+            tonal_complexity_stage=soft_gates_result.tonal_complexity_stage,
+            accidental_count=soft_gates_result.accidental_count,
+            max_interval_semitones=soft_gates_result.max_interval_semitones,
+            interval_p75_semitones=soft_gates_result.interval_p75_semitones,
+        )
+        
         return GenerationResponse(
             content_type=request.content_type,
             definition=request.definition,
@@ -168,6 +182,7 @@ class GenerationService:
             total_beats=total_beats,
             tempo_range=tempo_range,
             capabilities_required=sort_capabilities_by_bit_index(list(required_caps)),
+            predicted_soft_gates=predicted_gates,
         )
     
     def generate_musicxml(

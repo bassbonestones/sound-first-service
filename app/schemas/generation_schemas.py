@@ -734,6 +734,62 @@ class PitchEvent(BaseModel):
     )
 
 
+class PredictedSoftGates(BaseModel):
+    """Predicted soft gate metrics for generated content.
+    
+    Used to estimate complexity before the user attempts the exercise,
+    enabling the practice session engine to select appropriate content.
+    """
+    
+    # Interval dimensions (from scale + pattern analysis)
+    interval_sustained_stage: int = Field(
+        ...,
+        ge=0,
+        le=6,
+        description="Predicted interval sustained stage (0-6, based on p75 of melodic intervals)",
+    )
+    interval_hazard_stage: int = Field(
+        ...,
+        ge=0,
+        le=6,
+        description="Predicted interval hazard stage (0-6, based on max melodic interval)",
+    )
+    
+    # Rhythm dimension (from rhythm type)
+    rhythm_complexity_score: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Predicted rhythm complexity (0.0-1.0)",
+    )
+    
+    # Tonal dimension (from key signature)
+    tonal_complexity_stage: int = Field(
+        ...,
+        ge=0,
+        le=5,
+        description="Predicted tonal complexity stage (0-5)",
+    )
+    accidental_count: int = Field(
+        ...,
+        ge=0,
+        le=7,
+        description="Number of accidentals in key signature",
+    )
+    
+    # Additional context
+    max_interval_semitones: int = Field(
+        ...,
+        ge=0,
+        description="Maximum melodic interval in semitones",
+    )
+    interval_p75_semitones: int = Field(
+        ...,
+        ge=0,
+        description="75th percentile melodic interval in semitones",
+    )
+
+
 class GenerationResponse(BaseModel):
     """Response model for generated musical content."""
 
@@ -786,6 +842,11 @@ class GenerationResponse(BaseModel):
     capabilities_required: List[str] = Field(
         default_factory=list,
         description="Capability IDs required to perform this content",
+    )
+    
+    predicted_soft_gates: Optional[PredictedSoftGates] = Field(
+        default=None,
+        description="Predicted soft gate metrics for difficulty estimation",
     )
 
     @field_validator("events")
