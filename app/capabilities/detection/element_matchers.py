@@ -79,8 +79,12 @@ def check_element(config: Dict[str, Any], result: Any, score: Any = None) -> boo
 def _check_score_elements(class_name: str, result: Any, score: Any) -> bool:
     """Check elements that require score traversal."""
     try:
-        # Slurs for legato
+        # Slurs for legato - also check result.articulations for text-based legato
         if class_name == "music21.spanner.Slur":
+            # First check if "articulation_legato" was detected via text direction
+            if "articulation_legato" in result.articulations:
+                return True
+            # Then check for actual slur elements
             from music21 import spanner
             for sp in score.recurse().getElementsByClass(spanner.Slur):
                 return True

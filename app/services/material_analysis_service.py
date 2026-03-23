@@ -196,11 +196,16 @@ class MaterialAnalysisService:
                     capabilities_by_domain[domain] = []
                 capabilities_by_domain[domain].append(cap_name)
             
-            # Sort within domains
+            # Sort within domains by bit_index
             for domain in capabilities_by_domain:
                 capabilities_by_domain[domain].sort(
                     key=lambda c: self.registry.capability_bit_index.get(c, 9999) if self.registry else 9999
                 )
+            
+            # Sort the main list by bit_index as well
+            detected_capabilities.sort(
+                key=lambda c: self.registry.capability_bit_index.get(c, 9999) if self.registry else 9999
+            )
             
             return detected_capabilities, capabilities_by_domain
         except Exception:

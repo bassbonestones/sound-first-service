@@ -17,7 +17,7 @@ from app.tempo_analyzer import build_tempo_profile, get_legacy_tempo_bpm
 from .capability_maps import (
     CLEF_CAPABILITY_MAP, DYNAMIC_CAPABILITY_MAP, 
     ARTICULATION_CAPABILITY_MAP, ORNAMENT_CAPABILITY_MAP,
-    TEMPO_TERMS, EXPRESSION_TERMS,
+    TEMPO_TERMS, EXPRESSION_TERMS, TEXT_TO_ARTICULATION_MAP,
 )
 
 
@@ -165,6 +165,10 @@ def extract_tempo_expression(score: "stream.Score", result: "ExtractionResult") 
             for term in EXPRESSION_TERMS:
                 if term in text_lower:
                     result.expression_terms.add(f"expression_{term.replace(' ', '_')}")
+            # Check for articulation text directions (e.g., "legato", "staccato")
+            for term, articulation_cap in TEXT_TO_ARTICULATION_MAP.items():
+                if term in text_lower:
+                    result.articulations.add(articulation_cap)
 
 
 def extract_repeats(score: "stream.Score", result: "ExtractionResult") -> None:

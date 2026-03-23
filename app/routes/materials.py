@@ -1,8 +1,9 @@
 """Materials endpoints for upload, analysis, and ingestion."""
 import logging
-from fastapi import APIRouter, Depends, Body, HTTPException
+from pathlib import Path
+from fastapi import APIRouter, Depends, Body, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.db import get_db
 from app.models.core import Material
@@ -18,11 +19,112 @@ from app.schemas import (
 )
 from app.schemas.material_schemas import (
     MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut, AnalysisPreviewOut,
-    LearningPathRequest, LearningPathResponse
+    LearningPathRequest, LearningPathResponse,
+    MaterialPreviewFilesResponse, MaterialPreviewResponse
 )
 from app.services import MaterialService, get_material_service
 
 logger = logging.getLogger(__name__)
+
+
+def extract_playback_events_from_musicxml(musicxml_content: str, tempo_bpm: int = 100) -> List[dict]:
+    """
+    Extract playback events from MusicXML content.
+    
+    Args:
+        musicxml_content: Raw MusicXML string
+        tempo_bpm: Tempo in BPM for playback timing
+        
+    Returns:
+        List of PitchEvent-compatible dicts with midi_note, pitch_name, 
+        duration_beats, offset_beats, velocity
+    """
+    try:
+        from music21 import converter, note, chord, dynamics
+        
+        score = converter.parse(musicxml_content)
+        events = []
+        
+        # Get all notes AND rests in order (flatten to single stream)
+        # This keeps the index in sync with notation display
+        flat_elements = list(score.flatten().notesAndRests)
+        
+        # Track current dynamic for velocity
+        current_velocity = 80  # Default mf
+        dynamic_map = {
+            'pppp': 20, 'ppp': 30, 'pp': 40, 'p': 50,
+            'mp': 60, 'mf': 70, 'f': 85, 'ff': 95,
+            'fff': 105, 'ffff': 115
+        }
+        
+        # Get dynamics and map to note offsets
+        dynamics_list = list(score.flatten().getElementsByClass(dynamics.Dynamic))
+        offset_to_velocity = {}
+        for dyn in dynamics_list:
+            vel = dynamic_map.get(dyn.value, 80)
+            offset_to_velocity[float(dyn.offset)] = vel
+        
+        for element in flat_elements:
+            # Update velocity if there's a dynamic at this offset
+            offset = float(element.offset)
+            if offset in offset_to_velocity:
+                current_velocity = offset_to_velocity[offset]
+            
+            if isinstance(element, note.Rest):
+                # Include rests as silent events to keep index in sync
+                events.append({
+                    'midi_note': None,
+                    'pitch_name': 'rest',
+                    'duration_beats': float(element.quarterLength),
+                    'offset_beats': offset,
+                    'velocity': 0,
+                    'is_rest': True,
+                })
+            elif isinstance(element, note.Note):
+                # Skip notes that are continuations of ties (only play the first note)
+                if element.tie and element.tie.type in ('stop', 'continue'):
+                    continue
+                    
+                # Calculate duration - if tied, sum all tied note durations
+                duration = float(element.quarterLength)
+                if element.tie and element.tie.type == 'start':
+                    # Find following tied notes and sum their durations
+                    current_idx = flat_elements.index(element)
+                    for following in flat_elements[current_idx + 1:]:
+                        if isinstance(following, note.Note) and following.pitch.midi == element.pitch.midi:
+                            if following.tie and following.tie.type in ('continue', 'stop'):
+                                duration += float(following.quarterLength)
+                                if following.tie.type == 'stop':
+                                    break
+                            else:
+                                break
+                        elif isinstance(following, note.Note):
+                            # Different pitch, tie chain broken
+                            break
+                
+                events.append({
+                    'midi_note': element.pitch.midi,
+                    'pitch_name': element.nameWithOctave,
+                    'duration_beats': duration,
+                    'offset_beats': offset,
+                    'velocity': current_velocity,
+                })
+            elif isinstance(element, chord.Chord):
+                # For chords, add each pitch as a separate event at the same offset
+                for pitch in element.pitches:
+                    events.append({
+                        'midi_note': pitch.midi,
+                        'pitch_name': pitch.nameWithOctave,
+                        'duration_beats': float(element.quarterLength),
+                        'offset_beats': offset,
+                        'velocity': current_velocity,
+                    })
+        
+        return events
+    except Exception as e:
+        logger.warning(f"Failed to extract playback events: {e}")
+        return []
+
 
 router = APIRouter(prefix="/materials", tags=["materials"])
 
@@ -450,3 +552,181 @@ def generate_learning_path(
         "learning_path": learning_path,
         "path_by_domain": dict(path_by_domain),
     }
+
+
+# === Material Preview Endpoints ===
+
+
+# Pending materials folder for preview (relative to sound-first-service/)
+PENDING_MATERIALS_FOLDER = Path(__file__).parent.parent.parent / "resources" / "materials" / "pending"
+
+
+@router.get("/preview/files", response_model=MaterialPreviewFilesResponse)
+def list_preview_files() -> MaterialPreviewFilesResponse:
+    """
+    List available MusicXML files in the pending materials folder.
+    
+    These files can be previewed without committing to the database.
+    Returns relative paths from the pending folder (e.g., "beginner/hot_cross_buns.musicxml").
+    """
+    if not PENDING_MATERIALS_FOLDER.exists():
+        # Create the folder if it doesn't exist
+        PENDING_MATERIALS_FOLDER.mkdir(parents=True, exist_ok=True)
+        return MaterialPreviewFilesResponse(
+            files=[],
+            folder=str(PENDING_MATERIALS_FOLDER)
+        )
+    
+    # Search recursively for MusicXML files
+    files = sorted([
+        str(f.relative_to(PENDING_MATERIALS_FOLDER))
+        for f in PENDING_MATERIALS_FOLDER.glob("**/*")
+        if f.is_file() and f.suffix.lower() in (".musicxml", ".xml", ".mxl")
+    ])
+    
+    return MaterialPreviewFilesResponse(
+        files=files,
+        folder=str(PENDING_MATERIALS_FOLDER)
+    )
+
+
+@router.get("/preview", response_model=MaterialPreviewResponse)
+def preview_material(
+    filename: str = Query(..., description="Filename to preview (must be in pending folder)")
+) -> MaterialPreviewResponse:
+    """
+    Preview a MusicXML file from the pending folder with full analysis.
+    
+    Loads the file, runs complete analysis (capabilities, soft gates, range),
+    and returns the results along with the MusicXML content for notation display.
+    Does NOT save to database.
+    
+    Args:
+        filename: Name of the file to preview (e.g., "hot_cross_buns.musicxml")
+        
+    Returns:
+        Full analysis including capabilities, soft gates, and MusicXML content
+    """
+    from app.services import get_analysis_service
+    
+    file_path = PENDING_MATERIALS_FOLDER / filename
+    
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404, 
+            detail=f"File not found: {filename}. Available files: use GET /materials/preview/files"
+        )
+    
+    # Security check: ensure path is within pending folder
+    try:
+        file_path.resolve().relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename (path traversal attempt)")
+    
+    try:
+        musicxml_content = file_path.read_text(encoding="utf-8")
+    except Exception as e:
+        logger.error(f"Failed to read file {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to read file: {str(e)}")
+    
+    # Extract title from filename (remove extension, convert underscores to spaces)
+    title = file_path.stem.replace("_", " ").title()
+    
+    # Try to extract original_key_center from metadata comment in MusicXML
+    # Format: <!-- original_key_center: G -->
+    original_key_center: Optional[str] = None
+    import re
+    key_match = re.search(r"<!--\s*original_key_center:\s*([A-Ga-g][#b]?)\s*-->", musicxml_content)
+    if key_match:
+        original_key_center = key_match.group(1)
+    
+    try:
+        service = get_analysis_service()
+        result = service.analyze_musicxml(musicxml_content, title)
+        
+        # Extract playback events for audio playback
+        playback_events = extract_playback_events_from_musicxml(
+            musicxml_content, 
+            tempo_bpm=result.tempo_bpm or 100
+        )
+        
+        return MaterialPreviewResponse(
+            filename=filename,
+            title=result.title,
+            musicxml_content=musicxml_content,
+            original_key_center=original_key_center,
+            capabilities=result.capabilities,
+            capabilities_by_domain=result.capabilities_by_domain,
+            capability_count=result.capability_count,
+            range_analysis=result.range_analysis,
+            chromatic_complexity=result.chromatic_complexity,
+            measure_count=result.measure_count,
+            tempo_bpm=result.tempo_bpm,
+            tempo_marking=result.tempo_marking,
+            soft_gates=result.soft_gates,
+            unified_scores=result.unified_scores,
+            playback_events=playback_events,
+        )
+    except Exception as e:
+        logger.error(f"Analysis failed for {filename}: {e}")
+        raise HTTPException(status_code=400, detail=f"Analysis failed: {str(e)}")
+
+
+@router.get("/preview/solfege")
+def preview_material_solfege(
+    filename: str = Query(..., description="Filename to convert to solfège view"),
+    key: Optional[str] = Query(None, description="Optional key override (e.g., 'G', 'F#m')")
+) -> dict:
+    """
+    Get a solfège version of a MusicXML file.
+    
+    Converts the original MusicXML to use movable-do solfège syllables as lyrics.
+    Supports chromatic alterations (di, ra, ri, me, fi, si, le, li, te).
+    
+    Args:
+        filename: Name of the file to convert
+        key: Optional key override for the solfège calculation
+        
+    Returns:
+        Dictionary with solfege_xml content
+    """
+    from tools.solfege_converter import convert_to_solfege
+    
+    file_path = PENDING_MATERIALS_FOLDER / filename
+    
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"File not found: {filename}"
+        )
+    
+    # Security check
+    try:
+        file_path.resolve().relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    try:
+        musicxml_content = file_path.read_text(encoding="utf-8")
+    except Exception as e:
+        logger.error(f"Failed to read file {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to read file: {str(e)}")
+    
+    # Try to get the original_key_center from the file if no override
+    override_key = key
+    if not override_key:
+        import re
+        key_match = re.search(r"<!--\s*original_key_center:\s*([A-Ga-g][#b]?m?)\s*-->", musicxml_content)
+        if key_match:
+            override_key = key_match.group(1)
+    
+    try:
+        solfege_xml = convert_to_solfege(musicxml_content, override_key=override_key)
+        return {
+            "filename": filename,
+            "solfege_xml": solfege_xml,
+            "key_used": override_key or "analyzed"
+        }
+    except Exception as e:
+        logger.error(f"Solfège conversion failed for {filename}: {e}")
+        raise HTTPException(status_code=400, detail=f"Solfège conversion failed: {str(e)}")

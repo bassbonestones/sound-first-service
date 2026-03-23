@@ -83,11 +83,27 @@ TEMPO_TERMS = {
 }
 
 # Common Italian expression terms
+# Note: articulation terms like legato, staccato, marcato are NOT expressions -
+# they are handled separately via TEXT_TO_ARTICULATION_MAP
 EXPRESSION_TERMS = {
     'dolce', 'cantabile', 'espressivo', 'con brio', 'con fuoco',
     'con moto', 'grazioso', 'leggiero', 'maestoso', 'pesante',
     'scherzando', 'sostenuto', 'tranquillo', 'agitato', 'animato',
-    'appassionato', 'brillante', 'giocoso', 'legato', 'marcato',
+    'appassionato', 'brillante', 'giocoso',
     'perdendosi', 'morendo', 'smorzando', 'sotto voce', 'meno mosso',
     'più mosso', 'sempre', 'molto', 'poco', 'poco a poco',
+}
+
+# Map text direction terms to articulation capabilities
+# When these appear as text (e.g., "legato"), also add the articulation capability
+TEXT_TO_ARTICULATION_MAP = {
+    'legato': 'articulation_legato',
+    'staccato': 'articulation_staccato',
+    'staccatissimo': 'articulation_staccatissimo',
+    'marcato': 'articulation_marcato',
+    'tenuto': 'articulation_tenuto',
+    'portato': 'articulation_portato',
+    'detaché': 'articulation_detache',
+    'detache': 'articulation_detache',
+    'spiccato': 'articulation_spiccato',
 }

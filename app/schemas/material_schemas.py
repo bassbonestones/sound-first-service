@@ -241,3 +241,31 @@ class LearningPathResponse(BaseModel):
     learning_path: List[LearningPathCapability]
     # Grouped by domain for UI
     path_by_domain: Dict[str, List[LearningPathCapability]] = {}
+
+
+# --- Material Preview Schemas ---
+
+
+class MaterialPreviewFilesResponse(BaseModel):
+    """Response model for listing available preview files."""
+    files: List[str]
+    folder: str
+
+
+class MaterialPreviewResponse(BaseModel):
+    """Response model for material preview with full analysis and MusicXML content."""
+    filename: str
+    title: str
+    musicxml_content: str
+    original_key_center: Optional[str] = None
+    capabilities: List[str]
+    capabilities_by_domain: Dict[str, Any]
+    capability_count: int
+    range_analysis: Optional[Dict[str, Any]] = None
+    chromatic_complexity: Optional[float] = None
+    measure_count: int
+    tempo_bpm: Optional[int] = None
+    tempo_marking: Optional[str] = None
+    soft_gates: Dict[str, Any]
+    unified_scores: Dict[str, Any]
+    playback_events: List[Dict[str, Any]] = []  # PitchEvent-compatible dicts for playback

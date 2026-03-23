@@ -53,8 +53,9 @@ def extract_notes_and_rests(score: "stream.Score", result: "ExtractionResult") -
                 cap_name = REST_CAPABILITY_MAP[rest_type]
                 result.rest_values[cap_name] = result.rest_values.get(cap_name, 0) + 1
             
-            # Multi-measure rest
-            if hasattr(element, 'fullMeasure') and element.fullMeasure:
+            # Multi-measure rest - check for actual multi-measure rest notation
+            # (not just a rest that fills one measure)
+            if hasattr(element, 'multiMeasureRestSpanner') and element.multiMeasureRestSpanner is not None:
                 result.has_multi_measure_rest = True
     
     # Check for multi-voice

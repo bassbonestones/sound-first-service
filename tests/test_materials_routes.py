@@ -440,3 +440,248 @@ class TestReanalyzeBatch:
             
             # May 404 if endpoint not found, or 200/422 otherwise
             assert response.status_code in [200, 404, 422, 500]
+
+
+# =============================================================================
+# TEST: GET /materials/preview/files
+# =============================================================================
+
+class TestListPreviewFiles:
+    """Tests for GET /materials/preview/files endpoint."""
+    
+    def test_returns_200(self, client):
+        """Should return 200 even when folder is empty."""
+        response = client.get("/materials/preview/files")
+        
+        assert response.status_code == 200
+    
+    def test_returns_empty_list_when_no_files(self, client, tmp_path):
+        """Should return empty list when no MusicXML files exist."""
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            response = client.get("/materials/preview/files")
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert data["files"] == []
+            assert "folder" in data
+    
+    def test_returns_musicxml_files(self, client, tmp_path):
+        """Should return list of MusicXML files."""
+        # Create test files
+        (tmp_path / "tune1.musicxml").write_text("<score>test</score>")
+        (tmp_path / "tune2.xml").write_text("<score>test</score>")
+        (tmp_path / "not_music.txt").write_text("ignore this")
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            response = client.get("/materials/preview/files")
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert "tune1.musicxml" in data["files"]
+            assert "tune2.xml" in data["files"]
+            assert "not_music.txt" not in data["files"]
+    
+    def test_returns_sorted_files(self, client, tmp_path):
+        """Should return files in sorted order."""
+        (tmp_path / "zebra.musicxml").write_text("<score>test</score>")
+        (tmp_path / "alpha.musicxml").write_text("<score>test</score>")
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            response = client.get("/materials/preview/files")
+            
+            data = response.json()
+            assert data["files"] == ["alpha.musicxml", "zebra.musicxml"]
+    
+    def test_returns_files_from_subdirectories(self, client, tmp_path):
+        """Should return files from nested subdirectories with relative paths."""
+        (tmp_path / "beginner").mkdir()
+        (tmp_path / "advanced").mkdir()
+        (tmp_path / "beginner" / "tune1.musicxml").write_text("<score>test</score>")
+        (tmp_path / "advanced" / "tune2.musicxml").write_text("<score>test</score>")
+        (tmp_path / "root_tune.musicxml").write_text("<score>test</score>")
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            response = client.get("/materials/preview/files")
+            
+            data = response.json()
+            assert "beginner/tune1.musicxml" in data["files"]
+            assert "advanced/tune2.musicxml" in data["files"]
+            assert "root_tune.musicxml" in data["files"]
+
+
+# =============================================================================
+# TEST: GET /materials/preview
+# =============================================================================
+
+class TestPreviewMaterial:
+    """Tests for GET /materials/preview endpoint."""
+    
+    def test_returns_404_for_missing_file(self, client, tmp_path):
+        """Should return 404 when file doesn't exist."""
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            response = client.get("/materials/preview?filename=nonexistent.musicxml")
+            
+            assert response.status_code == 404
+            assert "not found" in response.json()["detail"].lower()
+    
+    def test_returns_400_for_path_traversal(self, client, tmp_path):
+        """Should return 400 for path traversal attempts."""
+        (tmp_path / "safe.musicxml").write_text("<score></score>")
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            response = client.get("/materials/preview?filename=../../../etc/passwd")
+            
+            assert response.status_code in [400, 404]
+    
+    def test_returns_analysis_with_musicxml(self, client, tmp_path, simple_musicxml):
+        """Should return full analysis including MusicXML content."""
+        file_path = tmp_path / "test_tune.musicxml"
+        file_path.write_text(simple_musicxml)
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            with patch("app.services.get_analysis_service") as mock_service:
+                mock_svc = MagicMock()
+                mock_service.return_value = mock_svc
+                
+                # Mock analysis result
+                mock_result = MagicMock()
+                mock_result.title = "Test Tune"
+                mock_result.capabilities = ["quarter_note", "treble_clef"]
+                mock_result.capabilities_by_domain = {"rhythm": ["quarter_note"]}
+                mock_result.capability_count = 2
+                mock_result.range_analysis = {"lowest": "C4", "highest": "G4"}
+                mock_result.chromatic_complexity = 0.1
+                mock_result.measure_count = 1
+                mock_result.tempo_bpm = 120
+                mock_result.tempo_marking = "Allegro"
+                mock_result.soft_gates = {"interval_sustained": 1}
+                mock_result.unified_scores = {"overall": 0.5}
+                mock_svc.analyze_musicxml.return_value = mock_result
+                
+                response = client.get("/materials/preview?filename=test_tune.musicxml")
+                
+                assert response.status_code == 200
+                data = response.json()
+                
+                # Check all expected fields
+                assert data["filename"] == "test_tune.musicxml"
+                assert data["title"] == "Test Tune"
+                assert data["musicxml_content"] == simple_musicxml
+                assert data["capabilities"] == ["quarter_note", "treble_clef"]
+                assert data["capability_count"] == 2
+                assert data["soft_gates"] == {"interval_sustained": 1}
+    
+    def test_extracts_title_from_filename(self, client, tmp_path, simple_musicxml):
+        """Should derive title from filename (underscores to spaces, title case)."""
+        file_path = tmp_path / "hot_cross_buns.musicxml"
+        file_path.write_text(simple_musicxml)
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            with patch("app.services.get_analysis_service") as mock_service:
+                mock_svc = MagicMock()
+                mock_service.return_value = mock_svc
+                
+                mock_result = MagicMock()
+                mock_result.title = "Hot Cross Buns"  # Should be set from filename
+                mock_result.capabilities = []
+                mock_result.capabilities_by_domain = {}
+                mock_result.capability_count = 0
+                mock_result.range_analysis = None
+                mock_result.chromatic_complexity = None
+                mock_result.measure_count = 0
+                mock_result.tempo_bpm = None
+                mock_result.tempo_marking = None
+                mock_result.soft_gates = {}
+                mock_result.unified_scores = {}
+                mock_svc.analyze_musicxml.return_value = mock_result
+                
+                response = client.get("/materials/preview?filename=hot_cross_buns.musicxml")
+                
+                assert response.status_code == 200
+    
+    def test_extracts_original_key_from_comment(self, client, tmp_path):
+        """Should extract original_key_center from MusicXML comment."""
+        musicxml_with_key = """<?xml version="1.0"?>
+<!-- original_key_center: G -->
+<score-partwise><part-list><score-part id="P1"><part-name>M</part-name></score-part></part-list>
+<part id="P1"><measure number="1"><attributes><divisions>1</divisions><key><fifths>0</fifths></key>
+<time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+<note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>
+</measure></part></score-partwise>"""
+        
+        file_path = tmp_path / "tune_in_g.musicxml"
+        file_path.write_text(musicxml_with_key)
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            with patch("app.services.get_analysis_service") as mock_service:
+                mock_svc = MagicMock()
+                mock_service.return_value = mock_svc
+                
+                mock_result = MagicMock()
+                mock_result.title = "Tune In G"
+                mock_result.capabilities = []
+                mock_result.capabilities_by_domain = {}
+                mock_result.capability_count = 0
+                mock_result.range_analysis = None
+                mock_result.chromatic_complexity = None
+                mock_result.measure_count = 1
+                mock_result.tempo_bpm = None
+                mock_result.tempo_marking = None
+                mock_result.soft_gates = {}
+                mock_result.unified_scores = {}
+                mock_svc.analyze_musicxml.return_value = mock_result
+                
+                response = client.get("/materials/preview?filename=tune_in_g.musicxml")
+                
+                assert response.status_code == 200
+                data = response.json()
+                assert data["original_key_center"] == "G"
+    
+    def test_handles_analysis_error(self, client, tmp_path, simple_musicxml):
+        """Should return 400 when analysis fails."""
+        file_path = tmp_path / "bad_tune.musicxml"
+        file_path.write_text(simple_musicxml)
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            with patch("app.services.get_analysis_service") as mock_service:
+                mock_svc = MagicMock()
+                mock_service.return_value = mock_svc
+                mock_svc.analyze_musicxml.side_effect = Exception("Parse error")
+                
+                response = client.get("/materials/preview?filename=bad_tune.musicxml")
+                
+                assert response.status_code == 400
+                assert "Analysis failed" in response.json()["detail"]
+    
+    def test_handles_files_in_subdirectories(self, client, tmp_path, simple_musicxml):
+        """Should handle relative paths to files in subdirectories."""
+        subdir = tmp_path / "beginner"
+        subdir.mkdir()
+        file_path = subdir / "hot_cross_buns.musicxml"
+        file_path.write_text(simple_musicxml)
+        
+        with patch("app.routes.materials.PENDING_MATERIALS_FOLDER", tmp_path):
+            with patch("app.services.get_analysis_service") as mock_service:
+                mock_svc = MagicMock()
+                mock_service.return_value = mock_svc
+                
+                mock_result = MagicMock()
+                mock_result.title = "Hot Cross Buns"
+                mock_result.capabilities = []
+                mock_result.capabilities_by_domain = {}
+                mock_result.capability_count = 0
+                mock_result.range_analysis = None
+                mock_result.chromatic_complexity = None
+                mock_result.measure_count = 4
+                mock_result.tempo_bpm = 100
+                mock_result.tempo_marking = None
+                mock_result.soft_gates = {}
+                mock_result.unified_scores = {}
+                mock_svc.analyze_musicxml.return_value = mock_result
+                
+                # Use relative path including subdirectory
+                response = client.get("/materials/preview?filename=beginner/hot_cross_buns.musicxml")
+                
+                assert response.status_code == 200
+                data = response.json()
+                assert data["title"] == "Hot Cross Buns"
