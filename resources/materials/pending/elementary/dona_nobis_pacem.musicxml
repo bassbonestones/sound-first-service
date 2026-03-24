@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- original_key_center: F -->
-<!DOCTYPE score-partwise  PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
 <score-partwise version="4.0">
   <work>
     <work-title>Dona Nobis Pacem</work-title>
   </work>
   <movement-title>Dona Nobis Pacem</movement-title>
   <identification>
-    <creator type="composer">Traditional Canon</creator>
+    <creator type="composer">Traditional</creator>
     <encoding>
       <encoding-date>2026-03-23</encoding-date>
-      <software>music21 v.9.9.1</software>
+      <software>Manual transcription</software>
     </encoding>
-    <miscellaneous>
-      <miscellaneous-field name="humdrum:ONM">1</miscellaneous-field>
-    </miscellaneous>
   </identification>
   <defaults>
     <scaling>
@@ -23,16 +19,15 @@
     </scaling>
   </defaults>
   <part-list>
-    <score-part id="P510d4f274591175eea4b891acd35e56b">
-      <part-name />
+    <score-part id="P1">
+      <part-name>Voice</part-name>
     </score-part>
   </part-list>
-  <!--=========================== Part 1 ===========================-->
-  <part id="P510d4f274591175eea4b891acd35e56b">
-    <!--========================= Measure 0 ==========================-->
-    <measure implicit="no" number="0">
+  <part id="P1">
+    <!-- M1: do sol mi (C5 G4 E5), 8-8-2, "Do-na" -->
+    <measure number="1">
       <attributes>
-        <divisions>10080</divisions>
+        <divisions>2</divisions>
         <key>
           <fifths>0</fifths>
           <mode>major</mode>
@@ -48,856 +43,772 @@
       </attributes>
       <direction>
         <direction-type>
-          <words>cantabile</words>
-        </direction-type>
-      </direction>
-      <direction>
-        <direction-type>
           <metronome parentheses="no">
             <beat-unit>quarter</beat-unit>
-            <per-minute>90</per-minute>
+            <per-minute>100</per-minute>
           </metronome>
         </direction-type>
-        <sound tempo="90" />
-      </direction>
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <p />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="44" />
+        <sound tempo="100" />
       </direction>
       <note>
         <pitch>
           <step>C</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <lyric name="1" number="1">
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Do</text>
         </lyric>
       </note>
-    </measure>
-    <!--========================= Measure 1 ==========================-->
-    <measure implicit="no" number="1">
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="1" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>na</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="1" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>no</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 2 ==========================-->
-    <measure implicit="no" number="2">
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="2" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>bis</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="2" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>pa</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 3 ==========================-->
-    <measure implicit="no" number="3">
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="3" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>cem,</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>pa</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="3" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>cem.</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 4 ==========================-->
-    <measure implicit="no" number="4">
-      <note>
-        <pitch>
-          <step>F</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="4" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>Do</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="4" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>na</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 5 ==========================-->
-    <measure implicit="no" number="5">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mp />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="57" />
-      </direction>
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="5" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>no</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>bis</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>F</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="5" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>pa</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 6 ==========================-->
-    <measure implicit="no" number="6">
       <note>
         <pitch>
           <step>G</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>4</duration>
         <type>half</type>
-        <notations>
-          <slur number="6" type="start" />
-        </notations>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>end</syllabic>
-          <text>cem.</text>
+          <text>na</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M2: re sol fa (D5 G4 F5), 8-8-2, "no-bis" -->
+    <measure number="2">
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>no</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
         </lyric>
       </note>
       <note>
         <pitch>
           <step>F</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="6" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>Do</text>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>bis</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 7 ==========================-->
-    <measure implicit="no" number="7">
+    <!-- M3: mi re do (E5 D5 C5), 4-4-4, "pa-cem" -->
+    <measure number="3">
       <note>
         <pitch>
           <step>E</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="1" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>na</text>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>pa</text>
         </lyric>
       </note>
       <note>
         <pitch>
           <step>D</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>2</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="1" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>no</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 8 ==========================-->
-    <measure implicit="no" number="8">
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>bis</text>
+        <lyric number="1">
+          <extend />
         </lyric>
       </note>
       <note>
         <pitch>
           <step>C</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>2</duration>
         <type>quarter</type>
-        <lyric name="1" number="1">
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>cem</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M4: do ti (C5 B4), 4-2, "pa-cem" -->
+    <measure number="4">
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>pa</text>
         </lyric>
       </note>
-    </measure>
-    <!--========================= Measure 9 ==========================-->
-    <measure implicit="no" number="9">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mf />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="69" />
-      </direction>
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="2" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>cem.</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="2" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>Do</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 10 =========================-->
-    <measure implicit="no" number="10">
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="3" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>na</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>F</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="3" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>no</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 11 =========================-->
-    <measure implicit="no" number="11">
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="4" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>bis</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>F</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>pa</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="4" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>cem.</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 12 =========================-->
-    <measure implicit="no" number="12">
-      <note>
-        <pitch>
-          <step>A</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="5" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>Do</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="5" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>na</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 13 =========================-->
-    <measure implicit="no" number="13">
-      <note>
-        <pitch>
-          <step>F</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="6" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>no</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>bis</text>
-        </lyric>
-      </note>
-      <note>
-        <pitch>
-          <step>A</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="6" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>begin</syllabic>
-          <text>pa</text>
-        </lyric>
-      </note>
-    </measure>
-    <!--========================= Measure 14 =========================-->
-    <measure implicit="no" number="14">
       <note>
         <pitch>
           <step>B</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>4</duration>
         <type>half</type>
-        <notations>
-          <slur number="1" type="start" />
-        </notations>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>end</syllabic>
-          <text>cem.</text>
+          <text>cem</text>
         </lyric>
       </note>
+    </measure>
+    <!-- M5: la sol fa mi re (A5 G5 F5 E5 D5), 4-8-8-8-8, "Do-na" -->
+    <measure number="5">
       <note>
         <pitch>
           <step>A</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>2</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="1" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Do</text>
         </lyric>
       </note>
-    </measure>
-    <!--========================= Measure 15 =========================-->
-    <measure implicit="no" number="15">
       <note>
         <pitch>
           <step>G</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="2" type="start" />
-        </notations>
-        <lyric name="1" number="1">
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">continue</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">continue</beam>
+        <lyric number="1">
           <syllabic>end</syllabic>
           <text>na</text>
         </lyric>
       </note>
       <note>
         <pitch>
-          <step>F</step>
-          <octave>4</octave>
+          <step>D</step>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+    </measure>
+    <!-- M6: sol fa mi (G5 F5 E5), d4-8-4, "no-bis" -->
+    <measure number="6">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>3</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="2" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
+        <dot />
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>no</text>
         </lyric>
       </note>
-    </measure>
-    <!--========================= Measure 16 =========================-->
-    <measure implicit="no" number="16">
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
       <note>
         <pitch>
           <step>E</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <lyric name="1" number="1">
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
           <syllabic>end</syllabic>
           <text>bis</text>
         </lyric>
       </note>
+    </measure>
+    <!-- M7: mi re do ti (E5 D5 C5 B4), 8-8-4-4, "pa-" -->
+    <measure number="7">
       <note>
         <pitch>
           <step>E</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <lyric name="1" number="1">
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>pa</text>
         </lyric>
       </note>
-    </measure>
-    <!--========================= Measure 17 =========================-->
-    <measure implicit="no" number="17">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mp />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="57" />
-      </direction>
       <note>
         <pitch>
-          <step>E</step>
-          <octave>4</octave>
+          <step>D</step>
+          <octave>5</octave>
         </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="3" type="start" />
-        </notations>
-        <lyric name="1" number="1">
-          <syllabic>end</syllabic>
-          <text>cem.</text>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
         </lyric>
       </note>
       <note>
         <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="3" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 18 =========================-->
-    <measure implicit="no" number="18">
-      <note>
-        <pitch>
           <step>C</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>2</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="4" type="start" />
-        </notations>
+        <lyric number="1">
+          <extend />
+        </lyric>
       </note>
       <note>
         <pitch>
           <step>B</step>
-          <octave>3</octave>
+          <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>2</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
       </note>
+    </measure>
+    <!-- M8: do (C5), d2, "cem" -->
+    <measure number="8">
       <note>
         <pitch>
           <step>C</step>
-          <octave>4</octave>
+          <octave>5</octave>
         </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="4" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 19 =========================-->
-    <measure implicit="no" number="19">
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="5" type="start" />
-        </notations>
-      </note>
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="5" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 20 =========================-->
-    <measure implicit="no" number="20">
-      <note>
-        <pitch>
-          <step>B</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="6" type="start" />
-        </notations>
-      </note>
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-      </note>
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="6" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 21 =========================-->
-    <measure implicit="no" number="21">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <p />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="44" />
-      </direction>
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>20160</duration>
-        <type>half</type>
-        <notations>
-          <slur number="1" type="start" />
-        </notations>
-      </note>
-      <note>
-        <pitch>
-          <step>D</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="1" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 22 =========================-->
-    <measure implicit="no" number="22">
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="2" type="start" />
-        </notations>
-      </note>
-      <note>
-        <pitch>
-          <step>B</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-      </note>
-      <note>
-        <pitch>
-          <step>A</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="2" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 23 =========================-->
-    <measure implicit="no" number="23">
-      <note>
-        <pitch>
-          <step>G</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="3" type="start" />
-        </notations>
-      </note>
-      <note>
-        <pitch>
-          <step>A</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-      </note>
-      <note>
-        <pitch>
-          <step>B</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>10080</duration>
-        <type>quarter</type>
-        <notations>
-          <slur number="3" type="stop" />
-        </notations>
-      </note>
-    </measure>
-    <!--========================= Measure 24 =========================-->
-    <measure implicit="no" number="24">
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>30240</duration>
+        <duration>6</duration>
         <type>half</type>
         <dot />
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>cem</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M9: sol (G5), d2, "Do-" -->
+    <measure number="9">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>half</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>Do</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M10: sol (G5), d2, "na" -->
+    <measure number="10">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>half</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>na</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M11: sol fa mi (G5 F5 E5), 4-4-4, "no-bis" -->
+    <measure number="11">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>no</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>bis</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M12: mi re (E5 D5), 4-2, "pa-cem" -->
+    <measure number="12">
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>pa</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>cem</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M13: la la (A5 A5), 4-2, "Do-na" -->
+    <measure number="13">
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>Do</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>na</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M14: sol sol (G5 G5), 4-2, "no-bis" -->
+    <measure number="14">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>no</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>bis</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M15: sol fa mi re (G5 F5 E5 D5), 8-8-4-4, "pa-" -->
+    <measure number="15">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>pa</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+    </measure>
+    <!-- M16: do (C5), d2, "cem" -->
+    <measure number="16">
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>half</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>cem</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M17: do (C5), d2, "Do-" -->
+    <measure number="17">
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>half</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>Do</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M18: ti (B4), d2, "na" -->
+    <measure number="18">
+      <note>
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>half</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>na</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M19: do re mi fa (C5 D5 E5 F5), d4-8-8-8, "no-bis" -->
+    <measure number="19">
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>3</duration>
+        <type>quarter</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>no</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">continue</beam>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>bis</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+    </measure>
+    <!-- M20: sol sol (G5 G4), 4-2, "pa-cem" -->
+    <measure number="20">
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>pa</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>cem</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M21: fa fa (F5 F5), 4-2, "Do-na" -->
+    <measure number="21">
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>Do</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>na</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M22: mi mi (E5 E5), 4-2, "no-bis" -->
+    <measure number="22">
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>no</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>bis</text>
+        </lyric>
+      </note>
+    </measure>
+    <!-- M23: ti re sol sol (B4 D5 G5 G4), 8-8-4-4, "pa-" -->
+    <measure number="23">
+      <note>
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">begin</beam>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>pa</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <type>eighth</type>
+        <beam number="1">end</beam>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <extend />
+        </lyric>
+      </note>
+    </measure>
+    <!-- M24: do (C5), d2, "cem" -->
+    <measure number="24">
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>half</type>
+        <dot />
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>cem</text>
+        </lyric>
       </note>
       <barline location="right">
         <bar-style>light-heavy</bar-style>

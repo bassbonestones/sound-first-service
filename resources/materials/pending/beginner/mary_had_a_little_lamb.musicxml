@@ -54,14 +54,6 @@
         </direction-type>
         <sound tempo="100" />
       </direction>
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mp />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="57" />
-      </direction>
       <note>
         <pitch>
           <step>E</step>
@@ -69,9 +61,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="1" type="start" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>begin</syllabic>
           <text>Ma</text>
@@ -108,9 +97,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="1" type="stop" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>single</syllabic>
           <text>a</text>
@@ -165,9 +151,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="2" type="start" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>begin</syllabic>
           <text>lit</text>
@@ -192,9 +175,6 @@
         </pitch>
         <duration>20160</duration>
         <type>half</type>
-        <notations>
-          <slur number="2" type="stop" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>single</syllabic>
           <text>lamb,</text>
@@ -242,14 +222,6 @@
     </measure>
     <!--========================= Measure 4 ==========================-->
     <measure implicit="no" number="4">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mf />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="69" />
-      </direction>
       <note>
         <pitch>
           <step>E</step>
@@ -257,9 +229,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="3" type="start" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>begin</syllabic>
           <text>Ma</text>
@@ -296,9 +265,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="3" type="stop" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>single</syllabic>
           <text>a</text>
@@ -365,9 +331,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="4" type="start" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>single</syllabic>
           <text>fleece</text>
@@ -404,9 +367,6 @@
         </pitch>
         <duration>10080</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="4" type="stop" />
-        </notations>
         <lyric name="1" number="1">
           <syllabic>single</syllabic>
           <text>as</text>
@@ -415,14 +375,6 @@
     </measure>
     <!--========================= Measure 7 ==========================-->
     <measure implicit="no" number="7">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <p />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="44" />
-      </direction>
       <note>
         <pitch>
           <step>C</step>
