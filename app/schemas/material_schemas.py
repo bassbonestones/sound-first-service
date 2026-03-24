@@ -271,6 +271,19 @@ class MaterialPreviewResponse(BaseModel):
     playback_events: List[Dict[str, Any]] = []  # PitchEvent-compatible dicts for playback
 
 
+class SavePreviewRequest(BaseModel):
+    """Request model for saving MusicXML to the preview folder."""
+    musicxml_content: str
+    filename: str  # e.g., "beginner/my_new_tune.musicxml"
+
+
+class SavePreviewResponse(BaseModel):
+    """Response model for saved preview file."""
+    filename: str
+    success: bool
+    message: str
+
+
 class TransposeRequest(BaseModel):
     """Request model for transposing MusicXML content."""
     musicxml_content: str

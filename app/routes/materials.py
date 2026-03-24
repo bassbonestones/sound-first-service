@@ -21,7 +21,8 @@ from app.schemas.material_schemas import (
     MaterialBasicOut, MaterialFullAnalysisOut, ExportMessageOut, AnalysisPreviewOut,
     LearningPathRequest, LearningPathResponse,
     MaterialPreviewFilesResponse, MaterialPreviewResponse,
-    TransposeRequest, TransposeResponse
+    TransposeRequest, TransposeResponse,
+    SavePreviewRequest, SavePreviewResponse
 )
 from app.services import MaterialService, get_material_service
 
@@ -818,3 +819,141 @@ def transpose_preview_material(request: TransposeRequest) -> TransposeResponse:
         transposition_semitones=request.semitones,
         transposition_octaves=request.octaves
     )
+
+
+@router.put("/preview", response_model=SavePreviewResponse)
+def save_preview_file(
+    request: SavePreviewRequest = Body(...)
+) -> SavePreviewResponse:
+    """
+    Save MusicXML content to an existing file in the preview folder.
+    
+    Overwrites the file at the specified path within the pending folder.
+    
+    Args:
+        request: SavePreviewRequest with filename and musicxml_content
+        
+    Returns:
+        SavePreviewResponse indicating success or failure
+    """
+    file_path = PENDING_MATERIALS_FOLDER / request.filename
+    
+    # Security check: ensure path is within pending folder
+    try:
+        resolved_path = file_path.resolve()
+        resolved_path.relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename (path traversal attempt)")
+    
+    # Check file exists (PUT should update existing files)
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"File not found: {request.filename}. Use POST to create a new file."
+        )
+    
+    try:
+        file_path.write_text(request.musicxml_content, encoding="utf-8")
+        logger.info(f"Saved preview file: {request.filename}")
+        return SavePreviewResponse(
+            filename=request.filename,
+            success=True,
+            message=f"File saved: {request.filename}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to save file {request.filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+
+
+@router.post("/preview/save", response_model=SavePreviewResponse)
+def create_preview_file(
+    request: SavePreviewRequest = Body(...)
+) -> SavePreviewResponse:
+    """
+    Create a new MusicXML file in the preview folder.
+    
+    Creates the file at the specified path within the pending folder.
+    Parent directories will be created if they don't exist.
+    Will fail if the file already exists (use PUT to overwrite).
+    
+    Args:
+        request: SavePreviewRequest with filename and musicxml_content
+        
+    Returns:
+        SavePreviewResponse indicating success or failure
+    """
+    # Ensure filename has proper extension
+    filename = request.filename
+    if not filename.lower().endswith(('.musicxml', '.xml')):
+        filename += '.musicxml'
+    
+    file_path = PENDING_MATERIALS_FOLDER / filename
+    
+    # Security check: ensure path is within pending folder
+    try:
+        resolved_path = file_path.resolve()
+        resolved_path.relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename (path traversal attempt)")
+    
+    # Check file doesn't exist (POST should create new files)
+    if file_path.exists():
+        raise HTTPException(
+            status_code=409,
+            detail=f"File already exists: {filename}. Use PUT to overwrite."
+        )
+    
+    try:
+        # Create parent directories if needed
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(request.musicxml_content, encoding="utf-8")
+        logger.info(f"Created preview file: {filename}")
+        return SavePreviewResponse(
+            filename=filename,
+            success=True,
+            message=f"File created: {filename}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to create file {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create file: {str(e)}")
+
+
+@router.delete("/preview/{filename:path}", response_model=SavePreviewResponse)
+def delete_preview_file(filename: str) -> SavePreviewResponse:
+    """
+    Delete a MusicXML file from the preview folder.
+    
+    Args:
+        filename: Path to the file within the pending folder
+        
+    Returns:
+        SavePreviewResponse indicating success or failure
+    """
+    file_path = PENDING_MATERIALS_FOLDER / filename
+    
+    # Security check: ensure path is within pending folder
+    try:
+        resolved_path = file_path.resolve()
+        resolved_path.relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename (path traversal attempt)")
+    
+    # Check file exists
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {filename}")
+    
+    # Don't allow deleting directories
+    if file_path.is_dir():
+        raise HTTPException(status_code=400, detail="Cannot delete directories")
+    
+    try:
+        file_path.unlink()
+        logger.info(f"Deleted preview file: {filename}")
+        return SavePreviewResponse(
+            filename=filename,
+            success=True,
+            message=f"File deleted: {filename}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to delete file {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete file: {str(e)}")
