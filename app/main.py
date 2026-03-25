@@ -23,6 +23,7 @@ from app.routes import (
     admin_router,
     imports_router,
     generation_router,
+    tunes_router,
 )
 import logging
 import traceback
@@ -304,4 +305,5 @@ app.include_router(teaching_modules_router)
 app.include_router(admin_router)
 app.include_router(imports_router)
 app.include_router(generation_router)
+app.include_router(tunes_router)
 

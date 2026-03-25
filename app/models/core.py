@@ -146,3 +146,37 @@ class PracticeAttempt(Base):
     # Off-course practice tracking
     is_off_course = Column(Boolean, default=False)  # True = manual practice of locked material
     was_eligible = Column(Boolean, default=True)  # False if material was not eligible at time of attempt
+
+
+class Tune(Base):
+    """User-composed tune with MusicXML content and chord progressions.
+    
+    Stores complete TuneComposerScore data for persistence across devices.
+    Chord progressions are stored as JSON for flexibility.
+    """
+    __tablename__ = 'tunes'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    title = Column(String, nullable=False)
+    
+    # Score metadata
+    clef = Column(String, nullable=False, default='treble')  # 'treble' | 'bass'
+    key_signature = Column(Integer, nullable=False, default=0)  # -7 to +7
+    time_signature_json = Column(String, nullable=False, default='{"beats": 4, "beatUnit": 4}')
+    tempo = Column(Integer, nullable=False, default=120)
+    
+    # Score content (JSON strings)
+    measures_json = Column(String, nullable=False)  # Array of measures with notes
+    chord_progressions_json = Column(String, default='[]')  # Array of ChordProgression objects
+    display_settings_json = Column(String, default='{"showChordSymbols": true}')
+    playback_settings_json = Column(String, default='{}')
+    
+    # Import source (optional)
+    imported_from = Column(String, nullable=True)  # Original filename if imported
+    
+    # Timestamps
+    created_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
+    
+    # Soft delete
+    is_archived = Column(Boolean, default=False)
