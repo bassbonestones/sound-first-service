@@ -21,7 +21,11 @@ from ..schemas.tune_schemas import (
     ChordProgression,
     DisplaySettings,
     PlaybackSettings,
+    ChordInferenceRequest,
+    ChordInferenceResponse,
+    ChordAnalyzeRequest,
 )
+from ..services.chord_inference import ChordInferenceService
 
 router = APIRouter(prefix="/tunes", tags=["tunes"])
 
@@ -96,6 +100,46 @@ def _tune_to_list_item(tune: Tune) -> TuneListItem:
         imported_from=tune.imported_from,
         created_at=tune.created_at,
         updated_at=tune.updated_at,
+    )
+
+
+@router.post("/analyze-chords", response_model=ChordInferenceResponse)
+def analyze_chords(
+    request: ChordAnalyzeRequest,
+) -> ChordInferenceResponse:
+    """Analyze melody data and infer chord progression.
+    
+    This endpoint analyzes raw melody data without requiring a saved tune.
+    Use this for the Tune Composer to infer chords before saving.
+    
+    Args:
+        request: Melody data with inference options.
+        
+    Returns:
+        Inferred chord progression with confidence scores.
+    """
+    time_sig_dict = {
+        "beats": request.time_signature.beats,
+        "beatUnit": request.time_signature.beatUnit,
+    }
+    
+    service = ChordInferenceService()
+    inferred_chords = service.infer_chords_from_measures(
+        measures_json=request.measures_json,
+        key_signature=request.key_signature,
+        time_signature=time_sig_dict,
+        use_seventh_chords=request.use_seventh_chords,
+        chords_per_measure=request.chords_per_measure,
+    )
+    
+    progression_dict = service.to_chord_progression_dict(
+        inferred_chords,
+        name="Auto-Inferred"
+    )
+    
+    return ChordInferenceResponse(
+        progression=ChordProgression(**progression_dict),
+        chord_count=len(inferred_chords),
     )
 
 
@@ -307,3 +351,60 @@ def duplicate_tune(
     db.refresh(duplicate)
     
     return _tune_to_response(duplicate)
+
+
+@router.post("/{tune_id}/infer-chords", response_model=ChordInferenceResponse)
+def infer_chords(
+    tune_id: int,
+    request: ChordInferenceRequest,
+    user_id: int = Query(..., description="User ID"),
+    db: Session = Depends(get_db),
+) -> ChordInferenceResponse:
+    """Infer chord progression from tune melody.
+    
+    Analyzes the melody notes to suggest harmonically appropriate chords.
+    Returns a ChordProgression with isAutoInferred=True that can be added
+    to the tune's chord_progressions array.
+    
+    Args:
+        tune_id: ID of the tune to analyze.
+        request: Inference options (seventh chords, chords per measure).
+        user_id: Owner of the tune.
+        
+    Returns:
+        Inferred chord progression with confidence scores.
+    """
+    tune = db.query(Tune).filter(
+        Tune.id == tune_id,
+        Tune.user_id == user_id,
+    ).first()
+    
+    if not tune:
+        raise HTTPException(status_code=404, detail="Tune not found")
+    
+    # Parse time signature
+    time_sig_dict = _parse_json_field(
+        tune.time_signature_json, 
+        {"beats": 4, "beatUnit": 4}
+    )
+    
+    # Run inference
+    service = ChordInferenceService()
+    inferred_chords = service.infer_chords_from_measures(
+        measures_json=tune.measures_json,
+        key_signature=tune.key_signature,
+        time_signature=time_sig_dict,
+        use_seventh_chords=request.use_seventh_chords,
+        chords_per_measure=request.chords_per_measure,
+    )
+    
+    # Convert to progression dict
+    progression_dict = service.to_chord_progression_dict(
+        inferred_chords, 
+        name="Auto-Inferred"
+    )
+    
+    return ChordInferenceResponse(
+        progression=ChordProgression(**progression_dict),
+        chord_count=len(inferred_chords),
+    )

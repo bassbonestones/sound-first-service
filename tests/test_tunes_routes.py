@@ -391,3 +391,275 @@ class TestDuplicateTune:
         # Chord progressions should be copied
         assert len(data["chord_progressions"]) == 1
 
+
+class TestInferChords:
+    """Test POST /tunes/{tune_id}/infer-chords endpoint."""
+    
+    def test_infer_chords_c_major_arpeggio(self, client, test_user_id, cleanup_tunes):
+        """Test inferring chords from a C major arpeggio melody."""
+        # C4, E4, G4, C5 - should infer C major
+        measures = [
+            {
+                "id": "m1",
+                "notes": [
+                    {"pitch": 60, "duration": 1.0},
+                    {"pitch": 64, "duration": 1.0},
+                    {"pitch": 67, "duration": 1.0},
+                    {"pitch": 72, "duration": 1.0},
+                ]
+            }
+        ]
+        
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": json.dumps(measures),
+                "key_signature": 0,
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.post(
+            f"/tunes/{tune_id}/infer-chords?user_id={test_user_id}",
+            json={"use_seventh_chords": False, "chords_per_measure": 1}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["chord_count"] == 1
+        assert data["progression"]["isAutoInferred"] is True
+        assert data["progression"]["isSystemDefined"] is True
+        assert len(data["progression"]["chords"]) == 1
+        assert data["progression"]["chords"][0]["symbol"] == "C"
+    
+    def test_infer_chords_with_seventh_chords(self, client, test_user_id, cleanup_tunes):
+        """Test inferring seventh chords."""
+        measures = [
+            {
+                "id": "m1",
+                "notes": [
+                    {"pitch": 60, "duration": 1.0},  # C4
+                    {"pitch": 64, "duration": 1.0},  # E4
+                    {"pitch": 67, "duration": 1.0},  # G4
+                    {"pitch": 60, "duration": 1.0},  # C4
+                ]
+            }
+        ]
+        
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": json.dumps(measures),
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.post(
+            f"/tunes/{tune_id}/infer-chords?user_id={test_user_id}",
+            json={"use_seventh_chords": True, "chords_per_measure": 1}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        # Should infer Cmaj7 with seventh chords enabled
+        assert data["progression"]["chords"][0]["symbol"] == "Cmaj7"
+    
+    def test_infer_chords_multiple_measures(self, client, test_user_id, cleanup_tunes):
+        """Test inferring chords for multiple measures."""
+        measures = [
+            {"id": "m1", "notes": [
+                {"pitch": 60, "duration": 2.0}, {"pitch": 64, "duration": 2.0}
+            ]},
+            {"id": "m2", "notes": [
+                {"pitch": 67, "duration": 2.0}, {"pitch": 71, "duration": 2.0}
+            ]},
+            {"id": "m3", "notes": [
+                {"pitch": 65, "duration": 2.0}, {"pitch": 69, "duration": 2.0}
+            ]},
+        ]
+        
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": json.dumps(measures),
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.post(
+            f"/tunes/{tune_id}/infer-chords?user_id={test_user_id}",
+            json={"use_seventh_chords": False, "chords_per_measure": 1}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["chord_count"] == 3
+        assert len(data["progression"]["chords"]) == 3
+    
+    def test_infer_chords_two_per_measure(self, client, test_user_id, cleanup_tunes):
+        """Test inferring two chords per measure."""
+        measures = [
+            {
+                "id": "m1",
+                "notes": [
+                    {"pitch": 60, "duration": 1.0},
+                    {"pitch": 64, "duration": 1.0},
+                    {"pitch": 67, "duration": 1.0},
+                    {"pitch": 71, "duration": 1.0},
+                ]
+            }
+        ]
+        
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": json.dumps(measures),
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.post(
+            f"/tunes/{tune_id}/infer-chords?user_id={test_user_id}",
+            json={"use_seventh_chords": False, "chords_per_measure": 2}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["chord_count"] == 2
+        assert len(data["progression"]["chords"]) == 2
+        # First chord at beat 0, second at beat 2
+        assert data["progression"]["chords"][0]["beatPosition"] == 0.0
+        assert data["progression"]["chords"][1]["beatPosition"] == 2.0
+    
+    def test_infer_chords_tune_not_found(self, client, test_user_id):
+        """Test inferring chords for non-existent tune returns 404."""
+        response = client.post(
+            f"/tunes/999999/infer-chords?user_id={test_user_id}",
+            json={"use_seventh_chords": True, "chords_per_measure": 1}
+        )
+        
+        assert response.status_code == 404
+        assert "Tune not found" in response.json()["detail"]
+    
+    def test_infer_chords_f_major_key(self, client, test_user_id, cleanup_tunes):
+        """Test inferring chords in F major (uses flat spellings)."""
+        # Bb major arpeggio (IV chord in F major)
+        measures = [
+            {
+                "id": "m1",
+                "notes": [
+                    {"pitch": 70, "duration": 1.0},  # Bb4
+                    {"pitch": 74, "duration": 1.0},  # D5
+                    {"pitch": 77, "duration": 1.0},  # F5
+                    {"pitch": 70, "duration": 1.0},  # Bb4
+                ]
+            }
+        ]
+        
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": json.dumps(measures),
+                "key_signature": -1,  # F major
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.post(
+            f"/tunes/{tune_id}/infer-chords?user_id={test_user_id}",
+            json={"use_seventh_chords": False, "chords_per_measure": 1}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        # Should use Bb (flat spelling) not A#
+        assert data["progression"]["chords"][0]["symbol"] == "Bb"
+
+
+class TestAnalyzeChords:
+    """Test POST /tunes/analyze-chords endpoint."""
+    
+    def test_analyze_chords_basic(self, client):
+        """Test analyzing melody data directly without a saved tune."""
+        measures = [
+            {
+                "id": "m1",
+                "notes": [
+                    {"pitch": 60, "duration": 1.0},  # C4
+                    {"pitch": 64, "duration": 1.0},  # E4
+                    {"pitch": 67, "duration": 1.0},  # G4
+                    {"pitch": 72, "duration": 1.0},  # C5
+                ]
+            }
+        ]
+        
+        response = client.post(
+            "/tunes/analyze-chords",
+            json={
+                "measures_json": json.dumps(measures),
+                "key_signature": 0,
+                "time_signature": {"beats": 4, "beatUnit": 4},
+                "use_seventh_chords": False,
+                "chords_per_measure": 1,
+            }
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["chord_count"] == 1
+        assert data["progression"]["isAutoInferred"] is True
+        assert data["progression"]["chords"][0]["symbol"] == "C"
+    
+    def test_analyze_chords_with_defaults(self, client):
+        """Test that default values work correctly."""
+        measures = [
+            {
+                "id": "m1",
+                "notes": [
+                    {"pitch": 60, "duration": 1.0},
+                    {"pitch": 64, "duration": 1.0},
+                    {"pitch": 67, "duration": 1.0},
+                    {"pitch": 60, "duration": 1.0},
+                ]
+            }
+        ]
+        
+        response = client.post(
+            "/tunes/analyze-chords",
+            json={"measures_json": json.dumps(measures)}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        # Default is seventh chords enabled
+        assert data["progression"]["chords"][0]["symbol"] == "Cmaj7"
+    
+    def test_analyze_chords_multiple_measures(self, client):
+        """Test analyzing multiple measures."""
+        measures = [
+            {"id": "m1", "notes": [
+                {"pitch": 60, "duration": 2.0}, {"pitch": 64, "duration": 2.0}
+            ]},
+            {"id": "m2", "notes": [
+                {"pitch": 67, "duration": 2.0}, {"pitch": 71, "duration": 2.0}
+            ]},
+        ]
+        
+        response = client.post(
+            "/tunes/analyze-chords",
+            json={
+                "measures_json": json.dumps(measures),
+                "chords_per_measure": 1,
+            }
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["chord_count"] == 2
+
+

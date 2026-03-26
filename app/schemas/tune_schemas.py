@@ -192,3 +192,52 @@ class TuneListResponse(BaseModel):
     """Response model for listing user's tunes."""
     tunes: List[TuneListItem]
     total_count: int
+
+
+# =============================================================================
+# Chord Inference Schemas
+# =============================================================================
+
+class ChordInferenceRequest(BaseModel):
+    """Request parameters for chord inference."""
+    use_seventh_chords: bool = True
+    chords_per_measure: int = 1
+
+    @field_validator("chords_per_measure")
+    @classmethod
+    def validate_chords_per_measure(cls, v: int) -> int:
+        if v not in (1, 2):
+            raise ValueError("chords_per_measure must be 1 or 2")
+        return v
+
+
+class ChordInferenceResponse(BaseModel):
+    """Response model for chord inference."""
+    progression: ChordProgression
+    chord_count: int
+
+
+class ChordAnalyzeRequest(BaseModel):
+    """Request to analyze melody data and infer chords without a saved tune.
+    
+    Used for inferring chords from local Tune Composer data before save.
+    """
+    measures_json: str
+    key_signature: int = 0
+    time_signature: TimeSignature = TimeSignature(beats=4, beatUnit=4)
+    use_seventh_chords: bool = True
+    chords_per_measure: int = 1
+
+    @field_validator("key_signature")
+    @classmethod
+    def validate_key_signature(cls, v: int) -> int:
+        if v < -7 or v > 7:
+            raise ValueError("key_signature must be between -7 and 7")
+        return v
+
+    @field_validator("chords_per_measure")
+    @classmethod
+    def validate_chords_per_measure(cls, v: int) -> int:
+        if v not in (1, 2):
+            raise ValueError("chords_per_measure must be 1 or 2")
+        return v
