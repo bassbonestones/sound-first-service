@@ -690,6 +690,163 @@ class GenerationRequest(BaseModel):
 
 
 # =============================================================================
+# Chord Progression Generation Models
+# =============================================================================
+
+
+class ChordProgressionContentType(str, Enum):
+    """Type of content to generate over chord changes."""
+
+    SCALES = "scales"  # Play compatible scale over each chord
+    ARPEGGIOS = "arpeggios"  # Play chord arpeggio over each chord
+    GUIDE_TONES = "guide_tones"  # Play 3rd and 7th of each chord
+
+
+class ChordEvent(BaseModel):
+    """A chord symbol with duration in beats."""
+
+    symbol: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        description="Chord symbol (e.g., 'Cmaj7', 'G7', 'Dm7b5', 'C/E')",
+    )
+
+    duration_beats: float = Field(
+        ...,
+        gt=0,
+        le=64,  # Max 16 bars of 4/4
+        description="Duration of chord in beats",
+    )
+
+
+class ChordProgressionRequest(BaseModel):
+    """Request for generating content over a chord progression.
+
+    Example:
+        ChordProgressionRequest(
+            content_type="scales",
+            chords=[
+                ChordEvent(symbol="Dm7", duration_beats=4),
+                ChordEvent(symbol="G7", duration_beats=4),
+                ChordEvent(symbol="Cmaj7", duration_beats=4),
+            ],
+            rhythm="eighth_notes",
+        )
+    """
+
+    content_type: ChordProgressionContentType = Field(
+        ...,
+        description="Type of content to generate over each chord",
+    )
+
+    chords: List[ChordEvent] = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Chord progression with durations",
+    )
+
+    # Pattern (for scales/arpeggios)
+    pattern: Optional[str] = Field(
+        default=None,
+        max_length=50,
+        description="Pattern algorithm to apply. If None, uses straight up-down.",
+    )
+
+    # Rhythm template
+    rhythm: RhythmType = Field(
+        default=RhythmType.QUARTER_NOTES,
+        description="Rhythm/duration template",
+    )
+
+    # Range bounds
+    range_low_midi: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=127,
+        description="Lowest playable MIDI note",
+    )
+
+    range_high_midi: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=127,
+        description="Highest playable MIDI note",
+    )
+
+    # Expression
+    dynamics: DynamicType = Field(
+        default=DynamicType.NONE,
+        description="Dynamic contour to apply",
+    )
+
+    articulation: ArticulationType = Field(
+        default=ArticulationType.LEGATO,
+        description="Articulation style",
+    )
+
+    @model_validator(mode="after")
+    def validate_pitch_range(self) -> "ChordProgressionRequest":
+        """Ensure range_low_midi <= range_high_midi if both provided."""
+        if (
+            self.range_low_midi is not None
+            and self.range_high_midi is not None
+            and self.range_low_midi > self.range_high_midi
+        ):
+            raise ValueError("range_low_midi cannot exceed range_high_midi")
+        return self
+
+
+class ChordSegmentResponse(BaseModel):
+    """Generated content for a single chord."""
+
+    chord_symbol: str = Field(
+        ...,
+        description="The chord this segment is for",
+    )
+
+    scale_used: Optional[str] = Field(
+        default=None,
+        description="Scale type used for this chord (for scales content_type)",
+    )
+
+    duration_beats: float = Field(
+        ...,
+        description="Duration of this segment in beats",
+    )
+
+    events: List["PitchEvent"] = Field(
+        ...,
+        description="Pitch events in this segment",
+    )
+
+
+class ChordProgressionResponse(BaseModel):
+    """Response for chord progression generation."""
+
+    content_type: ChordProgressionContentType = Field(
+        ...,
+        description="Type of content generated",
+    )
+
+    segments: List[ChordSegmentResponse] = Field(
+        ...,
+        description="Generated content per chord",
+    )
+
+    total_beats: float = Field(
+        ...,
+        description="Total duration in beats",
+    )
+
+    events: List["PitchEvent"] = Field(
+        ...,
+        description="All pitch events in chronological order",
+    )
+
+
+# =============================================================================
 # Response Models
 # =============================================================================
 

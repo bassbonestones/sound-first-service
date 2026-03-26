@@ -98,6 +98,35 @@ RHYTHM_CELLS: dict[RhythmType, RhythmCell] = {
 
 
 # =============================================================================
+# Helper Functions
+# =============================================================================
+
+
+def get_rhythm_note_duration(rhythm: RhythmType) -> float:
+    """Get the average note duration for a rhythm type.
+
+    For simple rhythms (eighth notes, quarter notes), returns the exact duration.
+    For compound rhythms (swing, syncopated), returns the average.
+
+    Args:
+        rhythm: The rhythm type.
+
+    Returns:
+        Duration in beats (quarter note = 1.0).
+    """
+    cell = RHYTHM_CELLS.get(rhythm)
+    if cell is None:
+        return QUARTER_NOTE
+
+    # For even divisions, just return the first duration
+    if cell.notes_per_cell == 1:
+        return cell.durations[0]
+
+    # For compound rhythms, return the average
+    return cell.cell_length / cell.notes_per_cell
+
+
+# =============================================================================
 # Core Functions
 # =============================================================================
 

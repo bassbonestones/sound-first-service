@@ -15,6 +15,9 @@ from app.db import get_db
 from app.models.capability_schema import Capability, UserCapability
 from app.schemas.generation_schemas import (
     ArpeggioType,
+    ChordProgressionContentType,
+    ChordProgressionRequest,
+    ChordProgressionResponse,
     GenerationRequest,
     GenerationResponse,
     GenerationType,
@@ -28,6 +31,7 @@ from app.schemas.generation_schemas import (
 )
 from app.services.generation.scale_definitions import ASYMMETRIC_SCALES
 from app.services.generation import get_generation_service
+from app.services.generation.chord_progression_generator import generate_over_changes
 from app.services.generation.valid_pool_calculator import get_valid_pool_calculator
 
 
@@ -117,6 +121,53 @@ def generate_musicxml(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Unexpected error during MusicXML generation: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred during generation",
+        )
+
+
+@router.post("/over-changes", response_model=ChordProgressionResponse)
+def generate_over_chord_changes(
+    request: ChordProgressionRequest = Body(...),
+) -> ChordProgressionResponse:
+    """Generate musical content over a chord progression.
+
+    Creates scales, arpeggios, or guide tones that follow chord changes.
+    Each chord gets appropriate content based on chord-scale mapping.
+
+    Content types:
+    - **scales**: Play the best scale for each chord
+    - **arpeggios**: Play the chord tones for each chord
+    - **guide_tones**: Play the 3rd and 7th of each chord
+
+    Example request:
+    ```json
+    {
+        "content_type": "scales",
+        "chords": [
+            {"symbol": "Dm7", "duration_beats": 4},
+            {"symbol": "G7", "duration_beats": 4},
+            {"symbol": "Cmaj7", "duration_beats": 4}
+        ],
+        "rhythm": "eighth_notes"
+    }
+    ```
+
+    Returns pitch events for each chord segment plus combined events list.
+    """
+    try:
+        response = generate_over_changes(request)
+        logger.info(
+            f"Generated {request.content_type.value} over {len(request.chords)} chords, "
+            f"{len(response.events)} total events"
+        )
+        return response
+    except ValueError as e:
+        logger.warning(f"Generation over changes failed: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Unexpected error during generation over changes: {e}")
         raise HTTPException(
             status_code=500,
             detail="An unexpected error occurred during generation",
