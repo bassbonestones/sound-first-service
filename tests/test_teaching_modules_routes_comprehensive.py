@@ -440,12 +440,65 @@ class TestRecordLessonAttempt:
             f"/modules/user/{test_user.id}/attempt",
             json={
                 "lesson_id": test_lesson.id,
-                "score": 80,
-                "duration_seconds": 120,
+                "is_correct": True,
+                "timing_error_ms": 50,
+                "expected_answer": "quarter",
+                "given_answer": "quarter",
             }
         )
         
-        assert response.status_code in [200, 422, 500]  # May need more setup
+        assert response.status_code == 200
+        data = response.json()
+        assert "attempt" in data
+        assert "lesson_progress" in data
+        assert data["attempt"]["is_correct"] is True
+        assert data["lesson_progress"]["attempts"] == 1
+        assert data["lesson_progress"]["correct_count"] == 1
+
+    def test_incorrect_attempt_resets_streak(
+        self, client, test_session, test_user, test_module, test_lesson, test_capability
+    ):
+        """Should reset current streak when answer is incorrect."""
+        client.post(f"/modules/user/{test_user.id}/start/{test_module.id}")
+        
+        # First make 3 correct attempts
+        for _ in range(3):
+            client.post(
+                f"/modules/user/{test_user.id}/attempt",
+                json={"lesson_id": test_lesson.id, "is_correct": True}
+            )
+        
+        # Now make an incorrect attempt
+        response = client.post(
+            f"/modules/user/{test_user.id}/attempt",
+            json={"lesson_id": test_lesson.id, "is_correct": False}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["lesson_progress"]["current_streak"] == 0
+        assert data["lesson_progress"]["best_streak"] == 3
+        assert data["lesson_progress"]["attempts"] == 4
+        assert data["lesson_progress"]["correct_count"] == 3
+
+    def test_mastery_achieved_after_streak(
+        self, client, test_session, test_user, test_module, test_lesson, test_capability
+    ):
+        """Should mark lesson as mastered after required streak of correct answers."""
+        client.post(f"/modules/user/{test_user.id}/start/{test_module.id}")
+        
+        # Make 8 correct attempts (default streak for mastery)
+        for i in range(8):
+            response = client.post(
+                f"/modules/user/{test_user.id}/attempt",
+                json={"lesson_id": test_lesson.id, "is_correct": True}
+            )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["lesson_mastered"] is True
+        assert data["lesson_progress"]["status"] == "mastered"
+        assert data["lesson_progress"]["current_streak"] == 8
 
 
 # =============================================================================
@@ -466,6 +519,83 @@ class TestCompletLesson:
         response = client.post(f"/modules/user/{test_user.id}/lesson/nonexistent/complete")
         
         assert response.status_code == 404
+    
+    def test_marks_lesson_as_mastered(
+        self, client, test_user, test_module, test_lesson, test_capability
+    ):
+        """Should mark lesson as mastered when called."""
+        response = client.post(
+            f"/modules/user/{test_user.id}/lesson/{test_lesson.id}/complete",
+            params={"streak": 10, "total_attempts": 12, "correct_count": 10}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "success"
+        assert data["lesson_id"] == test_lesson.id
+        assert data["lesson_mastered"] is True
+    
+    def test_marks_capability_as_mastered_when_module_complete(
+        self, client, test_session, test_user, test_module, test_lesson, test_capability
+    ):
+        """Should mark capability as mastered when all module lessons are complete."""
+        # First call creates progress and marks lesson mastered
+        client.post(
+            f"/modules/user/{test_user.id}/lesson/{test_lesson.id}/complete",
+            params={"streak": 8, "total_attempts": 8, "correct_count": 8}
+        )
+        
+        # Second call with already-mastered progress completes the module
+        response = client.post(
+            f"/modules/user/{test_user.id}/lesson/{test_lesson.id}/complete",
+            params={"streak": 8, "total_attempts": 8, "correct_count": 8}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["module_completed"] is True
+        assert data["capability_unlocked"] == "quarter_note"
+    
+    def test_tracks_keys_completed_for_multikey_lessons(
+        self, client, test_session, test_user, test_module, test_lesson, test_capability
+    ):
+        """Should track completed keys for lessons requiring multiple keys."""
+        # Update lesson to require 3 keys
+        test_lesson.mastery_json = '{"keys_required": 3}'
+        test_session.commit()
+        
+        # Complete with first key - not yet mastered
+        response = client.post(
+            f"/modules/user/{test_user.id}/lesson/{test_lesson.id}/complete",
+            params={"streak": 8, "total_attempts": 8, "correct_count": 8, "key": "C4"}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["lesson_mastered"] is False
+        assert data["keys_completed"] == ["C4"]
+        assert data["keys_required"] == 3
+        
+        # Complete with second key
+        response = client.post(
+            f"/modules/user/{test_user.id}/lesson/{test_lesson.id}/complete",
+            params={"streak": 8, "total_attempts": 8, "correct_count": 8, "key": "G4"}
+        )
+        
+        data = response.json()
+        assert data["lesson_mastered"] is False
+        assert "C4" in data["keys_completed"]
+        assert "G4" in data["keys_completed"]
+        
+        # Complete with third key - now mastered
+        response = client.post(
+            f"/modules/user/{test_user.id}/lesson/{test_lesson.id}/complete",
+            params={"streak": 8, "total_attempts": 8, "correct_count": 8, "key": "F4"}
+        )
+        
+        data = response.json()
+        assert data["lesson_mastered"] is True
+        assert len(data["keys_completed"]) == 3
 
 
 # =============================================================================
@@ -493,5 +623,61 @@ class TestGetExercise:
         """Should return generated exercise."""
         response = client.get(f"/modules/user/{test_user.id}/exercise/{test_lesson.id}")
         
-        # May return 200 or 500 depending on exercise template setup
-        assert response.status_code in [200, 500]
+        assert response.status_code == 200
+        data = response.json()
+        assert data["lesson_id"] == test_lesson.id
+        assert "exercise_template_id" in data
+        assert "bpm" in data
+    
+    def test_generates_pulse_pattern_for_rhythm_templates(
+        self, client, test_session, test_user, test_module, test_capability
+    ):
+        """Should generate pulse pattern for rhythm exercises."""
+        # Create lesson with pulse exercise template
+        lesson = Lesson(
+            id="pulse_lesson",
+            module_id=test_module.id,
+            display_name="Pulse Exercise",
+            sequence_order=2,
+            is_active=True,
+            is_required=False,
+            exercise_template_id="tap_with_beat",
+            config_json='{"beats_per_measure": 4, "exercise_measures": 2}',
+        )
+        test_session.add(lesson)
+        test_session.commit()
+        
+        response = client.get(f"/modules/user/{test_user.id}/exercise/pulse_lesson")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["exercise_template_id"] == "tap_with_beat"
+        assert data["model_rhythm"] is not None
+        assert len(data["model_rhythm"]) == 8  # 4 beats * 2 measures
+    
+    def test_generates_pitch_sequence_for_aural_templates(
+        self, client, test_session, test_user, test_module, test_capability
+    ):
+        """Should generate pitch sequence for aural discrimination exercises."""
+        # Create lesson with aural compare template
+        lesson = Lesson(
+            id="aural_lesson",
+            module_id=test_module.id,
+            display_name="Aural Compare",
+            sequence_order=3,
+            is_active=True,
+            is_required=False,
+            exercise_template_id="aural_compare",
+            config_json='{"sequence_length": 2, "allowed_answers": ["same", "different"]}',
+        )
+        test_session.add(lesson)
+        test_session.commit()
+        
+        response = client.get(f"/modules/user/{test_user.id}/exercise/aural_lesson")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["exercise_template_id"] == "aural_compare"
+        assert data["choices"] == ["same", "different"]
+        assert data["model_notes"] is not None
+        assert data["correct_answer"] in ["same", "different"]
