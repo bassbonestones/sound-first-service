@@ -29,18 +29,19 @@ QUARTER_TRIPLET_DURATION = 2.0 / 3.0  # Triplet quarter = 2 triplet eighths
 # Swing eighths use 2/3 and 1/3 durations but should NOT be notated as triplets
 TRIPLET_NOTATION_RHYTHMS: set[RhythmType] = {RhythmType.EIGHTH_TRIPLETS}
 
-# MusicXML duration types based on beats (quarter = 1.0)
-DURATION_TYPES = [
-    (4.0, "whole"),
+# MusicXML duration types: (beats, type_name, is_dotted)
+# Non-dotted durations have is_dotted=False
+DURATION_TYPES: List[Tuple[float, str, bool]] = [
+    (4.0, "whole", False),
     (3.0, "half", True),  # Dotted half
-    (2.0, "half"),
+    (2.0, "half", False),
     (1.5, "quarter", True),  # Dotted quarter
-    (1.0, "quarter"),
+    (1.0, "quarter", False),
     (0.75, "eighth", True),  # Dotted eighth
-    (0.5, "eighth"),
+    (0.5, "eighth", False),
     (0.375, "16th", True),  # Dotted 16th
-    (0.25, "16th"),
-    (0.125, "32nd"),
+    (0.25, "16th", False),
+    (0.125, "32nd", False),
 ]
 
 
@@ -53,15 +54,9 @@ def _beats_to_type(beats: float) -> Tuple[str, bool]:
     Returns:
         Tuple of (type_name, is_dotted).
     """
-    for entry in DURATION_TYPES:
-        if len(entry) == 3:
-            duration, type_name, dotted = entry
-            if abs(beats - duration) < 0.01:
-                return (type_name, True)
-        else:
-            duration, type_name = entry
-            if abs(beats - duration) < 0.01:
-                return (type_name, False)
+    for duration, type_name, is_dotted in DURATION_TYPES:
+        if abs(beats - duration) < 0.01:
+            return (type_name, is_dotted)
     # Default to quarter
     return ("quarter", False)
 

@@ -671,7 +671,7 @@ def get_chromatic_pitch_names(
         return PC_TO_LETTER[pc]
     
     # First pass: identify scale tones vs chromatic tones
-    result = [None] * len(midi_notes)
+    result: List[Optional[str]] = [None] * len(midi_notes)
     chromatic_groups = []  # List of (start_idx, end_idx, pitch_class) for groups
     
     i = 0
@@ -705,8 +705,9 @@ def get_chromatic_pitch_names(
                 # Found a different note - get its letter
                 # For chromatic notes, we need the "expected" letter based on pitch class
                 # For scale tones, we can use the spelled result
-                if result[j] is not None:
-                    resolution_target_letter = result[j][0]  # First char is letter
+                spelled = result[j]
+                if spelled is not None:
+                    resolution_target_letter = spelled[0]  # First char is letter
                 else:
                     resolution_target_letter = get_letter_from_midi(midi_notes[j])
                 break
@@ -716,8 +717,9 @@ def get_chromatic_pitch_names(
             for j in range(group_start - 1, -1, -1):
                 target_pc = midi_notes[j] % 12
                 if target_pc != group_pc:
-                    if result[j] is not None:
-                        resolution_target_letter = result[j][0]
+                    spelled = result[j]
+                    if spelled is not None:
+                        resolution_target_letter = spelled[0]
                     else:
                         resolution_target_letter = get_letter_from_midi(midi_notes[j])
                     break
@@ -747,4 +749,5 @@ def get_chromatic_pitch_names(
             octave = (midi // 12) - 1
             result[idx] = f"{chosen_name}{octave}"
     
-    return result
+    # Filter out None values (should not happen if algorithm is correct)
+    return [s for s in result if s is not None]

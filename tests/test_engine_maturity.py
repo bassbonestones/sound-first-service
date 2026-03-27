@@ -169,3 +169,19 @@ class TestSampleBucket:
         # Check ratios are approximately correct (within 10%)
         assert counts[Bucket.IN_PROGRESS] / samples > 0.4
         assert counts[Bucket.IN_PROGRESS] / samples < 0.6
+    
+    def test_fallback_when_weights_less_than_one(self):
+        """Should return IN_PROGRESS fallback when random exceeds total weights."""
+        from unittest.mock import patch
+        
+        # Weights that sum to less than 1 (0.9 total)
+        weights = {
+            Bucket.NEW: 0.3,
+            Bucket.IN_PROGRESS: 0.3,
+            Bucket.MAINTENANCE: 0.3,
+        }
+        
+        # Mock random to return 0.95 (greater than 0.9 total)
+        with patch('random.random', return_value=0.95):
+            result = sample_bucket(weights)
+            assert result == Bucket.IN_PROGRESS  # Fallback

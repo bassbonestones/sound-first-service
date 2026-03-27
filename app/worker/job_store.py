@@ -8,7 +8,7 @@ import json
 import logging
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from dataclasses import dataclass, asdict
 
 import redis
@@ -36,20 +36,20 @@ class OmrJob:
     source_type: str
     status: str = JobStatus.QUEUED.value
     progress: int = 0
-    result: Optional[dict] = None
+    result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     celery_task_id: Optional[str] = None
-    options: Optional[dict] = None
+    options: Optional[Dict[str, Any]] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     completed_at: Optional[str] = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "OmrJob":
+    def from_dict(cls, data: Dict[str, Any]) -> "OmrJob":
         """Create from dictionary."""
         return cls(**data)
 
@@ -77,7 +77,7 @@ class JobStore:
     def redis(self) -> redis.Redis:
         """Get Redis connection (lazy initialization)."""
         if self._redis is None:
-            self._redis = redis.from_url(
+            self._redis = redis.from_url(  # type: ignore[no-untyped-call]
                 self._redis_url,
                 decode_responses=True,
             )
@@ -92,7 +92,7 @@ class JobStore:
         job_id: str,
         asset_id: str,
         source_type: str,
-        options: Optional[dict] = None,
+        options: Optional[Dict[str, Any]] = None,
     ) -> OmrJob:
         """Create a new job.
 
@@ -141,14 +141,15 @@ class JobStore:
         if data is None:
             return None
 
-        return OmrJob.from_dict(json.loads(data))
+        # Redis decode_responses=True returns str
+        return OmrJob.from_dict(json.loads(str(data)))
 
     def update_job(
         self,
         job_id: str,
         status: Optional[JobStatus] = None,
         progress: Optional[int] = None,
-        result: Optional[dict] = None,
+        result: Optional[Dict[str, Any]] = None,
         error: Optional[str] = None,
         celery_task_id: Optional[str] = None,
         completed_at: Optional[str] = None,
@@ -208,7 +209,7 @@ class JobStore:
             True if deleted, False if not found
         """
         result = self.redis.delete(self._key(job_id))
-        return result > 0
+        return int(result) > 0  # type: ignore[arg-type]
 
     def list_jobs(self, limit: int = 100) -> list[OmrJob]:
         """List recent jobs.
@@ -222,10 +223,10 @@ class JobStore:
         keys = self.redis.keys(f"{self.KEY_PREFIX}*")
         jobs = []
 
-        for key in keys[:limit]:
+        for key in keys[:limit]:  # type: ignore[index]
             data = self.redis.get(key)
             if data:
-                jobs.append(OmrJob.from_dict(json.loads(data)))
+                jobs.append(OmrJob.from_dict(json.loads(str(data))))
 
         # Sort by created_at descending
         jobs.sort(key=lambda j: j.created_at or "", reverse=True)
@@ -248,10 +249,10 @@ class JobStore:
         keys = self.redis.keys(f"{self.KEY_PREFIX}*")
         cleaned = 0
 
-        for key in keys:
+        for key in keys:  # type: ignore[union-attr]
             data = self.redis.get(key)
             if data:
-                job_data = json.loads(data)
+                job_data = json.loads(str(data))
                 created_at = job_data.get("created_at", "")
                 if created_at and created_at < cutoff_iso:
                     self.redis.delete(key)
@@ -259,7 +260,7 @@ class JobStore:
 
         return cleaned
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> Dict[str, int]:
         """Get job statistics.
 
         Returns:
@@ -267,17 +268,17 @@ class JobStore:
         """
         keys = self.redis.keys(f"{self.KEY_PREFIX}*")
         stats = {
-            "total": len(keys),
+            "total": len(keys),  # type: ignore[arg-type]
             "queued": 0,
             "processing": 0,
             "completed": 0,
             "failed": 0,
         }
 
-        for key in keys:
+        for key in keys:  # type: ignore[union-attr]
             data = self.redis.get(key)
             if data:
-                job_data = json.loads(data)
+                job_data = json.loads(str(data))
                 status = job_data.get("status", "")
                 if status in stats:
                     stats[status] += 1

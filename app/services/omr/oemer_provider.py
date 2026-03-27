@@ -85,7 +85,7 @@ class OemerProvider(OmrProvider):
             return self._version
 
         try:
-            import oemer
+            import oemer  # type: ignore[import-not-found]
             # oemer doesn't have __version__, check package metadata
             try:
                 from importlib.metadata import version
@@ -128,7 +128,7 @@ class OemerProvider(OmrProvider):
             output_dir = Path(tempfile.mkdtemp(prefix="oemer_"))
 
         # Convert PDF to image if needed
-        actual_input = input_path
+        actual_input: Optional[Path] = input_path
         if input_path.suffix.lower() == ".pdf":
             actual_input = await self._convert_pdf_to_image(input_path, output_dir)
             if actual_input is None:
@@ -139,6 +139,7 @@ class OemerProvider(OmrProvider):
                 )
 
         try:
+            assert actual_input is not None, "actual_input should not be None here"
             result = await self._run_oemer(
                 oemer_path, actual_input, output_dir, options
             )
@@ -158,7 +159,7 @@ class OemerProvider(OmrProvider):
         """Convert PDF to PNG image for oemer processing."""
         try:
             # Use pdf2image or poppler
-            from pdf2image import convert_from_path
+            from pdf2image import convert_from_path  # type: ignore[import-not-found]
             images = convert_from_path(pdf_path, dpi=300, first_page=1, last_page=1)
             if images:
                 output_path = output_dir / f"{pdf_path.stem}.png"

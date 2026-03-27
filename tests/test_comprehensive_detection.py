@@ -78,6 +78,8 @@ def detect_capabilities(filepath: str, analyzer: MusicXMLAnalyzer,
     
     # Also get the music21 score for custom detectors
     score = music21.converter.parse(filepath)
+    # Store the filepath on the score for detectors that need raw MusicXML access
+    score.filePath = filepath
     
     return engine.detect_capabilities(result, score)
 

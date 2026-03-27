@@ -49,7 +49,11 @@ class EngineResetResponse(BaseModel):
     message: str
 
 
-@router.get("/engine/config", response_model=EngineConfigResponse)
+@router.get(
+    "/engine/config",
+    response_model=EngineConfigResponse,
+    description="Get current session engine configuration and weights",
+)
 def get_engine_config() -> EngineConfigResponse:
     """Get current session engine configuration."""
     return EngineConfigResponse(
@@ -70,7 +74,11 @@ def get_engine_config() -> EngineConfigResponse:
     )
 
 
-@router.put("/engine/config", response_model=EngineUpdateResponse)
+@router.put(
+    "/engine/config",
+    response_model=EngineUpdateResponse,
+    description="Update engine configuration (in-memory, resets on restart)",
+)
 def update_engine_config(update: EngineConfigUpdate) -> Dict[str, Any]:
     """
     Update engine configuration.
@@ -132,7 +140,11 @@ def update_engine_config(update: EngineConfigUpdate) -> Dict[str, Any]:
     }
 
 
-@router.post("/engine/reset", response_model=EngineResetResponse)
+@router.post(
+    "/engine/reset",
+    response_model=EngineResetResponse,
+    description="Reset engine configuration to default values",
+)
 def reset_engine_config() -> Dict[str, Any]:
     """Reset engine configuration to default values."""
     # Reset to original defaults

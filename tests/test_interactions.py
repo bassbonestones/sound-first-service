@@ -378,3 +378,81 @@ class TestEdgeCases:
         if '.' in bonus_str:
             decimals = len(bonus_str.split('.')[1])
             assert decimals <= 4
+
+
+class TestGetInteractionHazards:
+    """Tests for analyze_hazards function."""
+
+    def test_returns_hazard_dict(self):
+        """Should return dict with hazard categories."""
+        from app.scoring.interactions import analyze_hazards
+        
+        domain_scores = {
+            'interval': {'primary': 0.5, 'hazard': 0.3},
+            'rhythm': {'primary': 0.4, 'hazard': 0.2},
+        }
+        result = analyze_hazards(domain_scores)
+        
+        assert isinstance(result, dict)
+        assert 'domain_hazards' in result
+        assert 'ability_hazards' in result
+        assert 'interaction_hazards' in result
+
+    def test_domain_hazards_flagged_at_high_threshold(self):
+        """High hazard scores should be flagged."""
+        from app.scoring.interactions import analyze_hazards
+        
+        domain_scores = {
+            'interval': {'primary': 0.6, 'hazard': 0.85},  # High hazard
+            'rhythm': {'primary': 0.4, 'hazard': 0.3},
+        }
+        result = analyze_hazards(domain_scores)
+        
+        assert len(result['domain_hazards']) == 1
+        assert result['domain_hazards'][0]['domain'] == 'interval'
+        assert result['domain_hazards'][0]['level'] == 'high'
+
+    def test_ability_hazards_with_student_scores(self):
+        """Should flag when piece exceeds student ability."""
+        from app.scoring.interactions import analyze_hazards
+        
+        domain_scores = {
+            'interval': {'primary': 0.6, 'hazard': 0.7},
+            'rhythm': {'primary': 0.4, 'hazard': 0.3},
+        }
+        student_scores = {
+            'interval': 0.4,  # Student ability lower than piece hazard
+            'rhythm': 0.5,
+        }
+        result = analyze_hazards(domain_scores, student_scores, tolerance=0.1)
+        
+        # interval: 0.7 > 0.4 + 0.1 = 0.5, so should flag
+        assert len(result['ability_hazards']) == 1
+        assert result['ability_hazards'][0]['domain'] == 'interval'
+
+    def test_interaction_hazards_when_triggered(self):
+        """Interaction hazards should be included when interactions trigger."""
+        from app.scoring.interactions import analyze_hazards
+        
+        # Scores high enough to trigger interval_rhythm interaction
+        domain_scores = {
+            'interval': {'primary': 0.7, 'hazard': 0.3},
+            'rhythm': {'primary': 0.7, 'hazard': 0.3},
+        }
+        result = analyze_hazards(domain_scores)
+        
+        # Should have interaction hazards populated with warnings
+        assert len(result['interaction_hazards']) > 0
+
+    def test_no_interaction_hazards_when_none_triggered(self):
+        """Should have empty interaction hazards when no interactions trigger."""
+        from app.scoring.interactions import analyze_hazards
+        
+        # Low scores - no interactions should trigger
+        domain_scores = {
+            'interval': {'primary': 0.2, 'hazard': 0.1},
+            'rhythm': {'primary': 0.2, 'hazard': 0.1},
+        }
+        result = analyze_hazards(domain_scores)
+        
+        assert result['interaction_hazards'] == []

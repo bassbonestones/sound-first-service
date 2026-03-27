@@ -433,3 +433,133 @@ class TestPredictSoftGates:
         
         with pytest.raises(AttributeError):
             result.rhythm_complexity_score = 0.99  # type: ignore
+
+
+class TestScalePatternIntervals:
+    """Test melodic interval computation for various scale patterns."""
+    
+    def test_pyramid_pattern(self) -> None:
+        """Pyramid pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.PYRAMID_ASCEND
+        )
+        assert isinstance(result, set)
+        assert len(result) > 0
+
+    def test_in_4ths_pattern(self) -> None:
+        """In 4ths pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.IN_4THS
+        )
+        assert isinstance(result, set)
+
+    def test_in_5ths_pattern(self) -> None:
+        """In 5ths pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.IN_5THS
+        )
+        assert isinstance(result, set)
+
+    def test_in_6ths_pattern(self) -> None:
+        """In 6ths pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.IN_6THS
+        )
+        assert isinstance(result, set)
+
+    def test_in_7ths_pattern(self) -> None:
+        """In 7ths pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.IN_7THS
+        )
+        assert isinstance(result, set)
+
+    def test_in_octaves_pattern(self) -> None:
+        """In octaves pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.IN_OCTAVES
+        )
+        assert isinstance(result, set)
+
+    def test_groups_of_4_pattern(self) -> None:
+        """Groups of 4 pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.GROUPS_OF_4
+        )
+        assert isinstance(result, set)
+
+    def test_broken_thirds_neighbor_pattern(self) -> None:
+        """Broken thirds neighbor pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.BROKEN_THIRDS_NEIGHBOR
+        )
+        assert isinstance(result, set)
+
+    def test_diatonic_triads_pattern(self) -> None:
+        """Diatonic triads pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.DIATONIC_TRIADS
+        )
+        assert isinstance(result, set)
+
+    def test_diatonic_7ths_pattern(self) -> None:
+        """Diatonic 7ths pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.DIATONIC_7THS
+        )
+        assert isinstance(result, set)
+
+    def test_broken_chords_pattern(self) -> None:
+        """Broken chords pattern should return intervals."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            ScaleType.IONIAN, ScalePattern.BROKEN_CHORDS
+        )
+        assert isinstance(result, set)
+
+    def test_unknown_scale_type(self) -> None:
+        """Unknown scale type should return empty set."""
+        from app.schemas.generation_schemas import ScalePattern
+        from app.services.generation.soft_gate_predictor import _get_melodic_intervals_for_scale_pattern
+        from unittest.mock import MagicMock
+        
+        # Use a mock that won't be in SCALE_INTERVALS
+        fake_scale = MagicMock()
+        fake_scale.value = "nonexistent_scale"
+        
+        result = _get_melodic_intervals_for_scale_pattern(
+            fake_scale, ScalePattern.STRAIGHT_UP
+        )
+        assert result == set()

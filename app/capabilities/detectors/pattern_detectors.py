@@ -31,7 +31,7 @@ def detect_compound_intervals(extraction_result: Any, score: Any) -> bool:
 # SCALE FRAGMENT DETECTORS
 # =============================================================================
 
-def _is_stepwise_same_direction(notes: list, start: int, count: int) -> bool:
+def _is_stepwise_same_direction(notes: list[Any], start: int, count: int) -> bool:
     """Check if 'count' consecutive intervals from 'start' are stepwise and same direction."""
     intervals = []
     for j in range(count):

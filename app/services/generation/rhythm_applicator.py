@@ -262,12 +262,13 @@ def _fill_gap_with_rests(
     result = list(events)
     current = gap_start
     
+    duration: float
     while current < gap_end - 0.001:
         remaining = gap_end - current
         
         # Choose appropriate rest duration
         if remaining >= beats_per_measure and current % beats_per_measure < 0.001:
-            duration = beats_per_measure  # whole rest
+            duration = float(beats_per_measure)  # whole rest
         elif remaining >= 2.0 and current % 2.0 < 0.001:
             duration = 2.0  # half rest
         elif remaining >= 1.0 and current % 1.0 < 0.001:

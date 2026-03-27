@@ -16,8 +16,6 @@ from app.models.core import (
 from app.models.teaching_module import (
     TeachingModule,
     Lesson,
-    UserModuleProgress,
-    UserLessonProgress,
 )
 from app.schemas import (
     SelfDirectedSessionIn,
@@ -52,9 +50,9 @@ def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: 
     Returns list of (module, next_lesson) tuples for modules where:
     - User has completed Day 0 (for the given instrument)
     - Module is active
-    - User has completed prerequisite modules
-    - Module is not yet completed
-    - User does NOT already have the capability mastered
+    - User has NOT already mastered the capability this module teaches
+    - User has mastered all prerequisite capabilities
+    - Module has at least one non-mastered lesson remaining
     
     Args:
         db: Database session
@@ -82,15 +80,7 @@ def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: 
         TeachingModule.is_active == True
     ).order_by(TeachingModule.display_order).all()
     
-    # Get user's completed modules
-    completed_module_ids = set(
-        p.module_id for p in db.query(UserModuleProgress).filter(
-            UserModuleProgress.user_id == user_id,
-            UserModuleProgress.status == "completed"
-        ).all()
-    )
-    
-    # Get user's mastered capabilities
+    # Get user's mastered capabilities (the single source of truth)
     # For global caps: look for UserCapability with instrument_id=NULL
     # For instrument-specific caps: look for UserCapability with matching instrument_id
     mastered_cap_names = set()
@@ -114,46 +104,43 @@ def _get_available_teaching_modules(db: DbSession, user_id: int, instrument_id: 
             if uc.instrument_id == instrument_id:
                 mastered_cap_names.add(cap.name)
     
+    # Build lookup of mastered capability IDs for prerequisite checking
+    mastered_cap_ids = set()
+    for cap, uc in cap_records:
+        is_global = cap.is_global if cap.is_global is not None else True
+        if is_global and uc.instrument_id is None:
+            mastered_cap_ids.add(cap.id)
+        elif not is_global and uc.instrument_id == instrument_id:
+            mastered_cap_ids.add(cap.id)
+    
+    # Build lookup of capability name -> capability for prerequisite checking
+    all_capabilities = {cap.name: cap for cap in db.query(Capability).all()}
+    
     available = []
     for module in modules:
-        # Skip completed modules
-        if module.id in completed_module_ids:
-            continue
-        
         # Skip if user already has this capability mastered
-        if module.capability_name in mastered_cap_names:
+        if module.capability_name and module.capability_name in mastered_cap_names:
             continue
         
-        # Check prerequisites - now based on mastered capabilities
-        prereqs: List[str] = json.loads(cast(str, module.prerequisite_capability_names)) if module.prerequisite_capability_names else []
-        prereqs_met = all(cap_name in mastered_cap_names for cap_name in prereqs)
+        # Check prerequisites from the CAPABILITY (not the module)
+        prereqs_met = True
+        if module.capability_name and module.capability_name in all_capabilities:
+            taught_cap = all_capabilities[module.capability_name]
+            if taught_cap.prerequisite_ids:
+                prereq_ids = json.loads(cast(str, taught_cap.prerequisite_ids))
+                prereqs_met = all(prereq_id in mastered_cap_ids for prereq_id in prereq_ids)
         
         if not prereqs_met:
             continue
         
-        # Find the next lesson that isn't mastered
-        lessons = db.query(Lesson).filter(
+        # Get the first lesson in the module (lessons are just sequential content, not individually tracked)
+        first_lesson = db.query(Lesson).filter(
             Lesson.module_id == module.id,
             Lesson.is_active == True
-        ).order_by(Lesson.sequence_order).all()
+        ).order_by(Lesson.sequence_order).first()
         
-        # Get mastered lessons for this user
-        mastered_lesson_ids = set(
-            p.lesson_id for p in db.query(UserLessonProgress).filter(
-                UserLessonProgress.user_id == user_id,
-                UserLessonProgress.status == "mastered"
-            ).all()
-        )
-        
-        # Find first non-mastered lesson
-        next_lesson = None
-        for lesson in lessons:
-            if lesson.id not in mastered_lesson_ids:
-                next_lesson = lesson
-                break
-        
-        if next_lesson:
-            available.append((module, next_lesson))
+        if first_lesson:
+            available.append((module, first_lesson))
     
     return available
 
@@ -207,7 +194,11 @@ def _mini_session_data_to_out(data: MiniSessionData) -> MiniSessionOut:
 
 
 # --- Session Generation Endpoints ---
-@router.post("/generate-session", response_model=PracticeSessionResponse)
+@router.post(
+    "/generate-session",
+    response_model=PracticeSessionResponse,
+    description="Generate a practice session using probabilistic selection",
+)
 def generate_session(
     user_id: int = 1,
     instrument_id: Optional[int] = None,
@@ -358,7 +349,11 @@ def generate_session(
     )
 
 
-@router.post("/generate-self-directed-session", response_model=PracticeSessionResponse)
+@router.post(
+    "/generate-self-directed-session",
+    response_model=PracticeSessionResponse,
+    description="Generate a session with user-selected material and focus card",
+)
 def generate_self_directed_session(data: SelfDirectedSessionIn = Body(...), db: DbSession = Depends(get_db)) -> PracticeSessionResponse:
     """Generate a session with user-selected material and focus card."""
     material = db.query(Material).filter(Material.id == data.material_id).first()
@@ -399,7 +394,11 @@ def generate_self_directed_session(data: SelfDirectedSessionIn = Body(...), db: 
 
 
 # --- Practice Attempts ---
-@router.post("/practice-attempt", response_model=PracticeAttemptOut)
+@router.post(
+    "/practice-attempt",
+    response_model=PracticeAttemptOut,
+    description="Record a practice attempt",
+)
 def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Record a practice attempt."""
     attempt_obj = PracticeAttempt(
@@ -416,7 +415,11 @@ def record_practice_attempt(attempt: PracticeAttemptIn, db: DbSession = Depends(
     return {"status": "success", "attempt_id": attempt_obj.id}
 
 
-@router.get("/practice-attempts", response_model=List[PracticeAttemptDetailOut])
+@router.get(
+    "/practice-attempts",
+    response_model=List[PracticeAttemptDetailOut],
+    description="Get all practice attempts for a user",
+)
 def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get all practice attempts for a user."""
     attempts = db.query(PracticeAttempt).filter(PracticeAttempt.user_id == user_id).all()
@@ -435,7 +438,11 @@ def get_practice_attempts(user_id: int = Query(...), db: DbSession = Depends(get
 
 
 # --- Session Completion ---
-@router.post("/sessions/{session_id}/complete", response_model=SessionCompleteOut)
+@router.post(
+    "/sessions/{session_id}/complete",
+    response_model=SessionCompleteOut,
+    description="Mark a session as complete",
+)
 def complete_session(session_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Mark a session as complete."""
     session = db.query(PracticeSession).filter_by(id=session_id).first()
@@ -447,7 +454,11 @@ def complete_session(session_id: int, db: DbSession = Depends(get_db)) -> Dict[s
 
 
 # --- Mini-Session Curriculum ---
-@router.get("/mini-sessions/{mini_session_id}/curriculum", response_model=MiniSessionWithStepsOut)
+@router.get(
+    "/mini-sessions/{mini_session_id}/curriculum",
+    response_model=MiniSessionWithStepsOut,
+    description="Get the full curriculum for a mini-session with all steps",
+)
 def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(get_db)) -> MiniSessionWithStepsOut:
     """Get the full curriculum for a mini-session with all steps."""
     mini = db.query(MiniSession).filter_by(id=mini_session_id).first()
@@ -508,7 +519,11 @@ def get_mini_session_curriculum(mini_session_id: int, db: DbSession = Depends(ge
     )
 
 
-@router.post("/mini-sessions/{mini_session_id}/steps/{step_index}/complete", response_model=StepCompleteOut)
+@router.post(
+    "/mini-sessions/{mini_session_id}/steps/{step_index}/complete",
+    response_model=StepCompleteOut,
+    description="Mark a curriculum step as complete and advance",
+)
 def complete_step(
     mini_session_id: int, 
     step_index: int, 
@@ -577,7 +592,11 @@ def complete_step(
         return {"status": "completed", "message": "Mini-session complete!"}
 
 
-@router.get("/sessions/{session_id}/next-mini-session", response_model=Union[MiniSessionWithStepsOut, SessionCompleteStatusOut])
+@router.get(
+    "/sessions/{session_id}/next-mini-session",
+    response_model=Union[MiniSessionWithStepsOut, SessionCompleteStatusOut],
+    description="Get the next incomplete mini-session in a practice session",
+)
 def get_next_mini_session(session_id: int, db: DbSession = Depends(get_db)) -> Union[MiniSessionWithStepsOut, Dict[str, Any]]:
     """Get the next incomplete mini-session in a practice session."""
     session = db.query(PracticeSession).filter_by(id=session_id).first()

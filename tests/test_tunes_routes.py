@@ -307,6 +307,110 @@ class TestUpdateTune:
         assert len(data["chord_progressions"]) == 1
         assert data["chord_progressions"][0]["name"] == "Jazz Changes"
 
+    def test_update_tune_clef(self, client, test_user_id, cleanup_tunes):
+        """Test updating tune clef."""
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": '[{"id": "m1", "notes": []}]'
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.put(
+            f"/tunes/{tune_id}?user_id={test_user_id}",
+            json={"clef": "bass"}
+        )
+        
+        assert response.status_code == 200
+        assert response.json()["clef"] == "bass"
+
+    def test_update_tune_key_signature(self, client, test_user_id, cleanup_tunes):
+        """Test updating tune key signature."""
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": '[{"id": "m1", "notes": []}]'
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.put(
+            f"/tunes/{tune_id}?user_id={test_user_id}",
+            json={"key_signature": 1}  # 1 sharp (G major)
+        )
+        
+        assert response.status_code == 200
+        assert response.json()["key_signature"] == 1
+
+    def test_update_tune_time_signature(self, client, test_user_id, cleanup_tunes):
+        """Test updating tune time signature."""
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": '[{"id": "m1", "notes": []}]'
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.put(
+            f"/tunes/{tune_id}?user_id={test_user_id}",
+            json={"time_signature": {"beats": 3, "beatUnit": 4}}
+        )
+        
+        assert response.status_code == 200
+        assert response.json()["time_signature"]["beats"] == 3
+
+    def test_update_tune_tempo(self, client, test_user_id, cleanup_tunes):
+        """Test updating tune tempo."""
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": '[{"id": "m1", "notes": []}]'
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.put(
+            f"/tunes/{tune_id}?user_id={test_user_id}",
+            json={"tempo": 140}
+        )
+        
+        assert response.status_code == 200
+        assert response.json()["tempo"] == 140
+
+    def test_update_tune_measures_json(self, client, test_user_id, cleanup_tunes):
+        """Test updating tune measures_json."""
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": '[{"id": "m1", "notes": []}]'
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.put(
+            f"/tunes/{tune_id}?user_id={test_user_id}",
+            json={"measures_json": '[{"id": "m2", "notes": [{"pitch": "C4"}]}]'}
+        )
+        
+        assert response.status_code == 200
+        assert "m2" in response.json()["measures_json"]
+
+    def test_update_tune_not_found(self, client, test_user_id, cleanup_tunes):
+        """Test updating non-existent tune returns 404."""
+        response = client.put(
+            f"/tunes/9999?user_id={test_user_id}",
+            json={"title": "Updated Title"}
+        )
+        
+        assert response.status_code == 404
+
 
 class TestDeleteTune:
     """Test DELETE /tunes/{tune_id} endpoint."""
@@ -334,6 +438,32 @@ class TestDeleteTune:
         # But visible with include_archived
         list_archived = client.get(f"/tunes?user_id={test_user_id}&include_archived=true")
         assert list_archived.json()["total_count"] == 1
+
+    def test_delete_tune_permanent(self, client, test_user_id, cleanup_tunes):
+        """Test permanently deleting a tune."""
+        # Create a tune first
+        create_response = client.post(
+            f"/tunes?user_id={test_user_id}",
+            json={
+                "title": "Test Tune",
+                "measures_json": '[{"id": "m1", "notes": []}]'
+            }
+        )
+        tune_id = create_response.json()["id"]
+        
+        response = client.delete(f"/tunes/{tune_id}?user_id={test_user_id}&permanent=true")
+        
+        assert response.status_code == 204
+        
+        # Verify it's gone completely (not even in archived)
+        list_archived = client.get(f"/tunes?user_id={test_user_id}&include_archived=true")
+        assert list_archived.json()["total_count"] == 0
+
+    def test_delete_tune_not_found(self, client, test_user_id, cleanup_tunes):
+        """Test deleting non-existent tune returns 404."""
+        response = client.delete(f"/tunes/9999?user_id={test_user_id}")
+        
+        assert response.status_code == 404
 
 
 class TestRestoreTune:

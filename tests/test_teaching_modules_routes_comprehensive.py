@@ -19,7 +19,6 @@ from app.models.core import User
 from app.models.teaching_module import (
     TeachingModule,
     Lesson,
-    UserModuleProgress,
     UserLessonProgress,
     LessonAttempt,
 )
@@ -265,16 +264,14 @@ class TestGetAvailableModules:
     def test_excludes_completed_modules(
         self, client, test_session, test_user, test_module, test_capability
     ):
-        """Should exclude modules user has already completed."""
-        # Mark module as completed
-        progress = UserModuleProgress(
+        """Should exclude modules where user has mastered the capability."""
+        # Mark capability as mastered (this is now the single source of truth)
+        user_cap = UserCapability(
             user_id=test_user.id,
-            module_id=test_module.id,
-            status="completed",
-            started_at=datetime.utcnow(),
-            completed_at=datetime.utcnow(),
+            capability_id=test_capability.id,
+            mastered_at=datetime.utcnow(),
         )
-        test_session.add(progress)
+        test_session.add(user_cap)
         test_session.commit()
         
         response = client.get(f"/modules/user/{test_user.id}/available")

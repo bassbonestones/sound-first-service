@@ -303,29 +303,30 @@ class GenerationService:
                     octave = (midi // 12) - 1
                     
                     # For direction-aware scales, choose spelling based on direction
+                    pitch_name: Optional[str] = None
                     if scale_type in DIRECTION_AWARE_SPELLING_SCALES and pitch_class_to_name_desc:
                         # Look at next note to determine direction
                         # If no next note or same pitch, use ascending by default
                         if i < len(pitches) - 1 and pitches[i + 1] < midi:
                             # Descending - use flats
-                            name = pitch_class_to_name_desc.get(pitch_class)
+                            pitch_name = pitch_class_to_name_desc.get(pitch_class)
                         else:
                             # Ascending or stationary - use sharps
-                            name = pitch_class_to_name_asc.get(pitch_class)
+                            pitch_name = pitch_class_to_name_asc.get(pitch_class)
                     else:
-                        name = pitch_class_to_name_asc.get(pitch_class)
+                        pitch_name = pitch_class_to_name_asc.get(pitch_class)
                     
-                    if name:
+                    if pitch_name:
                         # Adjust octave for enharmonic spellings that cross the C boundary:
                         # - Cb is enharmonically B, but Cb belongs to the next octave
                         #   (Cb5 = B4 = MIDI 71, not Cb4 which would be MIDI 59)
                         # - B# is enharmonically C, but B# belongs to the previous octave
                         #   (B#3 = C4 = MIDI 60, not B#4 which would be MIDI 72)
-                        if name.startswith("Cb") or name.startswith("Cbb"):
+                        if pitch_name.startswith("Cb") or pitch_name.startswith("Cbb"):
                             octave += 1
-                        elif name.startswith("B#") or name.startswith("B##"):
+                        elif pitch_name.startswith("B#") or pitch_name.startswith("B##"):
                             octave -= 1
-                        result.append(f"{name}{octave}")
+                        result.append(f"{pitch_name}{octave}")
                     else:
                         # Fallback for chromatic passing tones
                         result.append(midi_to_pitch_name_in_key(midi, request.key.value))
@@ -349,8 +350,11 @@ class GenerationService:
         if request.pattern is None:
             return pitches
         
+        # Store pattern to help mypy narrow the type
+        pattern_name: str = request.pattern
+        
         if request.content_type == GenerationType.SCALE:
-            pattern = ScalePattern(request.pattern)
+            pattern = ScalePattern(pattern_name)
             
             # Check pattern constraints
             constraints = SCALE_PATTERN_CONSTRAINTS.get(pattern.value, {})
@@ -410,12 +414,12 @@ class GenerationService:
                 pitches, pattern, ascending=True, descending_pitches=descending_pitches
             )
         elif request.content_type == GenerationType.ARPEGGIO:
-            pattern = ArpeggioPattern(request.pattern)
+            arpeggio_pt = ArpeggioPattern(pattern_name)
             # Determine chord size from arpeggio type
             arpeggio_type = ArpeggioType(request.definition)
             chord_size = self._get_chord_size(arpeggio_type)
             return apply_arpeggio_pattern(
-                pitches, pattern, chord_size=chord_size, ascending=True
+                pitches, arpeggio_pt, chord_size=chord_size, ascending=True
             )
         
         return pitches
@@ -575,8 +579,8 @@ class GenerationService:
         elif request.content_type == GenerationType.ARPEGGIO:
             try:
                 arpeggio_type = ArpeggioType(request.definition)
-                pattern = ArpeggioPattern(request.pattern) if request.pattern else ArpeggioPattern.STRAIGHT_UP_DOWN
-                interval_caps = calculator.get_required_capabilities_for_arpeggio(arpeggio_type, pattern)
+                arp_pattern = ArpeggioPattern(request.pattern) if request.pattern else ArpeggioPattern.STRAIGHT_UP_DOWN
+                interval_caps = calculator.get_required_capabilities_for_arpeggio(arpeggio_type, arp_pattern)
                 required.update(interval_caps)
             except ValueError:
                 pass

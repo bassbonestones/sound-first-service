@@ -22,6 +22,7 @@ from app.schemas.generation_schemas import (
     GenerationResponse,
     GenerationType,
     MusicalKey,
+    PatternConstraints,
     RhythmType,
     ScalePattern,
     ArpeggioPattern,
@@ -40,7 +41,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/generate", tags=["generation"])
 
 
-@router.post("", response_model=GenerationResponse)
+@router.post(
+    "",
+    response_model=GenerationResponse,
+    description="Generate musical content from parameters",
+)
 def generate_content(
     request: GenerationRequest = Body(...),
 ) -> GenerationResponse:
@@ -86,7 +91,11 @@ def generate_content(
         )
 
 
-@router.post("/musicxml", response_class=Response)
+@router.post(
+    "/musicxml",
+    response_class=Response,
+    description="Generate musical content and return as MusicXML",
+)
 def generate_musicxml(
     request: GenerationRequest = Body(...),
     title: Optional[str] = Query(
@@ -127,7 +136,11 @@ def generate_musicxml(
         )
 
 
-@router.post("/over-changes", response_model=ChordProgressionResponse)
+@router.post(
+    "/over-changes",
+    response_model=ChordProgressionResponse,
+    description="Generate musical content over a chord progression",
+)
 def generate_over_chord_changes(
     request: ChordProgressionRequest = Body(...),
 ) -> ChordProgressionResponse:
@@ -174,7 +187,11 @@ def generate_over_chord_changes(
         )
 
 
-@router.get("/scale-types", response_model=List[str])
+@router.get(
+    "/scale-types",
+    response_model=List[str],
+    description="Get list of all available scale types",
+)
 def get_scale_types() -> List[str]:
     """Get list of all available scale types.
     
@@ -184,7 +201,11 @@ def get_scale_types() -> List[str]:
     return [s.value for s in ScaleType]
 
 
-@router.get("/arpeggio-types", response_model=List[str])
+@router.get(
+    "/arpeggio-types",
+    response_model=List[str],
+    description="Get list of all available arpeggio types",
+)
 def get_arpeggio_types() -> List[str]:
     """Get list of all available arpeggio types.
     
@@ -194,7 +215,11 @@ def get_arpeggio_types() -> List[str]:
     return [a.value for a in ArpeggioType]
 
 
-@router.get("/scale-patterns", response_model=List[str])
+@router.get(
+    "/scale-patterns",
+    response_model=List[str],
+    description="Get list of all available scale patterns",
+)
 def get_scale_patterns() -> List[str]:
     """Get list of all available scale patterns.
     
@@ -204,8 +229,11 @@ def get_scale_patterns() -> List[str]:
     return [p.value for p in ScalePattern]
 
 
-@router.get("/scale-patterns-with-constraints")
-def get_scale_patterns_with_constraints() -> Dict[str, Dict[str, Any]]:
+@router.get(
+    "/scale-patterns-with-constraints",
+    description="Get scale patterns with their constraints",
+)
+def get_scale_patterns_with_constraints() -> Dict[str, PatternConstraints]:
     """Get scale patterns with their constraints.
     
     Returns a dictionary mapping pattern names to their constraints.
@@ -227,7 +255,11 @@ def get_scale_patterns_with_constraints() -> Dict[str, Dict[str, Any]]:
     return SCALE_PATTERN_CONSTRAINTS
 
 
-@router.get("/asymmetric-scales", response_model=List[str])
+@router.get(
+    "/asymmetric-scales",
+    response_model=List[str],
+    description="Get list of asymmetric scales (different ascending vs descending)",
+)
 def get_asymmetric_scales() -> List[str]:
     """Get list of asymmetric scales.
     
@@ -238,7 +270,11 @@ def get_asymmetric_scales() -> List[str]:
     return [s.value for s in ASYMMETRIC_SCALES]
 
 
-@router.get("/arpeggio-patterns", response_model=List[str])
+@router.get(
+    "/arpeggio-patterns",
+    response_model=List[str],
+    description="Get list of all available arpeggio patterns",
+)
 def get_arpeggio_patterns() -> List[str]:
     """Get list of all available arpeggio patterns.
     
@@ -248,7 +284,11 @@ def get_arpeggio_patterns() -> List[str]:
     return [p.value for p in ArpeggioPattern]
 
 
-@router.get("/rhythm-types", response_model=List[str])
+@router.get(
+    "/rhythm-types",
+    response_model=List[str],
+    description="Get list of all available rhythm types",
+)
 def get_rhythm_types() -> List[str]:
     """Get list of all available rhythm types.
     
@@ -258,7 +298,11 @@ def get_rhythm_types() -> List[str]:
     return [r.value for r in RhythmType]
 
 
-@router.get("/keys", response_model=List[str])
+@router.get(
+    "/keys",
+    response_model=List[str],
+    description="Get list of all available musical keys",
+)
 def get_keys() -> List[str]:
     """Get list of all available keys.
     
@@ -268,7 +312,11 @@ def get_keys() -> List[str]:
     return [k.value for k in MusicalKey]
 
 
-@router.get("/valid-pool", response_model=ValidPoolResponse)
+@router.get(
+    "/valid-pool",
+    response_model=ValidPoolResponse,
+    description="Get valid generation options based on user's mastered capabilities",
+)
 def get_valid_pool(
     user_id: int = Query(..., description="User ID to check capabilities for"),
     db: DbSession = Depends(get_db),

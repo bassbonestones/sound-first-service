@@ -433,7 +433,7 @@ class TestExtractAbcDynamicsAndExpressions:
     def test_extracts_mf_dynamic(self):
         """Should extract mf dynamic at correct position."""
         abc = "K:C\n!mf! C D E F |"
-        dynamics, expressions, articulations = extract_abc_dynamics_and_expressions(abc)
+        dynamics, expressions, articulations, wedges = extract_abc_dynamics_and_expressions(abc)
         assert len(dynamics) == 1
         assert dynamics[0].note_index == 0
         assert dynamics[0].dynamic == "mf"
@@ -441,7 +441,7 @@ class TestExtractAbcDynamicsAndExpressions:
     def test_extracts_multiple_dynamics(self):
         """Should extract multiple dynamics."""
         abc = "K:C\n!p! C D | !f! E F |"
-        dynamics, expressions, articulations = extract_abc_dynamics_and_expressions(abc)
+        dynamics, expressions, articulations, wedges = extract_abc_dynamics_and_expressions(abc)
         assert len(dynamics) == 2
         assert dynamics[0].dynamic == "p"
         assert dynamics[1].dynamic == "f"
@@ -449,7 +449,7 @@ class TestExtractAbcDynamicsAndExpressions:
     def test_extracts_crescendo(self):
         """Should extract crescendo as dynamic."""
         abc = "K:C\n!cresc! C D E F |"
-        dynamics, expressions, articulations = extract_abc_dynamics_and_expressions(abc)
+        dynamics, expressions, articulations, wedges = extract_abc_dynamics_and_expressions(abc)
         # cresc is in dynamics map, maps to "cresc" (short form)
         assert len(dynamics) == 1
         assert dynamics[0].dynamic == "cresc"
@@ -457,14 +457,14 @@ class TestExtractAbcDynamicsAndExpressions:
     def test_extracts_expression_mark(self):
         """Should extract expression marks like dolce."""
         abc = "K:C\n!dolce! C D E F |"
-        dynamics, expressions, articulations = extract_abc_dynamics_and_expressions(abc)
+        dynamics, expressions, articulations, wedges = extract_abc_dynamics_and_expressions(abc)
         assert len(expressions) == 1
         assert expressions[0].text == "dolce"
 
     def test_handles_no_dynamics(self):
         """Should return empty lists for ABC without dynamics."""
         abc = "K:C\nC D E F |"
-        dynamics, expressions, articulations = extract_abc_dynamics_and_expressions(abc)
+        dynamics, expressions, articulations, wedges = extract_abc_dynamics_and_expressions(abc)
         assert len(dynamics) == 0
         assert len(expressions) == 0
         assert len(articulations) == 0
@@ -472,7 +472,7 @@ class TestExtractAbcDynamicsAndExpressions:
     def test_extracts_accent_articulation(self):
         """Should extract accent articulations."""
         abc = "K:C\n!accent! C !>! D E F |"
-        dynamics, expressions, articulations = extract_abc_dynamics_and_expressions(abc)
+        dynamics, expressions, articulations, wedges = extract_abc_dynamics_and_expressions(abc)
         assert len(articulations) == 2
         assert articulations[0].articulation == "Accent"
         assert articulations[1].articulation == "Accent"
@@ -513,14 +513,18 @@ class TestExtractAbcLyrics:
         assert lyrics.syllables == []
 
     def test_handles_underscore_extensions(self):
-        """Should skip underscore melisma markers."""
+        """Should convert underscore melisma markers to empty placeholders for alignment."""
         abc = "K:C\nC D E F |\nw: Hold _ the note"
         lyrics = extract_abc_lyrics(abc)
         assert lyrics is not None
-        # Underscores are skipped, only real lyrics remain
+        # Underscores become empty placeholders to preserve note alignment
         texts = [s.text for s in lyrics.syllables]
         assert "_" not in texts
-        assert texts == ["Hold", "the", "note"]
+        # Empty string represents the melisma extension position
+        assert texts == ["Hold", "", "the", "note"]
+        # Filter to get just actual text content
+        actual_lyrics = [t for t in texts if t]
+        assert actual_lyrics == ["Hold", "the", "note"]
 
     def test_multi_syllable_word(self):
         """Should handle words with three+ syllables."""

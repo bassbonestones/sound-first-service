@@ -545,7 +545,7 @@ class TestHelperFunctions:
 
     def test_get_supported_scale_patterns(self) -> None:
         patterns = get_supported_scale_patterns()
-        assert len(patterns) == 31  # All 31 scale patterns (includes extended intervals and groups)
+        assert len(patterns) == 32  # All 32 scale patterns (includes extended intervals, groups, and broken thirds neighbor)
         assert ScalePattern.IN_3RDS in patterns
         assert ScalePattern.GROUPS_OF_4 in patterns
         assert ScalePattern.PYRAMID_ASCEND in patterns

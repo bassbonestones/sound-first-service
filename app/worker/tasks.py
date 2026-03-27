@@ -8,10 +8,10 @@ import logging
 import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
-from celery import shared_task
-from celery.exceptions import SoftTimeLimitExceeded
+from celery import shared_task  # type: ignore[import-untyped]
+from celery.exceptions import SoftTimeLimitExceeded  # type: ignore[import-untyped]
 
 from app.services.omr import get_omr_provider, OmrProviderOptions
 from app.services.omr.base import OmrProviderResult
@@ -20,7 +20,7 @@ from app.worker.job_store import job_store, JobStatus
 logger = logging.getLogger(__name__)
 
 
-def _run_async(coro):
+def _run_async(coro: Any) -> Any:
     """Helper to run async code from sync Celery tasks."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -37,13 +37,13 @@ def _run_async(coro):
     default_retry_delay=60,
 )
 def process_omr_job(
-    self,
+    self: Any,
     job_id: str,
     asset_id: str,
     input_path: str,
     source_type: str,
-    options: Optional[dict] = None,
-) -> dict:
+    options: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Process an OMR job asynchronously.
 
     Args:
@@ -187,7 +187,7 @@ def process_omr_job(
 
 
 @shared_task(name="app.worker.tasks.cleanup_expired_jobs")
-def cleanup_expired_jobs(max_age_hours: int = 24) -> dict:
+def cleanup_expired_jobs(max_age_hours: int = 24) -> Dict[str, int]:
     """Clean up expired jobs from the job store.
 
     Args:
@@ -202,7 +202,7 @@ def cleanup_expired_jobs(max_age_hours: int = 24) -> dict:
 
 
 @shared_task(name="app.worker.tasks.health_check")
-def health_check() -> dict:
+def health_check() -> Dict[str, Any]:
     """Health check task for monitoring.
 
     Returns:

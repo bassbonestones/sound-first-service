@@ -53,10 +53,17 @@ def extract_notes_and_rests(score: "stream.Score", result: "ExtractionResult") -
                 cap_name = REST_CAPABILITY_MAP[rest_type]
                 result.rest_values[cap_name] = result.rest_values.get(cap_name, 0) + 1
             
-            # Multi-measure rest - check for actual multi-measure rest notation
-            # (not just a rest that fills one measure)
+            # Multi-measure rest - check multiple ways music21 might represent it
+            # 1. Check for multiMeasureRestSpanner attribute
             if hasattr(element, 'multiMeasureRestSpanner') and element.multiMeasureRestSpanner is not None:
                 result.has_multi_measure_rest = True
+            # 2. Check for MultiMeasureRest in spanner sites
+            elif hasattr(element, 'getSpannerSites'):
+                from music21 import spanner
+                for site in element.getSpannerSites():
+                    if isinstance(site, spanner.MultiMeasureRest):
+                        result.has_multi_measure_rest = True
+                        break
     
     # Check for multi-voice
     _extract_voice_count(score, result)

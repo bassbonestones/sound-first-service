@@ -178,3 +178,48 @@ class TestTempoChangeType:
         """Should have relative tempo changes."""
         assert TempoChangeType.MENO_MOSSO is not None
         assert TempoChangeType.PIU_MOSSO is not None
+
+
+class TestTempoDifficultyMetrics:
+    """Tests for TempoDifficultyMetrics dataclass."""
+
+    def test_to_dict_returns_dict(self):
+        """to_dict should return a dictionary."""
+        from app.tempo.types import TempoDifficultyMetrics
+        
+        metrics = TempoDifficultyMetrics(
+            tempo_speed_difficulty=0.5,
+            tempo_control_difficulty=0.3,
+            raw_metrics={"test_key": 42}
+        )
+        
+        result = metrics.to_dict()
+        assert isinstance(result, dict)
+        assert result["tempo_speed_difficulty"] == 0.5
+        assert result["tempo_control_difficulty"] == 0.3
+        assert result["raw_metrics"]["test_key"] == 42
+
+    def test_to_dict_handles_none_values(self):
+        """to_dict should handle None difficulty values."""
+        from app.tempo.types import TempoDifficultyMetrics
+        
+        metrics = TempoDifficultyMetrics(
+            tempo_speed_difficulty=None,
+            tempo_control_difficulty=None,
+        )
+        
+        result = metrics.to_dict()
+        assert result["tempo_speed_difficulty"] is None
+        assert result["tempo_control_difficulty"] is None
+
+    def test_to_dict_empty_raw_metrics(self):
+        """to_dict with empty raw_metrics."""
+        from app.tempo.types import TempoDifficultyMetrics
+        
+        metrics = TempoDifficultyMetrics(
+            tempo_speed_difficulty=0.8,
+            tempo_control_difficulty=0.2,
+        )
+        
+        result = metrics.to_dict()
+        assert result["raw_metrics"] == {}

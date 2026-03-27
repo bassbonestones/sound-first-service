@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from fastapi import APIRouter, Depends, Body, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from app.db import get_db
 from app.models.core import Material
@@ -29,7 +29,7 @@ from app.services import MaterialService, get_material_service
 logger = logging.getLogger(__name__)
 
 
-def extract_playback_events_from_musicxml(musicxml_content: str, tempo_bpm: int = 100) -> List[dict]:
+def extract_playback_events_from_musicxml(musicxml_content: str, tempo_bpm: int = 100) -> List[Dict[str, Any]]:
     """
     Extract playback events from MusicXML content.
     
@@ -131,7 +131,11 @@ def extract_playback_events_from_musicxml(musicxml_content: str, tempo_bpm: int 
 router = APIRouter(prefix="/materials", tags=["materials"])
 
 
-@router.get("", response_model=List[MaterialBasicOut])
+@router.get(
+    "",
+    response_model=List[MaterialBasicOut],
+    description="List all materials with basic info",
+)
 def get_materials(db: Session = Depends(get_db)) -> List[MaterialBasicOut]:
     """List all materials with basic info."""
     materials = db.query(Material).all()
@@ -148,7 +152,11 @@ def get_materials(db: Session = Depends(get_db)) -> List[MaterialBasicOut]:
     return result  # type: ignore[return-value]
 
 
-@router.post("/upload", response_model=MaterialAnalysisResponse)
+@router.post(
+    "/upload",
+    response_model=MaterialAnalysisResponse,
+    description="Upload a new material from MusicXML content",
+)
 def upload_material(
     data: MaterialUpload = Body(...),
     db: Session = Depends(get_db)
@@ -196,7 +204,11 @@ def upload_material(
     )
 
 
-@router.get("/{material_id}/analysis", response_model=MaterialFullAnalysisOut)
+@router.get(
+    "/{material_id}/analysis",
+    response_model=MaterialFullAnalysisOut,
+    description="Get the analysis data for a material",
+)
 def get_material_analysis(material_id: int, db: Session = Depends(get_db)) -> MaterialFullAnalysisOut:
     """Get the analysis data for a material."""
     from app.models.capability_schema import MaterialAnalysis, MaterialCapability, Capability
@@ -235,7 +247,12 @@ def get_material_analysis(material_id: int, db: Session = Depends(get_db)) -> Ma
     }  # type: ignore[return-value]
 
 
-@router.post("/analyze", response_model=AnalysisPreviewOut, status_code=200)
+@router.post(
+    "/analyze",
+    response_model=AnalysisPreviewOut,
+    status_code=200,
+    description="Preview material analysis without saving to database",
+)
 def analyze_material_preview(data: MaterialUpload = Body(...)) -> AnalysisPreviewOut:
     """
     Preview material analysis without saving to database.
@@ -253,7 +270,11 @@ def analyze_material_preview(data: MaterialUpload = Body(...)) -> AnalysisPrevie
         raise HTTPException(status_code=400, detail=f"Analysis failed: {str(e)}")
 
 
-@router.post("/ingest-batch", response_model=BatchIngestionResponse)
+@router.post(
+    "/ingest-batch",
+    response_model=BatchIngestionResponse,
+    description="Batch analyze MusicXML files and update materials.json",
+)
 def ingest_materials_batch(data: BatchIngestionRequest = Body(...)) -> BatchIngestionResponse:
     """
     Batch analyze MusicXML files and update materials.json.
@@ -291,7 +312,11 @@ def ingest_materials_batch(data: BatchIngestionRequest = Body(...)) -> BatchInge
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
-@router.post("/export-json", response_model=ExportMessageOut)
+@router.post(
+    "/export-json",
+    response_model=ExportMessageOut,
+    description="Export current materials data to materials.json",
+)
 def export_materials_to_json() -> ExportMessageOut:
     """Export current materials data to materials.json."""
     from app.material_ingestion_service import MaterialIngestionService
@@ -305,7 +330,11 @@ def export_materials_to_json() -> ExportMessageOut:
         raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
 
 
-@router.post("/{material_id}/reanalyze", response_model=ReanalyzeResponse)
+@router.post(
+    "/{material_id}/reanalyze",
+    response_model=ReanalyzeResponse,
+    description="Re-analyze a single material and update its analysis data",
+)
 def reanalyze_single_material(
     material_id: int,
     data: ReanalyzeRequest = Body(default=ReanalyzeRequest()),
@@ -345,7 +374,11 @@ def reanalyze_single_material(
     )
 
 
-@router.post("/reanalyze-all", response_model=BatchReanalyzeResponse)
+@router.post(
+    "/reanalyze-all",
+    response_model=BatchReanalyzeResponse,
+    description="Re-analyze multiple materials in batch",
+)
 def reanalyze_all_materials(
     data: BatchReanalyzeRequest = Body(default=BatchReanalyzeRequest()),
     db: Session = Depends(get_db)
@@ -379,7 +412,11 @@ def reanalyze_all_materials(
 # === Learning Path Generation ===
 
 
-@router.post("/learning-path", response_model=LearningPathResponse)
+@router.post(
+    "/learning-path",
+    response_model=LearningPathResponse,
+    description="Generate a learning path from capabilities in an imported score",
+)
 def generate_learning_path(
     data: LearningPathRequest = Body(...),
     db: Session = Depends(get_db)
@@ -428,14 +465,14 @@ def generate_learning_path(
     
     # Also load all capabilities referenced as prerequisites
     # (we might need them even if not in the original list)
-    all_prereq_ids: set = set()
+    all_prereq_ids: set[int] = set()
     for cap in capabilities:
         if cap.prerequisite_ids:
             prereq_ids = json.loads(str(cap.prerequisite_ids))
             all_prereq_ids.update(prereq_ids)
     
     # Load any prerequisite capabilities not already loaded
-    missing_prereq_ids = all_prereq_ids - set(cap_by_id.keys())
+    missing_prereq_ids = all_prereq_ids - set(cap_by_id.keys())  # type: ignore[arg-type]
     if missing_prereq_ids:
         prereq_caps = db.query(Capability).filter(
             Capability.id.in_(missing_prereq_ids)
@@ -445,8 +482,8 @@ def generate_learning_path(
             cap_by_name[pc.name] = pc
             
         # Recursively load prerequisites of prerequisites
-        def load_all_prereqs(cap_ids: set, loaded: dict) -> None:
-            new_ids: set = set()
+        def load_all_prereqs(cap_ids: set[int], loaded: Dict[int, Any]) -> None:
+            new_ids: set[int] = set()
             for cid in cap_ids:
                 if cid in loaded and loaded[cid].prerequisite_ids:
                     prereqs = json.loads(str(loaded[cid].prerequisite_ids))
@@ -456,14 +493,14 @@ def generate_learning_path(
             if new_ids:
                 new_caps = db.query(Capability).filter(Capability.id.in_(new_ids)).all()
                 for nc in new_caps:
-                    loaded[nc.id] = nc
+                    loaded[nc.id] = nc  # type: ignore[index]
                     cap_by_name[nc.name] = nc
                 load_all_prereqs(new_ids, loaded)
         
-        load_all_prereqs(missing_prereq_ids, cap_by_id)
+        load_all_prereqs(missing_prereq_ids, cap_by_id)  # type: ignore[arg-type]
     
     # Calculate depth for each capability (distance from no unmastered prerequisites)
-    def calculate_depth(cap_id: int, depth_cache: dict, visited: set) -> int:
+    def calculate_depth(cap_id: int, depth_cache: Dict[int, int], visited: set[int]) -> int:
         """Calculate prerequisite depth (0 = no unmastered prereqs)."""
         if cap_id in depth_cache:
             return depth_cache[cap_id]
@@ -473,7 +510,7 @@ def generate_learning_path(
         
         visited.add(cap_id)
         
-        cap = cap_by_id.get(cap_id)
+        cap = cap_by_id.get(cap_id)  # type: ignore[call-overload]
         if not cap or not cap.prerequisite_ids:
             depth_cache[cap_id] = 0
             return 0
@@ -490,7 +527,7 @@ def generate_learning_path(
         depth_cache[cap_id] = max_prereq_depth
         return max_prereq_depth
     
-    depth_cache: dict = {}
+    depth_cache: Dict[int, int] = {}
     
     # Build learning path
     learning_path = []
@@ -506,7 +543,7 @@ def generate_learning_path(
                     caps_to_include.add(cap_by_id[pid].name)
     
     for cap_name in caps_to_include:
-        cap = cap_by_name.get(cap_name)
+        cap = cap_by_name.get(cap_name)  # type: ignore[assignment]
         if not cap:
             continue
         
@@ -524,7 +561,7 @@ def generate_learning_path(
                 if pid in cap_by_id
             ]
         
-        depth = calculate_depth(cap.id, depth_cache, set())
+        depth = calculate_depth(cap.id, depth_cache, set())  # type: ignore[arg-type]
         
         learning_path.append({
             "id": cap.id,
@@ -541,10 +578,10 @@ def generate_learning_path(
     learning_path.sort(key=lambda x: (x["is_mastered"], x["depth"], x["name"]))
     
     # Group by domain for UI convenience
-    path_by_domain: dict = defaultdict(list)
+    path_by_domain: Dict[str, List[Any]] = defaultdict(list)
     for cap_data in learning_path:
         if not cap_data["is_mastered"]:
-            path_by_domain[cap_data["domain"]].append(cap_data)
+            path_by_domain[cap_data["domain"]].append(cap_data)  # type: ignore[index]
     
     return {  # type: ignore[return-value]
         "user_id": data.user_id,
@@ -563,7 +600,11 @@ def generate_learning_path(
 PENDING_MATERIALS_FOLDER = Path(__file__).parent.parent.parent / "resources" / "materials" / "pending"
 
 
-@router.get("/preview/files", response_model=MaterialPreviewFilesResponse)
+@router.get(
+    "/preview/files",
+    response_model=MaterialPreviewFilesResponse,
+    description="List available MusicXML files in the pending folder",
+)
 def list_preview_files() -> MaterialPreviewFilesResponse:
     """
     List available MusicXML files in the pending materials folder.
@@ -592,7 +633,11 @@ def list_preview_files() -> MaterialPreviewFilesResponse:
     )
 
 
-@router.get("/preview", response_model=MaterialPreviewResponse)
+@router.get(
+    "/preview",
+    response_model=MaterialPreviewResponse,
+    description="Preview a MusicXML file with full analysis",
+)
 def preview_material(
     filename: str = Query(..., description="Filename to preview (must be in pending folder)")
 ) -> MaterialPreviewResponse:
@@ -674,11 +719,14 @@ def preview_material(
         raise HTTPException(status_code=400, detail=f"Analysis failed: {str(e)}")
 
 
-@router.get("/preview/solfege")
+@router.get(
+    "/preview/solfege",
+    description="Get a solfège version of a MusicXML file",
+)
 def preview_material_solfege(
     filename: str = Query(..., description="Filename to convert to solfège view"),
     key: Optional[str] = Query(None, description="Optional key override (e.g., 'G', 'F#m')")
-) -> dict:
+) -> Dict[str, Any]:
     """
     Get a solfège version of a MusicXML file.
     
@@ -734,7 +782,11 @@ def preview_material_solfege(
         raise HTTPException(status_code=400, detail=f"Solfège conversion failed: {str(e)}")
 
 
-@router.post("/preview/transpose", response_model=TransposeResponse)
+@router.post(
+    "/preview/transpose",
+    response_model=TransposeResponse,
+    description="Transpose MusicXML content by semitones and/or octaves",
+)
 def transpose_preview_material(request: TransposeRequest) -> TransposeResponse:
     """
     Transpose MusicXML content by semitones and/or octaves, optionally changing clef.
@@ -821,7 +873,11 @@ def transpose_preview_material(request: TransposeRequest) -> TransposeResponse:
     )
 
 
-@router.put("/preview", response_model=SavePreviewResponse)
+@router.put(
+    "/preview",
+    response_model=SavePreviewResponse,
+    description="Save MusicXML content to an existing file in preview folder",
+)
 def save_preview_file(
     request: SavePreviewRequest = Body(...)
 ) -> SavePreviewResponse:
@@ -865,7 +921,11 @@ def save_preview_file(
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
 
-@router.post("/preview/save", response_model=SavePreviewResponse)
+@router.post(
+    "/preview/save",
+    response_model=SavePreviewResponse,
+    description="Create a new MusicXML file in the preview folder",
+)
 def create_preview_file(
     request: SavePreviewRequest = Body(...)
 ) -> SavePreviewResponse:
@@ -918,7 +978,11 @@ def create_preview_file(
         raise HTTPException(status_code=500, detail=f"Failed to create file: {str(e)}")
 
 
-@router.delete("/preview/{filename:path}", response_model=SavePreviewResponse)
+@router.delete(
+    "/preview/{filename:path}",
+    response_model=SavePreviewResponse,
+    description="Delete a MusicXML file from the preview folder",
+)
 def delete_preview_file(filename: str) -> SavePreviewResponse:
     """
     Delete a MusicXML file from the preview folder.

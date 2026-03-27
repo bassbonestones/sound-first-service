@@ -11,7 +11,7 @@ Usage:
     celery -A app.worker.celery_app worker --beat --loglevel=info
 """
 
-from celery import Celery
+from celery import Celery  # type: ignore[import-untyped]
 
 from app.settings import settings
 
@@ -65,6 +65,6 @@ celery_app.conf.update(
 
 # Optional: Configure task failure handling
 @celery_app.task(bind=True)
-def debug_task(self):
+def debug_task(self) -> str:  # type: ignore[no-untyped-def]
     """Debug task for testing Celery connectivity."""
     return f"Request: {self.request!r}"

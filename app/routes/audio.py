@@ -30,7 +30,12 @@ AUDIO_RESPONSES = {
 }
 
 
-@router.get("/material/{material_id}", responses=AUDIO_RESPONSES, status_code=200)  # type: ignore[arg-type]
+@router.get(
+    "/material/{material_id}",
+    responses=AUDIO_RESPONSES,
+    status_code=200,
+    description="Generate transposed audio for a material (WAV or MIDI fallback)",
+)  # type: ignore[arg-type]
 def get_material_audio(
     material_id: int,
     key: str = Query(..., description="Target key for transposition (e.g., 'Bb major')"),
@@ -130,7 +135,12 @@ def get_material_audio(
     )
 
 
-@router.get("/note/{note}", responses=AUDIO_RESPONSES, status_code=200)  # type: ignore[arg-type]
+@router.get(
+    "/note/{note}",
+    responses=AUDIO_RESPONSES,
+    status_code=200,
+    description="Generate audio for a single sustained note",
+)  # type: ignore[arg-type]
 def get_single_note_audio(
     note: str,
     instrument: str = Query(default="piano", description="Instrument for soundfont"),
@@ -210,7 +220,11 @@ def get_single_note_audio(
     )
 
 
-@router.get("/status", response_model=AudioStatusOut)
+@router.get(
+    "/status",
+    response_model=AudioStatusOut,
+    description="Check audio generation capability and soundfont status",
+)
 def get_audio_status() -> AudioStatusOut:
     """Check audio generation capability."""
     from app.audio import (

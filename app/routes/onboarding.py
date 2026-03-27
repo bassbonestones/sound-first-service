@@ -15,7 +15,11 @@ from app.schemas.user_schemas import OnboardingOut, OnboardingSaveOut
 router = APIRouter(tags=["onboarding"])
 
 
-@router.get("/onboarding/{user_id}", response_model=OnboardingOut)
+@router.get(
+    "/onboarding/{user_id}",
+    response_model=OnboardingOut,
+    description="Get onboarding status including instrument, range, and comfort settings",
+)
 def get_onboarding(user_id: int, db: Session = Depends(get_db)) -> OnboardingOut:
     """
     Get onboarding status for a user.
@@ -48,7 +52,11 @@ def get_onboarding(user_id: int, db: Session = Depends(get_db)) -> OnboardingOut
     }
 
 
-@router.post("/onboarding", response_model=OnboardingSaveOut)
+@router.post(
+    "/onboarding",
+    response_model=OnboardingSaveOut,
+    description="Save or update user onboarding configuration",
+)
 def save_onboarding(data: OnboardingIn = Body(...), db: Session = Depends(get_db)) -> OnboardingSaveOut:
     """
     Save or update user onboarding data.

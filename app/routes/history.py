@@ -26,7 +26,11 @@ from app.schemas.history_schemas import (
 router = APIRouter(prefix="/history", tags=["history"])
 
 
-@router.get("/summary", response_model=HistorySummaryResponse)
+@router.get(
+    "/summary",
+    response_model=HistorySummaryResponse,
+    description="Get practice history summary with spaced repetition stats",
+)
 def get_history_summary(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get practice history summary with spaced repetition stats."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
@@ -57,7 +61,11 @@ def get_history_summary(user_id: int = Query(...), db: DbSession = Depends(get_d
     }
 
 
-@router.get("/materials", response_model=List[MaterialHistoryItem])
+@router.get(
+    "/materials",
+    response_model=List[MaterialHistoryItem],
+    description="Get practice history for each material with mastery level",
+)
 def get_material_history(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get practice history for each material with mastery level."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
@@ -85,7 +93,11 @@ def get_material_history(user_id: int = Query(...), db: DbSession = Depends(get_
     ]
 
 
-@router.get("/timeline", response_model=List[TimelineDay])
+@router.get(
+    "/timeline",
+    response_model=List[TimelineDay],
+    description="Get practice activity over time for visualization",
+)
 def get_practice_timeline(
     user_id: int = Query(...),
     days: int = Query(default=30),
@@ -114,7 +126,11 @@ def get_practice_timeline(
     ]
 
 
-@router.get("/focus-cards", response_model=List[FocusCardHistoryItem])
+@router.get(
+    "/focus-cards",
+    response_model=List[FocusCardHistoryItem],
+    description="Get practice history grouped by focus card",
+)
 def get_focus_card_history(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get practice history grouped by focus card."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
@@ -159,7 +175,11 @@ def _calculate_trend(values: List[Any]) -> str:
     return "stable"
 
 
-@router.get("/due-items", response_model=List[DueItem])
+@router.get(
+    "/due-items",
+    response_model=List[DueItem],
+    description="Get materials due for review based on spaced repetition",
+)
 def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db: DbSession = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get materials due for review based on spaced repetition."""
     attempts = db.query(PracticeAttempt).filter_by(user_id=user_id).all()
@@ -193,7 +213,12 @@ def get_due_items(user_id: int = Query(...), limit: int = Query(default=10), db:
     ]
 
 
-@router.get("/analytics", response_model=SessionAnalyticsOut, status_code=200)
+@router.get(
+    "/analytics",
+    response_model=SessionAnalyticsOut,
+    status_code=200,
+    description="Comprehensive session history analytics",
+)
 def get_session_analytics(user_id: int = Query(...), db: DbSession = Depends(get_db)) -> SessionAnalyticsOut:
     """Comprehensive session history analytics."""
     sessions = db.query(PracticeSession).filter_by(user_id=user_id).all()

@@ -1,6 +1,6 @@
 """Import-related Pydantic models for file upload and OMR processing."""
 from enum import Enum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -220,7 +220,7 @@ class SaveScoreRequest(BaseModel):
     source_asset_id: str = Field(..., description="Asset ID of the source file")
     omr_job_id: Optional[str] = Field(None, description="OMR job ID if applicable")
     score_data: str = Field(..., description="Score data (serialized JSON)")
-    metadata_overrides: Optional[dict] = Field(
+    metadata_overrides: Optional[Dict[str, Any]] = Field(
         None, description="User-provided metadata overrides"
     )
 
@@ -248,7 +248,7 @@ class SavedScore(BaseModel):
     score_id: str
     source_asset_id: str
     score_data: str
-    metadata: dict
+    metadata: Dict[str, Any]
     created_at: str
     updated_at: str
 
@@ -271,7 +271,7 @@ class ErrorDetail(BaseModel):
 
     code: str
     message: str
-    details: Optional[dict] = None
+    details: Optional[Dict[str, Any]] = None
 
 
 class ApiErrorResponse(BaseModel):

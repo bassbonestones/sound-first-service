@@ -202,8 +202,9 @@ class TestExpressionTerms:
         assert isinstance(EXPRESSION_TERMS, set)
 
     def test_contains_common_expressions(self):
-        """Should contain common expression terms."""
-        common = ["dolce", "cantabile", "espressivo", "legato"]
+        """Should contain common expression terms (not articulations like legato/staccato)."""
+        # Note: legato is an articulation, not an expression term
+        common = ["dolce", "cantabile", "espressivo", "con brio"]
         for term in common:
             assert term in EXPRESSION_TERMS, f"Missing expression: {term}"
 

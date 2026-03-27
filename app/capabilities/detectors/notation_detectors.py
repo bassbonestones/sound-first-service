@@ -150,8 +150,45 @@ def detect_breath_mark(extraction_result: Any, score: Any) -> bool:
 
 @register_custom_detector("detect_multimeasure_rest")
 def detect_multimeasure_rest(extraction_result: Any, score: Any) -> bool:
-    """Detect multi-measure rest."""
-    return bool(extraction_result.has_multi_measure_rest)
+    """Detect multi-measure rest.
+    
+    Checks multiple sources:
+    1. extraction_result.has_multi_measure_rest flag
+    2. MultiMeasureRest spanners in the score
+    3. The original MusicXML file for <multiple-rest> elements
+    """
+    # First check the extraction result flag
+    if extraction_result.has_multi_measure_rest:
+        return True
+    
+    if score is None:
+        return False
+        
+    # Check score directly for MultiMeasureRest spanners
+    try:
+        from music21 import spanner
+        for sp in score.recurse().getElementsByClass(spanner.MultiMeasureRest):
+            return True
+        # Check rest spanner sites
+        for rest in score.recurse().getElementsByClass('Rest'):
+            for site in rest.getSpannerSites():
+                if isinstance(site, spanner.MultiMeasureRest):
+                    return True
+    except Exception:
+        pass
+    
+    # Check the original MusicXML metadata for <multiple-rest> element
+    # music21 stores original file path in the score metadata
+    try:
+        if hasattr(score, 'filePath') and score.filePath:
+            with open(score.filePath, 'r', encoding='utf-8') as f:
+                content = f.read()
+                if '<multiple-rest>' in content or '<multiple-rest ' in content:
+                    return True
+    except Exception:
+        pass
+    
+    return False
 
 
 # =============================================================================

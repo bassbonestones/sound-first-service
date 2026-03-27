@@ -12,7 +12,7 @@ import json
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 from app.schemas.generation_schemas import (
     ArpeggioPattern,
@@ -1591,7 +1591,7 @@ class ValidPool:
         self.scale_patterns = scale_patterns
         self.arpeggio_patterns = arpeggio_patterns
     
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for API response."""
         return {
             "scale_types": sorted([s.value for s in self.scale_types]),

@@ -21,7 +21,7 @@ import time
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from .base import (
     OmrProvider,
@@ -59,7 +59,7 @@ class AudiverisProvider(OmrProvider):
         self,
         audiveris_path: Optional[str] = None,
         java_path: str = "java",
-        java_opts: Optional[list] = None,
+        java_opts: Optional[List[str]] = None,
     ):
         """Initialize Audiveris provider.
 
@@ -154,7 +154,7 @@ class AudiverisProvider(OmrProvider):
             logger.error(f"Failed to get Audiveris version: {e}")
             return None
 
-    def _build_command(self, audiveris_path: Path, args: list) -> list:
+    def _build_command(self, audiveris_path: Path, args: List[str]) -> List[str]:
         """Build command to run Audiveris."""
         if self._is_jar:
             # Check if this is an app bundle (contains multiple JARs)

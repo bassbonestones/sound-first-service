@@ -66,7 +66,7 @@ def _create_provider(provider_type: str) -> OmrProvider:
 
     if ptype == OmrProviderType.AUDIVERIS:
         logger.info("Using AudiverisProvider with path: %s", settings.audiveris_path or "auto-detect")
-        provider = AudiverisProvider(
+        provider: OmrProvider = AudiverisProvider(
             audiveris_path=settings.audiveris_path or None,
             java_path=settings.audiveris_java_path,
         )

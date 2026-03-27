@@ -40,7 +40,11 @@ class UserRangeIn(BaseModel):
 
 
 # --- Endpoints ---
-@router.get("/users/{user_id}", response_model=UserOut)
+@router.get(
+    "/users/{user_id}",
+    response_model=UserOut,
+    description="Get user details",
+)
 def get_user(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get user details."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -55,7 +59,11 @@ def get_user(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     }
 
 
-@router.get("/users/{user_id}/journey-stage", response_model=JourneyStageOut)
+@router.get(
+    "/users/{user_id}/journey-stage",
+    response_model=JourneyStageOut,
+    description="Estimate user's journey stage based on practice history",
+)
 def get_user_journey_stage(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Estimate user's journey stage based on practice history."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -73,7 +81,11 @@ def get_user_journey_stage(user_id: int, db: DbSession = Depends(get_db)) -> Dic
     }
 
 
-@router.post("/users/{user_id}/reset", response_model=StatusMessageResponse)
+@router.post(
+    "/users/{user_id}/reset",
+    response_model=StatusMessageResponse,
+    description="Reset all user data to start fresh",
+)
 def reset_user_data(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Reset all user data to start fresh."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -86,7 +98,11 @@ def reset_user_data(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, 
     return {"status": "success", "message": "User data reset successfully"}
 
 
-@router.patch("/users/{user_id}", response_model=UserUpdateOut)
+@router.patch(
+    "/users/{user_id}",
+    response_model=UserUpdateOut,
+    description="Update user fields (day0 progress, range)",
+)
 def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Update user fields (day0 progress, range, etc.)."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -123,7 +139,11 @@ def update_user(user_id: int, data: UserUpdateIn = Body(...), db: DbSession = De
     }
 
 
-@router.patch("/users/{user_id}/range", response_model=RangeUpdateOut)
+@router.patch(
+    "/users/{user_id}/range",
+    response_model=RangeUpdateOut,
+    description="Update user's comfortable playing range",
+)
 def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Update user's comfortable playing range."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -136,7 +156,11 @@ def update_user_range(user_id: int, data: UserRangeIn = Body(...), db: DbSession
     return {"status": "success", "range_low": user.range_low, "range_high": user.range_high}
 
 
-@router.get("/users/{user_id}/capability-progress", response_model=CapabilityProgressOut)
+@router.get(
+    "/users/{user_id}/capability-progress",
+    response_model=CapabilityProgressOut,
+    description="Get user's progress on capability learning",
+)
 def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get user's progress on capability learning."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -165,7 +189,11 @@ def get_user_capability_progress(user_id: int, db: DbSession = Depends(get_db)) 
     }
 
 
-@router.get("/users/{user_id}/next-capability", response_model=NextCapabilityOut)
+@router.get(
+    "/users/{user_id}/next-capability",
+    response_model=NextCapabilityOut,
+    description="Get the next capability to introduce to the user",
+)
 def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)) -> Dict[str, Any]:
     """Get the next capability that should be introduced to the user."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -213,7 +241,11 @@ def get_next_capability_for_user(user_id: int, db: DbSession = Depends(get_db)) 
     }
 
 
-@router.get("/users/{user_id}/eligible-materials", response_model=EligibleMaterialsOut)
+@router.get(
+    "/users/{user_id}/eligible-materials",
+    response_model=EligibleMaterialsOut,
+    description="Get materials user is eligible for based on capabilities",
+)
 def get_eligible_materials(user_id: int, db: DbSession = Depends(get_db)) -> EligibleMaterialsOut:
     """Get materials the user is eligible for based on their capabilities."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -260,7 +292,11 @@ def get_eligible_materials(user_id: int, db: DbSession = Depends(get_db)) -> Eli
     }
 
 
-@router.post("/users/{user_id}/capabilities/grant", response_model=MessageResponse)
+@router.post(
+    "/users/{user_id}/capabilities/grant",
+    response_model=MessageResponse,
+    description="Grant a capability to a user (mark as mastered)",
+)
 def grant_capability(
     user_id: int,
     capability_id: int = Body(..., embed=True),
@@ -281,7 +317,11 @@ def grant_capability(
     return {"message": message, "capability": cap.name}  # type: ignore[return-value]
 
 
-@router.post("/users/{user_id}/capabilities/revoke", response_model=MessageResponse)
+@router.post(
+    "/users/{user_id}/capabilities/revoke",
+    response_model=MessageResponse,
+    description="Revoke a capability from a user",
+)
 def revoke_capability(
     user_id: int,
     capability_id: int = Body(..., embed=True),
@@ -326,7 +366,11 @@ class InstrumentUpdateIn(BaseModel):
     day0_stage: Optional[int] = None
 
 
-@router.get("/users/{user_id}/instruments", response_model=UserInstrumentsOut)
+@router.get(
+    "/users/{user_id}/instruments",
+    response_model=UserInstrumentsOut,
+    description="Get all instruments for a user",
+)
 def list_user_instruments(user_id: int, db: DbSession = Depends(get_db)) -> UserInstrumentsOut:
     """Get all instruments for a user, including last selected instrument ID."""
     user = db.query(User).filter_by(id=user_id).first()
@@ -363,7 +407,11 @@ class SelectInstrumentIn(BaseModel):
     instrument_id: int
 
 
-@router.post("/users/{user_id}/select-instrument", response_model=SelectInstrumentOut)
+@router.post(
+    "/users/{user_id}/select-instrument",
+    response_model=SelectInstrumentOut,
+    description="Record user's current instrument selection",
+)
 def select_instrument(
     user_id: int,
     data: SelectInstrumentIn = Body(...),
@@ -395,7 +443,11 @@ def select_instrument(
     }
 
 
-@router.get("/users/{user_id}/day0-status", response_model=Day0StatusOut)
+@router.get(
+    "/users/{user_id}/day0-status",
+    response_model=Day0StatusOut,
+    description="Get Day 0 status including stages that can be skipped",
+)
 def get_day0_status(
     user_id: int,
     instrument_id: Optional[int] = None,
@@ -474,7 +526,11 @@ def get_day0_status(
     }
 
 
-@router.post("/users/{user_id}/instruments", response_model=InstrumentCreateOut)
+@router.post(
+    "/users/{user_id}/instruments",
+    response_model=InstrumentCreateOut,
+    description="Add a new instrument for a user",
+)
 def create_user_instrument(
     user_id: int, 
     data: InstrumentCreateIn = Body(...), 
@@ -527,7 +583,11 @@ def create_user_instrument(
     }
 
 
-@router.patch("/users/{user_id}/instruments/{instrument_id}", response_model=InstrumentUpdateOut)
+@router.patch(
+    "/users/{user_id}/instruments/{instrument_id}",
+    response_model=InstrumentUpdateOut,
+    description="Update an instrument for a user",
+)
 def update_user_instrument(
     user_id: int,
     instrument_id: int,
@@ -616,7 +676,11 @@ def update_user_instrument(
     }
 
 
-@router.delete("/users/{user_id}/instruments/{instrument_id}", response_model=InstrumentDeleteOut)
+@router.delete(
+    "/users/{user_id}/instruments/{instrument_id}",
+    response_model=InstrumentDeleteOut,
+    description="Delete an instrument for a user",
+)
 def delete_user_instrument(
     user_id: int,
     instrument_id: int,

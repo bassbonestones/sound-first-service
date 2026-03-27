@@ -18,7 +18,7 @@ from app.models.capability_schema import (
     Capability, UserCapability, SoftGateRule, UserSoftGateState,
     MaterialCapability, MaterialAnalysis, UserMaterialState, UserInstrument
 )
-from app.models.teaching_module import UserLessonProgress, UserModuleProgress
+from app.models.teaching_module import UserLessonProgress
 from app.curriculum import (
     filter_materials_by_capabilities,
     filter_materials_by_range,
@@ -685,10 +685,6 @@ def admin_reset_user(user_id: int, db: Session = Depends(get_db)) -> Dict[str, A
     # Delete practice sessions
     count = db.query(PracticeSession).filter_by(user_id=user_id).delete()
     deleted_counts["practice_sessions"] = count
-    
-    # Delete module progress
-    count = db.query(UserModuleProgress).filter_by(user_id=user_id).delete()
-    deleted_counts["module_progress"] = count
     
     # Delete lesson progress
     count = db.query(UserLessonProgress).filter_by(user_id=user_id).delete()

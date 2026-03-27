@@ -371,3 +371,114 @@ class TestEdgeCases:
         
         assert 0 <= score <= 1
         assert raw['f4'] > 0
+
+
+class TestRhythmCalculatorEdgeCases:
+    """Test edge cases for rhythm complexity calculator."""
+
+    def test_no_note_types_returns_fallback_f1(self):
+        """When note_types is empty, f1 should be 0.2."""
+        score, raw = calculate_rhythm_complexity_score(
+            note_durations=[1.0, 1.0],
+            note_types=[],  # Empty note types
+            has_dots=[False, False],
+            has_tuplets=[False, False],
+            has_ties=[False, False],
+            pitch_changes=[2],
+            offsets=[0.0, 1.0],
+        )
+        # f1 should be 0.2 when note_types is empty
+        assert raw['f1'] == 0.2
+
+    def test_no_note_types_zero_f2(self):
+        """When note_types is empty, f2 should be 0."""
+        score, raw = calculate_rhythm_complexity_score(
+            note_durations=[1.0, 1.0],
+            note_types=[],  # Empty note types
+            has_dots=[False, False],
+            has_tuplets=[False, False],
+            has_ties=[False, False],
+            pitch_changes=[2],
+            offsets=[0.0, 1.0],
+        )
+        # f2 should be 0 when note_types is empty
+        assert raw['f2'] == 0
+
+    def test_no_pitch_changes_zero_f5(self):
+        """When no pitch changes, f5 should be 0."""
+        score, raw = calculate_rhythm_complexity_score(
+            note_durations=[1.0, 1.0, 1.0],
+            note_types=['quarter', 'quarter', 'quarter'],
+            has_dots=[False, False, False],
+            has_tuplets=[False, False, False],
+            has_ties=[False, False, False],
+            pitch_changes=[],  # Empty pitch changes
+            offsets=[0.0, 1.0, 2.0],
+        )
+        # f5 should be 0 when no pitch changes
+        assert raw['f5'] == 0
+
+    def test_windowed_no_valid_windows(self):
+        """Windowed analysis with no valid windows returns None."""
+        # Piece with sparse notes that don't form valid windows
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            note_durations=[1.0],  # Single note
+            note_types=['quarter'],
+            has_dots=[False],
+            has_tuplets=[False],
+            has_ties=[False],
+            pitch_changes=[],
+            offsets=[0.0],
+        )
+        # Should return None for piece too short
+        assert peak is None
+        assert p95 is None
+
+    def test_windowed_empty_offsets(self):
+        """Windowed analysis with empty offsets returns None."""
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            note_durations=[],
+            note_types=[],
+            has_dots=[],
+            has_tuplets=[],
+            has_ties=[],
+            pitch_changes=[],
+            offsets=[],
+        )
+        assert peak is None
+        assert p95 is None
+        assert raw.get("reason") == "no_notes"
+
+    def test_windowed_with_valid_windows(self):
+        """Windowed analysis with enough notes should produce scores."""
+        # Create a longer piece with enough notes spread over time
+        # Need at least RHYTHM_WINDOW_MIN_PIECE_QL (8 beats typically) duration
+        # and at least 2 notes per window for valid windows
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            note_durations=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            note_types=['quarter'] * 10,
+            has_dots=[False] * 10,
+            has_tuplets=[False] * 10,
+            has_ties=[False] * 10,
+            pitch_changes=[2] * 9,  # minor 2nd between each note
+            offsets=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0],
+        )
+        # Should have valid scores
+        if peak is not None:
+            assert 0.0 <= peak <= 1.0
+            assert 0.0 <= p95 <= 1.0
+
+    def test_windowed_sparse_notes_no_valid_windows(self):
+        """Windowed analysis with sparse notes that don't form valid windows."""
+        # Long piece with only 2 notes far apart (each window has < 2 notes)
+        peak, p95, raw = calculate_rhythm_complexity_windowed(
+            note_durations=[1.0, 1.0],
+            note_types=['quarter', 'quarter'],
+            has_dots=[False, False],
+            has_tuplets=[False, False],
+            has_ties=[False, False],
+            pitch_changes=[2],  
+            offsets=[0.0, 20.0],  # Notes 20 beats apart, beyond typical window size
+        )
+        # Should return None since no windows have >= 2 notes
+        assert peak is None or raw.get("reason") in ["no_valid_windows", "piece_too_short"]

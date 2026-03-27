@@ -4,7 +4,7 @@ Provides CRUD operations for tunes with chord progression support.
 """
 import json
 from datetime import datetime
-from typing import List
+from typing import Any, Dict, List, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -38,12 +38,15 @@ def _get_user_or_404(db: Session, user_id: int) -> User:
     return user
 
 
-def _parse_json_field(value: str, default: dict | list) -> dict | list:
+def _parse_json_field(value: Any, default: Dict[str, Any] | List[Any]) -> Dict[str, Any] | List[Any]:
     """Parse JSON string field, returning default on error."""
     if not value:
         return default
     try:
-        return json.loads(value)
+        result = json.loads(str(value))
+        if isinstance(result, (dict, list)):
+            return result
+        return default
     except json.JSONDecodeError:
         return default
 
@@ -54,6 +57,12 @@ def _tune_to_response(tune: Tune) -> TuneResponse:
     chord_progs = _parse_json_field(tune.chord_progressions_json, [])
     display = _parse_json_field(tune.display_settings_json, {"showChordSymbols": True})
     playback = _parse_json_field(tune.playback_settings_json, {})
+    
+    # Type narrowing for mypy - we know these are dicts/lists based on defaults
+    assert isinstance(time_sig_dict, dict), "time_sig_dict must be a dict"
+    assert isinstance(chord_progs, list), "chord_progs must be a list"
+    assert isinstance(display, dict), "display must be a dict"
+    assert isinstance(playback, dict), "playback must be a dict"
     
     return TuneResponse(
         id=tune.id,
@@ -79,8 +88,12 @@ def _tune_to_list_item(tune: Tune) -> TuneListItem:
     measures = _parse_json_field(tune.measures_json, [])
     chord_progs = _parse_json_field(tune.chord_progressions_json, [])
     
+    # Type narrowing for mypy
+    assert isinstance(measures, list), "measures must be a list"
+    assert isinstance(chord_progs, list), "chord_progs must be a list"
+    
     # Count measures
-    measure_count = len(measures) if isinstance(measures, list) else 0
+    measure_count = len(measures)
     
     # Check if any progression has chords
     has_chords = any(
@@ -103,7 +116,11 @@ def _tune_to_list_item(tune: Tune) -> TuneListItem:
     )
 
 
-@router.post("/analyze-chords", response_model=ChordInferenceResponse)
+@router.post(
+    "/analyze-chords",
+    response_model=ChordInferenceResponse,
+    description="Analyze melody data and infer chord progression",
+)
 def analyze_chords(
     request: ChordAnalyzeRequest,
 ) -> ChordInferenceResponse:
@@ -143,7 +160,12 @@ def analyze_chords(
     )
 
 
-@router.post("", response_model=TuneResponse, status_code=201)
+@router.post(
+    "",
+    response_model=TuneResponse,
+    status_code=201,
+    description="Create a new tune for the specified user",
+)
 def create_tune(
     data: TuneCreate,
     user_id: int = Query(..., description="User ID"),
@@ -177,7 +199,11 @@ def create_tune(
     return _tune_to_response(tune)
 
 
-@router.get("", response_model=TuneListResponse)
+@router.get(
+    "",
+    response_model=TuneListResponse,
+    description="List tunes for the specified user",
+)
 def list_tunes(
     user_id: int = Query(..., description="User ID"),
     include_archived: bool = Query(False, description="Include archived tunes"),
@@ -201,7 +227,11 @@ def list_tunes(
     )
 
 
-@router.get("/{tune_id}", response_model=TuneResponse)
+@router.get(
+    "/{tune_id}",
+    response_model=TuneResponse,
+    description="Get a specific tune by ID",
+)
 def get_tune(
     tune_id: int,
     user_id: int = Query(..., description="User ID"),
@@ -219,7 +249,11 @@ def get_tune(
     return _tune_to_response(tune)
 
 
-@router.put("/{tune_id}", response_model=TuneResponse)
+@router.put(
+    "/{tune_id}",
+    response_model=TuneResponse,
+    description="Update an existing tune",
+)
 def update_tune(
     tune_id: int,
     data: TuneUpdate,
@@ -237,25 +271,25 @@ def update_tune(
     
     # Update only provided fields
     if data.title is not None:
-        tune.title = data.title
+        tune.title = data.title  # type: ignore[assignment]
     if data.clef is not None:
-        tune.clef = data.clef
+        tune.clef = data.clef  # type: ignore[assignment]
     if data.key_signature is not None:
-        tune.key_signature = data.key_signature
+        tune.key_signature = data.key_signature  # type: ignore[assignment]
     if data.time_signature is not None:
-        tune.time_signature_json = json.dumps(data.time_signature.model_dump())
+        tune.time_signature_json = json.dumps(data.time_signature.model_dump())  # type: ignore[assignment]
     if data.tempo is not None:
-        tune.tempo = data.tempo
+        tune.tempo = data.tempo  # type: ignore[assignment]
     if data.measures_json is not None:
-        tune.measures_json = data.measures_json
+        tune.measures_json = data.measures_json  # type: ignore[assignment]
     if data.chord_progressions is not None:
-        tune.chord_progressions_json = json.dumps([cp.model_dump() for cp in data.chord_progressions])
+        tune.chord_progressions_json = json.dumps([cp.model_dump() for cp in data.chord_progressions])  # type: ignore[assignment]
     if data.display_settings is not None:
-        tune.display_settings_json = json.dumps(data.display_settings.model_dump())
+        tune.display_settings_json = json.dumps(data.display_settings.model_dump())  # type: ignore[assignment]
     if data.playback_settings is not None:
-        tune.playback_settings_json = json.dumps(data.playback_settings.model_dump())
+        tune.playback_settings_json = json.dumps(data.playback_settings.model_dump())  # type: ignore[assignment]
     
-    tune.updated_at = datetime.utcnow()
+    tune.updated_at = datetime.utcnow()  # type: ignore[assignment]
     
     db.commit()
     db.refresh(tune)
@@ -263,7 +297,11 @@ def update_tune(
     return _tune_to_response(tune)
 
 
-@router.delete("/{tune_id}", status_code=204)
+@router.delete(
+    "/{tune_id}",
+    status_code=204,
+    description="Delete or archive a tune",
+)
 def delete_tune(
     tune_id: int,
     user_id: int = Query(..., description="User ID"),
@@ -282,13 +320,17 @@ def delete_tune(
     if permanent:
         db.delete(tune)
     else:
-        tune.is_archived = True
-        tune.updated_at = datetime.utcnow()
+        tune.is_archived = True  # type: ignore[assignment]
+        tune.updated_at = datetime.utcnow()  # type: ignore[assignment]
     
     db.commit()
 
 
-@router.post("/{tune_id}/restore", response_model=TuneResponse)
+@router.post(
+    "/{tune_id}/restore",
+    response_model=TuneResponse,
+    description="Restore an archived tune",
+)
 def restore_tune(
     tune_id: int,
     user_id: int = Query(..., description="User ID"),
@@ -303,8 +345,8 @@ def restore_tune(
     if not tune:
         raise HTTPException(status_code=404, detail="Tune not found")
     
-    tune.is_archived = False
-    tune.updated_at = datetime.utcnow()
+    tune.is_archived = False  # type: ignore[assignment]
+    tune.updated_at = datetime.utcnow()  # type: ignore[assignment]
     
     db.commit()
     db.refresh(tune)
@@ -312,7 +354,12 @@ def restore_tune(
     return _tune_to_response(tune)
 
 
-@router.post("/{tune_id}/duplicate", response_model=TuneResponse, status_code=201)
+@router.post(
+    "/{tune_id}/duplicate",
+    response_model=TuneResponse,
+    status_code=201,
+    description="Create a copy of an existing tune",
+)
 def duplicate_tune(
     tune_id: int,
     user_id: int = Query(..., description="User ID"),
@@ -353,7 +400,11 @@ def duplicate_tune(
     return _tune_to_response(duplicate)
 
 
-@router.post("/{tune_id}/infer-chords", response_model=ChordInferenceResponse)
+@router.post(
+    "/{tune_id}/infer-chords",
+    response_model=ChordInferenceResponse,
+    description="Infer chord progression from tune melody",
+)
 def infer_chords(
     tune_id: int,
     request: ChordInferenceRequest,
@@ -390,9 +441,27 @@ def infer_chords(
     
     # Run inference
     service = ChordInferenceService()
+    assert isinstance(time_sig_dict, dict), "time_sig_dict must be a dict"
+    
+    # Convert key name to key signature integer (-7 to 7)
+    # Key signature: negative = flats, positive = sharps
+    KEY_NAME_TO_SIG: Dict[str, int] = {
+        "C": 0, "G": 1, "D": 2, "A": 3, "E": 4, "B": 5, "F#": 6, "Gb": -6,
+        "Db": -5, "Ab": -4, "Eb": -3, "Bb": -2, "F": -1,
+        # Add minor keys mapping to their relative major
+        "Am": 0, "Em": 1, "Bm": 2, "F#m": 3, "C#m": 4, "G#m": 5,
+        "D#m": 6, "Ebm": -6, "Bbm": -5, "Fm": -4, "Cm": -3, "Gm": -2, "Dm": -1,
+        # Also handle numeric strings
+        "0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
+        "-1": -1, "-2": -2, "-3": -3, "-4": -4, "-5": -5, "-6": -6, "-7": -7,
+        "7": 7,
+    }
+    key_name = str(tune.key_signature).strip() if tune.key_signature else "C"
+    key_sig_int = KEY_NAME_TO_SIG.get(key_name, 0)
+    
     inferred_chords = service.infer_chords_from_measures(
-        measures_json=tune.measures_json,
-        key_signature=tune.key_signature,
+        measures_json=str(tune.measures_json) if tune.measures_json else "",
+        key_signature=key_sig_int,
         time_signature=time_sig_dict,
         use_seventh_chords=request.use_seventh_chords,
         chords_per_measure=request.chords_per_measure,

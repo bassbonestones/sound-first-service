@@ -21,7 +21,11 @@ from app.session_config import (
 router = APIRouter(tags=["config"])
 
 
-@router.get("/health", response_model=HealthCheckOut)
+@router.get(
+    "/health",
+    response_model=HealthCheckOut,
+    description="Health check with database connection pool status",
+)
 def health_check() -> HealthCheckOut:
     """
     Health check endpoint with database connection pool status.
@@ -46,7 +50,11 @@ def health_check() -> HealthCheckOut:
     }
 
 
-@router.post("/log/client", response_model=LoggedOut)
+@router.post(
+    "/log/client",
+    response_model=LoggedOut,
+    description="Receive and log client app events for server-side tracking",
+)
 def log_client_event(log: ClientLogIn = Body(...)) -> LoggedOut:
     """
     Receive log events from client apps (web/mobile) for server-side logging.
@@ -60,7 +68,11 @@ def log_client_event(log: ClientLogIn = Body(...)) -> LoggedOut:
     return {"status": "logged"}  # type: ignore[return-value]
 
 
-@router.get("/config", response_model=SessionConfigOut)
+@router.get(
+    "/config",
+    response_model=SessionConfigOut,
+    description="Get current session generation configuration",
+)
 def get_session_config() -> SessionConfigOut:
     """Get current session generation configuration."""
     return {  # type: ignore[return-value]
@@ -73,7 +85,11 @@ def get_session_config() -> SessionConfigOut:
     }
 
 
-@router.patch("/config", response_model=ConfigUpdateOut)
+@router.patch(
+    "/config",
+    response_model=ConfigUpdateOut,
+    description="Update session configuration at runtime (non-persistent)",
+)
 def update_session_config(data: ConfigUpdateIn = Body(...)) -> ConfigUpdateOut:
     """
     Update session generation configuration at runtime.

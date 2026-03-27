@@ -7,6 +7,9 @@ from app.schemas.generation_schemas import (
     ArpeggioPattern,
     ArpeggioType,
     CANONICAL_KEYS,
+    ChordEvent,
+    ChordProgressionContentType,
+    ChordProgressionRequest,
     DynamicType,
     GenerationPreview,
     GenerationRequest,
@@ -828,3 +831,121 @@ class TestArticulationTypeEnum:
         expected = ["legato", "staccato", "tenuto", "accent", "marcato", "mixed"]
         for value in expected:
             assert any(a.value == value for a in ArticulationType), f"Missing: {value}"
+
+
+# =============================================================================
+# Helper Function Tests
+# =============================================================================
+
+
+class TestPitchToMidi:
+    """Test _pitch_to_midi helper function."""
+
+    def test_middle_c(self) -> None:
+        """C4 should be MIDI 60."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        assert _pitch_to_midi("C4") == 60
+
+    def test_a440(self) -> None:
+        """A4 should be MIDI 69."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        assert _pitch_to_midi("A4") == 69
+
+    def test_with_sharp(self) -> None:
+        """C#4 should be MIDI 61."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        assert _pitch_to_midi("C#4") == 61
+
+    def test_with_flat(self) -> None:
+        """Bb4 should be MIDI 70."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        assert _pitch_to_midi("Bb4") == 70
+
+    def test_empty_string_returns_default(self) -> None:
+        """Empty string returns middle C (60)."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        assert _pitch_to_midi("") == 60
+
+    def test_invalid_format_raises(self) -> None:
+        """Invalid pitch format raises ValueError."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        with pytest.raises(ValueError, match="Invalid pitch format"):
+            _pitch_to_midi("invalid")
+
+    def test_negative_octave(self) -> None:
+        """C-1 should be MIDI 0."""
+        from app.schemas.generation_schemas import _pitch_to_midi
+        assert _pitch_to_midi("C-1") == 0
+
+
+class TestMidiToPitch:
+    """Test _midi_to_pitch helper function."""
+
+    def test_middle_c(self) -> None:
+        """MIDI 60 should be C4."""
+        from app.schemas.generation_schemas import _midi_to_pitch
+        assert _midi_to_pitch(60) == "C4"
+
+    def test_a440(self) -> None:
+        """MIDI 69 should be A4."""
+        from app.schemas.generation_schemas import _midi_to_pitch
+        assert _midi_to_pitch(69) == "A4"
+
+    def test_sharp_note(self) -> None:
+        """MIDI 61 should be C#4."""
+        from app.schemas.generation_schemas import _midi_to_pitch
+        assert _midi_to_pitch(61) == "C#4"
+
+    def test_low_note(self) -> None:
+        """MIDI 0 should be C-1."""
+        from app.schemas.generation_schemas import _midi_to_pitch
+        assert _midi_to_pitch(0) == "C-1"
+
+    def test_high_note(self) -> None:
+        """MIDI 127 should be G9."""
+        from app.schemas.generation_schemas import _midi_to_pitch
+        assert _midi_to_pitch(127) == "G9"
+
+
+class TestChordProgressionRequest:
+    """Test ChordProgressionRequest validation."""
+
+    def test_valid_request(self) -> None:
+        """Valid request with proper range."""
+        request = ChordProgressionRequest(
+            content_type=ChordProgressionContentType.SCALES,
+            chords=[ChordEvent(symbol="Cmaj7", duration_beats=4)],
+            range_low_midi=48,
+            range_high_midi=72,
+        )
+        assert request.range_low_midi == 48
+        assert request.range_high_midi == 72
+
+    def test_invalid_range_raises(self) -> None:
+        """Range low > high should raise ValidationError."""
+        with pytest.raises(ValidationError, match="range_low_midi cannot exceed"):
+            ChordProgressionRequest(
+                content_type=ChordProgressionContentType.SCALES,
+                chords=[ChordEvent(symbol="Cmaj7", duration_beats=4)],
+                range_low_midi=80,
+                range_high_midi=60,
+            )
+
+    def test_equal_range_allowed(self) -> None:
+        """Equal range values should be allowed."""
+        request = ChordProgressionRequest(
+            content_type=ChordProgressionContentType.ARPEGGIOS,
+            chords=[ChordEvent(symbol="Am7", duration_beats=4)],
+            range_low_midi=60,
+            range_high_midi=60,
+        )
+        assert request.range_low_midi == 60
+
+    def test_none_values_allowed(self) -> None:
+        """Both None values should be allowed (use defaults)."""
+        request = ChordProgressionRequest(
+            content_type=ChordProgressionContentType.GUIDE_TONES,
+            chords=[ChordEvent(symbol="G7", duration_beats=2)],
+        )
+        assert request.range_low_midi is None
+        assert request.range_high_midi is None

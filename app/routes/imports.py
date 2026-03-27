@@ -6,7 +6,7 @@ import time
 import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/imports", tags=["imports"])
 
 # In-memory stores for fallback when Redis is unavailable (e.g., tests)
-_omr_jobs: dict = {}
-_saved_scores: dict = {}
+_omr_jobs: Dict[str, Any] = {}
+_saved_scores: Dict[str, Any] = {}
 
 # Flag to track if Redis is available
 _redis_available: Optional[bool] = None
@@ -62,7 +62,7 @@ def _is_redis_available() -> bool:
     return _redis_available
 
 
-def _get_job_store():
+def _get_job_store() -> Any:
     """Get the appropriate job store based on Redis availability."""
     if _is_redis_available():
         from app.worker.job_store import job_store
@@ -123,8 +123,12 @@ def _extension_from_mime(mime_type: str) -> str:
 # ============================================================================
 
 
-@router.post("/upload/signed-url", response_model=SignedUrlResponse)
-async def get_signed_url(request: SignedUrlRequest):
+@router.post(
+    "/upload/signed-url",
+    response_model=SignedUrlResponse,
+    description="Get a signed URL for file upload",
+)
+async def get_signed_url(request: SignedUrlRequest) -> SignedUrlResponse:
     """
     Get a signed URL for file upload.
 
@@ -170,12 +174,16 @@ async def get_signed_url(request: SignedUrlRequest):
     )
 
 
-@router.post("/upload/direct/{asset_id}", response_model=UploadResponse)
+@router.post(
+    "/upload/direct/{asset_id}",
+    response_model=UploadResponse,
+    description="Direct file upload for local or server storage",
+)
 async def upload_file_direct(
     asset_id: str,
     file: UploadFile = File(...),
     source_type: str = Form(...),
-):
+) -> UploadResponse:
     """
     Direct file upload endpoint.
 
@@ -235,8 +243,11 @@ async def upload_file_direct(
         )
 
 
-@router.get("/files/{asset_id}")
-async def get_file(asset_id: str):
+@router.get(
+    "/files/{asset_id}",
+    description="Retrieve an uploaded file",
+)
+async def get_file(asset_id: str) -> Any:
     """
     Retrieve an uploaded file.
     """
@@ -259,8 +270,12 @@ async def get_file(asset_id: str):
 # ============================================================================
 
 
-@router.post("/omr/submit", response_model=OmrSubmitResponse)
-async def submit_omr_job(request: OmrSubmitRequest):
+@router.post(
+    "/omr/submit",
+    response_model=OmrSubmitResponse,
+    description="Submit a file for OMR (optical music recognition) processing",
+)
+async def submit_omr_job(request: OmrSubmitRequest) -> OmrSubmitResponse:
     """
     Submit a file for OMR processing.
 
@@ -351,7 +366,7 @@ async def submit_omr_job(request: OmrSubmitRequest):
     )
 
 
-def _process_mock_omr(job_id: str, asset_id: str):
+def _process_mock_omr(job_id: str, asset_id: str) -> None:
     """Process OMR job with mock provider (for testing)."""
     job = _omr_jobs.get(job_id)
     if not job:
@@ -452,8 +467,12 @@ def _process_mock_omr(job_id: str, asset_id: str):
     }
 
 
-@router.get("/omr/status/{job_id}", response_model=OmrStatusResponse)
-async def get_omr_status(job_id: str):
+@router.get(
+    "/omr/status/{job_id}",
+    response_model=OmrStatusResponse,
+    description="Get the status and results of an OMR job",
+)
+async def get_omr_status(job_id: str) -> OmrStatusResponse:
     """
     Get the status of an OMR job.
 
@@ -508,8 +527,12 @@ async def get_omr_status(job_id: str):
 # ============================================================================
 
 
-@router.post("/scores", response_model=SaveScoreResponse)
-async def save_score(request: SaveScoreRequest, db: Session = Depends(get_db)):
+@router.post(
+    "/scores",
+    response_model=SaveScoreResponse,
+    description="Save a processed score",
+)
+async def save_score(request: SaveScoreRequest, db: Session = Depends(get_db)) -> SaveScoreResponse:
     """
     Save a processed score.
 
@@ -546,8 +569,12 @@ async def save_score(request: SaveScoreRequest, db: Session = Depends(get_db)):
         )
 
 
-@router.get("/scores/{score_id}", response_model=GetScoreResponse)
-async def get_score(score_id: str, db: Session = Depends(get_db)):
+@router.get(
+    "/scores/{score_id}",
+    response_model=GetScoreResponse,
+    description="Retrieve a saved score",
+)
+async def get_score(score_id: str, db: Session = Depends(get_db)) -> GetScoreResponse:
     """
     Retrieve a saved score.
     """
@@ -573,8 +600,11 @@ async def get_score(score_id: str, db: Session = Depends(get_db)):
     )
 
 
-@router.delete("/scores/{score_id}")
-async def delete_score(score_id: str, db: Session = Depends(get_db)):
+@router.delete(
+    "/scores/{score_id}",
+    description="Delete a saved score",
+)
+async def delete_score(score_id: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Delete a saved score.
     """
@@ -590,8 +620,11 @@ async def delete_score(score_id: str, db: Session = Depends(get_db)):
 # ============================================================================
 
 
-@router.get("/health")
-async def import_health():
+@router.get(
+    "/health",
+    description="Health check for import service",
+)
+async def import_health() -> Dict[str, Any]:
     """
     Health check for import service.
     

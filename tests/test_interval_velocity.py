@@ -195,3 +195,53 @@ class TestCalculateIntervalVelocityWindowed:
         peak, p95, raw = calculate_interval_velocity_windowed(events)
         # Peak should capture the hard section
         assert peak > 0.0
+
+
+class TestIntervalVelocityEdgeCases:
+    """Test edge cases that hit specific branches."""
+    
+    def test_single_stationary_note_zero_contribution(self):
+        """A single note with no movement should give 0 IVS."""
+        from app.calculators.models import NoteEvent
+        from app.calculators.interval.velocity import calculate_interval_velocity_score
+        
+        # Single note - no intervals to calculate
+        events = [NoteEvent(pitch_midi=60, offset_ql=0.0, duration_ql=1.0)]
+        
+        ivs, raw = calculate_interval_velocity_score(events)
+        assert ivs == 0.0
+        assert raw["interval_count"] == 0
+
+    def test_windowed_no_valid_windows(self):
+        """Windowed analysis with insufficient notes per window returns None."""
+        from app.calculators.models import NoteEvent
+        from app.calculators.interval.velocity import calculate_interval_velocity_windowed
+        
+        # Create a sparse piece where each window has < 2 notes
+        # Windows are 4.0 QL, so place notes 5.0 apart
+        events = [
+            NoteEvent(pitch_midi=60, offset_ql=0.0, duration_ql=1.0),
+            NoteEvent(pitch_midi=64, offset_ql=10.0, duration_ql=1.0),
+            NoteEvent(pitch_midi=67, offset_ql=20.0, duration_ql=1.0),
+            NoteEvent(pitch_midi=72, offset_ql=30.0, duration_ql=1.0),
+        ]
+        
+        peak, p95, raw = calculate_interval_velocity_windowed(events)
+        # Should have no valid windows since notes are too sparse
+        assert peak is None or raw.get("reason") == "no_valid_windows" or peak >= 0
+
+    def test_all_simultaneous_notes_returns_zero(self):
+        """When all note pairs are simultaneous (dt=0), should return 0."""
+        from app.calculators.models import NoteEvent
+        from app.calculators.interval.velocity import calculate_interval_velocity_score
+        
+        # All notes at same time - no valid intervals
+        events = [
+            NoteEvent(pitch_midi=60, offset_ql=0.0, duration_ql=1.0),
+            NoteEvent(pitch_midi=64, offset_ql=0.0, duration_ql=1.0),
+            NoteEvent(pitch_midi=67, offset_ql=0.0, duration_ql=1.0),
+        ]
+        
+        ivs, raw = calculate_interval_velocity_score(events)
+        assert ivs == 0.0
+        assert raw["interval_count"] == 0

@@ -5,6 +5,92 @@ Tests configuration endpoints.
 
 import pytest
 from unittest.mock import MagicMock
+from fastapi.testclient import TestClient
+
+from app.main import app
+
+
+@pytest.fixture
+def client():
+    """Create test client."""
+    return TestClient(app)
+
+
+class TestGetSessionConfigEndpoint:
+    """Tests for GET /config endpoint."""
+    
+    def test_returns_200(self, client):
+        """GET /config returns 200."""
+        response = client.get("/config")
+        assert response.status_code == 200
+    
+    def test_returns_config_dict(self, client):
+        """GET /config returns configuration dictionary."""
+        response = client.get("/config")
+        assert response.status_code == 200
+        data = response.json()
+        assert "capability_weights" in data
+        assert "difficulty_weights" in data
+        assert "novelty_reinforcement" in data
+
+
+class TestLogClientEventEndpoint:
+    """Tests for POST /log/client endpoint."""
+    
+    def test_log_client_returns_200(self, client):
+        """POST /log/client returns 200."""
+        response = client.post(
+            "/log/client",
+            json={"event": "app_startup", "data": {"version": "1.0.0"}}
+        )
+        assert response.status_code == 200
+    
+    def test_log_client_returns_status_logged(self, client):
+        """POST /log/client returns status: logged."""
+        response = client.post(
+            "/log/client",
+            json={"event": "test_event", "data": {"foo": "bar"}, "timestamp": "2024-01-01T00:00:00Z"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "logged"
+
+
+class TestPatchSessionConfigEndpoint:
+    """Tests for PATCH /config endpoint."""
+    
+    def test_patch_returns_200(self, client):
+        """PATCH /config returns 200."""
+        import app.session_config as session_config
+        original = session_config.CAPABILITY_WEIGHTS.copy()
+        
+        try:
+            response = client.patch(
+                "/config",
+                json={"capability_weights": {"repertoire_fluency": 0.3}}
+            )
+            assert response.status_code == 200
+        finally:
+            session_config.CAPABILITY_WEIGHTS.clear()
+            session_config.CAPABILITY_WEIGHTS.update(original)
+    
+    def test_patch_updates_fields(self, client):
+        """PATCH /config returns updated field names."""
+        import app.session_config as session_config
+        original = session_config.CAPABILITY_WEIGHTS.copy()
+        
+        try:
+            response = client.patch(
+                "/config",
+                json={"capability_weights": {"repertoire_fluency": 0.4}}
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert "updated" in data
+            assert "capability_weights" in data["updated"]
+        finally:
+            session_config.CAPABILITY_WEIGHTS.clear()
+            session_config.CAPABILITY_WEIGHTS.update(original)
 
 
 class TestUpdateSessionConfig:

@@ -137,3 +137,36 @@ class TestSessionAnalytics:
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
+
+
+class TestCalculateTrend:
+    """Tests for _calculate_trend helper function."""
+    
+    def test_stable_when_fewer_than_3_values(self):
+        """Returns 'stable' when fewer than 3 values."""
+        from app.routes.history import _calculate_trend
+        
+        assert _calculate_trend([]) == "stable"
+        assert _calculate_trend([1]) == "stable"
+        assert _calculate_trend([1, 2]) == "stable"
+    
+    def test_improving_when_last_greater_than_third_last(self):
+        """Returns 'improving' when last value > third-to-last."""
+        from app.routes.history import _calculate_trend
+        
+        assert _calculate_trend([3, 4, 5]) == "improving"
+        assert _calculate_trend([1, 2, 3, 4, 5]) == "improving"
+    
+    def test_declining_when_last_less_than_third_last(self):
+        """Returns 'declining' when last value < third-to-last."""
+        from app.routes.history import _calculate_trend
+        
+        assert _calculate_trend([5, 4, 3]) == "declining"
+        assert _calculate_trend([5, 4, 3, 2, 1]) == "declining"
+    
+    def test_stable_when_last_equals_third_last(self):
+        """Returns 'stable' when last value = third-to-last."""
+        from app.routes.history import _calculate_trend
+        
+        assert _calculate_trend([4, 5, 4]) == "stable"
+        assert _calculate_trend([5, 1, 5]) == "stable"

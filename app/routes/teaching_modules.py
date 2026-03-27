@@ -20,7 +20,6 @@ from app.models.capability_schema import Capability, UserCapability
 from app.models.teaching_module import (
     TeachingModule,
     Lesson,
-    UserModuleProgress,
     UserLessonProgress,
     LessonAttempt,
 )
@@ -49,7 +48,11 @@ router = APIRouter(prefix="/modules", tags=["teaching-modules"])
 
 # ==================== Module Endpoints ====================
 
-@router.get("/", response_model=List[ModuleSummary])
+@router.get(
+    "/",
+    response_model=List[ModuleSummary],
+    description="List all available teaching modules",
+)
 def list_modules(
     db: DbSession = Depends(get_db),
     active_only: bool = Query(True, description="Only return active modules"),
@@ -98,7 +101,11 @@ def list_modules(
     return result
 
 
-@router.get("/{module_id}", response_model=ModuleDetail)
+@router.get(
+    "/{module_id}",
+    response_model=ModuleDetail,
+    description="Get detailed information about a specific module",
+)
 def get_module(module_id: str, db: DbSession = Depends(get_db)) -> ModuleDetail:
     """Get detailed information about a specific module."""
     module = db.query(TeachingModule).filter(TeachingModule.id == module_id).first()
@@ -156,9 +163,19 @@ def get_module(module_id: str, db: DbSession = Depends(get_db)) -> ModuleDetail:
     )
 
 
-@router.get("/user/{user_id}/available", response_model=List[ModuleWithProgress])
+@router.get(
+    "/user/{user_id}/available",
+    response_model=List[ModuleWithProgress],
+    description="Get modules available to a user (prerequisites met)",
+)
 def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List[ModuleWithProgress]:
-    """Get modules available to a user (prerequisites met)."""
+    """Get modules available to a user (prerequisites met).
+    
+    Module status is derived from:
+    - COMPLETED: UserCapability.mastered_at is set for this module's capability
+    - IN_PROGRESS: User has any lesson progress in the module
+    - NOT_STARTED: No lesson progress exists
+    """
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -168,15 +185,7 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List
         TeachingModule.is_active == True
     ).order_by(TeachingModule.display_order).all()
     
-    # Get user's completed modules
-    completed_module_ids = set(
-        p.module_id for p in db.query(UserModuleProgress).filter(
-            UserModuleProgress.user_id == user_id,
-            UserModuleProgress.status == "completed"
-        ).all()
-    )
-    
-    # Get user's mastered capabilities for prerequisite checking
+    # Get user's mastered capabilities (the single source of truth)
     mastered_caps = {
         cap.name: cap.id for cap, uc in db.query(Capability, UserCapability).join(
             UserCapability, Capability.id == UserCapability.capability_id
@@ -219,12 +228,6 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List
         if not prereqs_met:
             continue  # Skip modules where prereqs not met
         
-        # Get user's progress for this module
-        progress = db.query(UserModuleProgress).filter(
-            UserModuleProgress.user_id == user_id,
-            UserModuleProgress.module_id == module.id
-        ).first()
-        
         # Count lessons
         total_lessons = db.query(Lesson).filter(
             Lesson.module_id == module.id,
@@ -232,18 +235,25 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List
             Lesson.is_required == True
         ).count()
         
-        # Count completed lessons
-        lessons_completed = 0
-        if progress:
-            lessons_completed = db.query(UserLessonProgress).join(Lesson).filter(
-                UserLessonProgress.user_id == user_id,
-                Lesson.module_id == module.id,
-                UserLessonProgress.status == "mastered"
-            ).count()
+        # Count completed lessons (from UserLessonProgress)
+        lessons_completed = db.query(UserLessonProgress).join(Lesson).filter(
+            UserLessonProgress.user_id == user_id,
+            Lesson.module_id == module.id,
+            UserLessonProgress.status == "mastered"
+        ).count()
         
-        status = ModuleStatus.NOT_STARTED
-        if progress:
-            status = ModuleStatus(progress.status)
+        # Derive status from lesson progress
+        any_lesson_progress = db.query(UserLessonProgress).join(Lesson).filter(
+            UserLessonProgress.user_id == user_id,
+            Lesson.module_id == module.id
+        ).first()
+        
+        if lessons_completed == total_lessons and total_lessons > 0:
+            status = ModuleStatus.COMPLETED
+        elif any_lesson_progress:
+            status = ModuleStatus.IN_PROGRESS
+        else:
+            status = ModuleStatus.NOT_STARTED
         
         result.append(ModuleWithProgress(
             id=module.id,
@@ -257,8 +267,8 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List
             prerequisite_capability_names=prereq_names,
             status=status,
             lessons_completed=lessons_completed,
-            started_at=progress.started_at if progress else None,
-            completed_at=progress.completed_at if progress else None,
+            started_at=None,  # No longer tracked at module level
+            completed_at=None,  # No longer tracked at module level
         ))
     
     return result
@@ -266,9 +276,17 @@ def get_available_modules(user_id: int, db: DbSession = Depends(get_db)) -> List
 
 # ==================== Progress Endpoints ====================
 
-@router.post("/user/{user_id}/start/{module_id}", response_model=UserModuleProgressOut)
+@router.post(
+    "/user/{user_id}/start/{module_id}",
+    response_model=UserModuleProgressOut,
+    description="Start a module for a user (unlocks first lesson)",
+)
 def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) -> UserModuleProgressOut:
-    """Start a module for a user."""
+    """Start a module for a user by unlocking the first lesson.
+    
+    Module progress is derived from lesson progress and capability mastery,
+    so this endpoint just ensures the first lesson is available.
+    """
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -297,26 +315,6 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) 
                 status_code=400,
                 detail=f"Prerequisite capability '{prereq_cap}' not mastered"
             )
-    
-    # Get or create progress
-    progress = db.query(UserModuleProgress).filter(
-        UserModuleProgress.user_id == user_id,
-        UserModuleProgress.module_id == module_id
-    ).first()
-    
-    if not progress:
-        progress = UserModuleProgress(
-            user_id=user_id,
-            module_id=module_id,
-            status="in_progress",
-            started_at=datetime.utcnow(),
-            last_activity_at=datetime.utcnow(),
-        )
-        db.add(progress)
-    elif progress.status == "not_started":
-        progress.status = "in_progress"  # type: ignore[assignment]
-        progress.started_at = datetime.utcnow()  # type: ignore[assignment]
-        progress.last_activity_at = datetime.utcnow()  # type: ignore[assignment]
     
     # Unlock first lesson
     first_lesson = db.query(Lesson).filter(
@@ -350,36 +348,30 @@ def start_module(user_id: int, module_id: str, db: DbSession = Depends(get_db)) 
     
     return UserModuleProgressOut(
         module_id=module_id,
-        status=ModuleStatus(progress.status),
+        status=ModuleStatus.IN_PROGRESS,
         lessons_completed=0,
         total_lessons=total_lessons,
-        started_at=progress.started_at,
-        completed_at=progress.completed_at,
+        started_at=None,
+        completed_at=None,
     )
 
 
-@router.get("/user/{user_id}/progress/{module_id}", response_model=UserModuleProgressOut)
+@router.get(
+    "/user/{user_id}/progress/{module_id}",
+    response_model=UserModuleProgressOut,
+    description="Get user's progress through a specific module",
+)
 def get_module_progress(user_id: int, module_id: str, db: DbSession = Depends(get_db)) -> UserModuleProgressOut:
-    """Get user's progress through a specific module."""
-    progress = db.query(UserModuleProgress).filter(
-        UserModuleProgress.user_id == user_id,
-        UserModuleProgress.module_id == module_id
-    ).first()
+    """Get user's progress through a specific module.
     
-    if not progress:
-        # Return not_started progress
-        total_lessons = db.query(Lesson).filter(
-            Lesson.module_id == module_id,
-            Lesson.is_active == True,
-            Lesson.is_required == True
-        ).count()
-        
-        return UserModuleProgressOut(
-            module_id=module_id,
-            status=ModuleStatus.NOT_STARTED,
-            lessons_completed=0,
-            total_lessons=total_lessons,
-        )
+    Status is derived from:
+    - COMPLETED: UserCapability.mastered_at is set for this module's capability
+    - IN_PROGRESS: User has any lesson progress
+    - NOT_STARTED: No lesson progress
+    """
+    module = db.query(TeachingModule).filter(TeachingModule.id == module_id).first()
+    if not module:
+        raise HTTPException(status_code=404, detail="Module not found")
     
     total_lessons = db.query(Lesson).filter(
         Lesson.module_id == module_id,
@@ -393,17 +385,44 @@ def get_module_progress(user_id: int, module_id: str, db: DbSession = Depends(ge
         UserLessonProgress.status == "mastered"
     ).count()
     
+    # Check if capability is mastered
+    is_capability_mastered = False
+    if module.capability_name:
+        cap = db.query(Capability).filter(Capability.name == module.capability_name).first()
+        if cap:
+            uc = db.query(UserCapability).filter(
+                UserCapability.user_id == user_id,
+                UserCapability.capability_id == cap.id,
+                UserCapability.mastered_at != None
+            ).first()
+            is_capability_mastered = uc is not None
+    
+    # Derive status
+    if is_capability_mastered:
+        status = ModuleStatus.COMPLETED
+    elif lessons_completed > 0 or db.query(UserLessonProgress).join(Lesson).filter(
+        UserLessonProgress.user_id == user_id,
+        Lesson.module_id == module_id
+    ).first():
+        status = ModuleStatus.IN_PROGRESS
+    else:
+        status = ModuleStatus.NOT_STARTED
+    
     return UserModuleProgressOut(
         module_id=module_id,
-        status=ModuleStatus(progress.status),
+        status=status,
         lessons_completed=lessons_completed,
         total_lessons=total_lessons,
-        started_at=progress.started_at,
-        completed_at=progress.completed_at,
+        started_at=None,
+        completed_at=None,
     )
 
 
-@router.get("/user/{user_id}/lessons/{module_id}", response_model=List[LessonWithProgress])
+@router.get(
+    "/user/{user_id}/lessons/{module_id}",
+    response_model=List[LessonWithProgress],
+    description="Get all lessons in a module with user's progress",
+)
 def get_lessons_with_progress(user_id: int, module_id: str, db: DbSession = Depends(get_db)) -> List[LessonWithProgress]:
     """Get all lessons in a module with user's progress."""
     lessons = db.query(Lesson).filter(
@@ -450,7 +469,11 @@ def get_lessons_with_progress(user_id: int, module_id: str, db: DbSession = Depe
 
 # ==================== Lesson Attempt Endpoints ====================
 
-@router.post("/user/{user_id}/attempt", response_model=LessonAttemptResult)
+@router.post(
+    "/user/{user_id}/attempt",
+    response_model=LessonAttemptResult,
+    description="Record a lesson attempt and update progress",
+)
 def record_lesson_attempt(
     user_id: int,
     attempt_data: LessonAttemptCreate,
@@ -549,7 +572,7 @@ def record_lesson_attempt(
                 elif next_progress.status == "locked":
                     next_progress.status = "available"  # type: ignore[assignment]
             
-            # Check if module is complete
+            # Check if module is complete (all required lessons mastered)
             module = db.query(TeachingModule).filter(TeachingModule.id == lesson.module_id).first()
             required_lessons = db.query(Lesson).filter(
                 Lesson.module_id == lesson.module_id,
@@ -568,22 +591,13 @@ def record_lesson_attempt(
                     all_mastered = False
                     break
             
-            if all_mastered:
-                module_progress = db.query(UserModuleProgress).filter(
-                    UserModuleProgress.user_id == user_id,
-                    UserModuleProgress.module_id == lesson.module_id
+            if all_mastered and module and module.capability_name:
+                module_completed = True
+                
+                # Mark capability as mastered (the single source of truth)
+                capability = db.query(Capability).filter(
+                    Capability.name == module.capability_name
                 ).first()
-                
-                if module_progress:
-                    module_progress.status = "completed"  # type: ignore[assignment]
-                    module_progress.completed_at = datetime.utcnow()  # type: ignore[assignment]
-                    module_completed = True
-                
-                # Mark capability as mastered
-                if module:
-                    capability = db.query(Capability).filter(
-                        Capability.name == module.capability_name
-                    ).first()
                 
                 if capability:
                     user_cap = db.query(UserCapability).filter(
@@ -635,7 +649,11 @@ def record_lesson_attempt(
     )
 
 
-@router.post("/user/{user_id}/lesson/{lesson_id}/complete", response_model=LessonCompleteOut)
+@router.post(
+    "/user/{user_id}/lesson/{lesson_id}/complete",
+    response_model=LessonCompleteOut,
+    description="Mark a lesson as mastered",
+)
 def mark_lesson_complete(
     user_id: int,
     lesson_id: str,
@@ -702,7 +720,13 @@ def mark_lesson_complete(
     progress.last_attempt_at = datetime.utcnow()  # type: ignore[assignment]
     
     # Only mark as mastered if enough keys are completed
-    is_now_mastered = len(keys_completed) >= keys_required
+    # For lessons that don't require specific keys (keys_required=1 and no key param),
+    # treat this call as completing "the one key" needed
+    if keys_required == 1 and not key and len(keys_completed) == 0:
+        # No key tracking needed - calling complete means done
+        is_now_mastered = True
+    else:
+        is_now_mastered = len(keys_completed) >= keys_required
     was_already_mastered = progress.status == "mastered"
     
     if is_now_mastered and not was_already_mastered:
@@ -716,7 +740,7 @@ def mark_lesson_complete(
     module_completed = False
     capability_unlocked: Optional[str] = None
     
-    if module:
+    if module and module.capability_name:
         # Get all required lessons for this module
         required_lessons = db.query(Lesson).filter(
             Lesson.module_id == module.id,
@@ -737,17 +761,9 @@ def mark_lesson_complete(
                 break
         
         if all_mastered:
-            module_progress = db.query(UserModuleProgress).filter(
-                UserModuleProgress.user_id == user_id,
-                UserModuleProgress.module_id == module.id
-            ).first()
+            module_completed = True
             
-            if module_progress:
-                module_progress.status = "completed"  # type: ignore[assignment]
-                module_progress.completed_at = datetime.utcnow()  # type: ignore[assignment]
-                module_completed = True
-            
-            # Mark capability as mastered
+            # Mark capability as mastered (the single source of truth)
             capability = db.query(Capability).filter(
                 Capability.name == module.capability_name
             ).first()
@@ -785,7 +801,11 @@ def mark_lesson_complete(
 
 # ==================== Exercise Generation ====================
 
-@router.get("/user/{user_id}/exercise/{lesson_id}", response_model=GeneratedExercise)
+@router.get(
+    "/user/{user_id}/exercise/{lesson_id}",
+    response_model=GeneratedExercise,
+    description="Generate an exercise for a specific lesson",
+)
 def generate_exercise(user_id: int, lesson_id: str, db: DbSession = Depends(get_db)) -> GeneratedExercise:
     """Generate an exercise for a specific lesson.
     

@@ -5,8 +5,10 @@ Architecture:
 - TeachingModule: Groups lessons to teach a single capability
 - Lesson: One step within a module, uses an exercise template
 - ExerciseTemplate: Reusable interaction pattern (defined in JSON, not DB)
-- UserModuleProgress: Tracks user's progress through modules
 - UserLessonProgress: Tracks user's progress through individual lessons
+
+Module completion is derived from UserCapability.mastered_at - when a user masters
+a capability, all modules that teach that capability are considered complete.
 
 Key insight: "Specialized pedagogy, reusable delivery templates"
 - Many capabilities → Many lesson definitions → Few reusable exercise templates → Shared UI components
@@ -103,29 +105,7 @@ class Lesson(Base):
     module = relationship("TeachingModule", back_populates="lessons")
 
 
-class UserModuleProgress(Base):
-    """
-    Tracks a user's progress through a teaching module.
-    """
-    __tablename__ = 'user_module_progress'
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    module_id = Column(String, ForeignKey('teaching_modules.id'), nullable=False)
-    
-    # Status: not_started → in_progress → completed
-    status = Column(String, default='not_started')
-    
-    # Timestamps
-    started_at = Column(DateTime, nullable=True)
-    completed_at = Column(DateTime, nullable=True)
-    last_activity_at = Column(DateTime, nullable=True)
-    
-    # Indexes for fast queries
-    __table_args__ = (
-        Index('ix_user_module_progress_user_module', 'user_id', 'module_id', unique=True),
-        Index('ix_user_module_progress_user_status', 'user_id', 'status'),
-    )
+# NOTE: UserModuleProgress was removed - module completion is now derived from UserCapability.mastered_at
 
 
 class UserLessonProgress(Base):

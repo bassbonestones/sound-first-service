@@ -23,7 +23,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["capabilities"])
 
 
-@router.get("/focus-cards", response_model=List[FocusCardOut])
+@router.get(
+    "/focus-cards",
+    response_model=List[FocusCardOut],
+    description="Get all focus cards with prompts and cues",
+)
 def get_focus_cards(db: Session = Depends(get_db)) -> List[FocusCardOut]:
     """Get all focus cards with their prompts and cues."""
     focus_cards = db.query(FocusCard).all()
@@ -42,7 +46,11 @@ def get_focus_cards(db: Session = Depends(get_db)) -> List[FocusCardOut]:
     return result
 
 
-@router.get("/capabilities", response_model=List[CapabilityBasicOut])
+@router.get(
+    "/capabilities",
+    response_model=List[CapabilityBasicOut],
+    description="List all capabilities (legacy endpoint)",
+)
 def get_capabilities(db: Session = Depends(get_db)) -> List[CapabilityBasicOut]:
     """List all capabilities (legacy endpoint)."""
     capabilities = db.query(Capability).all()
@@ -55,7 +63,13 @@ DEPRECATED_RESPONSES: Dict[Union[int, str], Dict[str, Any]] = {
 }
 
 
-@router.get("/capabilities/{capability_id}/lesson", deprecated=True, status_code=410, responses=DEPRECATED_RESPONSES)
+@router.get(
+    "/capabilities/{capability_id}/lesson",
+    deprecated=True,
+    status_code=410,
+    responses=DEPRECATED_RESPONSES,
+    description="[DEPRECATED] Get a mini-lesson for a capability",
+)
 def get_capability_lesson(capability_id: int, db: Session = Depends(get_db)) -> None:
     """
     [DEPRECATED] Get a mini-lesson for a specific capability.
@@ -75,7 +89,13 @@ class QuizResultIn(BaseModel):
     answer_given: Optional[str] = None
 
 
-@router.post("/capabilities/{capability_id}/quiz-result", deprecated=True, status_code=410, responses=DEPRECATED_RESPONSES)
+@router.post(
+    "/capabilities/{capability_id}/quiz-result",
+    deprecated=True,
+    status_code=410,
+    responses=DEPRECATED_RESPONSES,
+    description="[DEPRECATED] Record capability quiz result",
+)
 def record_quiz_result(
     capability_id: int, 
     data: QuizResultIn = Body(...), 
@@ -93,7 +113,11 @@ def record_quiz_result(
     )
 
 
-@router.get("/materials/{material_id}/help-capabilities", response_model=MaterialHelpCapabilitiesOut)
+@router.get(
+    "/materials/{material_id}/help-capabilities",
+    response_model=MaterialHelpCapabilitiesOut,
+    description="Get capabilities referenced in a material for help menu",
+)
 def get_material_help_capabilities(material_id: int, db: Session = Depends(get_db)) -> MaterialHelpCapabilitiesOut:
     """
     Get all capabilities referenced in a material for the help menu.
@@ -130,7 +154,11 @@ def get_material_help_capabilities(material_id: int, db: Session = Depends(get_d
     }
 
 
-@router.get("/capabilities/v2", response_model=List[CapabilityDetailOut])
+@router.get(
+    "/capabilities/v2",
+    response_model=List[CapabilityDetailOut],
+    description="List all capabilities in v2 system, optionally filtered by domain",
+)
 def list_capabilities_v2(
     domain: Optional[str] = None,
     db: Session = Depends(get_db)
@@ -158,7 +186,11 @@ def list_capabilities_v2(
     return result
 
 
-@router.get("/capabilities/v2/domains", response_model=List[DomainCountOut])
+@router.get(
+    "/capabilities/v2/domains",
+    response_model=List[DomainCountOut],
+    description="List all capability domains with counts",
+)
 def list_capability_domains(db: Session = Depends(get_db)) -> List[DomainCountOut]:
     """List all capability domains with counts."""
     from sqlalchemy import func

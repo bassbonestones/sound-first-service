@@ -169,3 +169,25 @@ class TestRhythmDetectorRegistry:
         
         for name, detector in CUSTOM_DETECTORS.items():
             assert callable(detector), f"{name} should be callable"
+
+
+class TestDetectTripletEighthRest:
+    """Tests for detect_triplet_eighth_rest function."""
+
+    def test_returns_false_when_score_is_none(self):
+        """Should return False when score is None."""
+        from app.capabilities.detectors.rhythm_detectors import detect_triplet_eighth_rest
+        
+        result = detect_triplet_eighth_rest(None, None)
+        assert result is False
+
+    def test_returns_false_for_simple_extraction(self):
+        """Should return False for extraction without triplet rests."""
+        from app.capabilities.detectors.rhythm_detectors import detect_triplet_eighth_rest
+        
+        # Mock extraction_result
+        class MockExtraction:
+            pass
+        
+        result = detect_triplet_eighth_rest(MockExtraction(), None)
+        assert result is False

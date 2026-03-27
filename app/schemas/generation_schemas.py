@@ -207,35 +207,190 @@ from typing import TypedDict
 
 
 class PatternConstraints(TypedDict, total=False):
-    """Constraints for a scale or arpeggio pattern."""
-    max_octaves: int  # Maximum octaves this pattern supports
-    requires_symmetric: bool  # If True, incompatible with asymmetric scales (melodic minor classical)
-    blocked_scale_types: list[str]  # Scale types that cannot use this pattern
-    chromatic_display_name: str  # Display name when applied to chromatic scale
+    """Constraints for a scale or arpeggio pattern.
+    
+    All fields are optional - patterns not listed or with missing fields
+    have no constraints for that dimension.
+    
+    Octave Constraints:
+        max_octaves: Maximum octaves this pattern supports (default: unlimited)
+        chromatic_max_octaves: Override max_octaves specifically for chromatic scale
+        
+    Scale Compatibility:
+        requires_symmetric: If True, incompatible with asymmetric scales (melodic minor classical)
+        blocked_scale_types: Scale types that cannot use this pattern (blocklist)
+        only_for_scale_types: If set, pattern only available for these scales (allowlist)
+        min_scale_notes: Minimum notes per octave required for this pattern
+        
+    Display Names (scale-family-specific naming):
+        chromatic_display_name: Display name when applied to chromatic scale (12 notes)
+        pentatonic_display_name: Display name for 5-note scales (pentatonic)
+        hexatonic_display_name: Display name for 6-note scales (blues, whole tone)
+        octatonic_display_name: Display name for 8-note scales (diminished, bebop)
+    """
+    # Octave constraints
+    max_octaves: int
+    chromatic_max_octaves: int
+    
+    # Scale compatibility
+    requires_symmetric: bool
+    blocked_scale_types: list[str]
+    only_for_scale_types: list[str]
+    min_scale_notes: int
+    
+    # Scale-family display names
+    chromatic_display_name: str
+    pentatonic_display_name: str
+    hexatonic_display_name: str
+    octatonic_display_name: str
 
 
 # Scale pattern constraints - only patterns with restrictions are listed
 # Patterns not listed have no constraints (any octaves, any scale)
 SCALE_PATTERN_CONSTRAINTS: dict[str, PatternConstraints] = {
-    # Broken thirds neighbor only works for 1 octave and requires symmetric scale
-    ScalePattern.BROKEN_THIRDS_NEIGHBOR.value: {
-        "max_octaves": 1,
-        "requires_symmetric": True,
+    # ==========================================================================
+    # Interval patterns - use scale-family-specific display names
+    # ==========================================================================
+    # Diatonic naming: 3rds, 4ths, etc. (based on scale degrees)
+    # Chromatic naming: Major 2nds, minor 3rds, etc. (based on semitones)
+    # Non-heptatonic: "Skip N" where N = number of notes skipped
+    ScalePattern.IN_3RDS.value: {
+        "chromatic_display_name": "Chromatic Major 2nds",
+        "pentatonic_display_name": "Skip 1",
+        "hexatonic_display_name": "Skip 1",
+        "octatonic_display_name": "Skip 1",
+    },
+    ScalePattern.IN_4THS.value: {
+        "chromatic_display_name": "Chromatic minor 3rds",
+        "pentatonic_display_name": "Skip 2",
+        "hexatonic_display_name": "Skip 2",
+        "octatonic_display_name": "Skip 2",
+    },
+    ScalePattern.IN_5THS.value: {
+        "max_octaves": 2,
+        "chromatic_display_name": "Chromatic Major 3rds",
+        "pentatonic_display_name": "Skip 3",
+        "hexatonic_display_name": "Skip 3",
+        "octatonic_display_name": "Skip 3",
+    },
+    ScalePattern.IN_6THS.value: {
+        "max_octaves": 2,
+        "chromatic_display_name": "Chromatic Perfect 4ths",
+        "hexatonic_display_name": "Skip 4",
+        "octatonic_display_name": "Skip 4",
+        "min_scale_notes": 6,
+    },
+    ScalePattern.IN_7THS.value: {
+        "max_octaves": 2,
+        "chromatic_display_name": "Chromatic Tritones",
+        "octatonic_display_name": "Skip 5",
+        "min_scale_notes": 7,
+    },
+    ScalePattern.IN_8THS.value: {
+        "max_octaves": 2,
+        "chromatic_display_name": "Chromatic Perfect 5ths",
+        "octatonic_display_name": "Skip 6",
+        "min_scale_notes": 8,
+    },
+    ScalePattern.IN_OCTAVES.value: {
         "blocked_scale_types": ["chromatic"],
     },
-    # Diatonic 7ths have wide leaps, limit to 2 octaves
-    # Also doesn't make sense for chromatic (no diatonic structure)
+    # Extended intervals - chromatic only
+    ScalePattern.IN_9THS.value: {
+        "only_for_scale_types": ["chromatic"],
+        "chromatic_display_name": "Chromatic minor 6ths",
+    },
+    ScalePattern.IN_10THS.value: {
+        "only_for_scale_types": ["chromatic"],
+        "chromatic_display_name": "Chromatic Major 6ths",
+    },
+    ScalePattern.IN_11THS.value: {
+        "only_for_scale_types": ["chromatic"],
+        "chromatic_display_name": "Chromatic minor 7ths",
+    },
+    ScalePattern.IN_12THS.value: {
+        "only_for_scale_types": ["chromatic"],
+        "chromatic_display_name": "Chromatic Major 7ths",
+    },
+    ScalePattern.IN_13THS.value: {
+        "only_for_scale_types": ["chromatic"],
+        "chromatic_display_name": "Chromatic Octaves",
+    },
+    # ==========================================================================
+    # Group patterns - chromatic needs lower octave limits due to length
+    # ==========================================================================
+    ScalePattern.GROUPS_OF_3.value: {
+        "chromatic_max_octaves": 2,
+    },
+    ScalePattern.GROUPS_OF_4.value: {
+        "chromatic_max_octaves": 2,
+    },
+    ScalePattern.GROUPS_OF_5.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+    },
+    ScalePattern.GROUPS_OF_6.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+    },
+    ScalePattern.GROUPS_OF_7.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+    },
+    ScalePattern.GROUPS_OF_8.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+        "only_for_scale_types": [
+            "chromatic",
+            "diminished_hw",
+            "diminished_wh",
+            "bebop_dominant",
+            "bebop_major",
+            "bebop_dorian",
+        ],
+    },
+    ScalePattern.GROUPS_OF_9.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+        "only_for_scale_types": ["chromatic"],
+    },
+    ScalePattern.GROUPS_OF_10.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+        "only_for_scale_types": ["chromatic"],
+    },
+    ScalePattern.GROUPS_OF_11.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+        "only_for_scale_types": ["chromatic"],
+    },
+    ScalePattern.GROUPS_OF_12.value: {
+        "max_octaves": 2,
+        "chromatic_max_octaves": 1,
+        "only_for_scale_types": ["chromatic"],
+    },
+    # ==========================================================================
+    # Diatonic chord patterns - don't work for non-diatonic scales
+    # ==========================================================================
+    ScalePattern.DIATONIC_TRIADS.value: {
+        "max_octaves": 2,
+        "blocked_scale_types": ["chromatic", "whole_tone"],
+    },
     ScalePattern.DIATONIC_7THS.value: {
         "max_octaves": 2,
         "blocked_scale_types": ["chromatic", "whole_tone"],
     },
-    # Diatonic triads don't make sense for chromatic
-    ScalePattern.DIATONIC_TRIADS.value: {
+    ScalePattern.BROKEN_CHORDS.value: {
+        "max_octaves": 2,
         "blocked_scale_types": ["chromatic", "whole_tone"],
     },
-    # Broken chords (1-5-3) don't make sense for chromatic
-    ScalePattern.BROKEN_CHORDS.value: {
-        "blocked_scale_types": ["chromatic", "whole_tone"],
+    # ==========================================================================
+    # Special patterns
+    # ==========================================================================
+    ScalePattern.BROKEN_THIRDS_NEIGHBOR.value: {
+        "max_octaves": 1,
+        "requires_symmetric": True,
+        "blocked_scale_types": ["chromatic"],
     },
     # Pyramid patterns grow quadratically (~n² notes), limit to 1 octave
     ScalePattern.PYRAMID_ASCEND.value: {
@@ -243,45 +398,6 @@ SCALE_PATTERN_CONSTRAINTS: dict[str, PatternConstraints] = {
     },
     ScalePattern.PYRAMID_DESCEND.value: {
         "max_octaves": 1,
-    },
-    # Interval patterns - show chromatic-specific names
-    # _in_interval(n) pairs notes at (pos, pos+n-1), so skip = n-1 notes
-    # In chromatic (12 notes/octave), skip N = N semitones
-    # Diatonic naming: 3rds, 4ths, etc. (based on scale degrees)
-    # Chromatic naming: Major 2nds, minor 3rds, etc. (based on semitones)
-    ScalePattern.IN_3RDS.value: {
-        "chromatic_display_name": "Chromatic Major 2nds",  # skip 2 = 2 semitones
-    },
-    ScalePattern.IN_4THS.value: {
-        "chromatic_display_name": "Chromatic minor 3rds",  # skip 3 = 3 semitones
-    },
-    ScalePattern.IN_5THS.value: {
-        "chromatic_display_name": "Chromatic Major 3rds",  # skip 4 = 4 semitones
-    },
-    ScalePattern.IN_6THS.value: {
-        "chromatic_display_name": "Chromatic Perfect 4ths",  # skip 5 = 5 semitones
-    },
-    ScalePattern.IN_7THS.value: {
-        "chromatic_display_name": "Chromatic Tritones",  # skip 6 = 6 semitones
-    },
-    ScalePattern.IN_OCTAVES.value: {
-        "chromatic_display_name": "Chromatic Perfect 5ths",  # skip 7 = 7 semitones
-    },
-    # Extended intervals (primarily useful for chromatic scale)
-    ScalePattern.IN_9THS.value: {
-        "chromatic_display_name": "Chromatic minor 6ths",  # skip 8 = 8 semitones
-    },
-    ScalePattern.IN_10THS.value: {
-        "chromatic_display_name": "Chromatic Major 6ths",  # skip 9 = 9 semitones
-    },
-    ScalePattern.IN_11THS.value: {
-        "chromatic_display_name": "Chromatic minor 7ths",  # skip 10 = 10 semitones
-    },
-    ScalePattern.IN_12THS.value: {
-        "chromatic_display_name": "Chromatic Major 7ths",  # skip 11 = 11 semitones
-    },
-    ScalePattern.IN_13THS.value: {
-        "chromatic_display_name": "Chromatic Octaves",  # skip 12 = 12 semitones
     },
 }
 

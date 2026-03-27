@@ -276,3 +276,73 @@ class TestExtractionResult:
         assert "treble" in result1.clefs
         assert "bass" in result2.clefs
         assert "bass" not in result1.clefs  # Should be isolated
+
+
+class TestExtractionResultToDict:
+    """Tests for ExtractionResult.to_dict method."""
+
+    def test_basic_to_dict_returns_dict(self):
+        """to_dict should return a dictionary."""
+        result = ExtractionResult()
+        d = result.to_dict()
+        assert isinstance(d, dict)
+
+    def test_sets_converted_to_lists(self):
+        """Sets should be converted to lists in output."""
+        result = ExtractionResult()
+        result.clefs = {"treble", "bass"}
+        
+        d = result.to_dict()
+        assert isinstance(d["clefs"], list)
+        assert set(d["clefs"]) == {"treble", "bass"}
+
+    def test_nested_dict_with_dataclass_values(self):
+        """Dict values that are dataclasses should be converted."""
+        result = ExtractionResult()
+        result.melodic_intervals["test"] = IntervalInfo(
+            name="M3", direction="ascending", quality="major",
+            semitones=4, is_melodic=True, count=2
+        )
+        
+        d = result.to_dict()
+        assert isinstance(d["melodic_intervals"]["test"], dict)
+        assert d["melodic_intervals"]["test"]["name"] == "M3"
+
+    def test_object_with_to_dict_method(self):
+        """Objects with to_dict method should use it."""
+        from dataclasses import dataclass
+        
+        result = ExtractionResult()
+        
+        # Create a mock object with to_dict
+        class MockProfile:
+            def __init__(self):
+                self.data = "test"
+            
+            def to_dict(self):
+                return {"data": self.data, "converted": True}
+        
+        # Assign to tempo_profile
+        result.tempo_profile = MockProfile()  # type: ignore
+        
+        d = result.to_dict()
+        assert d["tempo_profile"]["converted"] is True
+        assert d["tempo_profile"]["data"] == "test"
+
+    def test_dataclass_without_to_dict(self):
+        """Dataclass without to_dict should use asdict."""
+        from dataclasses import dataclass
+        
+        result = ExtractionResult()
+        
+        @dataclass
+        class SimpleData:
+            x: int
+            y: str
+        
+        # Assign to a field 
+        result.tessitura = SimpleData(x=42, y="hello")  # type: ignore
+        
+        d = result.to_dict()
+        assert d["tessitura"]["x"] == 42
+        assert d["tessitura"]["y"] == "hello"

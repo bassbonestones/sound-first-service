@@ -575,12 +575,12 @@ class TestMainAppExceptionHandlers:
 class TestModelsComprehensive:
     """Test model classes."""
     
-    def test_user_module_progress_has_required_attributes(self):
-        """UserModuleProgress should have expected attributes."""
-        from app.models.teaching_module import UserModuleProgress
+    def test_user_lesson_progress_has_required_attributes(self):
+        """UserLessonProgress should have expected attributes."""
+        from app.models.teaching_module import UserLessonProgress
         
         # Model should have user_id for tracking progress
-        assert 'user_id' in UserModuleProgress.__table__.columns.keys() or hasattr(UserModuleProgress, 'user_id')
+        assert 'user_id' in UserLessonProgress.__table__.columns.keys() or hasattr(UserLessonProgress, 'user_id')
 
 
 # =============================================================================

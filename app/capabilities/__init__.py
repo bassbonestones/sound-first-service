@@ -18,7 +18,7 @@ Usage:
 """
 
 import logging
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .types import DetectionType, DetectionRule, VALID_SOURCES
 from .registry import CapabilityRegistry
@@ -111,7 +111,7 @@ def sort_capabilities_by_bit_index(capability_names: List[str]) -> List[str]:
 
 def sort_capabilities_by_bit_index_with_session(
     capability_names: List[str], 
-    db
+    db: Any
 ) -> List[str]:
     """
     Sort capability names by bit_index using an existing db session.

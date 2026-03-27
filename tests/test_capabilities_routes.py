@@ -146,3 +146,24 @@ class TestMaterialHelpCapabilities:
                 material_id = materials[0]["id"]
                 response = client.get(f"/materials/{material_id}/help-capabilities")
                 assert response.status_code == 200
+
+    def test_returns_expected_response_structure(self, client):
+        """Should return material_id, material_title, and capabilities list."""
+        materials_response = client.get("/materials")
+        if materials_response.status_code == 200:
+            materials = materials_response.json()
+            if materials and len(materials) > 0:
+                material_id = materials[0]["id"]
+                response = client.get(f"/materials/{material_id}/help-capabilities")
+                assert response.status_code == 200
+                data = response.json()
+                assert "material_id" in data
+                assert "material_title" in data
+                assert "capabilities" in data
+                assert isinstance(data["capabilities"], list)
+                # Check capability structure if any exist
+                if data["capabilities"]:
+                    cap = data["capabilities"][0]
+                    assert "id" in cap
+                    assert "name" in cap
+                    assert "domain" in cap
