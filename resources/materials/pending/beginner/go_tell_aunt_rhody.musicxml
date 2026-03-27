@@ -1,40 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE score-partwise  PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
-<score-partwise version="4.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.1">
   <work>
     <work-title>Go Tell Aunt Rhody</work-title>
   </work>
-  <movement-title>Go Tell Aunt Rhody</movement-title>
   <identification>
-    <creator type="composer">Traditional American</creator>
     <encoding>
-      <encoding-date>2026-03-23</encoding-date>
-      <software>music21 v.9.9.1</software>
+      <software>Sound First Tune Composer</software>
+      <encoding-date>2026-03-27</encoding-date>
     </encoding>
-    <miscellaneous>
-      <miscellaneous-field name="humdrum:ONM">1</miscellaneous-field>
-    </miscellaneous>
   </identification>
-  <defaults>
-    <scaling>
-      <millimeters>7</millimeters>
-      <tenths>40</tenths>
-    </scaling>
-  </defaults>
   <part-list>
-    <score-part id="P611fbe29809b2b2e1ad393a47a3b6206">
-      <part-name />
+    <score-part id="P1">
+      <part-name>Part 1</part-name>
     </score-part>
   </part-list>
-  <!--=========================== Part 1 ===========================-->
-  <part id="P611fbe29809b2b2e1ad393a47a3b6206">
-    <!--========================= Measure 0 ==========================-->
-    <measure implicit="no" number="0">
+  <part id="P1">
+    <measure number="1">
       <attributes>
-        <divisions>10080</divisions>
+        <divisions>12</divisions>
         <key>
           <fifths>0</fifths>
-          <mode>major</mode>
         </key>
         <time>
           <beats>4</beats>
@@ -45,34 +32,31 @@
           <line>2</line>
         </clef>
       </attributes>
-      <direction>
+      <direction placement="above">
         <direction-type>
           <metronome parentheses="no">
             <beat-unit>quarter</beat-unit>
-            <per-minute>90</per-minute>
+            <per-minute>110</per-minute>
           </metronome>
         </direction-type>
-        <sound tempo="90" />
+        <sound tempo="110"/>
       </direction>
-      <direction>
+      <direction placement="below">
         <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mp />
+          <dynamics>
+            <mp/>
           </dynamics>
         </direction-type>
-        <sound dynamics="57" />
       </direction>
       <note>
         <pitch>
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <slur number="1" type="start" />
-        </notations>
-        <lyric name="1" number="1">
+        <notations><slur type="start" number="1"/></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>Go</text>
         </lyric>
@@ -82,9 +66,9 @@
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>tell</text>
         </lyric>
@@ -94,30 +78,25 @@
           <step>D</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="1" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
+        <notations><slur type="stop" number="1"/></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>Aunt</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 1 ==========================-->
-    <measure implicit="no" number="1">
+    <measure number="2">
       <note>
         <pitch>
           <step>C</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <slur number="2" type="start" />
-        </notations>
-        <lyric name="1" number="1">
+        <notations><slur type="start" number="1"/></notations>
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Rho</text>
         </lyric>
@@ -127,40 +106,32 @@
           <step>C</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <slur number="2" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
+        <notations><slur type="stop" number="1"/></notations>
+        <lyric number="1">
           <syllabic>end</syllabic>
           <text>dy,</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 2 ==========================-->
-    <measure implicit="no" number="2">
-      <direction>
+    <measure number="3">
+      <direction placement="below">
         <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mf />
+          <dynamics>
+            <mf/>
           </dynamics>
         </direction-type>
-        <sound dynamics="69" />
       </direction>
       <note>
         <pitch>
           <step>D</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><tenuto/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>go</text>
         </lyric>
@@ -170,14 +141,10 @@
           <step>D</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><tenuto/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>tell</text>
         </lyric>
@@ -187,34 +154,25 @@
           <step>F</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><tenuto/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>Aunt</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 3 ==========================-->
-    <measure implicit="no" number="3">
+    <measure number="4">
       <note>
         <pitch>
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><tenuto/></articulations></notations>
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Rho</text>
         </lyric>
@@ -224,61 +182,41 @@
           <step>D</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
+        <notations><articulations><tenuto/></articulations></notations>
       </note>
       <note>
         <pitch>
           <step>C</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><tenuto/></articulations></notations>
+        <lyric number="1">
           <syllabic>end</syllabic>
           <text>dy,</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 4 ==========================-->
-    <measure implicit="no" number="4">
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <f />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="88" />
-      </direction>
+    <measure number="5">
       <direction placement="below">
         <direction-type>
-          <wedge number="1" spread="15" type="diminuendo" />
+          <dynamics>
+            <f/>
+          </dynamics>
         </direction-type>
-          <offset>10080</offset>
       </direction>
       <note>
         <pitch>
           <step>G</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <articulations>
-            <accent />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><accent/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>go</text>
         </lyric>
@@ -288,14 +226,10 @@
           <step>G</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <accent />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><accent/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>tell</text>
         </lyric>
@@ -305,103 +239,72 @@
           <step>F</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <accent />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><accent/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>Aunt</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 5 ==========================-->
-    <measure implicit="no" number="5">
+    <measure number="6">
+      <direction placement="below">
+        <direction-type>
+          <dynamics>
+            <mp/>
+          </dynamics>
+        </direction-type>
+      </direction>
       <note>
         <pitch>
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>20160</duration>
+        <duration>24</duration>
         <type>half</type>
-        <notations>
-          <articulations>
-            <accent />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><accent/></articulations></notations>
+        <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Rho</text>
         </lyric>
       </note>
-      <direction placement="below">
-        <direction-type>
-          <wedge number="1" spread="0" type="stop" />
-        </direction-type>
-          <offset>10080</offset>
-      </direction>
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <mp />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="57" />
-      </direction>
       <note>
         <pitch>
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <articulations>
-            <accent />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><accent/></articulations></notations>
+        <lyric number="1">
           <syllabic>end</syllabic>
           <text>dy,</text>
         </lyric>
       </note>
-      <direction>
-        <direction-type>
-          <dynamics default-x="-36" default-y="-80">
-            <p />
-          </dynamics>
-        </direction-type>
-        <sound dynamics="44" />
-      </direction>
       <note>
         <pitch>
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="3" type="start" />
-        </notations>
-        <lyric name="1" number="1">
+        <notations><slur type="start" number="1"/></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>the</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 6 ==========================-->
-    <measure implicit="no" number="6">
+    <measure number="7">
       <note>
         <pitch>
           <step>D</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>old</text>
         </lyric>
@@ -411,9 +314,9 @@
           <step>C</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>grey</text>
         </lyric>
@@ -423,9 +326,9 @@
           <step>D</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <lyric name="1" number="1">
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>goose</text>
         </lyric>
@@ -435,32 +338,25 @@
           <step>E</step>
           <octave>4</octave>
         </pitch>
-        <duration>10080</duration>
+        <duration>12</duration>
         <type>quarter</type>
-        <notations>
-          <slur number="3" type="stop" />
-        </notations>
-        <lyric name="1" number="1">
+        <notations><slur type="stop" number="1"/></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>is</text>
         </lyric>
       </note>
     </measure>
-    <!--========================= Measure 7 ==========================-->
-    <measure implicit="no" number="7">
+    <measure number="8">
       <note>
         <pitch>
           <step>C</step>
           <octave>4</octave>
         </pitch>
-        <duration>40320</duration>
+        <duration>48</duration>
         <type>whole</type>
-        <notations>
-          <articulations>
-            <tenuto />
-          </articulations>
-        </notations>
-        <lyric name="1" number="1">
+        <notations><articulations><tenuto/></articulations></notations>
+        <lyric number="1">
           <syllabic>single</syllabic>
           <text>dead.</text>
         </lyric>

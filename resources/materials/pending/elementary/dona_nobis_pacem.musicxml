@@ -8,7 +8,7 @@
   <identification>
     <encoding>
       <software>Sound First Tune Composer</software>
-      <encoding-date>2026-03-24</encoding-date>
+      <encoding-date>2026-03-27</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -36,10 +36,10 @@
         <direction-type>
           <metronome parentheses="no">
             <beat-unit>quarter</beat-unit>
-            <per-minute>100</per-minute>
+            <per-minute>75</per-minute>
           </metronome>
         </direction-type>
-        <sound tempo="100"/>
+        <sound tempo="75"/>
       </direction>
       <note>
         <pitch>
@@ -48,6 +48,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1" placement="below"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Do</text>
@@ -60,6 +61,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -82,6 +84,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>no</text>
@@ -94,6 +97,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -116,6 +120,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>pa</text>
@@ -128,6 +133,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -176,6 +182,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>Do</text>
@@ -196,6 +203,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -204,6 +212,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>end</syllabic>
           <text>na</text>
@@ -216,6 +225,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
     </measure>
     <measure number="6">
@@ -227,6 +237,7 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>no</text>
@@ -239,6 +250,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -261,6 +273,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>pa</text>
@@ -289,6 +302,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
     </measure>
     <measure number="8">
@@ -344,6 +358,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>no</text>
@@ -356,6 +371,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -456,6 +472,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>pa</text>
@@ -484,6 +501,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
     </measure>
     <measure number="16">
@@ -525,6 +543,7 @@
         <duration>36</duration>
         <type>half</type>
         <dot/>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>end</syllabic>
           <text>na</text>
@@ -540,6 +559,7 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>no</text>
@@ -552,6 +572,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
       <note>
         <pitch>
@@ -560,6 +581,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>end</syllabic>
           <text>bis</text>
@@ -572,6 +594,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
     </measure>
     <measure number="20">
@@ -660,6 +683,7 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>pa</text>
@@ -688,6 +712,7 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="stop" number="1"/></notations>
       </note>
     </measure>
     <measure number="24">
