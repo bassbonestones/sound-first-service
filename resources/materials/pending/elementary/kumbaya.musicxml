@@ -41,13 +41,6 @@
         </direction-type>
         <sound tempo="100"/>
       </direction>
-      <direction placement="below">
-        <direction-type>
-          <dynamics>
-            <mp/>
-          </dynamics>
-        </direction-type>
-      </direction>
       <note>
         <pitch>
           <step>C</step>
@@ -91,6 +84,10 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ya,</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -99,6 +96,10 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -107,6 +108,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Lord,</text>
+        </lyric>
       </note>
     </measure>
     <measure number="2">
@@ -117,6 +122,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>kum</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -125,6 +134,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>ba</text>
+        </lyric>
       </note>
       <note>
         <tie type="start"/>
@@ -135,6 +148,10 @@
         <duration>24</duration>
         <type>half</type>
         <notations><tied type="start"/></notations>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ya</text>
+        </lyric>
       </note>
     </measure>
     <measure number="3">
@@ -155,6 +172,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>Kum</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -163,6 +184,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>ba</text>
+        </lyric>
       </note>
     </measure>
     <measure number="4">
@@ -174,6 +199,10 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ya,</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -182,6 +211,10 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -190,6 +223,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Lord,</text>
+        </lyric>
       </note>
     </measure>
     <measure number="5">
@@ -200,6 +237,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>kum</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -208,6 +249,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>ba</text>
+        </lyric>
       </note>
       <note>
         <tie type="start"/>
@@ -218,6 +263,10 @@
         <duration>24</duration>
         <type>half</type>
         <notations><tied type="start"/></notations>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ya</text>
+        </lyric>
       </note>
     </measure>
     <measure number="6">
@@ -238,6 +287,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>Kum</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -246,6 +299,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>ba</text>
+        </lyric>
       </note>
     </measure>
     <measure number="7">
@@ -257,6 +314,10 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ya,</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -265,6 +326,10 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -273,6 +338,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Lord,</text>
+        </lyric>
       </note>
     </measure>
     <measure number="8">
@@ -333,6 +402,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Oh</text>
+        </lyric>
       </note>
     </measure>
     <measure number="10">
@@ -343,6 +416,12 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <notations><slur type="start" number="1" placement="below"/></notations>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Lord,</text>
+          <extend/>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -352,6 +431,10 @@
         <duration>36</duration>
         <type>half</type>
         <dot/>
+        <notations><slur type="stop" number="1"/></notations>
+        <lyric number="1">
+          <extend/>
+        </lyric>
       </note>
     </measure>
     <measure number="11">
@@ -362,6 +445,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>kum</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -370,6 +457,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>ba</text>
+        </lyric>
       </note>
       <note>
         <tie type="start"/>
@@ -380,6 +471,10 @@
         <duration>24</duration>
         <type>half</type>
         <notations><tied type="start"/></notations>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ya.</text>
+        </lyric>
       </note>
     </measure>
     <measure number="12">
