@@ -1,7 +1,7 @@
 """Materials endpoints for upload, analysis, and ingestion."""
 import logging
 from pathlib import Path
-from fastapi import APIRouter, Depends, Body, HTTPException, Query
+from fastapi import APIRouter, Depends, Body, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List, Optional
 
@@ -922,6 +922,57 @@ def save_preview_file(
 
 
 @router.post(
+    "/preview/metadata/{filename:path}",
+    response_model=SavePreviewResponse,
+    description="Upsert metadata JSON file (create or update)",
+)
+def upsert_metadata_file(
+    filename: str,
+    content: str = Body(..., embed=True)
+) -> SavePreviewResponse:
+    """
+    Upsert a metadata JSON file in the preview folder.
+    
+    Creates the file if it doesn't exist, updates if it does.
+    
+    Args:
+        filename: Path to the metadata file (e.g., "elementary/tune.metadata.json")
+        content: JSON content to save
+        
+    Returns:
+        SavePreviewResponse indicating success
+    """
+    # Ensure it's a JSON file
+    if not filename.lower().endswith('.json'):
+        raise HTTPException(status_code=400, detail="Metadata files must be .json")
+    
+    file_path = PENDING_MATERIALS_FOLDER / filename
+    
+    # Security check: ensure path is within pending folder
+    try:
+        resolved_path = file_path.resolve()
+        resolved_path.relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename (path traversal attempt)")
+    
+    try:
+        # Create parent directories if needed
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(content, encoding="utf-8")
+        
+        action = "updated" if file_path.exists() else "created"
+        logger.info(f"Upserted metadata file: {filename}")
+        return SavePreviewResponse(
+            filename=filename,
+            success=True,
+            message=f"Metadata {action}: {filename}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to save metadata {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save metadata: {str(e)}")
+
+
+@router.post(
     "/preview/save",
     response_model=SavePreviewResponse,
     description="Create a new MusicXML file in the preview folder",
@@ -942,9 +993,9 @@ def create_preview_file(
     Returns:
         SavePreviewResponse indicating success or failure
     """
-    # Ensure filename has proper extension
+    # Ensure filename has proper extension (allow .json for metadata files)
     filename = request.filename
-    if not filename.lower().endswith(('.musicxml', '.xml')):
+    if not filename.lower().endswith(('.musicxml', '.xml', '.json')):
         filename += '.musicxml'
     
     file_path = PENDING_MATERIALS_FOLDER / filename
@@ -1021,3 +1072,54 @@ def delete_preview_file(filename: str) -> SavePreviewResponse:
     except Exception as e:
         logger.error(f"Failed to delete file {filename}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to delete file: {str(e)}")
+
+
+@router.get(
+    "/preview/raw/{filename:path}",
+    description="Get raw content of any file in the preview folder",
+)
+def get_preview_file_raw(filename: str) -> Response:
+    """
+    Get raw content of any file in the preview folder.
+    
+    Unlike /preview, this does not run analysis - just returns file content.
+    Useful for metadata JSON files or other non-MusicXML files.
+    
+    Args:
+        filename: Path to the file within the pending folder
+        
+    Returns:
+        Raw file content with appropriate content type
+    """
+    file_path = PENDING_MATERIALS_FOLDER / filename
+    
+    # Security check: ensure path is within pending folder
+    try:
+        resolved_path = file_path.resolve()
+        resolved_path.relative_to(PENDING_MATERIALS_FOLDER.resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid filename (path traversal attempt)")
+    
+    # Check file exists
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {filename}")
+    
+    # Don't allow reading directories
+    if file_path.is_dir():
+        raise HTTPException(status_code=400, detail="Cannot read directories")
+    
+    try:
+        content = file_path.read_text(encoding="utf-8")
+        
+        # Determine content type based on extension
+        if filename.lower().endswith('.json'):
+            content_type = "application/json"
+        elif filename.lower().endswith(('.xml', '.musicxml')):
+            content_type = "application/xml"
+        else:
+            content_type = "text/plain"
+        
+        return Response(content=content, media_type=content_type)
+    except Exception as e:
+        logger.error(f"Failed to read file {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to read file: {str(e)}")

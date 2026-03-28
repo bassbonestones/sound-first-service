@@ -41,12 +41,6 @@
         </direction-type>
         <sound tempo="96"/>
       </direction>
-      <harmony placement="above">
-        <root>
-          <root-step>C</root-step>
-        </root>
-        <kind text="6">major-sixth</kind>
-      </harmony>
       <note>
         <pitch>
           <step>A</step>
@@ -70,12 +64,6 @@
         </direction-type>
         <sound tempo="96"/>
       </direction>
-      <harmony placement="above">
-        <root>
-          <root-step>F</root-step>
-        </root>
-        <kind text="">major</kind>
-      </harmony>
       <note>
         <pitch>
           <step>F</step>
@@ -103,13 +91,6 @@
       </note>
     </measure>
     <measure number="2">
-      <harmony placement="above">
-        <root>
-          <root-step>B</root-step>
-        <root-alter>-1</root-alter>
-        </root>
-        <kind text="">major</kind>
-      </harmony>
       <note>
         <pitch>
           <step>F</step>
@@ -135,12 +116,6 @@
           <text>ri</text>
         </lyric>
       </note>
-      <harmony placement="above">
-        <root>
-          <root-step>F</root-step>
-        </root>
-        <kind text="">major</kind>
-      </harmony>
       <note>
         <pitch>
           <step>D</step>
@@ -187,7 +162,7 @@
         <type>eighth</type>
         <lyric number="1">
           <syllabic>end</syllabic>
-          <text>in&amp;apos;</text>
+          <text>in&apos;</text>
         </lyric>
       </note>
       <note>
@@ -387,7 +362,7 @@
         <type>eighth</type>
         <lyric number="1">
           <syllabic>end</syllabic>
-          <text>in&amp;apos;</text>
+          <text>in&amp;amp;amp;apos;</text>
         </lyric>
       </note>
       <note>
