@@ -41,10 +41,16 @@
         </direction-type>
         <sound tempo="100"/>
       </direction>
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -56,7 +62,7 @@
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -68,7 +74,7 @@
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -79,10 +85,16 @@
       </note>
     </measure>
     <measure number="2">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>B</step>
-          <octave>4</octave>
+          <octave>3</octave>
         </pitch>
         <duration>18</duration>
         <type>quarter</type>
@@ -95,7 +107,7 @@
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
@@ -107,7 +119,7 @@
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -118,10 +130,16 @@
       </note>
     </measure>
     <measure number="3">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -133,7 +151,7 @@
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -145,7 +163,7 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -156,10 +174,16 @@
       </note>
     </measure>
     <measure number="4">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>18</duration>
         <type>quarter</type>
@@ -172,7 +196,7 @@
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
@@ -184,7 +208,7 @@
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -195,10 +219,16 @@
       </note>
     </measure>
     <measure number="5">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -210,7 +240,7 @@
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -222,7 +252,7 @@
       <note>
         <pitch>
           <step>B</step>
-          <octave>4</octave>
+          <octave>3</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -233,10 +263,16 @@
       </note>
     </measure>
     <measure number="6">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>36</duration>
         <type>half</type>
@@ -248,10 +284,16 @@
       </note>
     </measure>
     <measure number="7">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>G</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -263,7 +305,7 @@
       <note>
         <pitch>
           <step>G</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -275,7 +317,7 @@
       <note>
         <pitch>
           <step>G</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -286,10 +328,16 @@
       </note>
     </measure>
     <measure number="8">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>G</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>18</duration>
         <type>quarter</type>
@@ -302,7 +350,7 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
@@ -314,7 +362,7 @@
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -325,10 +373,16 @@
       </note>
     </measure>
     <measure number="9">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -340,7 +394,7 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -352,7 +406,7 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -363,10 +417,16 @@
       </note>
     </measure>
     <measure number="10">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>18</duration>
         <type>quarter</type>
@@ -379,7 +439,7 @@
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
@@ -391,7 +451,7 @@
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -402,10 +462,16 @@
       </note>
     </measure>
     <measure number="11">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -417,10 +483,11 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1" placement="below"/></notations>
         <lyric number="1">
           <syllabic>begin</syllabic>
           <text>ev</text>
@@ -430,10 +497,11 @@
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
         <lyric number="1">
           <extend/>
         </lyric>
@@ -441,12 +509,13 @@
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1" placement="below"/></notations>
         <lyric number="1">
-          <syllabic>begin</syllabic>
+          <syllabic>end</syllabic>
           <text>&apos;vry</text>
           <extend/>
         </lyric>
@@ -454,20 +523,27 @@
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
         <lyric number="1">
           <extend/>
         </lyric>
       </note>
     </measure>
     <measure number="12">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>18</duration>
         <type>quarter</type>
@@ -480,7 +556,7 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
@@ -492,7 +568,7 @@
       <note>
         <pitch>
           <step>G</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -503,13 +579,44 @@
       </note>
     </measure>
     <measure number="13">
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>12</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>12</duration>
+      </backup>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="start" number="1" placement="below"/></notations>
         <lyric number="1">
           <syllabic>single</syllabic>
           <text>let</text>
@@ -519,10 +626,11 @@
       <note>
         <pitch>
           <step>F</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <notations><slur type="stop" number="1"/></notations>
         <lyric number="1">
           <extend/>
         </lyric>
@@ -530,7 +638,7 @@
       <note>
         <pitch>
           <step>E</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -542,7 +650,7 @@
       <note>
         <pitch>
           <step>D</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
@@ -553,10 +661,16 @@
       </note>
     </measure>
     <measure number="14">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>C</step>
-          <octave>5</octave>
+          <octave>4</octave>
         </pitch>
         <duration>36</duration>
         <type>half</type>
