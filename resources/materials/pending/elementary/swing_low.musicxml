@@ -61,15 +61,6 @@
       </note>
     </measure>
     <measure number="1">
-      <direction placement="above">
-        <direction-type>
-          <metronome parentheses="no">
-            <beat-unit>quarter</beat-unit>
-            <per-minute>96</per-minute>
-          </metronome>
-        </direction-type>
-        <sound tempo="96"/>
-      </direction>
       <harmony placement="above">
         <root>
           <root-step>C</root-step>
