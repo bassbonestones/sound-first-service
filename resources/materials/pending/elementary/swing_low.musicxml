@@ -153,7 +153,6 @@
           <root-step>F</root-step>
         </root>
         <kind text="">major</kind>
-        <offset>30</offset>
       </harmony>
       <note>
         <pitch>
@@ -191,6 +190,16 @@
           <text>in&apos;</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        <root-alter>-1</root-alter>
+        </root>
+        <kind text="/F">major</kind>
+        <bass>
+          <bass-step>F</bass-step>
+        </bass>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
@@ -215,6 +224,12 @@
           <text>to</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>A</step>
@@ -253,6 +268,12 @@
       </note>
     </measure>
     <measure number="4">
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>C</step>
@@ -266,6 +287,12 @@
           <text>home.</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>D</step>
@@ -290,6 +317,24 @@
       </note>
     </measure>
     <measure number="5">
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -317,6 +362,13 @@
       </note>
     </measure>
     <measure number="6">
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        <root-alter>-1</root-alter>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
@@ -355,6 +407,12 @@
           <text>ot,</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>C</step>
@@ -367,6 +425,12 @@
       </note>
     </measure>
     <measure number="7">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
@@ -391,6 +455,17 @@
           <text>in&apos;</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        <root-alter>-1</root-alter>
+        </root>
+        <kind text="m/D♭">minor</kind>
+        <bass>
+          <bass-step>D</bass-step>
+          <bass-alter>-1</bass-alter>
+        </bass>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
@@ -415,6 +490,15 @@
           <text>to</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind text="/C">major</kind>
+        <bass>
+          <bass-step>C</bass-step>
+        </bass>
+      </harmony>
       <note>
         <pitch>
           <step>A</step>
@@ -439,6 +523,12 @@
           <text>ry</text>
         </lyric>
       </note>
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>G</step>
@@ -453,6 +543,16 @@
       </note>
     </measure>
     <measure number="8">
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        <root-alter>-1</root-alter>
+        </root>
+        <kind text="/F">major</kind>
+        <bass>
+          <bass-step>F</bass-step>
+        </bass>
+      </harmony>
       <note>
         <pitch>
           <step>F</step>
