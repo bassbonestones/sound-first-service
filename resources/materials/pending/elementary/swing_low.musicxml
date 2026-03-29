@@ -178,7 +178,7 @@
         <root>
           <root-step>F</root-step>
         </root>
-        <kind text="/C">major</kind>
+        <kind text="">major</kind>
         <bass>
           <bass-step>C</bass-step>
         </bass>
@@ -465,7 +465,7 @@
         <root>
           <root-step>F</root-step>
         </root>
-        <kind text="m/G♯">minor</kind>
+        <kind text="m">minor</kind>
         <bass>
           <bass-step>G</bass-step>
           <bass-alter>1</bass-alter>
@@ -481,7 +481,7 @@
         <root>
           <root-step>C</root-step>
         </root>
-        <kind text="/G">major</kind>
+        <kind text="">major</kind>
         <bass>
           <bass-step>G</bass-step>
         </bass>
@@ -591,11 +591,23 @@
         <root>
           <root-step>F</root-step>
         </root>
-        <kind text="/C">major</kind>
+        <kind text="">major</kind>
         <bass>
           <bass-step>C</bass-step>
         </bass>
       </harmony>
+      <forward>
+        <duration>12</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>12</duration>
+      </backup>
       <note>
         <pitch>
           <step>C</step>
@@ -609,13 +621,6 @@
           <text>home.</text>
         </lyric>
       </note>
-      <harmony placement="above">
-        <root>
-          <root-step>C</root-step>
-        </root>
-        <kind text="">major</kind>
-        <offset>12</offset>
-      </harmony>
       <note>
         <rest/>
         <duration>12</duration>
