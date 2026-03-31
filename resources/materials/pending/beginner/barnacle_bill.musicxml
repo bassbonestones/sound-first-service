@@ -8,7 +8,7 @@
   <identification>
     <encoding>
       <software>Sound First Tune Composer</software>
-      <encoding-date>2026-03-30</encoding-date>
+      <encoding-date>2026-03-31</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -48,6 +48,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Who&apos;s</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -56,9 +60,19 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>a</text>
+        </lyric>
       </note>
     </measure>
     <measure number="1">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>B</step>
@@ -67,6 +81,10 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>knock</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -77,6 +95,10 @@
         <duration>6</duration>
         <type>eighth</type>
         <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ing</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -85,6 +107,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>at</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -93,9 +119,19 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
       </note>
     </measure>
     <measure number="2">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>A</step>
@@ -103,6 +139,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>door?</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -111,6 +151,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Who&apos;s</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -121,6 +165,10 @@
         <duration>12</duration>
         <type>quarter</type>
         <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>a</text>
+        </lyric>
       </note>
     </measure>
     <measure number="3">
@@ -132,6 +180,10 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>knock</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -142,6 +194,10 @@
         <duration>6</duration>
         <type>eighth</type>
         <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ing</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -150,6 +206,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>at</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -158,9 +218,19 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
       </note>
     </measure>
     <measure number="4">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>G</step>
@@ -168,6 +238,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>door?</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -176,6 +250,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Who&apos;s</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -184,6 +262,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>a</text>
+        </lyric>
       </note>
     </measure>
     <measure number="5">
@@ -195,6 +277,10 @@
         <duration>18</duration>
         <type>quarter</type>
         <dot/>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>knock</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -205,6 +291,10 @@
         <duration>6</duration>
         <type>eighth</type>
         <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ing</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -213,6 +303,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>at</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -221,9 +315,19 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
       </note>
     </measure>
     <measure number="6">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note>
         <pitch>
           <step>A</step>
@@ -231,6 +335,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>door?</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -239,6 +347,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Cried</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -249,6 +361,10 @@
         <duration>12</duration>
         <type>quarter</type>
         <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>the</text>
+        </lyric>
       </note>
     </measure>
     <measure number="7">
@@ -259,6 +375,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>young</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -267,9 +387,31 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>fair</text>
+        </lyric>
       </note>
     </measure>
     <measure number="8">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>42</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>42</duration>
+      </backup>
       <note>
         <pitch>
           <step>B</step>
@@ -277,6 +419,10 @@
         </pitch>
         <duration>12</duration>
         <type>quarter</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>maid</text>
+        </lyric>
       </note>
       <note>
         <pitch>
@@ -285,6 +431,10 @@
         </pitch>
         <duration>24</duration>
         <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>den.</text>
+        </lyric>
       </note>
       <note>
         <rest/>
@@ -298,6 +448,10 @@
         </pitch>
         <duration>6</duration>
         <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>It&apos;s</text>
+        </lyric>
       </note>
     </measure>
     <measure number="9">
@@ -309,27 +463,478 @@
       </attributes>
       <direction placement="above">
         <direction-type>
-          <words font-weight="bold">quarter=half@m9</words>
+          <metronome parentheses="no">
+            <beat-unit>quarter</beat-unit>
+            <beat-unit>half</beat-unit>
+          </metronome>
         </direction-type>
         <sound tempo="120"/>
       </direction>
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
       <note>
         <pitch>
           <step>D</step>
           <octave>5</octave>
         </pitch>
-        <duration>48</duration>
-        <type>whole</type>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>me,</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>love,</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>it&apos;s</text>
+        </lyric>
       </note>
     </measure>
     <measure number="10">
       <note>
         <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>on</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ly</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>me,</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Cried</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="11">
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>BAR</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>NA</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>12</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>CLE</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>BILL</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>THE</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="12">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>42</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>42</duration>
+      </backup>
+      <note>
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>12</duration>
+        <type>quarter</type>
+        <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>SAIL</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>24</duration>
+        <type>half</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>OR.</text>
+        </lyric>
+      </note>
+      <note>
+        <rest/>
+        <duration>6</duration>
+        <type>eighth</type>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>It&apos;s</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="13">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <note>
+        <pitch>
           <step>D</step>
           <octave>5</octave>
         </pitch>
-        <duration>48</duration>
-        <type>whole</type>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>me,</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>my</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>love,</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>it&apos;s</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>on</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>ly</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>me,</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>Cried</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="15">
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>BAR</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>NA</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>12</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>end</syllabic>
+          <text>CLE</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>18</duration>
+        <type>quarter</type>
+        <dot/>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>BILL</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>6</duration>
+        <type>eighth</type>
+        <lyric number="1">
+          <syllabic>single</syllabic>
+          <text>THE</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="16">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <note>
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>12</duration>
+        <type>quarter</type>
+        <accidental>sharp</accidental>
+        <lyric number="1">
+          <syllabic>begin</syllabic>
+          <text>SAIL</text>
+        </lyric>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>12</duration>
+        <type>quarter</type>
+        <lyric number="1">
+          <syllabic>middle</syllabic>
+          <text>OR.</text>
+        </lyric>
+      </note>
+      <note>
+        <rest/>
+        <duration>24</duration>
+        <type>half</type>
       </note>
       <barline location="right">
         <bar-style>light-heavy</bar-style>
