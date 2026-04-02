@@ -8,7 +8,7 @@
   <identification>
     <encoding>
       <software>Sound First Tune Composer</software>
-      <encoding-date>2026-03-31</encoding-date>
+      <encoding-date>2026-04-02</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -462,6 +462,24 @@
       </note>
     </measure>
     <measure number="8">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
