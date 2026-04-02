@@ -647,6 +647,24 @@
       </note>
     </measure>
     <measure number="10">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -710,6 +728,24 @@
       </note>
     </measure>
     <measure number="11">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -751,6 +787,24 @@
       </note>
     </measure>
     <measure number="12">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -808,6 +862,24 @@
       </note>
     </measure>
     <measure number="13">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -868,6 +940,24 @@
       </note>
     </measure>
     <measure number="14">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>E</step>
@@ -948,6 +1038,24 @@
       </note>
     </measure>
     <measure number="15">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -1000,6 +1108,24 @@
       </note>
     </measure>
     <measure number="16">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>D</step>
@@ -1019,6 +1145,24 @@
       </note>
     </measure>
     <measure number="17">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <rest/>
         <duration>12</duration>
@@ -1064,6 +1208,24 @@
       </note>
     </measure>
     <measure number="18">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>G</step>
@@ -1118,6 +1280,24 @@
       </note>
     </measure>
     <measure number="19">
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -1168,6 +1348,25 @@
       </note>
     </measure>
     <measure number="20">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>F</root-step>
+        <root-alter>1</root-alter>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -1226,6 +1425,24 @@
       </note>
     </measure>
     <measure number="21">
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m7">minor-seventh</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>D</step>
@@ -1245,6 +1462,24 @@
       </note>
     </measure>
     <measure number="22">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>E</step>
@@ -1325,6 +1560,24 @@
       </note>
     </measure>
     <measure number="23">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>E</step>
@@ -1379,6 +1632,24 @@
       </note>
     </measure>
     <measure number="24">
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -1431,6 +1702,24 @@
       </note>
     </measure>
     <measure number="25">
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>E</step>
@@ -1450,6 +1739,24 @@
       </note>
     </measure>
     <measure number="26">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -1513,6 +1820,24 @@
       </note>
     </measure>
     <measure number="27">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -1554,6 +1879,24 @@
       </note>
     </measure>
     <measure number="28">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -1611,6 +1954,24 @@
       </note>
     </measure>
     <measure number="29">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>F</step>
@@ -1671,6 +2032,24 @@
       </note>
     </measure>
     <measure number="30">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>E</step>
@@ -1751,6 +2130,24 @@
       </note>
     </measure>
     <measure number="31">
+      <harmony placement="above">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>A</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>A</step>
@@ -1803,6 +2200,24 @@
       </note>
     </measure>
     <measure number="32">
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <harmony placement="above">
+        <root>
+          <root-step>D</root-step>
+        </root>
+        <kind text="">major</kind>
+      </harmony>
+      <backup>
+        <duration>24</duration>
+      </backup>
       <note>
         <pitch>
           <step>D</step>
